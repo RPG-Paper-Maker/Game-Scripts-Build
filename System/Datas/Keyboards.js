@@ -110,6 +110,33 @@ class Keyboards {
         }
         return list;
     }
+    /**
+     *  Check if key is cancelling menu.
+     *  @static
+     *  @returns {boolean}
+     */
+    static checkCancelMenu(key) {
+        return Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls
+            .Cancel) || Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.controls
+            .MainMenu);
+    }
+    /**
+     *  Check if key is cancelling.
+     *  @static
+     *  @returns {boolean}
+     */
+    static checkCancel(key) {
+        return Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls
+            .Cancel);
+    }
+    /**
+     *  Check if key is action menu.
+     *  @static
+     *  @returns {boolean}
+     */
+    static checkActionMenu(key) {
+        return Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls.Action);
+    }
 }
 Keyboards.menuControls = {};
 Keyboards.controls = {};

@@ -34,7 +34,6 @@ declare class MapProperties extends Base {
     cameraBackground: THREE.Camera;
     sceneBackground: THREE.Scene;
     skyboxGeometry: THREE.BoxGeometry;
-    currentNumberSteps: number;
     maxNumberSteps: number;
     constructor();
     /**

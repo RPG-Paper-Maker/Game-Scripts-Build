@@ -75,6 +75,20 @@ class Position extends Portion {
             .Systems.SQUARE_SIZE / 100);
     }
     /**
+     *  Get the complete number of pixels for x center.
+     *  @returns {number}
+     */
+    getPixelsCenterX() {
+        return Math.floor(this.centerX * Datas.Systems.SQUARE_SIZE / 100);
+    }
+    /**
+     *  Get the complete number of pixels for z center.
+     *  @returns {number}
+     */
+    getPixelsCenterZ() {
+        return Math.floor(this.centerZ * Datas.Systems.SQUARE_SIZE / 100);
+    }
+    /**
      *  Get the global portion of a json position.
      *  @returns {Portion}
      */

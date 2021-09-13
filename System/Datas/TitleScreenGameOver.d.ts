@@ -10,6 +10,11 @@ declare class TitlescreenGameover {
     static titleMusic: System.PlaySong;
     static titleCommands: System.TitleCommand[];
     static titleSettings: number[];
+    static isGameOverBackgroundImage: boolean;
+    static gameOverBackgroundImageID: number;
+    static gameOverBackgroundVideoID: number;
+    static gameOverMusic: System.PlaySong;
+    static gameOverCommands: System.GameOverCommand[];
     constructor();
     /**
      *  Read the JSON file associated to title screen and game over.
@@ -18,36 +23,48 @@ declare class TitlescreenGameover {
      */
     static read(): Promise<void>;
     /**
-     *  Get the commands graphic names.
+     *  Get the title screen commands graphic names.
      *  @static
      *  @returns {Graphic.Text[]}
      */
-    static getCommandsNames(): Graphic.Text[];
+    static getTitleCommandsNames(): Graphic.Text[];
     /**
-     *  Get the commands actions functions.
+     *  Get the title screen commands actions functions.
      *  @static
      *  @returns {function[]}
      */
-    static getCommandsActions(): Function[];
+    static getTitleCommandsActions(): Function[];
     /**
-     *  Get the commands settings content graphic.
+     *  Get the title screen commands settings content graphic.
      *  @static
      *  @returns {Graphic.Setting[]}
      */
-    static getSettingsCommandsContent(): Graphic.Setting[];
+    static getTitleSettingsCommandsContent(): Graphic.Setting[];
     /**
-     *  Get the settings commands actions functions.
+     *  Get the title screen settings commands actions functions.
      *  @static
      *  @returns {function[]}
      */
-    static getSettingsCommandsActions(): Function[];
+    static getTitleSettingsCommandsActions(): Function[];
     /**
-     *  Get the settings commands action function according to ID.
+     *  Get the title screen settings commands action function according to ID.
      *  @static
      *  @param {number} id - The action ID
      *  @returns {function}
      */
-    static getSettingsCommandsAction(id: number): Function;
+    static getTitleSettingsCommandsAction(id: number): Function;
+    /**
+     *  Get the game over commands graphic names.
+     *  @static
+     *  @returns {Graphic.Text[]}
+     */
+    static getGameOverCommandsNames(): Graphic.Text[];
+    /**
+     *  Get the game over commands actions functions.
+     *  @static
+     *  @returns {function[]}
+     */
+    static getGameOverCommandsActions(): Function[];
     /**
      *  The setting action keyboard assignment.
      *  @static

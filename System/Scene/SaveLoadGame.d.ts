@@ -33,6 +33,26 @@ declare class SaveLoadGame extends Base {
      */
     updateInformations(i: number): void;
     /**
+     *  Slot cancel.
+     *  @param {boolean} isKey
+     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     */
+    cancel(isKey: boolean, options?: {
+        key?: number;
+        x?: number;
+        y?: number;
+    }): void;
+    /**
+     *  Slot move.
+     *  @param {boolean} isKey
+     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     */
+    move(isKey: boolean, options?: {
+        key?: number;
+        x?: number;
+        y?: number;
+    }): void;
+    /**
      *  Update the scene.
      */
     update(): void;
@@ -47,6 +67,14 @@ declare class SaveLoadGame extends Base {
      *  @returns {boolean}
      */
     onKeyPressedAndRepeat(key: number): boolean;
+    /**
+     *  @inheritdoc
+     */
+    onMouseMove(x: number, y: number): void;
+    /**
+     *  @inheritdoc
+     */
+    onMouseUp(x: number, y: number): void;
     /**
      *  Draw the HUD scene
      */

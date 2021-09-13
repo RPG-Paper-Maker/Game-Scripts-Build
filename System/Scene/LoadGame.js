@@ -10,7 +10,7 @@
 */
 import { SaveLoadGame } from "./SaveLoadGame.js";
 import { Graphic, Datas, Manager, Scene } from "../index.js";
-import { Enum, Constants, Platform } from "../Common/index.js";
+import { Enum } from "../Common/index.js";
 var Align = Enum.Align;
 var PictureKind = Enum.PictureKind;
 import { Picture2D, Game } from "../Core/index.js";
@@ -42,9 +42,7 @@ class LoadGame extends SaveLoadGame {
         Game.current.hero.initializeProperties();
         // Stop video if existing
         if (!Datas.TitlescreenGameover.isTitleBackgroundImage) {
-            Platform.canvasVideos.classList.add(Constants.CLASS_HIDDEN);
-            Platform.canvasVideos.pause();
-            Platform.canvasVideos.src = "";
+            Manager.Videos.stop();
         }
         // Pop load and title screen from the stack
         Manager.Stack.pop();
@@ -53,15 +51,14 @@ class LoadGame extends SaveLoadGame {
         this.loading = false;
     }
     /**
-     *  Handle scene key pressed
-     *  @param {number} key - The key ID
+     *  Slot action.
+     *  @param {boolean} isKey
+     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
      */
-    onKeyPressed(key) {
-        super.onKeyPressed(key);
-        // If action, load the selected slot
-        if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls.Action)) {
-            Game.current = this.windowChoicesSlots
-                .getCurrentContent().game;
+    action(isKey, options = {}) {
+        if (Scene.MenuBase.checkActionMenu(isKey, options)) {
+            Game.current = this.windowChoicesSlots.getCurrentContent()
+                .game;
             if (Game.current.isEmpty) {
                 Game.current = null;
                 Datas.Systems.soundImpossible.playSound();
@@ -71,6 +68,21 @@ class LoadGame extends SaveLoadGame {
                 this.loadGame();
             }
         }
+    }
+    /**
+     *  Handle scene key pressed
+     *  @param {number} key - The key ID
+     */
+    onKeyPressed(key) {
+        super.onKeyPressed(key);
+        this.action(true, { key: key });
+    }
+    /**
+     *  @inheritdoc
+     */
+    onMouseUp(x, y) {
+        super.onMouseUp(x, y);
+        this.action(false, { x: x, y: y });
     }
     /**
      *  Draw the HUD scene

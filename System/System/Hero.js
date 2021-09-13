@@ -33,6 +33,7 @@ class Hero extends Translatable {
         this.idBattler = Utils.defaultValue(json.bid, -1);
         this.idFaceset = Utils.defaultValue(json.fid, -1);
         this.classInherit = new Class(json.ci);
+        this.description = new System.Translatable(json.description);
     }
     /**
      *  Check if this hero is a monster.

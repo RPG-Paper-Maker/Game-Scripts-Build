@@ -48,6 +48,16 @@ declare class Position extends Portion {
      */
     getTotalY(): number;
     /**
+     *  Get the complete number of pixels for x center.
+     *  @returns {number}
+     */
+    getPixelsCenterX(): number;
+    /**
+     *  Get the complete number of pixels for z center.
+     *  @returns {number}
+     */
+    getPixelsCenterZ(): number;
+    /**
      *  Get the global portion of a json position.
      *  @returns {Portion}
      */

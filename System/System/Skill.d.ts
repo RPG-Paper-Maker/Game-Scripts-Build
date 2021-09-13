@@ -1,3 +1,4 @@
+import { Battler } from "../Core/index.js";
 import { CommonSkillItem } from "./CommonSkillItem.js";
 /** @class
  *  A skill of the game.
@@ -17,5 +18,11 @@ declare class Skill extends CommonSkillItem {
      *  @returns {string}
      */
     getCostString(): string;
+    /**
+     *  Get message and replace user / skill name.
+     *  @param {Battler} user
+     *  @returns {string}
+     */
+    getMessage(user: Battler): string;
 }
 export { Skill };

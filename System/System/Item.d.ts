@@ -1,5 +1,6 @@
 import { CommonSkillItem } from "./CommonSkillItem.js";
 import { Enum } from "../Common/index.js";
+import { Battler } from "../Core/index.js";
 /** @class
  *  An item of the game.
  *  @extends CommonSkillItem
@@ -21,5 +22,11 @@ declare class Item extends CommonSkillItem {
      *  @returns {Enum.ItemKind}
      */
     getKind(): Enum.ItemKind;
+    /**
+     *  Get message and replace user / item name.
+     *  @param {Battler} user
+     *  @returns {string}
+     */
+    getMessage(user: Battler): string;
 }
 export { Item };

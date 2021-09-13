@@ -145,13 +145,13 @@ class BattleInitialize {
             .SCREEN_X - Scene.Battle.WINDOW_PROFILE_WIDTH, ScreenResolution
             .SCREEN_Y - Scene.Battle.WINDOW_PROFILE_HEIGHT, Scene.Battle
             .WINDOW_PROFILE_WIDTH, Scene.Battle.WINDOW_PROFILE_HEIGHT, {
-            padding: WindowBox.SMALL_PADDING_BOX,
+            padding: WindowBox.MEDIUM_PADDING_BOX,
             limitContent: false
         });
         this.battle.windowTargetInformations = new WindowBox(0, ScreenResolution
             .SCREEN_Y - Scene.Battle.WINDOW_PROFILE_HEIGHT, Scene.Battle
             .WINDOW_PROFILE_WIDTH, Scene.Battle.WINDOW_PROFILE_HEIGHT, {
-            padding: WindowBox.SMALL_PADDING_BOX,
+            padding: WindowBox.MEDIUM_PADDING_BOX,
             limitContent: false
         });
     }

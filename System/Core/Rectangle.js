@@ -23,10 +23,7 @@ import { Anchor2D } from "./Anchor2D.js";
  */
 class Rectangle {
     constructor(x = 0, y = 0, width = 1, height = 1) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+        this.setCoords(x, y, width, height);
         const anchorX = Anchor2D.MIDDLE_BOTTOM.x;
         const anchorY = Anchor2D.MIDDLE_BOTTOM.y;
         this.anchor = new Anchor2D(anchorX, anchorY);
@@ -69,6 +66,19 @@ class Rectangle {
         this.resize(width, height);
     }
     /**
+     *  Set rectangle coords.
+     *  @param {number} x
+     *  @param {number} y
+     *  @param {number} width
+     *  @param {number} height
+     */
+    setCoords(x, y, width, height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+    /**
      *  Set the anchor x, y.
      *  @param {number} x
      *  @param {number} y
@@ -82,6 +92,16 @@ class Rectangle {
      */
     presetAnchor(anchorPreset) {
         this.anchor.set(anchorPreset);
+    }
+    /**
+     *  Check if x and y are inside the rectangle.
+     *  @param {number} x
+     *  @param {number} y
+     *  @returns {boolean}
+     */
+    isInside(x, y) {
+        return x >= this.x && x <= (this.x + this.width) && y >= this.y && (y <=
+            this.y + this.height);
     }
 }
 export { Rectangle };

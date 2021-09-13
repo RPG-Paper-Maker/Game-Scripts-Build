@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Translatable } from "./Translatable.js";
-import { Enum, Utils, Platform, Constants, Interpreter } from "../Common/index.js";
+import { Enum, Utils, Platform, Interpreter } from "../Common/index.js";
 var TitleCommandKind = Enum.TitleCommandKind;
 import { Datas, Manager } from "../index.js";
 import { Game } from "../Core/index.js";
@@ -41,27 +41,26 @@ class TitleCommand extends Translatable {
     getAction() {
         switch (this.kind) {
             case TitleCommandKind.NewGame:
-                return this.startNewGame;
+                return TitleCommand.startNewGame;
             case TitleCommandKind.LoadGame:
-                return this.loadGame;
+                return TitleCommand.loadGame;
             case TitleCommandKind.Settings:
-                return this.showSettings;
+                return TitleCommand.showSettings;
             case TitleCommandKind.Exit:
-                return this.exit;
+                return TitleCommand.exit;
             case TitleCommandKind.Script:
                 return this.executeScript;
         }
     }
     /**
      *  Callback function for start a new game.
+     *  @static
      *  @returns {boolean}
      */
-    startNewGame() {
+    static startNewGame() {
         // Stop video and songs if existing
         if (!Datas.TitlescreenGameover.isTitleBackgroundImage) {
-            Platform.canvasVideos.classList.add(Constants.CLASS_HIDDEN);
-            Platform.canvasVideos.pause();
-            Platform.canvasVideos.src = "";
+            Manager.Videos.stop();
         }
         // Create a new game
         Game.current = new Game();
@@ -74,7 +73,7 @@ class TitleCommand extends Translatable {
      *  Callback function for loading an existing game.
      *  @returns {boolean}
      */
-    loadGame() {
+    static loadGame() {
         Manager.Stack.push(new Scene.LoadGame());
         return true;
     }
@@ -82,7 +81,7 @@ class TitleCommand extends Translatable {
      *  Callback function for loading an existing game.
      *   @returns {boolean}
      */
-    showSettings() {
+    static showSettings() {
         Manager.Stack.push(new Scene.TitleSettings());
         return true;
     }
@@ -90,7 +89,7 @@ class TitleCommand extends Translatable {
      *  Callback function for closing the window.
      *  @returns {boolean}
      */
-    exit() {
+    static exit() {
         Platform.quit();
         return true;
     }

@@ -13,9 +13,8 @@ import { Datas, Manager, Scene, System } from "../index.js";
 import { Item } from "./Item.js";
 import { Chrono } from "./Chrono.js";
 import { MapObject } from "./MapObject.js";
-import { Paths, Constants, Utils, IO, Enum } from "../Common/index.js";
+import { Paths, Constants, Utils, Enum, Platform } from "../Common/index.js";
 var GroupKind = Enum.GroupKind;
-var CharacterKind = Enum.CharacterKind;
 import { Vector3 } from "./Vector3.js";
 /** @class
  *  All the global informations of a particular game.
@@ -24,6 +23,8 @@ import { Vector3 } from "./Vector3.js";
 class Game {
     constructor(slot = -1) {
         this.chronometers = [];
+        this.previousWeatherOptions = null;
+        this.currentWeatherOptions = null;
         this.slot = slot;
         this.hero = new MapObject(Datas.Systems.modelHero.system, Datas.Systems
             .modelHero.position.clone(), true);
@@ -53,11 +54,8 @@ class Game {
      *  @async
      */
     async load() {
-        let json = null;
         let path = this.getPathSave();
-        if (IO.fileExists(path)) {
-            json = await IO.parseFileJSON(path);
-        }
+        let json = await Platform.loadSave(this.slot, path);
         if (json === null) {
             return;
         }
@@ -73,7 +71,8 @@ class Game {
         });
         // Items
         this.items = [];
-        Utils.readJSONSystemList({ list: json.itm, listIndexes: this.items, func: (json) => {
+        Utils.readJSONSystemList({ list: json.itm, listIndexes: this.items,
+            func: (json) => {
                 return new Item(json.kind, json.id, json.nb);
             }
         });
@@ -98,7 +97,8 @@ class Game {
         }
         // Heroes
         this.teamHeroes = [];
-        Utils.readJSONSystemList({ list: json.th, listIndexes: this.teamHeroes, func: (json) => {
+        Utils.readJSONSystemList({ list: json.th, listIndexes: this.teamHeroes,
+            func: (json) => {
                 return new Player(json.kind, json.id, json.instid, json.sk, json
                     .status, json.name, json);
             }
@@ -111,7 +111,8 @@ class Game {
             }
         });
         this.hiddenHeroes = [];
-        Utils.readJSONSystemList({ list: json.hh, listIndexes: this.hiddenHeroes, func: (json) => {
+        Utils.readJSONSystemList({ list: json.hh, listIndexes: this.hiddenHeroes,
+            func: (json) => {
                 return new Player(json.kind, json.id, json.instid, json.sk, json
                     .status, json.name, json);
             }
@@ -159,7 +160,7 @@ class Game {
             items[i] = this.items[i].getSave();
         }
         this.saves++;
-        await IO.saveFile(this.getPathSave(slot), {
+        await Platform.registerSave(slot, this.getPathSave(slot), {
             t: this.playTime.time,
             th: teamHeroes,
             sh: reserveHeroes,
@@ -372,7 +373,11 @@ class Game {
         this.startupStates = {};
         this.startupProperties = {};
         this.mapsProperties = {};
-        this.instanciateTeam(GroupKind.Team, CharacterKind.Hero, 1, 1, 1);
+        for (let member of Datas.Systems.initialPartyMembers) {
+            this.instanciateTeam(member.teamKind, member.characterKind, member
+                .heroID.getValue(), member.level.getValue(), member
+                .variableInstanceID.getValue(true));
+        }
         this.mapsDatas = {};
         this.hero.initializeProperties();
         this.playTime = new Chrono(0);

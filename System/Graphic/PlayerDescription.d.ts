@@ -10,6 +10,7 @@ declare class PlayerDescription extends Base {
     player: Player;
     graphicNameCenter: Graphic.Text;
     graphicName: Graphic.Text;
+    graphicDescription: Graphic.Text;
     graphicClass: Graphic.Text;
     graphicLevelName: Graphic.Text;
     graphicLevel: Graphic.Text;

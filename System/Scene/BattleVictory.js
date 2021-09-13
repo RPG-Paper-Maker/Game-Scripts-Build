@@ -238,6 +238,50 @@ class BattleVictory {
         this.battle.time = new Date().getTime();
     }
     /**
+     *  A scene action.
+     *  @param {boolean} isKey
+     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     */
+    action(isKey, options = {}) {
+        switch (this.battle.subStep) {
+            case 1:
+                if (Scene.MenuBase.checkActionMenu(isKey, options)) {
+                    if (this.battle.finishedXP) {
+                        this.prepareEndTransition();
+                    }
+                    else { // Pass xp
+                        for (let battler of this.battle.battlers[CharacterKind.Hero]) {
+                            battler.player.passExperience();
+                            battler.player.updateObtainedExperience();
+                        }
+                    }
+                }
+                break;
+            case 2:
+                if (Scene.MenuBase.checkActionMenu(isKey, options)) {
+                    if (this.battle.user.player.stepLevelUp === 0) {
+                        this.battle.user.player.stepLevelUp = 1;
+                        this.battle
+                            .windowStatisticProgression.content
+                            .updateStatisticProgression();
+                    }
+                    else {
+                        this.battle.user.player.levelingUp = false;
+                        this.unpauseTeamXP();
+                        this.battle.subStep = 1;
+                    }
+                    Manager.Stack.requestPaintHUD = true;
+                }
+                break;
+            case 4:
+                this.prepareEndTransition();
+                if (!this.battle.winning) {
+                    this.battle.gameOver();
+                }
+                break;
+        }
+    }
+    /**
      *  Update the battle.
      */
     update() {
@@ -269,7 +313,7 @@ class BattleVictory {
                         this.battle.win();
                     }
                     else {
-                        this.battle.gameOver();
+                        this.battle.endBattle();
                     }
                     if (Platform.MODE_TEST === Platform.MODE_TEST_BATTLE_TROOP) {
                         Platform.quit();
@@ -360,42 +404,7 @@ class BattleVictory {
      *  @param {number} key - The key ID
      */
     onKeyPressedStep(key) {
-        switch (this.battle.subStep) {
-            case 1:
-                if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls
-                    .Action)) {
-                    if (this.battle.finishedXP) {
-                        this.prepareEndTransition();
-                    }
-                    else { // Pass xp
-                        for (let battler of this.battle.battlers[CharacterKind.Hero]) {
-                            battler.player.passExperience();
-                            battler.player.updateObtainedExperience();
-                        }
-                    }
-                }
-                break;
-            case 2:
-                if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls
-                    .Action)) {
-                    if (this.battle.user.player.stepLevelUp === 0) {
-                        this.battle.user.player.stepLevelUp = 1;
-                        this.battle
-                            .windowStatisticProgression.content
-                            .updateStatisticProgression();
-                    }
-                    else {
-                        this.battle.user.player.levelingUp = false;
-                        this.unpauseTeamXP();
-                        this.battle.subStep = 1;
-                    }
-                    Manager.Stack.requestPaintHUD = true;
-                }
-                break;
-            case 4:
-                this.prepareEndTransition();
-                break;
-        }
+        this.action(true, { key: key });
     }
     /**
      *  Handle key released.
@@ -417,6 +426,12 @@ class BattleVictory {
      */
     onKeyPressedAndRepeatStep(key) {
         return true;
+    }
+    /**
+     *  @inheritdoc
+     */
+    onMouseUpStep(x, y) {
+        this.action(false, { x: x, y: y });
     }
     /**
      *  Draw the battle HUD.

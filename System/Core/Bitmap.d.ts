@@ -47,19 +47,19 @@ declare class Bitmap {
     /**
      *  Set the position to the left.
      */
-    setLeft(): void;
+    setLeft(offset?: number): void;
     /**
      *  Set the position to the top.
      */
-    setTop(): void;
+    setTop(offset?: number): void;
     /**
      *  Set the position to the right.
      */
-    setRight(offset?: number): void;
+    setRight(faceset?: boolean, offset?: number): void;
     /**
      *  Set the position to the bot.
      */
-    setBot(offset?: number): void;
+    setBot(faceset?: boolean, offset?: number): void;
     /**
      *  Set all the coords values.
      *  @param {number} x - The x value
@@ -68,5 +68,12 @@ declare class Bitmap {
      *  @param {number} h - The h value
      */
     setCoords(x: number, y: number, w: number, h: number): void;
+    /**
+     *  Check if x and y coords are inside.
+     *  @param {number} x
+     *  @param {number} y
+     *  @returns {boolean}
+     */
+    isInside(x: number, y: number): boolean;
 }
 export { Bitmap };

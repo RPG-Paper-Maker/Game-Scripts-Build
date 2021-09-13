@@ -62,6 +62,11 @@ declare class Stack {
      */
     static pushTitleScreen(): Scene.TitleScreen;
     /**
+     *  Push the game over.
+     *  @returns {Scene.GameOver}
+     */
+    static pushGameOver(): Scene.GameOver;
+    /**
      *  Push a battle scene for testing troop.
      */
     static pushBattleTest(): Promise<void>;
@@ -101,6 +106,24 @@ declare class Stack {
      *  @returns {boolean} false if the other keys are blocked after it
      */
     static onKeyPressedAndRepeat(key: number): boolean;
+    /**
+     *  Mouse down handle for the current stack.
+     *  @param {number} x - The x mouse position on screen
+     *  @param {number} y - The y mouse position on screen
+     */
+    static onMouseDown(x: number, y: number): void;
+    /**
+     *  Mouse move handle for the current stack.
+     *  @param {number} x - The x mouse position on screen
+     *  @param {number} y - The y mouse position on screen
+     */
+    static onMouseMove(x: number, y: number): void;
+    /**
+     *  Mouse up handle for the current stack.
+     *  @param {number} x - The x mouse position on screen
+     *  @param {number} y - The y mouse position on screen
+     */
+    static onMouseUp(x: number, y: number): void;
     /**
      *  Draw the 3D for the current stack.
      */

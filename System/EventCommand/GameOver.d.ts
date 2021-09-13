@@ -1,11 +1,11 @@
 import { Base } from "./Base.js";
 import { MapObject } from "../Core/index.js";
 /** @class
- *  An event command for ending the game.
+ *  An event command for displaying game over.
  *  @extends EventCommand.Base
  *  @param {any[]} command - Direct JSON command to parse
 */
-declare class EndGame extends Base {
+declare class GameOver extends Base {
     constructor(command: any[]);
     /**
      *  Update and check if the event is finished.
@@ -16,4 +16,4 @@ declare class EndGame extends Base {
      */
     update(currentState: Record<string, any>, object: MapObject, state: number): number;
 }
-export { EndGame };
+export { GameOver };

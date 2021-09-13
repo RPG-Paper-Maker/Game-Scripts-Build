@@ -36,7 +36,7 @@ class BattleAnimation {
         let content;
         switch (this.battle.battleCommandKind) {
             case EffectSpecialActionKind.ApplyWeapons:
-                this.battle.informationText = this.battle.attackSkill.name();
+                this.battle.informationText = this.battle.attackSkill.getMessage(this.battle.user);
                 break;
             case EffectSpecialActionKind.OpenSkills:
                 if (this.battle.forceAnAction) {
@@ -48,7 +48,7 @@ class BattleAnimation {
                             .getCurrentContent().system) : Datas.Skills.get(this.battle
                         .action.skillID.getValue());
                 }
-                this.battle.informationText = content.name();
+                this.battle.informationText = content.getMessage(this.battle.user);
                 break;
             case EffectSpecialActionKind.OpenItems:
                 if (this.battle.forceAnAction) {
@@ -59,13 +59,13 @@ class BattleAnimation {
                         .getCurrentContent().item.system : Datas.Items.get(this
                         .battle.action.itemID.getValue());
                 }
-                this.battle.informationText = content.name();
+                this.battle.informationText = content.getMessage(this.battle.user);
                 break;
             case EffectSpecialActionKind.None: // If command was a skill without special action
                 content = this.battle
                     .windowChoicesBattleCommands.getContent(this.battle.user
                     .lastCommandIndex).system;
-                this.battle.informationText = content.name();
+                this.battle.informationText = content.getMessage(this.battle.user);
                 break;
             default:
                 this.battle.informationText = "";

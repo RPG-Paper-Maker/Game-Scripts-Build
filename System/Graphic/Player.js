@@ -9,9 +9,9 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Graphic, Datas, System, Manager } from "../index.js";
-import { Frame } from "../Core/index.js";
+import { Frame, Rectangle } from "../Core/index.js";
 import { Base } from "./Base.js";
-import { Utils, Constants, Platform, Enum } from "../Common/index.js";
+import { Utils, Constants, Platform, Enum, ScreenResolution } from "../Common/index.js";
 var PictureKind = Enum.PictureKind;
 import { Status } from "../Core/Status.js";
 /** @class
@@ -23,6 +23,7 @@ import { Status } from "../Core/Status.js";
 class Player extends Base {
     constructor(player, { isMainMenu = false, reverse = false } = {}) {
         super();
+        this.battlerRect = new Rectangle();
         this.player = player;
         this.isMainMenu = isMainMenu;
         this.reverse = reverse;
@@ -95,12 +96,12 @@ class Player extends Base {
         this.faceset = Datas.Pictures.getPictureCopy(PictureKind.Facesets, hero
             .idFaceset);
         if (this.reverse) {
-            this.faceset.setLeft();
+            this.faceset.setLeft(Datas.Systems.getCurrentWindowSkin().borderBotLeft[2]);
         }
         else {
-            this.faceset.setRight();
+            this.faceset.setRight(true, Datas.Systems.getCurrentWindowSkin().borderBotRight[2]);
         }
-        this.faceset.setBot(Datas.Systems.getCurrentWindowSkin().borderBotRight[3]);
+        this.faceset.setBot(true, Datas.Systems.getCurrentWindowSkin().borderBotRight[3]);
         this.faceset.reverse = this.reverse;
         // Battler
         this.battler = Datas.Pictures.getPictureCopy(PictureKind.Battlers, hero
@@ -116,10 +117,10 @@ class Player extends Base {
      */
     updateReverse(reverse) {
         if (reverse) {
-            this.faceset.setLeft();
+            this.faceset.setLeft(Datas.Systems.getCurrentWindowSkin().borderBotLeft[2]);
         }
         else {
-            this.faceset.setRight();
+            this.faceset.setRight(true, Datas.Systems.getCurrentWindowSkin().borderBotRight[2]);
         }
         this.faceset.reverse = reverse;
         this.reverse = reverse;
@@ -246,7 +247,14 @@ class Player extends Base {
         let coef = Constants.BASIC_SQUARE_SIZE / Datas.Systems.SQUARE_SIZE;
         let wBattler = this.battler.oW / Datas.Systems.battlersFrames;
         let hBattler = this.battler.oH / Datas.Systems.battlersColumns;
-        this.battler.draw(x, yName - (hBattler * coef) - 15, wBattler * coef, hBattler * coef, this.battlerFrame.value * wBattler, 0, wBattler, hBattler);
+        this.battlerRect.setCoords(x, yName - (hBattler * coef) - 15, wBattler *
+            coef, hBattler * coef);
+        this.battler.draw(this.battlerRect.x, this.battlerRect.y, this.battlerRect
+            .width, this.battlerRect.height, this.battlerFrame.value * wBattler, 0, wBattler, hBattler);
+        this.battlerRect.setCoords(ScreenResolution.getScreenX(this.battlerRect
+            .x), ScreenResolution.getScreenY(this.battlerRect.y), ScreenResolution
+            .getScreenMinXY(this.battlerRect.width), ScreenResolution
+            .getScreenMinXY(this.battlerRect.height));
         // Stats
         let yStats = yName;
         if (this.graphicStatShort) {
@@ -361,7 +369,8 @@ class Player extends Base {
             this.listStats[i].draw(xStat + this.maxStatNamesLength + 10, yStat, 0, 0);
         }
         // Faceset
-        this.faceset.draw();
+        this.faceset.draw(undefined, undefined, Datas.Systems
+            .facesetScalingWidth, Datas.Systems.facesetScalingHeight);
     }
 }
 export { Player };

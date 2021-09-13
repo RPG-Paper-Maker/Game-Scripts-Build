@@ -11,7 +11,7 @@
 import { Base } from "./Base.js";
 import { Datas, Manager, Scene, System } from "../index.js";
 import { MapObject, Position, Game, Item } from "../Core/index.js";
-import { Mathf, Enum, Utils } from "../Common/index.js";
+import { Mathf, Enum } from "../Common/index.js";
 /** @class
  *  An event command for changing variables values.
  *  @extends EventCommand.Base
@@ -90,6 +90,7 @@ class ChangeVariables extends Base {
     update(currentState, object, state) {
         if (!currentState.started) {
             currentState.started = true;
+            currentState.valid = true;
             // Get value to set
             switch (this.valueKind) {
                 case 0: // Number
@@ -107,6 +108,7 @@ class ChangeVariables extends Base {
                     break;
                 case 4: // Map object characteristic
                     let objectID = this.valueMapObject.getValue();
+                    currentState.valid = false;
                     MapObject.search(objectID, (result) => {
                         let obj = result.object;
                         switch (this.valueMapObjectChar) {
@@ -131,7 +133,11 @@ class ChangeVariables extends Base {
                             case Enum.VariableMapObjectCharacteristicKind.Orientation:
                                 currentState.value = obj.orientation;
                                 break;
+                            case Enum.VariableMapObjectCharacteristicKind.Terrain:
+                                currentState.value = obj.terrain;
+                                break;
                         }
+                        currentState.valid = true;
                     }, object);
                     break;
                 case 5: // Number of weapon / armor / item in inventory
@@ -231,13 +237,14 @@ class ChangeVariables extends Base {
             }
         }
         // Apply new value to variable(s)
-        if (!Utils.isUndefined(currentState.value)) {
+        if (currentState.valid) {
             for (let i = 0, l = this.nbSelection; i < l; i++) {
                 Game.current.variables[this.selection + i] = Mathf
                     .OPERATORS_NUMBERS[this.operation](Game.current.variables[this.selection + i], currentState.value);
             }
+            return 1;
         }
-        return Utils.isUndefined(currentState.value) ? 0 : 1;
+        return 0;
     }
 }
 export { ChangeVariables };

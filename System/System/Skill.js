@@ -40,5 +40,14 @@ class Skill extends CommonSkillItem {
         }
         return result;
     }
+    /**
+     *  Get message and replace user / skill name.
+     *  @param {Battler} user
+     *  @returns {string}
+     */
+    getMessage(user) {
+        return this.battleMessage.name().replace('[user]', user.player.name)
+            .replace('[skill]', this.name());
+    }
 }
 export { Skill };

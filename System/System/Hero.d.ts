@@ -14,6 +14,7 @@ declare class Hero extends Translatable {
     idBattler: number;
     idFaceset: number;
     classInherit: Class;
+    description: System.Translatable;
     constructor(json: Record<string, any>);
     /**
      *  Read the JSON associated to the hero.

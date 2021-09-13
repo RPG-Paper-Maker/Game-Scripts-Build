@@ -43,6 +43,14 @@ declare class Map extends Base {
     autotileFrame: Frame;
     autotilesOffset: Vector2;
     heroOrientation: Enum.Orientation;
+    previousWeatherPoints: THREE.Points;
+    previousWeatherVelocities: number[];
+    previousWeatherRotationsAngle: number[];
+    previousWeatherRotationsPoint: Vector3[];
+    weatherPoints: THREE.Points;
+    weatherVelocities: number[];
+    weatherRotationsAngle: number[];
+    weatherRotationsPoint: Vector3[];
     constructor(id: number, isBattleMap?: boolean, minimal?: boolean, heroOrientation?: Enum.Orientation);
     /**
      *  Load async stuff.
@@ -246,6 +254,38 @@ declare class Map extends Base {
      */
     updatePortions(base: Object, callback: Function): void;
     /**
+     *  Get a random particle weather position according to options.
+     *  @param {number} portionsRay
+     *  @param {boolean} [offset=true]
+     *  @returns {number}
+     */
+    getWeatherPosition(portionsRay: number, offset?: boolean): number;
+    /**
+     *  Create the weather mesh system.
+     */
+    createWeather(current?: boolean): void;
+    /**
+     *  Function to overwrite with interpreter to add rotation to particles.
+     */
+    addPreviousWeatherYRotation(): number;
+    /**
+     *  Function to overwrite with interpreter to add velocity to particles.
+     */
+    addPreviousWeatherVelocity(): number;
+    /**
+     *  Function to overwrite with interpreter to add rotation to particles.
+     */
+    addWeatherYRotation(): number;
+    /**
+     *  Function to overwrite with interpreter to add velocity to particles.
+     */
+    addWeatherVelocity(): number;
+    switchPreviousWeather(): void;
+    /**
+     *  Update the weather particles moves.
+     */
+    updateWeather(current?: boolean): void;
+    /**
      *  Update the scene.
      */
     update(): void;
@@ -271,6 +311,24 @@ declare class Map extends Base {
      *  @returns {boolean}
      */
     onKeyPressedAndRepeat(key: number): boolean;
+    /**
+     *  Mouse down handle for the scene.
+     *  @param {number} x - The x mouse position on screen
+     *  @param {number} y - The y mouse position on screen
+     */
+    onMouseDown(x: number, y: number): void;
+    /**
+     *  Mouse move handle for the scene.
+     *  @param {number} x - The x mouse position on screen
+     *  @param {number} y - The y mouse position on screen
+     */
+    onMouseMove(x: number, y: number): void;
+    /**
+     *  Mouse up handle for the scene.
+     *  @param {number} x - The x mouse position on screen
+     *  @param {number} y - The y mouse position on screen
+     */
+    onMouseUp(x: number, y: number): void;
     /**
      *  Draw the 3D scene.
      */

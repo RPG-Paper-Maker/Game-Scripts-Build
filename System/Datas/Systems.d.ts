@@ -14,6 +14,7 @@ declare class Systems {
     static ID_OBJECT_START_HERO: number;
     static projectName: System.Translatable;
     static antialias: boolean;
+    static isMouseControls: boolean;
     static mountainCollisionHeight: System.DynamicValue;
     static mountainCollisionAngle: System.DynamicValue;
     static mapFrameDuration: System.DynamicValue;
@@ -38,11 +39,14 @@ declare class Systems {
     private static fontNames;
     private static speeds;
     private static frequencies;
+    static initialPartyMembers: System.InitialPartyMember[];
     static soundCursor: System.PlaySong;
     static soundConfirmation: System.PlaySong;
     static soundCancel: System.PlaySong;
     static soundImpossible: System.PlaySong;
     static dbOptions: EventCommand.SetDialogBoxOptions;
+    static facesetScalingWidth: number;
+    static facesetScalingHeight: number;
     static saveSlots: number;
     static modelHero: MapObject;
     static ignoreAssetsLoadingErrors: boolean;

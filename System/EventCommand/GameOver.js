@@ -11,11 +11,11 @@
 import { Base } from "./Base.js";
 import { Manager } from "../index.js";
 /** @class
- *  An event command for ending the game.
+ *  An event command for displaying game over.
  *  @extends EventCommand.Base
  *  @param {any[]} command - Direct JSON command to parse
 */
-class EndGame extends Base {
+class GameOver extends Base {
     constructor(command) {
         super();
     }
@@ -28,8 +28,8 @@ class EndGame extends Base {
      */
     update(currentState, object, state) {
         Manager.Stack.popAll();
-        Manager.Stack.pushTitleScreen();
+        Manager.Stack.pushGameOver();
         return 1;
     }
 }
-export { EndGame };
+export { GameOver };

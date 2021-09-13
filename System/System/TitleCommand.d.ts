@@ -24,24 +24,25 @@ declare class TitleCommand extends Translatable {
     getAction(): Function;
     /**
      *  Callback function for start a new game.
+     *  @static
      *  @returns {boolean}
      */
-    startNewGame(): boolean;
+    static startNewGame(): boolean;
     /**
      *  Callback function for loading an existing game.
      *  @returns {boolean}
      */
-    loadGame(): boolean;
+    static loadGame(): boolean;
     /**
      *  Callback function for loading an existing game.
      *   @returns {boolean}
      */
-    showSettings(): boolean;
+    static showSettings(): boolean;
     /**
      *  Callback function for closing the window.
      *  @returns {boolean}
      */
-    exit(): boolean;
+    static exit(): boolean;
     /**
      *  Callback function for closing the window.
      *  @returns {boolean}

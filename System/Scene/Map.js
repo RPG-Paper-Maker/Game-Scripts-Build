@@ -10,7 +10,7 @@
 */
 import { THREE } from "../Globals.js";
 import { Base } from "./Base.js";
-import { Enum, Utils, Constants, IO, Paths } from "../Common/index.js";
+import { Enum, Utils, Constants, IO, Paths, Inputs, Interpreter } from "../Common/index.js";
 var PictureKind = Enum.PictureKind;
 import { System, Datas, Scene, Manager } from "../index.js";
 import { Position, Portion, MapPortion, Camera, ReactionInterpreter, Vector3, Autotiles, Game, Frame, Vector2 } from "../Core/index.js";
@@ -26,6 +26,8 @@ class Map extends Base {
     constructor(id, isBattleMap = false, minimal = false, heroOrientation = null) {
         super(false);
         this.autotilesOffset = new Vector2();
+        this.previousWeatherPoints = null;
+        this.weatherPoints = null;
         this.id = id;
         this.isBattleMap = isBattleMap;
         this.mapName = Scene.Map.generateMapName(id);
@@ -54,8 +56,8 @@ class Map extends Base {
         if (Datas.Systems.showBB) {
             this.scene.add(Manager.Collisions.BB_BOX);
             this.scene.add(Manager.Collisions.BB_ORIENTED_BOX);
-            //this.scene.add(Manager.collisions.BB_BOX_DETECTION);
-            //this.scene.add(Manager.collisions.BB_BOX_DEFAULT_DETECTION);
+            //this.scene.add(Manager.Collisions.BB_BOX_DETECTION);
+            //this.scene.add(Manager.Collisions.BB_BOX_DEFAULT_DETECTION);
         }
         await this.readMapProperties();
         this.initializeCamera();
@@ -65,6 +67,8 @@ class Map extends Base {
         await this.loadTextures();
         this.loadCollisions();
         await this.initializePortions();
+        this.createWeather(false);
+        this.createWeather();
         Manager.Stack.requestPaintHUD = true;
         this.loading = false;
     }
@@ -188,6 +192,7 @@ class Map extends Base {
                         soi: datas && datas.soi ? datas.soi : [],
                         // Ids of the objects that have modified states options
                         so: datas && datas.so ? datas.so : [],
+                        // States options of the objects according to id
                     };
                 }
             }
@@ -308,19 +313,24 @@ class Map extends Base {
         let lz = Math.ceil(this.mapProperties.width / Constants.PORTION_SIZE);
         let ld = Math.ceil(this.mapProperties.depth / Constants.PORTION_SIZE);
         let lh = Math.ceil(this.mapProperties.height / Constants.PORTION_SIZE);
-        let mapPortion = null;
         if (realX >= 0 && realX < lx && realY >= -ld && realY < lh &&
             realZ >= 0 && realZ < lz) {
             let portion = new Portion(realX, realY, realZ);
             let json = await IO.parseFileJSON(Paths.FILE_MAPS + this.mapName +
                 Constants.STRING_SLASH + portion.getFileName());
             if (json.hasOwnProperty("lands")) {
-                mapPortion = new MapPortion(portion);
+                let mapPortion = new MapPortion(portion);
+                this.setMapPortion(x, y, z, mapPortion, move);
                 mapPortion.read(json, this.id === Datas.Systems
                     .ID_MAP_START_HERO);
             }
+            else {
+                this.setMapPortion(x, y, z, null, move);
+            }
         }
-        this.setMapPortion(x, y, z, mapPortion, move);
+        else {
+            this.setMapPortion(x, y, z, null, move);
+        }
     }
     /**
      *  Load a portion from a portion.
@@ -632,9 +642,199 @@ class Map extends Base {
         }
     }
     /**
+     *  Get a random particle weather position according to options.
+     *  @param {number} portionsRay
+     *  @param {boolean} [offset=true]
+     *  @returns {number}
+     */
+    getWeatherPosition(portionsRay, offset = true) {
+        return Math.random() * (Datas.Systems.SQUARE_SIZE * Datas.Systems
+            .SQUARE_SIZE * ((portionsRay * 2) + 1)) - (Datas.Systems.SQUARE_SIZE
+            * Datas.Systems.SQUARE_SIZE * (portionsRay + (offset ? 0.5 : 0)));
+    }
+    /**
+     *  Create the weather mesh system.
+     */
+    createWeather(current = true) {
+        let options, points, velocities, rotationsAngle, rotationsPoints;
+        if (current) {
+            options = Game.current.currentWeatherOptions;
+        }
+        else {
+            options = Game.current.previousWeatherOptions;
+        }
+        if (options === null || options.isNone) {
+            return;
+        }
+        // Create the weather variables
+        const vertices = [];
+        velocities = [];
+        rotationsAngle = [];
+        rotationsPoints = [];
+        Interpreter.evaluate("Scene.Map.current.add" + (current ? "" : "Previous")
+            + "WeatherYRotation=function(){return " + options.yRotationAddition +
+            ";}", { addReturn: false });
+        Interpreter.evaluate("Scene.Map.current.add" + (current ? "" : "Previous")
+            + "WeatherVelocityn=function(){return " + options.velocityAddition +
+            ";}", { addReturn: false });
+        let initialVelocity = Interpreter.evaluate(options.initialVelocity);
+        initialVelocity *= (Datas.Systems.SQUARE_SIZE / Constants.BASIC_SQUARE_SIZE);
+        const initialYRotation = Interpreter.evaluate(options.initialYRotation);
+        const portionsRay = options.portionsRay;
+        const particlesNumber = options.finalParticlesNumber;
+        for (let i = 0; i < particlesNumber; i++) {
+            const x = this.getWeatherPosition(portionsRay);
+            const y = this.getWeatherPosition(portionsRay, false);
+            const z = this.getWeatherPosition(portionsRay);
+            vertices.push(x, y, z);
+            velocities.push(initialVelocity);
+            rotationsAngle.push(initialYRotation);
+            rotationsPoints.push(Scene.Map.current.camera.target.position.clone());
+        }
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+        let material = new THREE.PointsMaterial({
+            color: options.isColor ? Datas.Systems.getColor(options.colorID)
+                .getHex() : 0xFFFFFF,
+            size: options.size,
+            transparent: true,
+            depthTest: options.depthTest,
+            depthWrite: options.depthWrite
+        });
+        if (!options.isColor) {
+            const texture = (new THREE.TextureLoader).load(Datas.Pictures.get(Enum.PictureKind.Particles, options.imageID).getPath());
+            texture.magFilter = THREE.NearestFilter;
+            texture.minFilter = THREE.NearestFilter;
+            material.map = texture;
+        }
+        points = new THREE.Points(geometry, material);
+        points.position.set(Scene.Map.current.camera.target.position.x, Scene
+            .Map.current.camera.target.position.y, Scene.Map.current.camera.target
+            .position.z);
+        points.renderOrder = 1000;
+        this.scene.add(points);
+        if (current) {
+            this.weatherPoints = points;
+            this.weatherVelocities = velocities;
+            this.weatherRotationsAngle = rotationsAngle;
+            this.weatherRotationsPoint = rotationsPoints;
+        }
+        else {
+            this.previousWeatherPoints = points;
+            this.previousWeatherVelocities = velocities;
+            this.previousWeatherRotationsAngle = rotationsAngle;
+            this.previousWeatherRotationsPoint = rotationsPoints;
+        }
+    }
+    /**
+     *  Function to overwrite with interpreter to add rotation to particles.
+     */
+    addPreviousWeatherYRotation() {
+        return 0;
+    }
+    /**
+     *  Function to overwrite with interpreter to add velocity to particles.
+     */
+    addPreviousWeatherVelocity() {
+        return 0;
+    }
+    /**
+     *  Function to overwrite with interpreter to add rotation to particles.
+     */
+    addWeatherYRotation() {
+        return 0;
+    }
+    /**
+     *  Function to overwrite with interpreter to add velocity to particles.
+     */
+    addWeatherVelocity() {
+        return 0;
+    }
+    switchPreviousWeather() {
+        Game.current.previousWeatherOptions = Game.current.currentWeatherOptions;
+        this.previousWeatherPoints = this.weatherPoints;
+        this.previousWeatherVelocities = this.weatherVelocities;
+        this.previousWeatherRotationsAngle = this.weatherRotationsAngle;
+        this.previousWeatherRotationsPoint = this.weatherRotationsPoint;
+        this.addPreviousWeatherVelocity = this.addWeatherVelocity;
+        this.addPreviousWeatherYRotation = this.addWeatherYRotation;
+    }
+    /**
+     *  Update the weather particles moves.
+     */
+    updateWeather(current = true) {
+        let options, points, velocities, rotationsAngle, rotationsPoints;
+        if (current) {
+            options = Game.current.currentWeatherOptions;
+            points = this.weatherPoints;
+            velocities = this.weatherVelocities;
+            rotationsAngle = this.weatherRotationsAngle;
+            rotationsPoints = this.weatherRotationsPoint;
+        }
+        else {
+            options = Game.current.previousWeatherOptions;
+            points = this.previousWeatherPoints;
+            velocities = this.previousWeatherVelocities;
+            rotationsAngle = this.previousWeatherRotationsAngle;
+            rotationsPoints = this.previousWeatherRotationsPoint;
+        }
+        if (options === null || options.isNone) {
+            return;
+        }
+        let initialVelocity = Interpreter.evaluate(options.initialVelocity);
+        initialVelocity *= (Datas.Systems.SQUARE_SIZE / Constants.BASIC_SQUARE_SIZE);
+        const initialYRotation = Interpreter.evaluate(options.initialYRotation);
+        const portionsRay = options.portionsRay;
+        const positionAttribute = points.geometry.getAttribute('position');
+        const yAxis = new Vector3(0, 1, 0);
+        const particlesNumber = Math.round(options.particlesNumber);
+        points.geometry.drawRange.count = particlesNumber;
+        let y, v;
+        for (let i = 0; i < particlesNumber; i++) {
+            y = positionAttribute.getY(i);
+            if (y < points.material.size -
+                (Datas.Systems.SQUARE_SIZE * Datas.Systems.SQUARE_SIZE * portionsRay)) {
+                y += (Datas.Systems.SQUARE_SIZE * Datas.Systems.SQUARE_SIZE * (portionsRay + 1));
+                velocities[i] = initialVelocity;
+                rotationsAngle[i] = initialYRotation;
+                rotationsPoints[i] = Scene.Map.current.camera.target
+                    .position.clone();
+                positionAttribute.setX(i, this.getWeatherPosition(portionsRay));
+                positionAttribute.setZ(i, this.getWeatherPosition(portionsRay));
+            }
+            y -= (Scene.Map.current.camera.target.position.y - points.position.y);
+            v = new Vector3(positionAttribute.getX(i) - (Scene.Map.current
+                .camera.target.position.x - points.position.x), y, positionAttribute.getZ(i) - (Scene.Map.current.camera.target
+                .position.z - points.position.z));
+            rotationsAngle[i] += (current ? this.addWeatherYRotation() : this
+                .addPreviousWeatherYRotation()) * Math.PI / 180;
+            v.applyAxisAngle(yAxis, rotationsAngle[i]);
+            positionAttribute.setX(i, v.x);
+            positionAttribute.setZ(i, v.z);
+            velocities[i] += (current ? this.addWeatherVelocity() : this
+                .addPreviousWeatherVelocity()) * (Datas.Systems.SQUARE_SIZE /
+                Constants.BASIC_SQUARE_SIZE);
+            positionAttribute.setY(i, v.y + velocities[i]);
+        }
+        positionAttribute.needsUpdate = true;
+        points.position.set(Scene.Map.current.camera.target.position
+            .x, Scene.Map.current.camera.target.position.y, Scene.Map.current
+            .camera.target.position.z);
+    }
+    /**
      *  Update the scene.
      */
     update() {
+        // Mouse down repeat
+        if (!this.loading) {
+            if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
+                Manager.Events.sendEvent(null, 0, 1, true, 5, [null, System
+                        .DynamicValue.createNumber(Inputs.mouseX), System
+                        .DynamicValue.createNumber(Inputs.mouseY), System
+                        .DynamicValue.createSwitch(Inputs.mouseLeftPressed), System
+                        .DynamicValue.createSwitch(true)], true, false);
+            }
+        }
         this.updateMovingPortions();
         // Update autotiles animated
         if (this.autotileFrame.update()) {
@@ -678,6 +878,8 @@ class Map extends Base {
                 mapPortion.updateFaceSprites(angle);
             }
         });
+        this.updateWeather(false);
+        this.updateWeather();
         // Update scene game (interpreters)
         super.update();
     }
@@ -743,6 +945,53 @@ class Map extends Base {
         return true;
     }
     /**
+     *  Mouse down handle for the scene.
+     *  @param {number} x - The x mouse position on screen
+     *  @param {number} y - The y mouse position on screen
+     */
+    onMouseDown(x, y) {
+        if (!this.loading) {
+            if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
+                Manager.Events.sendEvent(null, 0, 1, true, 5, [null, System
+                        .DynamicValue.createNumber(x), System.DynamicValue
+                        .createNumber(y), System.DynamicValue.createSwitch(Inputs
+                        .mouseLeftPressed), System.DynamicValue.createSwitch(false)], true, false);
+            }
+            super.onMouseDown(x, y);
+        }
+    }
+    /**
+     *  Mouse move handle for the scene.
+     *  @param {number} x - The x mouse position on screen
+     *  @param {number} y - The y mouse position on screen
+     */
+    onMouseMove(x, y) {
+        if (!this.loading) {
+            if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
+                Manager.Events.sendEvent(null, 0, 1, true, 7, [null, System
+                        .DynamicValue.createNumber(x), System.DynamicValue
+                        .createNumber(y)], true, false);
+            }
+            super.onMouseMove(x, y);
+        }
+    }
+    /**
+     *  Mouse up handle for the scene.
+     *  @param {number} x - The x mouse position on screen
+     *  @param {number} y - The y mouse position on screen
+     */
+    onMouseUp(x, y) {
+        if (!this.loading) {
+            if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
+                Manager.Events.sendEvent(null, 0, 1, true, 6, [null, System
+                        .DynamicValue.createNumber(x), System.DynamicValue
+                        .createNumber(y), System.DynamicValue.createSwitch(Inputs
+                        .mouseLeftPressed)], true, false);
+            }
+            super.onMouseUp(x, y);
+        }
+    }
+    /**
      *  Draw the 3D scene.
      */
     draw3D() {
@@ -805,8 +1054,6 @@ class Map extends Base {
         Manager.Collisions.applyBoxSpriteTransforms(Manager.Collisions.BB_BOX, [0, 0, 0, 1, 1, 1, 0, 0, 0]);
         Manager.Collisions.applyOrientedBoxTransforms(Manager.Collisions
             .BB_ORIENTED_BOX, [0, 0, 0, 2, 1]);
-        // Clear renderer
-        Manager.GL.renderer.clear();
     }
 }
 Map.allowMainMenu = true;

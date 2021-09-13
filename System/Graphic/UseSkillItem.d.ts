@@ -30,10 +30,6 @@ declare class UseSkillItem extends Base {
      */
     setAll(b: boolean): void;
     /**
-     *  Update the battler frame.
-     */
-    update(): void;
-    /**
      *  Udpate the battler.
      */
     updateStats(): void;
@@ -61,11 +57,31 @@ declare class UseSkillItem extends Base {
      */
     updateStatShortNone(): void;
     /**
+     *  A widget move.
+     *  @param {boolean} isKey
+     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     */
+    move(isKey: boolean, options?: {
+        key?: number;
+        x?: number;
+        y?: number;
+    }): void;
+    /**
+     *  Update the battler frame.
+     */
+    update(): void;
+    /**
      *  Key pressed repeat handle, but with a small wait after the first
      *  pressure.
      *  @param {number} key - The key ID pressed
      */
     onKeyPressedAndRepeat(key: number): void;
+    /**
+     *  Mouse move handle for the current stack.
+     *  @param {number} x - The x mouse position on screen
+     *  @param {number} y - The y mouse position on screen
+     */
+    onMouseMove(x: number, y: number): void;
     /**
      *  Draw an arrow at a specific index.
      *  @param {number} index - The corresponding index

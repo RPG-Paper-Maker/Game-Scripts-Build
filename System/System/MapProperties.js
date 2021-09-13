@@ -27,7 +27,6 @@ class MapProperties extends Base {
         super();
         this.sceneBackground = null;
         this.skyboxGeometry = null;
-        this.currentNumberSteps = 0;
     }
     /**
      *  Read the JSON associated to the map properties.
@@ -130,7 +129,9 @@ class MapProperties extends Base {
      *  Update the max steps numbers for starting a random battle.
      */
     updateMaxNumberSteps() {
-        this.currentNumberSteps = 0;
+        for (let battle of this.randomBattles) {
+            battle.resetCurrentNumberSteps();
+        }
         this.maxNumberSteps = Mathf.variance(this.randomBattleNumberStep
             .getValue(), this.randomBattleVariance.getValue());
     }
@@ -138,23 +139,30 @@ class MapProperties extends Base {
      *  Check if a random battle can be started.
      */
     checkRandomBattle() {
-        this.currentNumberSteps++;
-        if (this.currentNumberSteps >= this.maxNumberSteps) {
-            this.updateMaxNumberSteps();
-            let randomBattle = null;
+        let randomBattle;
+        let test = false;
+        for (randomBattle of this.randomBattles) {
+            randomBattle.updateCurrentNumberSteps();
+            if (randomBattle.currentNumberSteps >= this.maxNumberSteps) {
+                test = true;
+            }
+        }
+        if (test) {
+            randomBattle = null;
             let rand = Mathf.random(0, 100);
             let priority = 0;
-            // Remove 0 priority
+            // Remove 0 priority or not reached current steps
             let battles = [];
             let total = 0;
             for (randomBattle of this.randomBattles) {
                 randomBattle.updateCurrentPriority();
-                if (randomBattle.currentPriority > 0) {
+                if (randomBattle.currentPriority > 0 && randomBattle
+                    .currentNumberSteps >= this.maxNumberSteps) {
                     battles.push(randomBattle);
                     total += randomBattle.currentPriority;
                 }
             }
-            for (randomBattle of this.randomBattles) {
+            for (randomBattle of battles) {
                 priority += randomBattle.priority.getValue() / total * 100;
                 if (rand <= priority) {
                     break;
@@ -164,6 +172,7 @@ class MapProperties extends Base {
                 }
             }
             if (randomBattle !== null) {
+                this.updateMaxNumberSteps();
                 let battleMap = Datas.BattleSystems.getBattleMap(this
                     .randomBattleMapID.getValue());
                 Game.current.heroBattle = new MapObject(Game.current.hero.system, battleMap.position.toVector3(), true);

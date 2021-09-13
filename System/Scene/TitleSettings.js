@@ -11,7 +11,7 @@
 import { Base } from "./Base.js";
 import { Datas, Graphic, Manager } from "../index.js";
 import { Picture2D, WindowBox, WindowChoices } from "../Core/index.js";
-import { Enum, Constants, ScreenResolution } from "../Common/index.js";
+import { Enum, Constants, ScreenResolution, Inputs } from "../Common/index.js";
 var PictureKind = Enum.PictureKind;
 var Align = Enum.Align;
 /** @class
@@ -47,10 +47,9 @@ class TitleSettings extends Base {
         });
         this.windowChoicesMain = new WindowChoices(Constants.HUGE_SPACE, Constants.HUGE_SPACE + WindowBox.LARGE_SLOT_HEIGHT + Constants
             .LARGE_SPACE, ScreenResolution.SCREEN_X - (2 * Constants.HUGE_SPACE), WindowBox.MEDIUM_SLOT_HEIGHT, Datas.TitlescreenGameover
-            .getSettingsCommandsContent(), {
+            .getTitleSettingsCommandsContent(), {
             nbItemsMax: 9,
-            listCallbacks: Datas.TitlescreenGameover
-                .getSettingsCommandsActions(),
+            listCallbacks: Datas.TitlescreenGameover.getTitleSettingsCommandsActions(),
             bordersInsideVisible: false
         });
         this.windowInformations.content = this.windowChoicesMain
@@ -58,9 +57,22 @@ class TitleSettings extends Base {
         this.loading = false;
     }
     /**
+     *  Cancel the scene.
+     */
+    cancel() {
+        Datas.Systems.soundCancel.playSound();
+        Manager.Stack.pop();
+    }
+    /**
      *  Translate the scene if possible.
      */
     translate() {
+    }
+    /**
+     *  @inheritdoc
+     */
+    update() {
+        this.windowChoicesMain.update();
     }
     /**
      *  Handle scene key pressed.
@@ -68,10 +80,8 @@ class TitleSettings extends Base {
      */
     onKeyPressed(key) {
         this.windowChoicesMain.onKeyPressed(key);
-        if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls.Cancel)
-            || Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.controls.MainMenu)) {
-            Datas.Systems.soundCancel.playSound();
-            Manager.Stack.pop();
+        if (Datas.Keyboards.checkCancelMenu(key)) {
+            this.cancel();
         }
     }
     /**
@@ -84,6 +94,21 @@ class TitleSettings extends Base {
         this.windowInformations.content = this.windowChoicesMain
             .getCurrentContent();
         return true;
+    }
+    /**
+     *  @inheritdoc
+     */
+    onMouseMove(x, y) {
+        this.windowChoicesMain.onMouseMove(x, y);
+    }
+    /**
+     *  @inheritdoc
+     */
+    onMouseUp(x, y) {
+        this.windowChoicesMain.onMouseUp(x, y);
+        if (Inputs.mouseRightPressed) {
+            this.cancel();
+        }
     }
     /**
      *  Draw the HUD scene.

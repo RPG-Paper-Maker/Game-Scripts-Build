@@ -40,5 +40,14 @@ class Item extends CommonSkillItem {
     getKind() {
         return Enum.ItemKind.Item;
     }
+    /**
+     *  Get message and replace user / item name.
+     *  @param {Battler} user
+     *  @returns {string}
+     */
+    getMessage(user) {
+        return this.battleMessage.name().replace('[user]', user.player.name)
+            .replace('[item]', this.name());
+    }
 }
 export { Item };

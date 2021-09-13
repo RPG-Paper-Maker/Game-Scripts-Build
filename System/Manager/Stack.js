@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Scene, Manager, Common, System, Datas } from "../index.js";
-import { Utils, Platform, ScreenResolution, KeyEvent, Paths, Enum } from "../Common/index.js";
+import { Utils, Platform, ScreenResolution, Paths, Enum, Inputs } from "../Common/index.js";
 import { Game, MapObject } from "../Core/index.js";
 /** @class
  *  The game stack that is organizing the game scenes.
@@ -102,6 +102,15 @@ class Stack {
         return scene;
     }
     /**
+     *  Push the game over.
+     *  @returns {Scene.GameOver}
+     */
+    static pushGameOver() {
+        let scene = new Scene.GameOver();
+        this.push(scene);
+        return scene;
+    }
+    /**
      *  Push a battle scene for testing troop.
      */
     static async pushBattleTest() {
@@ -155,8 +164,8 @@ class Stack {
         Manager.Songs.update();
         // Repeat keypress as long as not blocking
         let continuePressed;
-        for (let i = 0, l = KeyEvent.keysPressed.length; i < l; i++) {
-            continuePressed = this.onKeyPressedRepeat(KeyEvent.keysPressed[i]);
+        for (let i = 0, l = Inputs.keysPressed.length; i < l; i++) {
+            continuePressed = this.onKeyPressedRepeat(Inputs.keysPressed[i]);
             if (!continuePressed) {
                 break;
             }
@@ -197,6 +206,36 @@ class Stack {
      */
     static onKeyPressedAndRepeat(key) {
         return this.isEmpty() ? true : this.top.onKeyPressedAndRepeat(key);
+    }
+    /**
+     *  Mouse down handle for the current stack.
+     *  @param {number} x - The x mouse position on screen
+     *  @param {number} y - The y mouse position on screen
+     */
+    static onMouseDown(x, y) {
+        if (!this.isEmpty()) {
+            this.top.onMouseDown(x, y);
+        }
+    }
+    /**
+     *  Mouse move handle for the current stack.
+     *  @param {number} x - The x mouse position on screen
+     *  @param {number} y - The y mouse position on screen
+     */
+    static onMouseMove(x, y) {
+        if (!this.isEmpty()) {
+            this.top.onMouseMove(x, y);
+        }
+    }
+    /**
+     *  Mouse up handle for the current stack.
+     *  @param {number} x - The x mouse position on screen
+     *  @param {number} y - The y mouse position on screen
+     */
+    static onMouseUp(x, y) {
+        if (!this.isEmpty()) {
+            this.top.onMouseUp(x, y);
+        }
     }
     /**
      *  Draw the 3D for the current stack.

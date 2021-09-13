@@ -92,12 +92,38 @@ class MenuDescriptionState extends MenuBase {
             .getCurrentContent();
     }
     /**
+     *  A scene action.
+     *  @param {boolean} isKey
+     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     */
+    action(isKey, options = {}) {
+        if (Scene.MenuBase.checkCancelMenu(isKey, options)) {
+            Datas.Systems.soundCancel.playSound();
+            Manager.Stack.pop();
+        }
+    }
+    /**
+     *  A scene move.
+     *  @param {boolean} isKey
+     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     */
+    move(isKey, options = {}) {
+        if (isKey) {
+            this.windowChoicesTabs.onKeyPressedAndRepeat(options.key);
+        }
+        else {
+            this.windowChoicesTabs.onMouseMove(options.x, options.y);
+        }
+        this.synchronize();
+    }
+    /**
      * @inheritdoc
      *
      * @memberof MenuDescriptionState
      */
     update() {
         super.update();
+        this.windowChoicesTabs.update();
         this.windowInformation.content
             .updateBattler();
     }
@@ -109,11 +135,7 @@ class MenuDescriptionState extends MenuBase {
      */
     onKeyPressed(key) {
         Scene.Base.prototype.onKeyPressed.call(Scene.Map.current, key);
-        if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls.Cancel)
-            || Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.controls.MainMenu)) {
-            Datas.Systems.soundCancel.playSound();
-            Manager.Stack.pop();
-        }
+        this.action(true, { key: key });
     }
     /**
      * @inheritdoc
@@ -144,9 +166,22 @@ class MenuDescriptionState extends MenuBase {
     onKeyPressedAndRepeat(key) {
         let res = Scene.Base.prototype.onKeyPressedAndRepeat.call(Scene.Map
             .current, key);
-        this.windowChoicesTabs.onKeyPressedAndRepeat(key);
-        this.synchronize();
+        this.move(true, { key: key });
         return res;
+    }
+    /**
+     *  @inheritdoc
+     */
+    onMouseMove(x, y) {
+        super.onMouseMove(x, y);
+        this.move(false, { x: x, y: y });
+    }
+    /**
+     *  @inheritdoc
+     */
+    onMouseUp(x, y) {
+        super.onMouseUp(x, y);
+        this.action(false, { x: x, y: y });
     }
     /**
      * @inheritdoc

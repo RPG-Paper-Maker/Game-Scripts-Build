@@ -7,7 +7,7 @@ import { Cost } from "./Cost.js";
 import { Characteristic } from "./Characteristic.js";
 import { Effect } from "./Effect.js";
 import { System } from "../index.js";
-import { Player } from "../Core/index.js";
+import { Battler, Player } from "../Core/index.js";
 /** @class
  *  A common class for skills, items, weapons, armors.
  *  @extends System.Icon
@@ -29,6 +29,7 @@ declare class CommonSkillItem extends Icon {
     animationID: DynamicValue;
     animationTargetID: DynamicValue;
     canBeSold: System.DynamicValue;
+    battleMessage: System.Translatable;
     price: Cost[];
     costs: Cost[];
     effects: Effect[];
@@ -99,5 +100,11 @@ declare class CommonSkillItem extends Icon {
      *  @returns {boolean}
      */
     isWeaponArmor(): boolean;
+    /**
+     *  Get message and replace user / skill / item name.
+     *  @param {Battler} user
+     *  @returns {string}
+     */
+    getMessage(user: Battler): string;
 }
 export { CommonSkillItem };

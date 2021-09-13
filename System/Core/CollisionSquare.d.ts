@@ -7,6 +7,7 @@ declare class CollisionSquare {
     right: boolean;
     top: boolean;
     bot: boolean;
+    terrain: number;
     constructor();
     /**
      *  Union of the collision squares.

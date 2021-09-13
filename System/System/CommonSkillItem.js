@@ -48,6 +48,7 @@ class CommonSkillItem extends Icon {
         this.animationUserID = DynamicValue.readOrNone(json.auid);
         this.animationTargetID = DynamicValue.readOrNone(json.atid);
         this.canBeSold = DynamicValue.readOrDefaultSwitch(json.canBeSold);
+        this.battleMessage = new System.Translatable(json.battleMessage);
         this.price = [];
         Utils.readJSONSystemList({ list: Utils.defaultValue(json.p, []),
             listIndexes: this.price, cons: Cost });
@@ -234,6 +235,14 @@ class CommonSkillItem extends Icon {
      */
     isWeaponArmor() {
         return this.isWeapon() || this.isArmor();
+    }
+    /**
+     *  Get message and replace user / skill / item name.
+     *  @param {Battler} user
+     *  @returns {string}
+     */
+    getMessage(user) {
+        return "";
     }
 }
 export { CommonSkillItem };

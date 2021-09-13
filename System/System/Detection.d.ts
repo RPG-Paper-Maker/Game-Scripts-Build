@@ -7,7 +7,7 @@ import { MapObject, Position } from "../Core/index.js";
  *  detection
  */
 declare class Detection extends Base {
-    boxes: [Position, number, number][];
+    boxes: [Position, number, number, number, number, number, number][];
     constructor(json?: Record<string, any>);
     /**
      *  Read the JSON associated to the detection.

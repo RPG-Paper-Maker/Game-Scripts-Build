@@ -28,6 +28,7 @@ import { Object3DBox } from "./Object3DBox.js";
 import { Object3DCustom } from "./Object3DCustom.js";
 import { CustomGeometry } from "./CustomGeometry.js";
 import { Vector2 } from "./Vector2.js";
+import { Portion } from "./Portion.js";
 /**
  * Object in local map that can move.
  *
@@ -516,6 +517,7 @@ class MapObject {
             this.width = 0;
             this.height = 0;
         }
+        this.updateTerrain();
         // Add to the scene
         this.addToScene();
     }
@@ -817,6 +819,8 @@ class MapObject {
         if (this.isHero && distance > 0) {
             Game.current.steps++;
         }
+        // Update terrrain
+        this.updateTerrain();
         return [distance, normalDistance];
     }
     /**
@@ -888,6 +892,8 @@ class MapObject {
         }
         // Add to moving objects
         this.addMoveTemp();
+        // Update terrrain
+        this.updateTerrain();
         return currentTime;
     }
     /**
@@ -1250,6 +1256,23 @@ class MapObject {
             }
         }
         return orientation;
+    }
+    /**
+     *  Update the terrain the object is currently on.
+     */
+    updateTerrain() {
+        this.terrain = 0;
+        if (this.position) {
+            let mapPortion = Scene.Map.current.getMapPortion(Scene.Map.current
+                .getLocalPortion(Portion.createFromVector3(this.position)));
+            if (mapPortion) {
+                let position = Position.createFromVector3(this.position);
+                let collision = mapPortion.boundingBoxesLands[position.toIndex()][0];
+                if (collision) {
+                    this.terrain = collision.cs.terrain;
+                }
+            }
+        }
     }
 }
 MapObject.SPEED_NORMAL = 0.004666;

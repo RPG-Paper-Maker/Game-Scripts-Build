@@ -62,14 +62,6 @@ class UseSkillItem extends Base {
         }
     }
     /**
-     *  Update the battler frame.
-     */
-    update() {
-        for (let i = 0, l = this.graphicCharacters.length; i < l; i++) {
-            this.graphicCharacters[i].updateBattler();
-        }
-    }
-    /**
      *  Udpate the battler.
      */
     updateStats() {
@@ -125,6 +117,27 @@ class UseSkillItem extends Base {
         }
     }
     /**
+     *  A widget move.
+     *  @param {boolean} isKey
+     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     */
+    move(isKey, options = {}) {
+        if (isKey) {
+            this.onKeyPressedAndRepeat(options.key);
+        }
+        else {
+            this.onMouseMove(options.x, options.y);
+        }
+    }
+    /**
+     *  Update the battler frame.
+     */
+    update() {
+        for (let i = 0, l = this.graphicCharacters.length; i < l; i++) {
+            this.graphicCharacters[i].updateBattler();
+        }
+    }
+    /**
      *  Key pressed repeat handle, but with a small wait after the first
      *  pressure.
      *  @param {number} key - The key ID pressed
@@ -136,6 +149,32 @@ class UseSkillItem extends Base {
         else if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls
             .Left)) {
             this.goLeft();
+        }
+    }
+    /**
+     *  Mouse move handle for the current stack.
+     *  @param {number} x - The x mouse position on screen
+     *  @param {number} y - The y mouse position on screen
+     */
+    onMouseMove(x, y) {
+        if (!this.all) {
+            let changed = false;
+            let i, l;
+            for (i = 0, l = this.graphicCharacters.length; i < l; i++) {
+                if (this.graphicCharacters[i].battlerRect.isInside(x, y)) {
+                    changed = true;
+                    break;
+                }
+            }
+            if (changed && i !== this.indexArrow) {
+                let target = Game.current.teamHeroes[i];
+                if (this.skillItem.isPossible(target)) {
+                    this.indexArrow = i;
+                    Scene.Map.current.targets = [new Battler(target)];
+                    Manager.Stack.requestPaintHUD = true;
+                    Datas.Systems.soundCursor.playSound();
+                }
+            }
         }
     }
     /**

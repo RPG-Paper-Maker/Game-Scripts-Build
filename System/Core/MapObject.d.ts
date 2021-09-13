@@ -54,6 +54,7 @@ declare class MapObject {
     upPosition: Vector3;
     halfPosition: Vector3;
     currentOrientationStop: boolean;
+    terrain: number;
     constructor(system: System.MapObject, position?: Vector3, isHero?: boolean);
     /**
      *  Search an object in the map.
@@ -236,5 +237,9 @@ declare class MapObject {
      *  @returns {Enum.Orientation}
      */
     getOrientationBetween(object: MapObject): Enum.Orientation;
+    /**
+     *  Update the terrain the object is currently on.
+     */
+    updateTerrain(): void;
 }
 export { StructSearchResult, MapObject };

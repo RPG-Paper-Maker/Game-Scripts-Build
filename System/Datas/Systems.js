@@ -54,6 +54,7 @@ class Systems {
         ScreenResolution.WINDOW_Y = ScreenResolution.CANVAS_HEIGHT /
             ScreenResolution.SCREEN_Y;
         this.antialias = Utils.defaultValue(json.aa, false);
+        this.isMouseControls = Utils.defaultValue(json.isMouseControls, true);
         // Other numbers
         this.SQUARE_SIZE = json.ss;
         this.PORTIONS_RAY_NEAR = Utils.defaultValue(json.portionRayIngame, 3);
@@ -100,6 +101,7 @@ class Systems {
         this.fontNames = [];
         this.speeds = [];
         this.frequencies = [];
+        this.initialPartyMembers = [];
         Utils.readJSONSystemList({ list: json.itemsTypes, listIDs: this
                 .itemsTypes, cons: System.Translatable });
         Utils.readJSONSystemList({ list: json.inventoryFilters, listIndexes: this
@@ -129,6 +131,7 @@ class Systems {
         Utils.readJSONSystemList({ list: json.f, listIDs: this.frequencies, func: (element) => {
                 return System.DynamicValue.readOrDefaultNumberDouble(element.v, 1);
             } });
+        Utils.readJSONSystemList({ list: json.initialPartyMembers, listIndexes: this.initialPartyMembers, cons: System.InitialPartyMember });
         // Sounds
         this.soundCursor = new System.PlaySong(Enum.SongKind.Sound, json.scu);
         this.soundConfirmation = new System.PlaySong(Enum.SongKind.Sound, json.sco);
@@ -138,6 +141,9 @@ class Systems {
         this.dbOptions = Manager.Events
             .getEventCommand(json.dbo);
         this.dbOptions.update();
+        // Faceset options
+        this.facesetScalingWidth = Utils.defaultValue(json.facesetScalingWidth, 120);
+        this.facesetScalingHeight = Utils.defaultValue(json.facesetScalingHeight, 120);
         // Enter name menu options
         this.enterNameTable = json.enterNameTable;
         // Initialize loading scene now that basics are loaded

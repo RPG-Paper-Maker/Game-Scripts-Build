@@ -8,12 +8,12 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-/** @class
+/**
+ *  @class
  *  An abstract event command.
  */
 class Base {
     constructor() {
-        this.isDirectNode = true;
         this.parallel = false;
     }
     /**
@@ -38,15 +38,13 @@ class Base {
      *  @param {Object} currentState - The current state of the event
      *  @param {number} key - The key ID pressed
      */
-    onKeyPressed(currentState, key) {
-    }
+    onKeyPressed(currentState, key) { }
     /**
      *  First key release handle for the current stack.
      *  @param {Object} currentState - The current state of the event
      *  @param {number} key - The key ID pressed
     */
-    onKeyReleased(currentState, key) {
-    }
+    onKeyReleased(currentState, key) { }
     /**
      *  Key pressed repeat handle for the current stack.
      *  @param {Object} currentState - The current state of the event
@@ -66,6 +64,27 @@ class Base {
     onKeyPressedAndRepeat(currentState, key) {
         return true;
     }
+    /**
+     *  Mouse down handle for the current stack.
+     *  @param {Object} currentState - The current state of the event
+     *  @param {number} x - The x mouse position on screen
+     *  @param {number} y - The y mouse position on screen
+     */
+    onMouseDown(currentState, x, y) { }
+    /**
+     *  Mouse move handle for the current stack.
+     *  @param {Object} currentState - The current state of the event
+     *  @param {number} x - The x mouse position on screen
+     *  @param {number} y - The y mouse position on screen
+     */
+    onMouseMove(currentState, x, y) { }
+    /**
+     *  Mouse up handle for the current stack.
+     *  @param {Object} currentState - The current state of the event
+     *  @param {number} x - The x mouse position on screen
+     *  @param {number} y - The y mouse position on screen
+     */
+    onMouseUp(currentState, x, y) { }
     /**
      *  Draw the HUD.
      *  @param {Object} currentState - The current state of the event

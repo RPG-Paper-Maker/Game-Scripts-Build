@@ -52,6 +52,7 @@ declare class Paths {
     static readonly ICONS: string;
     static readonly WINDOW_SKINS: string;
     static readonly TITLE_SCREEN: string;
+    static readonly GAME_OVER: string;
     static readonly HUD_PICTURES: string;
     static readonly ANIMATIONS: string;
     static readonly AUTOTILES: string;
@@ -62,6 +63,7 @@ declare class Paths {
     static readonly OBJECTS_3D: string;
     static readonly MOUNTAINS: string;
     static readonly SKYBOXES: string;
+    static readonly PARTICLES: string;
     static readonly SONGS = "/Content/Songs/";
     static readonly MUSICS: string;
     static readonly BACKGROUND_SOUNDS: string;

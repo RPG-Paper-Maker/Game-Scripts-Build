@@ -45,6 +45,14 @@ declare class Rectangle {
      */
     set(x: number, y: number, width: number, height: number): void;
     /**
+     *  Set rectangle coords.
+     *  @param {number} x
+     *  @param {number} y
+     *  @param {number} width
+     *  @param {number} height
+     */
+    setCoords(x: number, y: number, width: number, height: number): void;
+    /**
      *  Set the anchor x, y.
      *  @param {number} x
      *  @param {number} y
@@ -58,5 +66,12 @@ declare class Rectangle {
         x: number;
         y: number;
     }): void;
+    /**
+     *  Check if x and y are inside the rectangle.
+     *  @param {number} x
+     *  @param {number} y
+     *  @returns {boolean}
+     */
+    isInside(x: number, y: number): boolean;
 }
 export { Rectangle };

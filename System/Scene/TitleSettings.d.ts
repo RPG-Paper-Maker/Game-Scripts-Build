@@ -15,9 +15,17 @@ declare class TitleSettings extends Base {
      */
     load(): Promise<void>;
     /**
+     *  Cancel the scene.
+     */
+    cancel(): void;
+    /**
      *  Translate the scene if possible.
      */
     translate(): void;
+    /**
+     *  @inheritdoc
+     */
+    update(): void;
     /**
      *  Handle scene key pressed.
      *  @param {number} key - The key ID
@@ -29,6 +37,14 @@ declare class TitleSettings extends Base {
      *  @returns {boolean}
      */
     onKeyPressedAndRepeat(key: number): boolean;
+    /**
+     *  @inheritdoc
+     */
+    onMouseMove(x: number, y: number): void;
+    /**
+     *  @inheritdoc
+     */
+    onMouseUp(x: number, y: number): void;
     /**
      *  Draw the HUD scene.
      */

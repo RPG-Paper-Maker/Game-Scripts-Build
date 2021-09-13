@@ -11,7 +11,7 @@
 import { Base } from "./Base.js";
 import { WindowBox, WindowChoices, Game } from "../Core/index.js";
 import { ScreenResolution } from "../Common/index.js";
-import { Graphic, Datas, Manager } from "../index.js";
+import { Graphic, Datas, Manager, Scene } from "../index.js";
 /** @class
  *  Abstract class for the game save and loading menus.
  *  @extends Scene.Base
@@ -71,9 +71,36 @@ class SaveLoadGame extends Base {
         this.windowInformations.content = this.gamesDatas[i];
     }
     /**
+     *  Slot cancel.
+     *  @param {boolean} isKey
+     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     */
+    cancel(isKey, options = {}) {
+        if (Scene.MenuBase.checkCancelMenu(isKey, options)) {
+            Datas.Systems.soundCancel.playSound();
+            Manager.Stack.pop();
+        }
+    }
+    /**
+     *  Slot move.
+     *  @param {boolean} isKey
+     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     */
+    move(isKey, options = {}) {
+        if (isKey) {
+            this.windowChoicesSlots.onKeyPressedAndRepeat(options.key);
+        }
+        else {
+            this.windowChoicesSlots.onMouseMove(options.x, options.y);
+        }
+        this.updateInformations.call(this, this.windowChoicesSlots
+            .currentSelectedIndex);
+    }
+    /**
      *  Update the scene.
      */
     update() {
+        this.windowChoicesSlots.update();
         if (!this.windowInformations.content.game.isEmpty) {
             this.windowInformations.content.update();
         }
@@ -83,12 +110,7 @@ class SaveLoadGame extends Base {
      *  @param {number} key - The key ID
      */
     onKeyPressed(key) {
-        if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls.Cancel)
-            || Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.controls
-                .MainMenu)) {
-            Datas.Systems.soundCancel.playSound();
-            Manager.Stack.pop();
-        }
+        this.cancel(true, { key: key });
     }
     /**
      *  Handle scene pressed and repeat key.
@@ -96,10 +118,20 @@ class SaveLoadGame extends Base {
      *  @returns {boolean}
      */
     onKeyPressedAndRepeat(key) {
-        this.windowChoicesSlots.onKeyPressedAndRepeat(key);
-        this.updateInformations.call(this, this.windowChoicesSlots
-            .currentSelectedIndex);
+        this.move(true, { key: key });
         return true;
+    }
+    /**
+     *  @inheritdoc
+     */
+    onMouseMove(x, y) {
+        this.move(false, { x: x, y: y });
+    }
+    /**
+     *  @inheritdoc
+     */
+    onMouseUp(x, y) {
+        this.cancel(false, { x: x, y: y });
     }
     /**
      *  Draw the HUD scene

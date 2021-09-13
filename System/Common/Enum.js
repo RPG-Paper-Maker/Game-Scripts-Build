@@ -64,7 +64,7 @@ var Enum;
         EventCommandKind[EventCommandKind["None"] = 0] = "None";
         EventCommandKind[EventCommandKind["ShowText"] = 1] = "ShowText";
         EventCommandKind[EventCommandKind["ChangeVariables"] = 2] = "ChangeVariables";
-        EventCommandKind[EventCommandKind["EndGame"] = 3] = "EndGame";
+        EventCommandKind[EventCommandKind["GameOver"] = 3] = "GameOver";
         EventCommandKind[EventCommandKind["While"] = 4] = "While";
         EventCommandKind[EventCommandKind["EndWhile"] = 5] = "EndWhile";
         EventCommandKind[EventCommandKind["WhileBreak"] = 6] = "WhileBreak";
@@ -133,6 +133,8 @@ var Enum;
         EventCommandKind[EventCommandKind["ChangeExperienceCurve"] = 69] = "ChangeExperienceCurve";
         EventCommandKind[EventCommandKind["ChangeClass"] = 70] = "ChangeClass";
         EventCommandKind[EventCommandKind["ChangeChronometer"] = 71] = "ChangeChronometer";
+        EventCommandKind[EventCommandKind["ChangeWeather"] = 72] = "ChangeWeather";
+        EventCommandKind[EventCommandKind["PlayAVideo"] = 73] = "PlayAVideo";
     })(EventCommandKind = Enum.EventCommandKind || (Enum.EventCommandKind = {}));
     ;
     /**
@@ -261,6 +263,8 @@ var Enum;
         PictureKind[PictureKind["Pictures"] = 13] = "Pictures";
         PictureKind[PictureKind["Animations"] = 14] = "Animations";
         PictureKind[PictureKind["Skyboxes"] = 15] = "Skyboxes";
+        PictureKind[PictureKind["Particles"] = 16] = "Particles";
+        PictureKind[PictureKind["GameOver"] = 17] = "GameOver";
     })(PictureKind = Enum.PictureKind || (Enum.PictureKind = {}));
     ;
     /**
@@ -565,7 +569,7 @@ var Enum;
     })(MountainCollisionKind = Enum.MountainCollisionKind || (Enum.MountainCollisionKind = {}));
     ;
     /**
-     *   Enum for the title commands.
+     *   Enum for the title screen commands.
      *   @enum {number}
      *   @readonly
      */
@@ -577,6 +581,19 @@ var Enum;
         TitleCommandKind[TitleCommandKind["Exit"] = 3] = "Exit";
         TitleCommandKind[TitleCommandKind["Script"] = 4] = "Script";
     })(TitleCommandKind = Enum.TitleCommandKind || (Enum.TitleCommandKind = {}));
+    ;
+    /**
+     *   Enum for the game over commands.
+     *   @enum {number}
+     *   @readonly
+     */
+    let GameOverCommandKind;
+    (function (GameOverCommandKind) {
+        GameOverCommandKind[GameOverCommandKind["Continue"] = 0] = "Continue";
+        GameOverCommandKind[GameOverCommandKind["TitleScreen"] = 1] = "TitleScreen";
+        GameOverCommandKind[GameOverCommandKind["Exit"] = 2] = "Exit";
+        GameOverCommandKind[GameOverCommandKind["Script"] = 3] = "Script";
+    })(GameOverCommandKind = Enum.GameOverCommandKind || (Enum.GameOverCommandKind = {}));
     ;
     /**
      *   Enum for the title settings.
@@ -654,6 +671,7 @@ var Enum;
         VariableMapObjectCharacteristicKind[VariableMapObjectCharacteristicKind["YPixelPosition"] = 4] = "YPixelPosition";
         VariableMapObjectCharacteristicKind[VariableMapObjectCharacteristicKind["ZPixelPosition"] = 5] = "ZPixelPosition";
         VariableMapObjectCharacteristicKind[VariableMapObjectCharacteristicKind["Orientation"] = 6] = "Orientation";
+        VariableMapObjectCharacteristicKind[VariableMapObjectCharacteristicKind["Terrain"] = 7] = "Terrain";
     })(VariableMapObjectCharacteristicKind = Enum.VariableMapObjectCharacteristicKind || (Enum.VariableMapObjectCharacteristicKind = {}));
     ;
     /**

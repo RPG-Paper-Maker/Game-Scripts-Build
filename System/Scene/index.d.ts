@@ -1,6 +1,6 @@
 export * from "./Base.js";
 export * from "./MenuBase.js";
-export { MenuCommands } from "./MenuBase";
+export * from "./MenuBase.js";
 export * from "./Battle.js";
 export * from "./BattleAnimation.js";
 export * from "./BattleEndTurn.js";
@@ -10,6 +10,7 @@ export * from "./BattleSelection.js";
 export * from "./BattleStartTurn.js";
 export * from "./BattleVictory.js";
 export * from "./ChangeLanguage.js";
+export * from "./GameOver.js";
 export * from "./KeyboardAssign.js";
 export * from "./LoadGame.js";
 export * from "./Loading.js";

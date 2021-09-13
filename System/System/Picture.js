@@ -69,6 +69,8 @@ class Picture extends Base {
                 return "animation";
             case PictureKind.Skyboxes:
                 return "skybox";
+            case PictureKind.Particles:
+                return "particles";
         }
         return "";
     }
@@ -123,6 +125,10 @@ class Picture extends Base {
                 return Paths.ANIMATIONS;
             case PictureKind.Skyboxes:
                 return Paths.SKYBOXES;
+            case PictureKind.Particles:
+                return Paths.PARTICLES;
+            case PictureKind.GameOver:
+                return Paths.GAME_OVER;
         }
         return "";
     }

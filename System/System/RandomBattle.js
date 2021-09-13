@@ -10,6 +10,7 @@
 */
 import { System } from "../index.js";
 import { Utils } from "../Common/index.js";
+import { Game } from "../Core/index.js";
 import { Base } from "./Base.js";
 /** @class
  *  A random battle of the game.
@@ -30,12 +31,43 @@ class RandomBattle extends Base {
         this.troopID = System.DynamicValue.readOrDefaultDatabase(json.troopID);
         this.priority = System.DynamicValue.readOrDefaultNumber(json.priority, 10);
         this.isEntireMap = Utils.defaultValue(json.isEntireMap, true);
+        this.terrains = [];
+        if (!this.isEntireMap) {
+            Utils.readJSONSystemList({ list: json.terrains, listIndexes: this
+                    .terrains, func: (obj) => {
+                    return System.DynamicValue.readOrDefaultNumber(obj.value);
+                }
+            });
+        }
+        this.resetCurrentNumberSteps();
     }
     /**
      *  Update the current priority value.
      */
     updateCurrentPriority() {
         this.currentPriority = this.priority.getValue();
+    }
+    /**
+     *  Update the current number of steps for this random battle.
+     */
+    updateCurrentNumberSteps() {
+        if (this.isEntireMap) {
+            this.currentNumberSteps++;
+        }
+        else {
+            for (let terrain of this.terrains) {
+                if (Game.current.hero.terrain === terrain.getValue()) {
+                    this.currentNumberSteps++;
+                    break;
+                }
+            }
+        }
+    }
+    /**
+     *  Reset the current number of steps for this random battle.
+     */
+    resetCurrentNumberSteps() {
+        this.currentNumberSteps = 0;
     }
 }
 export { RandomBattle };

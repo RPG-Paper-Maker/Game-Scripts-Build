@@ -51,7 +51,7 @@ declare namespace Enum {
         None = 0,
         ShowText = 1,
         ChangeVariables = 2,
-        EndGame = 3,
+        GameOver = 3,
         While = 4,
         EndWhile = 5,
         WhileBreak = 6,
@@ -119,7 +119,9 @@ declare namespace Enum {
         ChangeMapProperties = 68,
         ChangeExperienceCurve = 69,
         ChangeClass = 70,
-        ChangeChronometer = 71
+        ChangeChronometer = 71,
+        ChangeWeather = 72,
+        PlayAVideo = 73
     }
     /**
      *   Enum for the different items kind.
@@ -234,7 +236,9 @@ declare namespace Enum {
         Objects3D = 12,
         Pictures = 13,
         Animations = 14,
-        Skyboxes = 15
+        Skyboxes = 15,
+        Particles = 16,
+        GameOver = 17
     }
     /**
      *   Enum for the different songs kind.
@@ -504,7 +508,7 @@ declare namespace Enum {
         Never = 2
     }
     /**
-     *   Enum for the title commands.
+     *   Enum for the title screen commands.
      *   @enum {number}
      *   @readonly
      */
@@ -514,6 +518,17 @@ declare namespace Enum {
         Settings = 2,
         Exit = 3,
         Script = 4
+    }
+    /**
+     *   Enum for the game over commands.
+     *   @enum {number}
+     *   @readonly
+     */
+    enum GameOverCommandKind {
+        Continue = 0,
+        TitleScreen = 1,
+        Exit = 2,
+        Script = 3
     }
     /**
      *   Enum for the title settings.
@@ -581,7 +596,8 @@ declare namespace Enum {
         XPixelPosition = 3,
         YPixelPosition = 4,
         ZPixelPosition = 5,
-        Orientation = 6
+        Orientation = 6,
+        Terrain = 7
     }
     /**
      *   Enum for the animation position kind.

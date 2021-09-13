@@ -180,11 +180,8 @@ class Battle extends Map {
      */
     gameOver() {
         if (this.canGameOver) {
-            Manager.Stack.pop();
-            Manager.Stack.replace(new Scene.TitleScreen()); // TODO
-        }
-        else {
-            this.endBattle();
+            Manager.Stack.popAll();
+            Manager.Stack.pushGameOver();
         }
     }
     /**
@@ -542,6 +539,69 @@ class Battle extends Map {
         return res;
     }
     /**
+     *  @inheritdoc
+     */
+    onMouseDown(x, y) {
+        super.onMouseDown(x, y);
+        if (this.interpreterTroopReaction) {
+            this.interpreterTroopReaction.onMouseDown(x, y);
+            return;
+        }
+        switch (this.step) {
+            case BattleStep.StartTurn:
+                this.battleStartTurn.onMouseDownStep(x, y);
+                break;
+            case BattleStep.EndTurn:
+                this.battleEndTurn.onMouseDownStep(x, y);
+                break;
+        }
+    }
+    /**
+     *  @inheritdoc
+     */
+    onMouseMove(x, y) {
+        super.onMouseMove(x, y);
+        if (this.interpreterTroopReaction) {
+            this.interpreterTroopReaction.onMouseMove(x, y);
+            return;
+        }
+        switch (this.step) {
+            case BattleStep.StartTurn:
+                this.battleStartTurn.onMouseMoveStep(x, y);
+                break;
+            case BattleStep.Selection:
+                this.battleSelection.onMouseMoveStep(x, y);
+                break;
+            case BattleStep.EndTurn:
+                this.battleEndTurn.onMouseMoveStep(x, y);
+                break;
+        }
+    }
+    /**
+     *  @inheritdoc
+     */
+    onMouseUp(x, y) {
+        super.onMouseUp(x, y);
+        if (this.interpreterTroopReaction) {
+            this.interpreterTroopReaction.onMouseUp(x, y);
+            return;
+        }
+        switch (this.step) {
+            case BattleStep.StartTurn:
+                this.battleStartTurn.onMouseUpStep(x, y);
+                break;
+            case BattleStep.Selection:
+                this.battleSelection.onMouseUpStep(x, y);
+                break;
+            case BattleStep.EndTurn:
+                this.battleEndTurn.onMouseUpStep(x, y);
+                break;
+            case BattleStep.Victory:
+                this.battleVictory.onMouseUpStep(x, y);
+                break;
+        }
+    }
+    /**
      *  Draw the battle 3D scene.
      */
     draw3D() {
@@ -607,7 +667,7 @@ Battle.CAMERA_TICK = 0.05;
 Battle.CAMERA_OFFSET = 3;
 Battle.START_CAMERA_DISTANCE = 10;
 Battle.WINDOW_PROFILE_WIDTH = 300;
-Battle.WINDOW_PROFILE_HEIGHT = 100;
+Battle.WINDOW_PROFILE_HEIGHT = 136;
 Battle.COMMANDS_NUMBER = 6;
 Battle.WINDOW_COMMANDS_WIDTH = 150;
 Battle.WINDOW_COMMANDS_SELECT_X = 25;

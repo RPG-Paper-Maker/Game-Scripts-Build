@@ -8,6 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { Datas } from "../index.js";
 import { ScreenResolution } from "../Common/index.js";
 import { Stack } from "../Manager/index.js";
 /** @class
@@ -76,30 +77,32 @@ class Bitmap {
     /**
      *  Set the position to the left.
      */
-    setLeft() {
-        this.oX = 0;
-        this.x = 0;
-        Stack.requestPaintHUD = true;
+    setLeft(offset = 0) {
+        this.setX(offset);
     }
     /**
      *  Set the position to the top.
      */
-    setTop() {
-        this.oY = 0;
-        this.y = 0;
-        Stack.requestPaintHUD = true;
+    setTop(offset = 0) {
+        this.setY(offset);
     }
     /**
      *  Set the position to the right.
      */
-    setRight(offset = 0) {
-        this.setX(ScreenResolution.SCREEN_X - this.oW - offset);
+    setRight(faceset = false, offset = 0) {
+        this.oX = ScreenResolution.SCREEN_X - offset - (faceset ? Datas.Systems
+            .facesetScalingWidth : this.oW);
+        this.x = ScreenResolution.getScreenX(ScreenResolution.SCREEN_X - offset)
+            - ScreenResolution.getScreenMinXY(faceset ? Datas.Systems
+                .facesetScalingWidth : this.oW);
+        Stack.requestPaintHUD = true;
     }
     /**
      *  Set the position to the bot.
      */
-    setBot(offset = 0) {
-        this.setY(ScreenResolution.SCREEN_Y - this.oH - offset);
+    setBot(faceset = false, offset = 0) {
+        this.setY(ScreenResolution.SCREEN_Y - (faceset ? Datas.Systems
+            .facesetScalingHeight : this.oH) - offset);
     }
     /**
      *  Set all the coords values.
@@ -113,6 +116,15 @@ class Bitmap {
         this.setY(y);
         this.setW(w);
         this.setH(h);
+    }
+    /**
+     *  Check if x and y coords are inside.
+     *  @param {number} x
+     *  @param {number} y
+     *  @returns {boolean}
+     */
+    isInside(x, y) {
+        return x >= this.x && x <= (this.x + this.w) && y >= this.y && y <= (this.y + this.h);
     }
 }
 export { Bitmap };

@@ -13,10 +13,24 @@ declare class LoadGame extends SaveLoadGame {
     load(): Promise<void>;
     loadGame(): Promise<void>;
     /**
+     *  Slot action.
+     *  @param {boolean} isKey
+     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     */
+    action(isKey: boolean, options?: {
+        key?: number;
+        x?: number;
+        y?: number;
+    }): void;
+    /**
      *  Handle scene key pressed
      *  @param {number} key - The key ID
      */
     onKeyPressed(key: number): void;
+    /**
+     *  @inheritdoc
+     */
+    onMouseUp(x: number, y: number): void;
     /**
      *  Draw the HUD scene
      */
