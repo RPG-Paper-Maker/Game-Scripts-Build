@@ -53,12 +53,10 @@ class PlayAVideo extends Base {
      *  @returns {number} The number of node to pass
     */
     update(currentState, object, state) {
-        console.log(this);
         if (currentState.parallel) {
             if (!currentState.started) {
                 switch (this.operation) {
                     case 0:
-                        console.log(this);
                         Manager.Videos.play(Datas.Videos.get(this.videoID)
                             .getPath() + (this.isStart ? "#t=" + this.start
                             .getValue() : ""), () => {

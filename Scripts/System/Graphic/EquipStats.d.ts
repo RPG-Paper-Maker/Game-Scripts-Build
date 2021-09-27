@@ -17,7 +17,6 @@ declare class EquipStats extends Base {
     nameLength: number;
     valueLength: number;
     graphicArrow: Graphic.Text;
-    arrowLength: number;
     displayAll: boolean;
     constructor(gamePlayer: Player, newValues: number[], displayAll?: boolean);
     /**

@@ -10,7 +10,7 @@
 */
 import { Base } from "./Base.js";
 import { Graphic, Datas } from "../index.js";
-import { Utils, Enum, Mathf } from "../Common/index.js";
+import { Utils, Enum, Mathf, Constants, ScreenResolution } from "../Common/index.js";
 var Align = Enum.Align;
 import { Game } from "../Core/index.js";
 /** @class
@@ -43,9 +43,11 @@ class TimeCurrencies extends Base {
         for (let i = 0, l = this.currencies.length; i < l; i++) {
             currency = this.currencies[i];
             this.height = i * (Math.max(currency.graphicText.fontSize, currency
-                .graphicIcon.h) + 5);
+                .graphicIcon.h) + ScreenResolution.getScreenMinXY(Constants
+                .MEDIUM_SPACE));
         }
-        this.height += 20 + this.graphicPlayTime.fontSize;
+        this.height += ScreenResolution.getScreenMinXY(Constants.HUGE_SPACE) +
+            this.graphicPlayTime.fontSize;
         this.offset = 0;
     }
     /**
@@ -80,11 +82,12 @@ class TimeCurrencies extends Base {
         for (let i = 0, l = this.currencies.length; i < l; i++) {
             currency = this.currencies[i];
             this.offset = i * (previousCurrency ? previousCurrency
-                .getMaxHeight() + 5 : 0);
+                .getMaxHeight() + ScreenResolution.getScreenMinXY(Constants
+                .MEDIUM_SPACE) : 0);
             currency.draw(x, y + this.offset, w, 0);
             previousCurrency = currency;
         }
-        this.offset += currency.getMaxHeight() + 20;
+        this.offset += currency.getMaxHeight() + ScreenResolution.getScreenMinXY(Constants.HUGE_SPACE);
         this.graphicPlayTime.draw(x, y + this.offset, w, 0);
         this.offset += this.graphicPlayTime.fontSize;
     }

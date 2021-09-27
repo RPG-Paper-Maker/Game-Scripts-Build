@@ -64,7 +64,7 @@ class WindowSkin extends System.Base {
      *  @param {number} [zoom=1.0] - The zoom to apply of target size
      */
     drawElement(r, x, y, w = r[2], h = r[3], zoom = 1.0, positionResize = true) {
-        this.picture.draw(x, y, w * zoom, h * zoom, r[0], r[1], r[2], r[3], positionResize);
+        this.picture.draw({ x: x, y: y, w: w * zoom, h: h * zoom, sx: r[0], sy: r[1], sw: r[2], sh: r[3], positionResize: positionResize });
     }
     /**
      *  Draw the background box.
@@ -168,8 +168,10 @@ class WindowSkin extends System.Base {
      */
     drawArrowTarget(frame, x, y, positionResize = false) {
         let width = this.arrowTargetSelection[2] / Datas.Systems.FRAMES;
-        this.picture.draw(x - (width / 2), y, width, this.arrowTargetSelection[3], this.arrowTargetSelection[0] + (frame * width), this
-            .arrowTargetSelection[1], width, this.arrowTargetSelection[3], positionResize);
+        this.picture.draw({ x: x - (width / 2), y: y, w: width, h: this
+                .arrowTargetSelection[3], sx: this.arrowTargetSelection[0] + (frame
+                * width), sy: this.arrowTargetSelection[1], sw: width, sh: this
+                .arrowTargetSelection[3], positionResize: positionResize });
     }
     /**
      *  Draw the arrow for end of messages.
@@ -179,7 +181,9 @@ class WindowSkin extends System.Base {
      */
     drawArrowMessage(frame, x, y) {
         let width = this.arrowEndMessage[2] / Datas.Systems.FRAMES;
-        this.picture.draw(x - (width / 2), y, width, this.arrowEndMessage[3], this.arrowEndMessage[0] + (frame * width), this.arrowEndMessage[1], width, this.arrowEndMessage[3]);
+        this.picture.draw({ x: x - (width / 2), y: y, w: width, h: this
+                .arrowEndMessage[3], sx: this.arrowEndMessage[0] + (frame * width),
+            sy: this.arrowEndMessage[1], sw: width, sh: this.arrowEndMessage[3] });
     }
     /**
      *  Draw the arrow up for spinbox.
@@ -187,7 +191,9 @@ class WindowSkin extends System.Base {
      *  @param {number} y - The y position
      */
     drawArrowUp(x, y) {
-        this.picture.draw(x, y, this.arrowUpDown[2], this.arrowUpDown[3] / 2, this.arrowUpDown[0], this.arrowUpDown[1], this.arrowUpDown[2], this.arrowUpDown[3] / 2);
+        this.picture.draw({ x: x, y: y, w: this.arrowUpDown[2], h: this
+                .arrowUpDown[3] / 2, sx: this.arrowUpDown[0], sy: this.arrowUpDown[1],
+            sw: this.arrowUpDown[2], sh: this.arrowUpDown[3] / 2 });
     }
     /**
      *  Draw the arrow up for spinbox.
@@ -195,7 +201,10 @@ class WindowSkin extends System.Base {
      *  @param {number} y - The y position
      */
     drawArrowDown(x, y) {
-        this.picture.draw(x, y, this.arrowUpDown[2], this.arrowUpDown[3] / 2, this.arrowUpDown[0], this.arrowUpDown[1] + (this.arrowUpDown[3] / 2), this.arrowUpDown[2], this.arrowUpDown[3] / 2);
+        this.picture.draw({ x: x, y: y, w: this.arrowUpDown[2], h: this
+                .arrowUpDown[3] / 2, sx: this.arrowUpDown[0], sy: this.arrowUpDown[1]
+                + (this.arrowUpDown[3] / 2), sw: this.arrowUpDown[2], sh: this
+                .arrowUpDown[3] / 2 });
     }
     /**
      *  Draw a damage number.
@@ -211,8 +220,9 @@ class WindowSkin extends System.Base {
         let height = rect[3];
         this.picture.stretch = false;
         for (let i = 0, l = digits.length; i < l; i++) {
-            this.picture.draw(x + ((i - ((l - 1) / 2)) * (ScreenResolution
-                .getScreenMinXY(width) * zoom)), y, width * zoom, height * zoom, rect[0] + (digits[i] * width), rect[1], width, height, false);
+            this.picture.draw({ x: x + ((i - ((l - 1) / 2)) * (ScreenResolution
+                    .getScreenMinXY(width) * zoom)), y: y, w: width * zoom, h: height * zoom, sx: rect[0] + (digits[i] * width), sy: rect[1],
+                sw: width, sh: height, positionResize: false });
         }
         this.picture.stretch = true;
     }

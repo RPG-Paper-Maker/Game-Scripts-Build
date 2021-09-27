@@ -10,7 +10,7 @@
 */
 import { Base } from "./Base.js";
 import { System, Graphic, Datas } from "../index.js";
-import { Utils, Enum, Constants, Mathf } from "../Common/index.js";
+import { Utils, Enum, Constants, Mathf, ScreenResolution } from "../Common/index.js";
 var Align = Enum.Align;
 /** @class
  *  The graphic displaying all the items information in the inventory menu.
@@ -72,7 +72,7 @@ class Item extends Base {
         for (let i = this.graphicCurrencies.length - 1; i >= 0; i--) {
             graphic = this.graphicCurrencies[i];
             graphic.draw(x - offset, y, w, h);
-            offset += graphic.getWidth() + Constants.MEDIUM_SPACE;
+            offset += graphic.getWidth() + ScreenResolution.getScreenMinXY(Constants.MEDIUM_SPACE);
         }
         if (this.graphicNb) {
             this.graphicNb.draw(x - offset, y, w, h);

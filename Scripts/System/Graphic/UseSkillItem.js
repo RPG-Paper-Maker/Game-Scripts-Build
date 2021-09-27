@@ -10,7 +10,7 @@
 */
 import { Base } from "./Base.js";
 import { Graphic, Manager, Datas, Scene } from "../index.js";
-import { Mathf } from "../Common/index.js";
+import { Mathf, ScreenResolution } from "../Common/index.js";
 import { Battler, Game } from "../Core/index.js";
 /** @class
  *  The graphic displaying a skill or an item use.
@@ -186,7 +186,9 @@ class UseSkillItem extends Base {
      */
     drawArrowAtIndex(index, x, y, h) {
         Datas.Systems.getCurrentWindowSkin().drawArrowTarget(this
-            .graphicCharacters[index].battlerFrame.value, x + 32 + (index * 85), y + h - 20, true);
+            .graphicCharacters[index].battlerFrame.value, x + ScreenResolution
+            .getScreenMinXY(32) + (index * 85), y + h - ScreenResolution
+            .getScreenMinXY(20));
     }
     /**
      *  Drawing the skill or item use informations.
@@ -208,7 +210,9 @@ class UseSkillItem extends Base {
     draw(x, y, w, h) {
         let i, l;
         for (i = 0, l = this.graphicCharacters.length; i < l; i++) {
-            this.graphicCharacters[i].drawCharacter(x + 5 + (i * 85), y - 32, w, h);
+            this.graphicCharacters[i].drawCharacter(x + ScreenResolution
+                .getScreenMinXY(5 + (i * 85)), y - ScreenResolution
+                .getScreenMinXY(32), w, h);
         }
         if (!this.hideArrow) {
             if (this.all) {

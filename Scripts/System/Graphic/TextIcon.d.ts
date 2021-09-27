@@ -23,7 +23,6 @@ declare class TextIcon extends Base {
     space: number;
     graphicIcon: Picture2D;
     graphicText: Graphic.Text;
-    length: number;
     constructor(text: string, iconID: number, { side, align, space }?: {
         side?: Enum.Align;
         align?: Enum.Align;

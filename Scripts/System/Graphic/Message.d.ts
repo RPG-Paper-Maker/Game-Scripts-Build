@@ -82,7 +82,7 @@ declare class Message extends Graphic.Base {
      *  @param {number} w - The width dimention to draw graphic
      *  @param {number} h - The height dimention to draw graphic
      */
-    drawChoice(x?: number, y?: number, w?: number, h?: number, positionResize?: boolean): void;
+    drawChoice(x?: number, y?: number, w?: number, h?: number): void;
     /**
      *  Drawing the message.
      *  @param {number} [x=this.oX] - The x position to draw graphic
@@ -92,6 +92,6 @@ declare class Message extends Graphic.Base {
      *  @param {boolean} [positionResize=true] - If checked, resize postion
      *  according to screen resolution
      */
-    draw(x?: number, y?: number, w?: number, h?: number, positionResize?: boolean): void;
+    draw(x?: number, y?: number, w?: number, h?: number): void;
 }
 export { Message };

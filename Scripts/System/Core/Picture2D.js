@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Datas } from "../index.js";
-import { ScreenResolution, Utils, Platform } from "../Common/index.js";
+import { ScreenResolution, Platform } from "../Common/index.js";
 import { Stack } from "../Manager/index.js";
 import { Bitmap } from "./Bitmap.js";
 /** @class
@@ -149,17 +149,17 @@ class Picture2D extends Bitmap {
      *  @param {boolean} [positionResize=true] - Indicate if the position resize
      *  (screen resolution)
      */
-    draw(x = undefined, y = undefined, w = undefined, h = undefined, sx = 0, sy = 0, sw = this.oW, sh = this.oH, positionResize = true) {
+    draw({ x = null, y = null, w = null, h = null, sx = 0, sy = 0, sw = this.oW, sh = this.oH, positionResize = false } = {}) {
         if (this.loaded && sw > 0 && sh > 0) {
             // Default values
-            x = Utils.isUndefined(x) ? this.x : (positionResize ?
-                ScreenResolution.getScreenX(x) : x);
-            y = Utils.isUndefined(y) ? this.y : (positionResize ?
-                ScreenResolution.getScreenY(y) : y);
-            w = Utils.isUndefined(w) ? this.w * this.zoom : (this.stretch ?
-                ScreenResolution.getScreenX(w) : ScreenResolution.getScreenMinXY(w));
-            h = Utils.isUndefined(h) ? this.h * this.zoom : (this.stretch ?
-                ScreenResolution.getScreenY(h) : ScreenResolution.getScreenMinXY(h));
+            x = x === null ? this.x : (positionResize ? ScreenResolution
+                .getScreenX(x) : x);
+            y = y === null ? this.y : (positionResize ? ScreenResolution
+                .getScreenY(y) : y);
+            w = w === null ? this.w * this.zoom : (this.stretch ? ScreenResolution
+                .getScreenX(w) : ScreenResolution.getScreenMinXY(w));
+            h = h === null ? this.h * this.zoom : (this.stretch ? ScreenResolution
+                .getScreenY(h) : ScreenResolution.getScreenMinXY(h));
             // Draw the image according to all parameters
             let angle = this.angle * Math.PI / 180;
             Platform.ctx.save();

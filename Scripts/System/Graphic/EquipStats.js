@@ -10,7 +10,7 @@
 */
 import { Base } from "./Base.js";
 import { Graphic, Datas } from "../index.js";
-import { Constants, Platform, Utils } from "../Common/index.js";
+import { Constants, ScreenResolution, Utils } from "../Common/index.js";
 /** @class
  *  The graphic displaying all the stats modifications in the equip menu.
  *  @extends Graphic.Base
@@ -54,17 +54,11 @@ class EquipStats extends Base {
                 // Name of the stat
                 graphicName = new Graphic.Text(statistic.name() + Constants
                     .STRING_COLON);
-                Platform.ctx.font = graphicName.font;
-                graphicName.updateContextFont();
-                maxLength = Math.max(Platform.ctx.measureText(graphicName.text)
-                    .width, maxLength);
+                maxLength = Math.max(graphicName.textWidth, maxLength);
                 this.listStatsNames.push(graphicName);
                 // Value and new value
                 graphicValue = new Graphic.Text(txt);
-                Platform.ctx.font = graphicValue.font;
-                graphicValue.updateContextFont();
-                maxLengthValue = Math.max(Platform.ctx.measureText(graphicValue
-                    .text).width, maxLengthValue);
+                maxLengthValue = Math.max(graphicValue.textWidth, maxLengthValue);
                 this.listStats.push(graphicValue);
                 if (this.isChanging) {
                     txt = statistic.isFix ? Utils.numToString(newValue) : Math
@@ -80,10 +74,6 @@ class EquipStats extends Base {
         this.valueLength = maxLengthValue;
         // Arrow
         this.graphicArrow = new Graphic.Text("->");
-        Platform.ctx.font = this.graphicArrow.font;
-        this.graphicArrow.updateContextFont();
-        this.arrowLength = Platform.ctx.measureText(this.graphicArrow.text)
-            .width;
     }
     /**
      *  Drawing the statistics modifications.
@@ -93,18 +83,19 @@ class EquipStats extends Base {
      *  @param {number} h - The height dimention to draw graphic
     */
     drawChoice(x, y, w, h) {
-        let xStats = x + 10;
-        let yStats = y + 20;
+        let xStats = x + ScreenResolution.getScreenMinXY(Constants.LARGE_SPACE);
+        let yStats = y + ScreenResolution.getScreenMinXY(Constants.HUGE_SPACE);
         let yStat, xStat;
         for (let i = 0, l = this.listStatsNames.length; i < l; i++) {
-            yStat = yStats + (i * 20);
+            yStat = yStats + (i * ScreenResolution.getScreenMinXY(Constants.HUGE_SPACE));
             this.listStatsNames[i].draw(xStats, yStat, 0, 0);
-            xStat = xStats + this.nameLength + 10;
+            xStat = xStats + this.nameLength + ScreenResolution.getScreenMinXY(Constants.LARGE_SPACE);
             this.listStats[i].draw(xStat, yStat, 0, 0);
             if (this.isChanging) {
-                xStat += this.valueLength + 10;
+                xStat += this.valueLength + ScreenResolution.getScreenMinXY(Constants.LARGE_SPACE);
                 this.graphicArrow.draw(xStat, yStat, 0, 0);
-                xStat += this.arrowLength + 20;
+                xStat += this.graphicArrow.textWidth + ScreenResolution
+                    .getScreenMinXY(Constants.HUGE_SPACE);
                 this.listNewStats[i].draw(xStat, yStat, 0, 0);
             }
         }
@@ -117,21 +108,7 @@ class EquipStats extends Base {
      *  @param {number} h - The height dimention to draw graphic
     */
     draw(x, y, w, h) {
-        let xStats = x + 10;
-        let yStats = y + 20;
-        let yStat, xStat;
-        for (let i = 0, l = this.listStatsNames.length; i < l; i++) {
-            yStat = yStats + (i * 20);
-            this.listStatsNames[i].draw(xStats, yStat, 0, 0);
-            xStat = xStats + this.nameLength + 10;
-            this.listStats[i].draw(xStat, yStat, 0, 0);
-            if (this.isChanging) {
-                xStat += this.valueLength + 10;
-                this.graphicArrow.draw(xStat, yStat, 0, 0);
-                xStat += this.arrowLength + 20;
-                this.listNewStats[i].draw(xStat, yStat, 0, 0);
-            }
-        }
+        this.drawChoice(x, y, w, h);
     }
 }
 export { EquipStats };

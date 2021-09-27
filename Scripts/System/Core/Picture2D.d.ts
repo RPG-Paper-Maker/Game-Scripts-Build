@@ -91,7 +91,17 @@ declare class Picture2D extends Bitmap {
      *  @param {boolean} [positionResize=true] - Indicate if the position resize
      *  (screen resolution)
      */
-    draw(x?: number, y?: number, w?: number, h?: number, sx?: number, sy?: number, sw?: number, sh?: number, positionResize?: boolean): void;
+    draw({ x, y, w, h, sx, sy, sw, sh, positionResize }?: {
+        x?: number;
+        y?: number;
+        w?: number;
+        h?: number;
+        sx?: number;
+        sy?: number;
+        sw?: number;
+        sh?: number;
+        positionResize?: boolean;
+    }): void;
 }
 interface pictureOptions {
     x?: number;

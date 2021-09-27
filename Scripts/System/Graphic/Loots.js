@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Base } from "./Base.js";
-import { Enum } from "../Common/index.js";
+import { Enum, ScreenResolution } from "../Common/index.js";
 var LootKind = Enum.LootKind;
 import { Graphic } from "../index.js";
 /** @class
@@ -49,7 +49,8 @@ class Loots extends Base {
      */
     draw(x, y, w, h) {
         for (let i = 0, l = this.graphicsLoots.length; i < l; i++) {
-            this.graphicsLoots[i].drawChoice(x, y + (i * 30), w, 30);
+            this.graphicsLoots[i].drawChoice(x, y + (i * ScreenResolution
+                .getScreenMinXY(30)), w, ScreenResolution.getScreenMinXY(30));
         }
     }
 }

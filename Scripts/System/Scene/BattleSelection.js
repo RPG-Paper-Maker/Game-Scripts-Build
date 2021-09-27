@@ -73,17 +73,17 @@ class BattleSelection {
         let ownedItem, item;
         for (let i = 0, l = Game.current.items.length; i < l; i++) {
             ownedItem = Game.current.items[i];
-            item = Datas.Items.get(ownedItem.system.id);
-            if (ownedItem.kind === ItemKind.Item && item.consumable && (item
-                .availableKind === AvailableKind.Battle || item.availableKind
-                === AvailableKind.Always)) {
-                this.battle.listItems.push(new Graphic.Item(ownedItem));
+            if (ownedItem.kind === ItemKind.Item) {
+                item = ownedItem.system;
+                if (item.consumable && (item.availableKind === AvailableKind
+                    .Battle || item.availableKind === AvailableKind.Always)) {
+                    this.battle.listItems.push(new Graphic.Item(ownedItem));
+                }
             }
         }
-        this.battle.windowChoicesItems.setContentsCallbacks(this.battle
-            .listItems);
-        this.battle.windowItemDescription.content = this.battle
-            .windowChoicesItems.getCurrentContent();
+        this.battle.windowChoicesItems.setContentsCallbacks(this.battle.listItems);
+        this.battle.windowItemDescription.content = this.battle.windowChoicesItems
+            .getCurrentContent();
     }
     /**
      *  Register the last command index and offset in the user.

@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Base } from "./Base.js";
-import { Enum, Constants, Platform } from "../Common/index.js";
+import { Enum, Constants, ScreenResolution } from "../Common/index.js";
 var Align = Enum.Align;
 var PictureKind = Enum.PictureKind;
 import { Graphic, Datas } from "../index.js";
@@ -31,7 +31,7 @@ class TextIcon extends Base {
         this.iconID = iconID;
         this.side = side;
         this.align = align;
-        this.space = space;
+        this.space = ScreenResolution.getScreenMinXY(space);
         this.graphicIcon = Datas.Pictures.getPictureCopy(PictureKind.Icons, this
             .iconID);
         this.graphicText = new Graphic.Text("", textOptions);
@@ -42,14 +42,14 @@ class TextIcon extends Base {
      *  @returns {number}
      */
     getMaxHeight() {
-        return Math.max(this.graphicText.fontSize, this.graphicIcon.oH);
+        return Math.max(this.graphicText.fontSize, this.graphicIcon.h);
     }
     /**
      *  Get the width.
      *  @returns {number}
      */
     getWidth() {
-        return this.graphicIcon.oW + this.space + this.length;
+        return this.graphicIcon.w + this.space + this.graphicText.textWidth;
     }
     /**
      *  Set the text.
@@ -59,9 +59,7 @@ class TextIcon extends Base {
         if (this.text !== text) {
             this.text = text;
             this.graphicText.setText(text);
-            Platform.ctx.font = this.graphicText.font;
-            this.graphicText.updateContextFont();
-            this.length = Platform.ctx.measureText(this.text).width;
+            this.graphicText.measureText();
         }
     }
     /**
@@ -72,8 +70,8 @@ class TextIcon extends Base {
      *  @param {number} h - The height dimention to draw graphic
      */
     drawChoice(x, y, w, h) {
-        let iconWidth = this.graphicIcon.oW;
-        let iconHeight = this.graphicIcon.oH;
+        let iconWidth = this.graphicIcon.w;
+        let iconHeight = this.graphicIcon.h;
         // Align offset
         let offset;
         switch (this.align) {
@@ -89,14 +87,16 @@ class TextIcon extends Base {
         }
         // Draw according to side
         if (this.side === Align.Left) {
-            this.graphicIcon.draw(x + offset, y - (iconHeight / 2) + (h / 2));
+            this.graphicIcon.draw({ x: x + offset, y: y - (iconHeight / 2) + (h
+                    / 2) });
             offset += iconWidth + this.space;
             this.graphicText.draw(x + offset, y, w, h);
         }
         else if (this.side === Align.Right) {
             this.graphicText.draw(x + offset, y, w, h);
-            offset += this.length + this.space;
-            this.graphicIcon.draw(x + offset, y - (iconHeight / 2) + (h / 2));
+            offset += this.graphicText.textWidth + this.space;
+            this.graphicIcon.draw({ x: x + offset, y: y - (iconHeight / 2) + (h
+                    / 2) });
         }
     }
     /**

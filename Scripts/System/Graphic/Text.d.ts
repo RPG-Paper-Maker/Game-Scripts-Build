@@ -40,7 +40,6 @@ declare class Text extends Base {
     italic: boolean;
     backColor: System.Color;
     strokeColor: System.Color;
-    oFont: string;
     font: string;
     textWidth: number;
     textHeight: number;
@@ -73,14 +72,9 @@ declare class Text extends Base {
      */
     setText(text: string): void;
     /**
-     *  Update the context font (without window resizing), this function is
-     *  used before a context.measureText.
-     */
-    updateContextFont(): void;
-    /**
      *  Update the context font with resizing.
      */
-    updateContextFontReal(): void;
+    updateContextFont(): void;
     /**
      *  Measure text width and stock results in the instance.
      */
@@ -91,19 +85,15 @@ declare class Text extends Base {
      *  @param {number} [y=this.oY] - The y position to draw graphic
      *  @param {number} [w=this.oW] - The width dimention to draw graphic
      *  @param {number} [h=this.oH] - The height dimention to draw graphic
-     *  @param {boolean} [positionResize=true] - If checked, resize postion
-     *  according to screen resolution
      */
-    drawChoice(x?: number, y?: number, w?: number, h?: number, positionResize?: boolean): void;
+    drawChoice(x?: number, y?: number, w?: number, h?: number): void;
     /**
      *  Drawing the text in box (duplicate of drawChoice).
      *  @param {number} [x=this.oX] - The x position to draw graphic
      *  @param {number} [y=this.oY] - The y position to draw graphic
      *  @param {number} [w=this.oW] - The width dimention to draw graphic
      *  @param {number} [h=this.oH] - The height dimention to draw graphic
-     *  @param {boolean} [positionResize=true] - If checked, resize postion
-     *  according to screen resolution
      */
-    draw(x?: number, y?: number, w?: number, h?: number, positionResize?: boolean): void;
+    draw(x?: number, y?: number, w?: number, h?: number): void;
 }
 export { Text };

@@ -10,6 +10,7 @@
 */
 import { Base } from "./Base.js";
 import { Graphic, Datas, System } from "../index.js";
+import { Constants, ScreenResolution } from "../Common/index.js";
 /** @class
  *  The graphic displaying all the equipment information in the equip menu.
  *  @extends Graphic.Base
@@ -20,7 +21,7 @@ import { Graphic, Datas, System } from "../index.js";
 class Equip extends Base {
     constructor(player, id, length, isPossible) {
         super();
-        this.length = length;
+        this.length = ScreenResolution.getScreenMinXY(length);
         this.isPossible = isPossible;
         let equiped = player.equip[id];
         // All the graphics
@@ -38,7 +39,8 @@ class Equip extends Base {
      */
     drawChoice(x, y, w, h) {
         this.graphicEquipmentName.draw(x, y, w, h);
-        this.graphicEquipment.draw(x + this.length + 10, y, w, h);
+        this.graphicEquipment.draw(x + this.length + ScreenResolution
+            .getScreenMinXY(Constants.LARGE_SPACE), y, w, h);
     }
     /**
      *  Drawing the equipment kind and equipment name.

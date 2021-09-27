@@ -10,7 +10,7 @@
 */
 import { Base } from "./Base.js";
 import { Graphic, Datas } from "../index.js";
-import { Constants, Platform, Utils, Enum } from "../Common/index.js";
+import { Constants, Utils, Enum, ScreenResolution } from "../Common/index.js";
 var Align = Enum.Align;
 /** @class
  *  The graphic displaying all experience + currencies
@@ -21,9 +21,6 @@ class RewardsTop extends Base {
         // Experience
         this.graphicXP = new Graphic.Text(Datas.BattleSystems.getExpStatistic()
             .name() + Constants.STRING_COLON + Constants.STRING_SPACE + xp);
-        Platform.ctx.font = this.graphicXP.font;
-        this.graphicXP.updateContextFont();
-        this.graphicXPLength = Platform.ctx.measureText(this.graphicXP.text).width;
         // Currencies
         this.graphicCurrencies = [];
         for (let id in currencies) {
@@ -50,21 +47,25 @@ class RewardsTop extends Base {
      */
     draw(x, y, w, h) {
         // Calculating offset for centering
-        let offsetWidth = this.graphicXPLength + 10;
+        let offsetWidth = this.graphicXP.textWidth;
+        +ScreenResolution
+            .getScreenMinXY(Constants.LARGE_SPACE);
         let i, l;
         for (i = 0, l = this.graphicCurrencies.length; i < l; i++) {
-            offsetWidth += this.graphicCurrencies[i].getWidth() + (i < l - 1 ? 10 : 0);
+            offsetWidth += this.graphicCurrencies[i].getWidth() + ScreenResolution
+                .getScreenMinXY(i < l - 1 ? Constants.LARGE_SPACE : 0);
         }
         offsetWidth = ((w - offsetWidth) / 2);
         // Experience
         this.graphicXP.draw(x + offsetWidth, y, w, h);
-        offsetWidth += this.graphicXPLength + 10;
+        offsetWidth += this.graphicXP.textWidth + ScreenResolution
+            .getScreenMinXY(Constants.LARGE_SPACE);
         // Currencies
         let currency;
         for (i = 0, l = this.graphicCurrencies.length; i < l; i++) {
             currency = this.graphicCurrencies[i];
             currency.draw(x + offsetWidth, y, w, h);
-            offsetWidth += currency.getWidth() + 10;
+            offsetWidth += currency.getWidth() + ScreenResolution.getScreenMinXY(Constants.LARGE_SPACE);
         }
     }
 }

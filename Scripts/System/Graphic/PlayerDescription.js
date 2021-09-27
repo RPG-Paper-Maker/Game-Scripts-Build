@@ -11,9 +11,7 @@
 import { Base } from "./Base.js";
 import { Frame } from "../Core/index.js";
 import { Graphic, Datas, System, Manager } from "../index.js";
-import { Enum, Constants, Utils, Platform } from "../Common/index.js";
-var Align = Enum.Align;
-var PictureKind = Enum.PictureKind;
+import { Enum, Constants, Utils, ScreenResolution } from "../Common/index.js";
 import { Status } from "../Core/Status.js";
 /** @class
  *  The graphic displaying all the stats in the player description state menu.
@@ -30,8 +28,8 @@ class PlayerDescription extends Base {
         let levelStat = Datas.BattleSystems.getLevelStatistic();
         let expStat = Datas.BattleSystems.getExpStatistic();
         // All the graphics
-        this.graphicNameCenter = new Graphic.Text(this.player.name, { align: Align
-                .Center });
+        this.graphicNameCenter = new Graphic.Text(this.player.name, { align: Enum
+                .Align.Center });
         this.graphicName = new Graphic.Text(this.player.name);
         this.graphicDescription = new Graphic.Text(system.description.name());
         this.graphicClass = new Graphic.Text(cl.name(), { fontSize: Constants
@@ -63,10 +61,7 @@ class PlayerDescription extends Base {
                 }
                 graphicName = new Graphic.Text(statistic.name() + Constants
                     .STRING_COLON);
-                Platform.ctx.font = graphicName.font;
-                graphicName.updateContextFont();
-                maxLength = Math.max(Platform.ctx.measureText(graphicName.text)
-                    .width, maxLength);
+                maxLength = Math.max(graphicName.textWidth, maxLength);
                 if (j % 7 === 6) {
                     this.listLength.push(maxLength);
                     maxLength = 0;
@@ -83,7 +78,7 @@ class PlayerDescription extends Base {
         }
         this.listLength.push(maxLength);
         // Battler
-        this.battler = Datas.Pictures.getPictureCopy(PictureKind.Battlers, system.idBattler);
+        this.battler = Datas.Pictures.getPictureCopy(Enum.PictureKind.Battlers, system.idBattler);
         this.battlerFrame = new Frame(250, { frames: Datas.Systems.battlersFrames });
     }
     /**
@@ -137,10 +132,7 @@ class PlayerDescription extends Base {
                 statistic = Datas.BattleSystems.getStatistic(id);
                 graphicName = new Graphic.Text(statistic.name() + Constants
                     .STRING_COLON);
-                Platform.ctx.font = graphicName.font;
-                graphicName.updateContextFont();
-                this.maxLength = Math.max(Platform.ctx.measureText(graphicName
-                    .text).width, this.maxLength);
+                this.maxLength = Math.max(graphicName.textWidth, this.maxLength);
                 this.listStatsNames.push(graphicName);
                 txt = "";
                 if (this.player.stepLevelUp === 0) {
@@ -179,8 +171,9 @@ class PlayerDescription extends Base {
      */
     drawStatisticProgression(x, y, w, h) {
         for (let i = 0, l = this.listStatsNames.length; i < l; i++) {
-            this.listStatsNames[i].draw(x, y * 30, 0, 0);
-            this.listStats[i].draw(x + this.maxLength + 10, i * 30, 0, 0);
+            this.listStatsNames[i].draw(x, y * ScreenResolution.getScreenMinXY(30), 0, 0);
+            this.listStats[i].draw(x + this.maxLength + ScreenResolution
+                .getScreenMinXY(10), i * ScreenResolution.getScreenMinXY(30), 0, 0);
         }
     }
     /**
@@ -201,48 +194,49 @@ class PlayerDescription extends Base {
      *  @param {number} h - The height dimention to draw graphic
      */
     draw(x, y, w, h) {
-        let xCharacter = x + 80;
-        let yName = y + 20;
+        let xCharacter = x + ScreenResolution.getScreenMinXY(80);
+        let yName = y + ScreenResolution.getScreenMinXY(20);
         let coef = Constants.BASIC_SQUARE_SIZE / Datas.Systems.SQUARE_SIZE;
-        let wBattler = this.battler.oW / Datas.Systems.battlersFrames;
-        let hBattler = this.battler.oH / Datas.Systems.battlersColumns;
+        let wBattler = this.battler.w / Datas.Systems.battlersFrames;
+        let hBattler = this.battler.h / Datas.Systems.battlersColumns;
+        let owBattler = this.battler.oW / Datas.Systems.battlersFrames;
+        let ohBattler = this.battler.oH / Datas.Systems.battlersColumns;
         // Battler
-        this.battler.draw(x + (80 - (wBattler * coef)) / 2, y + 80 - (hBattler *
-            coef) - 15, wBattler * coef, hBattler * coef, this.battlerFrame
-            .value * wBattler, 0, wBattler, hBattler);
+        this.battler.draw({ x: x + (ScreenResolution.getScreenMinXY(80) -
+                (wBattler * coef)) / 2, y: y + ScreenResolution.getScreenMinXY(80) -
+                (hBattler * coef) - ScreenResolution.getScreenMinXY(15), w: owBattler
+                * coef, h: ohBattler * coef, sx: this.battlerFrame.value * owBattler,
+            sy: 0, sw: owBattler, sh: ohBattler });
         // Name, level, description, exp
-        yName = y + 10;
+        yName = y + ScreenResolution.getScreenMinXY(10);
         this.graphicName.draw(xCharacter, yName, 0, 0);
-        this.graphicName.updateContextFont();
-        let xLevelName = xCharacter + Platform.ctx.measureText(this.graphicName
-            .text).width + 10;
+        let xLevelName = xCharacter + this.graphicName.textWidth + ScreenResolution
+            .getScreenMinXY(10);
         this.graphicLevelName.draw(xLevelName, yName, 0, 0);
-        this.graphicLevelName.updateContextFont();
-        let xLevel = xLevelName + Platform.ctx.measureText(this.graphicLevelName
-            .text).width;
+        let xLevel = xLevelName + this.graphicLevelName.textWidth;
         this.graphicLevel.draw(xLevel, yName, 0, 0);
-        this.graphicLevel.updateContextFont();
-        let xStatus = xLevel + Platform.ctx.measureText(this.graphicLevel.text).width;
+        let xStatus = xLevel + this.graphicLevel.textWidth;
         Status.drawList(this.player.status, xStatus, yName);
-        let yClass = yName + 20;
+        let yClass = yName + ScreenResolution.getScreenMinXY(Constants.HUGE_SPACE);
         this.graphicClass.draw(xCharacter, yClass, 0, 0);
-        let yExp = yClass + 20;
+        let yExp = yClass + ScreenResolution.getScreenMinXY(Constants.HUGE_SPACE);
         let yDescription = yExp;
         if (this.graphicExpName !== null) {
             this.graphicExpName.draw(xCharacter, yExp, 0, 0);
-            this.graphicExp.draw(xCharacter + Platform.ctx.measureText(this
-                .graphicExpName.text).width + 10, yExp, 0, 0);
-            yDescription += 20;
+            this.graphicExp.draw(xCharacter + this.graphicExpName.textWidth +
+                ScreenResolution.getScreenMinXY(Constants.LARGE_SPACE), yExp, 0, 0);
+            yDescription += ScreenResolution.getScreenMinXY(Constants.HUGE_SPACE);
         }
         this.graphicDescription.draw(xCharacter, yDescription, 0, 0);
-        let yStats = yDescription + 30;
+        let yStats = yDescription + ScreenResolution.getScreenMinXY(30);
         // Stats
         let xStat, yStat;
         for (let i = 0, l = this.listStatsNames.length; i < l; i++) {
-            xStat = x + (Math.floor(i / 7) * 190);
-            yStat = yStats + ((i % 7) * 30);
+            xStat = x + ScreenResolution.getScreenMinXY(Math.floor(i / 7) * 190);
+            yStat = yStats + ScreenResolution.getScreenMinXY((i % 7) * 30);
             this.listStatsNames[i].draw(xStat, yStat, 0, 0);
-            this.listStats[i].draw(xStat + this.listLength[Math.floor(i / 7)] + 10, yStat, 0, 0);
+            this.listStats[i].draw(xStat + this.listLength[Math.floor(i / 7)] +
+                ScreenResolution.getScreenMinXY(Constants.LARGE_SPACE), yStat, 0, 0);
         }
     }
 }

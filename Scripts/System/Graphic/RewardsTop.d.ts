@@ -5,7 +5,6 @@ import { Graphic } from "../index.js";
  */
 declare class RewardsTop extends Base {
     graphicXP: Graphic.Text;
-    graphicXPLength: number;
     graphicCurrencies: Graphic.TextIcon[];
     constructor(xp: number, currencies: Record<string, number>);
     /**
