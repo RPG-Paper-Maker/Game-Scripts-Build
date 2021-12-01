@@ -6,6 +6,8 @@ import { Translatable } from "./Translatable.js";
  */
 declare class Icon extends Translatable {
     pictureID: number;
+    pictureIndexX: number;
+    pictureIndexY: number;
     constructor(json: any);
     /**
      *  Read the JSON associated to the icon.

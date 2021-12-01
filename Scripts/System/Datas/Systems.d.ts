@@ -47,6 +47,7 @@ declare class Systems {
     static dbOptions: EventCommand.SetDialogBoxOptions;
     static facesetScalingWidth: number;
     static facesetScalingHeight: number;
+    static iconsSize: number;
     static saveSlots: number;
     static modelHero: MapObject;
     static ignoreAssetsLoadingErrors: boolean;

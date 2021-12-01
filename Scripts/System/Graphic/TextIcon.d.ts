@@ -17,17 +17,25 @@ import { Graphic, System } from "../index.js";
 declare class TextIcon extends Base {
     text: string;
     iconID: number;
+    indexX: number;
+    indexY: number;
     system: System.Base;
     side: Align;
     align: Align;
     space: number;
     graphicIcon: Picture2D;
     graphicText: Graphic.Text;
-    constructor(text: string, iconID: number, { side, align, space }?: {
+    constructor(text: string, iconID: number, indexX: number, indexY: number, { side, align, space }?: {
         side?: Enum.Align;
         align?: Enum.Align;
         space?: number;
     }, textOptions?: {});
+    /**
+     *  Create a graphic according to a System.Icon.
+     *  @static
+     *  @returns {number}
+     */
+    static createFromSystem(text: string, icon: System.Icon, options?: {}, textOptions?: {}): Graphic.TextIcon;
     /**
      *  Get the max possible height.
      *  @returns {number}

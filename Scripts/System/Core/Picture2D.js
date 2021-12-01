@@ -22,13 +22,15 @@ import { Bitmap } from "./Bitmap.js";
  *   @param {number} [h=0] - Coords of the bitmap
  */
 class Picture2D extends Bitmap {
-    constructor(path = "", { x = 0, y = 0, w = 0, h = 0, zoom = 1.0, opacity = 1.0, angle = 0.0, cover = false, stretch = false } = {}) {
+    constructor(path = "", { x = 0, y = 0, w = 0, h = 0, zoom = 1.0, opacity = 1.0, angle = 0.0, cover = false, stretch = false, sx = 0, sy = 0 } = {}) {
         super(x, y, w, h);
         this.zoom = zoom;
         this.opacity = opacity;
         this.angle = angle;
         this.cover = cover;
         this.stretch = stretch;
+        this.sx = sx;
+        this.sy = sy;
         if (path) {
             this.path = path;
             this.loaded = false;
@@ -149,8 +151,8 @@ class Picture2D extends Bitmap {
      *  @param {boolean} [positionResize=true] - Indicate if the position resize
      *  (screen resolution)
      */
-    draw({ x = null, y = null, w = null, h = null, sx = 0, sy = 0, sw = this.oW, sh = this.oH, positionResize = false } = {}) {
-        if (this.loaded && sw > 0 && sh > 0) {
+    draw({ x = null, y = null, w = null, h = null, sx = this.sx, sy = this.sy, sw = this.oW, sh = this.oH, positionResize = false } = {}) {
+        if (!this.empty && this.loaded && sw > 0 && sh > 0) {
             // Default values
             x = x === null ? this.x : (positionResize ? ScreenResolution
                 .getScreenX(x) : x);

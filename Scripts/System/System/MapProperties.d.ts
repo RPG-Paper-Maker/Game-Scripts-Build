@@ -34,6 +34,7 @@ declare class MapProperties extends Base {
     cameraBackground: THREE.Camera;
     sceneBackground: THREE.Scene;
     skyboxGeometry: THREE.BoxGeometry;
+    skyboxMesh: THREE.Mesh;
     maxNumberSteps: number;
     constructor();
     /**
@@ -66,5 +67,6 @@ declare class MapProperties extends Base {
      *  Check if a random battle can be started.
      */
     checkRandomBattle(): void;
+    close(): void;
 }
 export { MapProperties };

@@ -144,6 +144,8 @@ class Systems {
         // Faceset options
         this.facesetScalingWidth = Utils.defaultValue(json.facesetScalingWidth, 120);
         this.facesetScalingHeight = Utils.defaultValue(json.facesetScalingHeight, 120);
+        // Icons size
+        this.iconsSize = Utils.defaultValue(json.iconsSize, 16);
         // Enter name menu options
         this.enterNameTable = json.enterNameTable;
         // Initialize loading scene now that basics are loaded

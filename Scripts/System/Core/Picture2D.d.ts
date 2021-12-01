@@ -23,7 +23,9 @@ declare class Picture2D extends Bitmap {
     image: HTMLImageElement;
     centered: boolean;
     reverse: boolean;
-    constructor(path?: string, { x, y, w, h, zoom, opacity, angle, cover, stretch }?: {
+    sx: number;
+    sy: number;
+    constructor(path?: string, { x, y, w, h, zoom, opacity, angle, cover, stretch, sx, sy }?: {
         x?: number;
         y?: number;
         w?: number;
@@ -33,6 +35,8 @@ declare class Picture2D extends Bitmap {
         angle?: number;
         cover?: boolean;
         stretch?: boolean;
+        sx?: number;
+        sy?: number;
     });
     /**
      *  Create a picture and then load it

@@ -8,6 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { Utils } from "../Common/index.js";
 import { Translatable } from "./Translatable.js";
 /** @class
  *  Something at least including an icon.
@@ -25,6 +26,8 @@ class Icon extends Translatable {
     read(json) {
         super.read(json);
         this.pictureID = json.pid;
+        this.pictureIndexX = Utils.defaultValue(json.pictureIndexX, 0);
+        this.pictureIndexY = Utils.defaultValue(json.pictureIndexY, 0);
     }
 }
 export { Icon };
