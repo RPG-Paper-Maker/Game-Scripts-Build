@@ -121,7 +121,8 @@ declare namespace Enum {
         ChangeClass = 70,
         ChangeChronometer = 71,
         ChangeWeather = 72,
-        PlayAVideo = 73
+        PlayAVideo = 73,
+        SwitchTexture = 74
     }
     /**
      *   Enum for the different items kind.

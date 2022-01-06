@@ -21,10 +21,12 @@ var Align = Enum.Align;
  *  @param {number} facesetID - The faceset picture ID
  */
 class Message extends Graphic.Base {
-    constructor(message, facesetID) {
+    constructor(message, facesetID, facesetIndexX, facesetIndexY) {
         super();
         this.message = message;
         this.faceset = Datas.Pictures.getPictureCopy(PictureKind.Facesets, facesetID);
+        this.facesetIndexX = facesetIndexX;
+        this.facesetIndexY = facesetIndexY;
         this.graphics = [];
         this.positions = [];
         this.setMessage(this.message);
@@ -405,7 +407,10 @@ class Message extends Graphic.Base {
                 ((ScreenResolution.getScreenMinXY(Datas.Systems.facesetScalingHeight)
                     - h) / 2) + Utils.defaultValue(ScreenResolution.getScreenMinXY(Datas
                 .Systems.dbOptions.v_fX), 0), w: Datas.Systems.facesetScalingWidth,
-            h: Datas.Systems.facesetScalingHeight });
+            h: Datas.Systems.facesetScalingHeight, sx: this.facesetIndexX * Datas
+                .Systems.facesetsSize, sy: this.facesetIndexY * Datas.Systems
+                .facesetsSize, sw: Datas.Systems.facesetsSize, sh: Datas.Systems
+                .facesetsSize });
     }
     /**
      *  Drawing the message box.
@@ -465,7 +470,6 @@ class Message extends Graphic.Base {
                     j++;
                 }
                 if (graphic instanceof Picture2D) {
-                    console.log(graphic);
                     graphic.draw({ x: newX + offsetX, y: newY - (ScreenResolution
                             .getScreenMinXY(Datas.Systems.iconsSize) / 2) + offsetY,
                         sw: Datas.Systems.iconsSize, sh: Datas.Systems.iconsSize,

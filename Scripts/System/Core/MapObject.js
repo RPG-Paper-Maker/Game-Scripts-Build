@@ -289,6 +289,7 @@ class MapObject {
             this.statesInstance[i] = state;
             if (!Utils.isUndefined(stateValue)) {
                 state.graphicID = Utils.defaultValue(stateValue.gid, stateSystem.graphicID);
+                state.graphicKind = Utils.defaultValue(stateValue.gk, stateSystem.graphicKind);
                 state.rectTileset = Utils.defaultValue(stateValue.gt, stateSystem.rectTileset);
                 state.indexX = Utils.defaultValue(stateValue.gix, stateSystem.indexX);
                 state.indexY = Utils.defaultValue(stateValue.giy, stateSystem.indexY);
@@ -445,7 +446,10 @@ class MapObject {
                 }
                 // Correct position offset (left / top)
                 if (!previousStateInstance || previousStateInstance.graphicKind
-                    !== ElementMapKind.Object3D) {
+                    !== ElementMapKind.Object3D || (!Utils.isUndefined(this
+                    .currentStateInstance.previousGraphicKind) && this
+                    .currentStateInstance.previousGraphicKind !== ElementMapKind
+                    .Object3D)) {
                     this.position.set(this.position.x - (Datas.Systems
                         .SQUARE_SIZE / 2), this.position.y, this.position.z - (Datas.Systems.SQUARE_SIZE / 2));
                 }
@@ -468,14 +472,17 @@ class MapObject {
                             .currentStateInstance.graphicID).getRows();
                     this.currentOrientationStop = this.currentStateInstance.indexY >= 4;
                 }
-                let sprite = Sprite.create(this.currentState.graphicKind, [x, y,
+                let sprite = Sprite.create(this.currentStateInstance.graphicKind, [x, y,
                     this.width, this.height]);
                 result = sprite.createGeometry(this.width, this.height, this
                     .currentStateInstance.graphicID === 0, Position
                     .createFromVector3(this.position));
                 // Correct position offset (left / top)
                 if (previousStateInstance && previousStateInstance.graphicKind
-                    === ElementMapKind.Object3D) {
+                    === ElementMapKind.Object3D && (Utils.isUndefined(this
+                    .currentStateInstance.previousGraphicKind) || this
+                    .currentStateInstance.previousGraphicKind === ElementMapKind
+                    .Object3D)) {
                     this.position.set(this.position.x + (Datas.Systems
                         .SQUARE_SIZE / 2), this.position.y, this.position.z + (Datas.Systems.SQUARE_SIZE / 2));
                 }
@@ -683,7 +690,7 @@ class MapObject {
             return;
         }
         let box;
-        switch (this.currentState.graphicKind) {
+        switch (this.currentStateInstance.graphicKind) {
             case ElementMapKind.SpritesFix:
             case ElementMapKind.SpritesFace:
                 {
@@ -691,7 +698,7 @@ class MapObject {
                     for (let i = 0, l = this.boundingBoxSettings.squares.length; i < l; i++) {
                         this.boundingBoxSettings.b.push(CollisionSquare.getBB(this
                             .boundingBoxSettings.squares[i], this.width, this.height));
-                        if (this.currentState.graphicKind === ElementMapKind.SpritesFix) {
+                        if (this.currentStateInstance.graphicKind === ElementMapKind.SpritesFix) {
                             box = Manager.Collisions.createBox();
                             Manager.Collisions.applyBoxSpriteTransforms(box, [
                                 position.x + this.boundingBoxSettings.b[i][0],
@@ -743,8 +750,8 @@ class MapObject {
      */
     updateBBPosition(position) {
         for (let i = 0, l = this.meshBoundingBox.length; i < l; i++) {
-            if (this.currentState.graphicKind === ElementMapKind.SpritesFix ||
-                this.currentState.graphicKind === ElementMapKind.Object3D) {
+            if (this.currentStateInstance.graphicKind === ElementMapKind.SpritesFix ||
+                this.currentStateInstance.graphicKind === ElementMapKind.Object3D) {
                 Manager.Collisions.applyBoxSpriteTransforms(this.meshBoundingBox[i], [
                     position.x + this.boundingBoxSettings.b[i][0],
                     position.y + this.boundingBoxSettings.b[i][1],
@@ -757,7 +764,7 @@ class MapObject {
                     this.boundingBoxSettings.b[i][8]
                 ]);
             }
-            else if (this.currentState.graphicKind === ElementMapKind.SpritesFace) {
+            else if (this.currentStateInstance.graphicKind === ElementMapKind.SpritesFace) {
                 Manager.Collisions.applyOrientedBoxTransforms(this
                     .meshBoundingBox[i], [
                     position.x + this.boundingBoxSettings.b[i][0],
@@ -1091,7 +1098,6 @@ class MapObject {
                     .frame.value % 2 !== 0) ? 1 : 0;
                 this.mesh.position.set(this.position.x, this.position.y + offset, this.position.z);
                 //this.updateBBPosition(this.position)
-                this.previousPosition = this.position;
             }
             else {
                 if (this.currentStateInstance.stopAnimation) {
@@ -1111,11 +1117,6 @@ class MapObject {
                     this.updateOrientation();
                 }
             }
-            this.upPosition = new Vector3(this.position.x, this.position.y
-                + (this.height * Datas.Systems.SQUARE_SIZE), this.position.z);
-            this.halfPosition = new Vector3(this.position.x, this.position
-                .y + (this.height * Datas.Systems.SQUARE_SIZE / 2), this
-                .position.z);
             this.updateAngle(angle);
             // Update mesh
             if (frame || orientation !== this.orientation) {
@@ -1127,6 +1128,15 @@ class MapObject {
         // Time events
         this.receivedOneEvent = false;
         this.updateTimeEvents();
+        // Positions
+        if (this.position) {
+            this.previousPosition = this.position;
+            this.upPosition = new Vector3(this.position.x, this.position.y
+                + (this.height * Datas.Systems.SQUARE_SIZE), this.position.z);
+            this.halfPosition = new Vector3(this.position.x, this.position
+                .y + (this.height * Datas.Systems.SQUARE_SIZE / 2), this
+                .position.z);
+        }
         this.moving = false;
     }
     /**
@@ -1147,7 +1157,7 @@ class MapObject {
      *  @param {number} angle - The camera angle
      */
     updateAngle(angle) {
-        if (this.currentState.graphicKind === ElementMapKind.SpritesFace) {
+        if (this.currentStateInstance.graphicKind === ElementMapKind.SpritesFace) {
             this.mesh.rotation.y = angle;
         }
     }
@@ -1227,7 +1237,7 @@ class MapObject {
      *  @returns {boolean}
      */
     isNone() {
-        return this.currentState.graphicKind === ElementMapKind.None || this
+        return this.currentStateInstance.graphicKind === ElementMapKind.None || this
             .currentStateInstance.graphicID === -1;
     }
     /**

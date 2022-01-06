@@ -44,6 +44,7 @@ declare class Game {
     chronometers: Chrono[];
     previousWeatherOptions: Record<string, any>;
     currentWeatherOptions: Record<string, any>;
+    textures: Record<string, any>;
     constructor(slot?: number);
     /**
      *  Get the hero in a tab with instance ID.

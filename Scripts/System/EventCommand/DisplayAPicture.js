@@ -40,6 +40,7 @@ class DisplayAPicture extends Base {
         this.zoom = System.DynamicValue.createValueCommand(command, iterator);
         this.opacity = System.DynamicValue.createValueCommand(command, iterator);
         this.angle = System.DynamicValue.createValueCommand(command, iterator);
+        this.stretch = Utils.numToBool(command[iterator.i++]);
     }
     /**
      *  Update and check if the event is finished.
@@ -58,6 +59,11 @@ class DisplayAPicture extends Base {
         picture.zoom = this.zoom.getValue() / 100;
         picture.opacity = this.opacity.getValue() / 100;
         picture.angle = this.angle.getValue();
+        if (this.stretch) {
+            picture.stretch = true;
+            picture.setW(picture.image.width);
+            picture.setH(picture.image.height);
+        }
         let value = [currentIndex, picture];
         let ok = false;
         let index;

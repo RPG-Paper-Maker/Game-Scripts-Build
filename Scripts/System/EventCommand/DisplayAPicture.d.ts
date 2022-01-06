@@ -17,6 +17,7 @@ declare class DisplayAPicture extends Base {
     zoom: System.DynamicValue;
     opacity: System.DynamicValue;
     angle: System.DynamicValue;
+    stretch: boolean;
     constructor(command: any[]);
     /**
      *  Update and check if the event is finished.

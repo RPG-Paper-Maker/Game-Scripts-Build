@@ -9,6 +9,8 @@ import { WindowBox, MapObject } from "../Core/index.js";
 declare class ShowText extends Base {
     interlocutor: System.DynamicValue;
     facesetID: number;
+    facesetIndexX: number;
+    facesetIndexY: number;
     message: string;
     windowMain: WindowBox;
     windowInterlocutor: WindowBox;

@@ -13,6 +13,8 @@ declare class Hero extends Translatable {
     class: System.Class;
     idBattler: number;
     idFaceset: number;
+    indexXFaceset: number;
+    indexYFaceset: number;
     classInherit: Class;
     description: System.Translatable;
     constructor(json: Record<string, any>);

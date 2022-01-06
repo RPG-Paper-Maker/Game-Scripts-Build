@@ -135,6 +135,7 @@ var Enum;
         EventCommandKind[EventCommandKind["ChangeChronometer"] = 71] = "ChangeChronometer";
         EventCommandKind[EventCommandKind["ChangeWeather"] = 72] = "ChangeWeather";
         EventCommandKind[EventCommandKind["PlayAVideo"] = 73] = "PlayAVideo";
+        EventCommandKind[EventCommandKind["SwitchTexture"] = 74] = "SwitchTexture";
     })(EventCommandKind = Enum.EventCommandKind || (Enum.EventCommandKind = {}));
     ;
     /**

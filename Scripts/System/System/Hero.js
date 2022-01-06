@@ -32,6 +32,8 @@ class Hero extends Translatable {
             + (this.isMonster() ? "monster" : "hero") + " " + Utils.getIDName(json.id, this.name()) + ", please check your Data manager and add a correct class.");
         this.idBattler = Utils.defaultValue(json.bid, -1);
         this.idFaceset = Utils.defaultValue(json.fid, -1);
+        this.indexXFaceset = Utils.defaultValue(json.indexXFaceset, 0);
+        this.indexYFaceset = Utils.defaultValue(json.indexYFaceset, 0);
         this.classInherit = new Class(json.ci);
         this.description = new System.Translatable(json.description);
     }

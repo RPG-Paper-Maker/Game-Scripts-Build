@@ -30,6 +30,12 @@ class Game {
             .modelHero.position.clone(), true);
         this.battleMusic = Datas.BattleSystems.battleMusic;
         this.victoryMusic = Datas.BattleSystems.battleVictory;
+        this.textures = {};
+        this.textures.tilesets = {};
+        this.textures.autotiles = {};
+        this.textures.walls = {};
+        this.textures.objects3D = {};
+        this.textures.mountains = {};
         this.isEmpty = true;
     }
     /**
@@ -128,6 +134,7 @@ class Game {
         this.startupProperties = json.startP;
         this.mapsProperties = Utils.defaultValue(json.mapsP, {});
         this.mapsDatas = json.mapsDatas;
+        this.textures = json.textures;
         this.isEmpty = false;
     }
     /**
@@ -191,6 +198,7 @@ class Game {
                     d: chrono.graphic !== null
                 };
             }),
+            textures: this.textures,
             mapsDatas: this.getCompressedMapsDatas()
         });
     }

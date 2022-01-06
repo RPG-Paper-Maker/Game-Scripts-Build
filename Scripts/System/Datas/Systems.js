@@ -131,7 +131,9 @@ class Systems {
         Utils.readJSONSystemList({ list: json.f, listIDs: this.frequencies, func: (element) => {
                 return System.DynamicValue.readOrDefaultNumberDouble(element.v, 1);
             } });
-        Utils.readJSONSystemList({ list: json.initialPartyMembers, listIndexes: this.initialPartyMembers, cons: System.InitialPartyMember });
+        Utils.readJSONSystemList({ list: Utils.defaultValue(json
+                .initialPartyMembers, []), listIndexes: this.initialPartyMembers,
+            cons: System.InitialPartyMember });
         // Sounds
         this.soundCursor = new System.PlaySong(Enum.SongKind.Sound, json.scu);
         this.soundConfirmation = new System.PlaySong(Enum.SongKind.Sound, json.sco);
@@ -142,6 +144,7 @@ class Systems {
             .getEventCommand(json.dbo);
         this.dbOptions.update();
         // Faceset options
+        this.facesetsSize = Utils.defaultValue(json.facesetsSize, 128);
         this.facesetScalingWidth = Utils.defaultValue(json.facesetScalingWidth, 120);
         this.facesetScalingHeight = Utils.defaultValue(json.facesetScalingHeight, 120);
         // Icons size

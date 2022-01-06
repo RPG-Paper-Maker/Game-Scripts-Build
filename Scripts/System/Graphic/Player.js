@@ -358,8 +358,11 @@ class Player extends Base {
                 ScreenResolution.getScreenMinXY(10), yStat, 0, 0);
         }
         // Faceset
-        this.faceset.draw({ w: Datas.Systems.facesetScalingWidth, h: Datas
-                .Systems.facesetScalingHeight });
+        this.faceset.draw({ sx: this.player.system.indexXFaceset * Datas.Systems
+                .facesetsSize, sy: this.player.system.indexYFaceset * Datas.Systems
+                .facesetsSize, sw: Datas.Systems.facesetsSize, sh: Datas.Systems
+                .facesetsSize, w: Datas.Systems.facesetScalingWidth, h: Datas.Systems
+                .facesetScalingHeight });
     }
 }
 export { Player };

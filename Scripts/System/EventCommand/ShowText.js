@@ -26,13 +26,16 @@ class ShowText extends Base {
         };
         this.interlocutor = System.DynamicValue.createValueCommand(command, iterator);
         this.facesetID = command[iterator.i++];
+        this.facesetIndexX = command[iterator.i++];
+        this.facesetIndexY = command[iterator.i++];
         let lang = new System.Translatable();
         while (iterator.i < command.length) {
             lang.getCommand(command, iterator);
         }
         this.message = lang.name();
         this.windowMain = new WindowBox(0, 0, 0, 0, {
-            content: new Graphic.Message(this.message, this.facesetID),
+            content: new Graphic.Message(this.message, this.facesetID, this
+                .facesetIndexX, this.facesetIndexY),
             padding: WindowBox.HUGE_PADDING_BOX
         });
         this.windowInterlocutor = new WindowBox(this.windowMain.oX + (WindowBox

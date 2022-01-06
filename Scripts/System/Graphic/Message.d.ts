@@ -27,13 +27,15 @@ declare class Message extends Graphic.Base {
     static readonly TAG_ICON = "ico";
     message: string;
     faceset: Picture2D;
+    facesetIndexX: number;
+    facesetIndexY: number;
     graphics: Bitmap[];
     positions: number[];
     tree: Tree;
     heights: number[];
     aligns: Align[];
     totalWidths: number[];
-    constructor(message: string, facesetID: number);
+    constructor(message: string, facesetID: number, facesetIndexX: number, facesetIndexY: number);
     /**
      *  Set message (parse).
      *  @param {string} message - The message to parse

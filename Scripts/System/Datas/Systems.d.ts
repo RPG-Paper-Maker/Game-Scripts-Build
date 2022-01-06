@@ -45,6 +45,7 @@ declare class Systems {
     static soundCancel: System.PlaySong;
     static soundImpossible: System.PlaySong;
     static dbOptions: EventCommand.SetDialogBoxOptions;
+    static facesetsSize: number;
     static facesetScalingWidth: number;
     static facesetScalingHeight: number;
     static iconsSize: number;

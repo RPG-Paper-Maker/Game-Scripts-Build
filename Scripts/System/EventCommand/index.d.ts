@@ -63,6 +63,7 @@ export * from "./StartShopMenu.js";
 export * from "./StopBackgroundSound.js";
 export * from "./StopMusic.js";
 export * from "./StopReaction.js";
+export * from "./SwitchTexture.js";
 export * from "./TeleportObject.js";
 export * from "./TitleScreen.js";
 export * from "./Wait.js";
