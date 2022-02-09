@@ -9,10 +9,10 @@ declare class SpecialElements {
     static walls: System.SpecialElement[];
     static mountains: System.Mountain[];
     static objects: System.Object3D[];
-    private static texturesAutotiles;
-    private static texturesWalls;
-    private static texturesObjects3D;
-    private static texturesMountains;
+    static texturesAutotiles: TextureBundle[][];
+    static texturesWalls: THREE.ShaderMaterial[];
+    static texturesObjects3D: THREE.ShaderMaterial[];
+    static texturesMountains: TextureBundle[];
     constructor();
     /**
      *  Read the JSON file associated to special elements.
@@ -52,7 +52,7 @@ declare class SpecialElements {
      *  @param {number} id
      *  @returns {Promise<TextureBundle>}
      */
-    static loadAutotileTexture(id: number): Promise<TextureBundle>;
+    static loadAutotileTexture(id: number): Promise<TextureBundle[]>;
     /**
      *  Load an autotile ID and add it to context rendering.
      *  @param {TextureBundle} textureAutotile - The autotile several texture

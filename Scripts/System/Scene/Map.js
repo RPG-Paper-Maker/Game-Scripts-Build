@@ -214,9 +214,13 @@ class Map extends Base {
         this.texturesObjects3D = await tileset.getTexturesObjects3D();
         this.texturesCharacters = Datas.Tilesets.texturesCharacters;
         // Update shaders for autotiles
-        for (let textures of this.texturesAutotiles) {
-            textures.material.uniforms.offset.value = textures.isAnimated ? this
-                .autotilesOffset : new Vector2();
+        for (let list of this.texturesAutotiles) {
+            if (list) {
+                for (let texture of list) {
+                    texture.material.uniforms.offset.value = texture.isAnimated ?
+                        this.autotilesOffset : new Vector2();
+                }
+            }
         }
     }
     /**
@@ -778,7 +782,7 @@ class Map extends Base {
             rotationsAngle = this.previousWeatherRotationsAngle;
             rotationsPoints = this.previousWeatherRotationsPoint;
         }
-        if (options === null || options.isNone) {
+        if (options === null || options.isNone || !points) {
             return;
         }
         let initialVelocity = Interpreter.evaluate(options.initialVelocity);

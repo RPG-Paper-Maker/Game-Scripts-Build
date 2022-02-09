@@ -19,7 +19,7 @@ declare class MapPortion {
     boundingBoxesSprites: StructMapElementCollision[][];
     boundingBoxesMountains: StructMapElementCollision[][];
     boundingBoxesObjects3D: StructMapElementCollision[][];
-    staticAutotilesList: Autotiles[];
+    staticAutotilesList: Autotiles[][];
     staticMountainsList: Mountains[];
     objectsList: MapObject[];
     faceSpritesList: THREE.Mesh[];

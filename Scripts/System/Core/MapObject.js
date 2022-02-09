@@ -252,10 +252,7 @@ class MapObject {
                 Platform.showErrorMessage("Can't find object with name" + this
                     .system.name + " and ID " + this.system.id + " in map " +
                     Scene.Map.current.mapName +
-                    " in object linking. Please remove this object from your " +
-                    "map and recreate it.\nIf possible, report that you got " +
-                    "this error and describe the steps for having this " +
-                    "because we are trying to fix this issue.");
+                    " in object linking. Please open the map, check where is the object and save.");
             }
             let portion = obj.getGlobalPortion();
             let portionDatas = Game.current.getPortionDatas(Scene.Map.current.id, portion);
@@ -371,10 +368,7 @@ class MapObject {
                 Platform.showErrorMessage("Can't find object with name" + this
                     .system.name + " and ID " + this.system.id + " in map " +
                     Scene.Map.current.mapName +
-                    " in object linking. Please remove this object from your " +
-                    "map and recreate it.\nIf possible, report that you got " +
-                    "this error and describe the steps for having this " +
-                    "because we are trying to fix this issue.");
+                    " in object linking. Please open the map, check where is the object and save.");
             }
             let portion = pos.getGlobalPortion();
             let portionDatas = Game.current.getPortionDatas(Scene.Map.current.id, portion);
@@ -662,9 +656,10 @@ class MapObject {
         // If no bounding box, use only one square by default
         if (l === 0) {
             Manager.Collisions.applyBoxSpriteTransforms(Manager.Collisions
-                .BB_BOX_DEFAULT_DETECTION, [this.position.x, this.position.y + (Datas.Systems.SQUARE_SIZE / 2), this.position.z, Datas.Systems
-                    .SQUARE_SIZE, Datas.Systems.SQUARE_SIZE, Datas.Systems
-                    .SQUARE_SIZE, 0, 0, 0]);
+                .BB_BOX_DEFAULT_DETECTION, [this.position.x, this.position.y +
+                    (Datas.Systems.SQUARE_SIZE / 4), this.position.z, Datas.Systems
+                    .SQUARE_SIZE / 2, Datas.Systems.SQUARE_SIZE / 2, Datas.Systems
+                    .SQUARE_SIZE / 2, 0, 0, 0]);
             if (Manager.Collisions.obbVSobb(Manager.Collisions
                 .BB_BOX_DEFAULT_DETECTION.geometry, Manager
                 .Collisions.BB_BOX_DETECTION.geometry)) {
@@ -930,21 +925,26 @@ class MapObject {
             let objects = Game.current.getPortionDatas(Scene.Map.current.id, previousPortion);
             // Remove from the moved objects in or out of the portion
             let movedObjects = objects.mout;
-            let index = movedObjects.indexOf(this);
-            if (index !== -1) {
-                movedObjects.splice(index, 1);
+            let index;
+            if (movedObjects) {
+                index = movedObjects.indexOf(this);
+                if (index !== -1) {
+                    movedObjects.splice(index, 1);
+                }
             }
             movedObjects = objects.min;
-            index = movedObjects.indexOf(this);
-            if (index !== -1) {
-                movedObjects.splice(index, 1);
+            if (movedObjects) {
+                index = movedObjects.indexOf(this);
+                if (index !== -1) {
+                    movedObjects.splice(index, 1);
+                }
             }
             // Add to moved objects of the original portion if not done yet
             let originalPortion = Scene.Map.current.allObjects[this
                 .system.id].getGlobalPortion();
             objects = Game.current.getPortionDatas(Scene.Map.current.id, originalPortion);
             movedObjects = objects.m;
-            if (movedObjects.indexOf(this) === -1) {
+            if (movedObjects && movedObjects.indexOf(this) === -1) {
                 movedObjects.push(this);
                 movedObjects = Scene.Map.current.getMapPortion(Scene.Map.current
                     .getLocalPortion(originalPortion)).objectsList;

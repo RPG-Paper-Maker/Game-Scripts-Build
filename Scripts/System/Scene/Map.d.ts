@@ -32,7 +32,7 @@ declare class Map extends Base {
     mapPortions: MapPortion[];
     textureTileset: THREE.ShaderMaterial;
     texturesCharacters: THREE.ShaderMaterial[];
-    texturesAutotiles: TextureBundle[];
+    texturesAutotiles: TextureBundle[][];
     texturesWalls: THREE.ShaderMaterial[];
     texturesMountains: TextureBundle[];
     texturesObjects3D: THREE.ShaderMaterial[];

@@ -26,17 +26,19 @@ class Keyboards {
      *  @returns {boolean}
      */
     static isKeyEqual(key, abr) {
-        let sc = abr.sc;
-        let m;
-        for (let i = 0, l = sc.length; i < l; i++) {
-            m = sc[i].length;
-            if (m === 1) {
-                if (sc[i][0] === key) {
-                    return true;
+        if (abr) {
+            let sc = abr.sc;
+            let m;
+            for (let i = 0, l = sc.length; i < l; i++) {
+                m = sc[i].length;
+                if (m === 1) {
+                    if (sc[i][0] === key) {
+                        return true;
+                    }
                 }
-            }
-            else {
-                return false;
+                else {
+                    return false;
+                }
             }
         }
         return false;

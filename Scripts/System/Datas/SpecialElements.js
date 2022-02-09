@@ -86,17 +86,18 @@ class SpecialElements {
         if (Utils.isUndefined(pictureID)) {
             pictureID = autotile.pictureID;
         }
-        let textureAutotile = this.texturesAutotiles[pictureID];
-        if (Utils.isUndefined(textureAutotile)) {
+        let texturesAutotile = this.texturesAutotiles[pictureID];
+        if (Utils.isUndefined(texturesAutotile)) {
             let offset = 0;
             let result = null;
-            textureAutotile = null;
+            let textureAutotile = null;
             let texture = new THREE.Texture();
+            texturesAutotile = new Array;
+            this.texturesAutotiles[pictureID] = texturesAutotile;
             Platform.ctxr.clearRect(0, 0, Platform.canvasRendering.width, Platform
                 .canvasRendering.height);
             Platform.canvasRendering.width = 64 * Datas.Systems.SQUARE_SIZE;
             Platform.canvasRendering.height = Constants.MAX_PICTURE_SIZE;
-            this.texturesAutotiles = new Array;
             if (autotile) {
                 let picture = Datas.Pictures.get(Enum.PictureKind.Autotiles, pictureID);
                 if (picture) {
@@ -118,7 +119,7 @@ class SpecialElements {
                 await this.updateTextureAutotile(textureAutotile, texture, pictureID);
             }
         }
-        return textureAutotile;
+        return texturesAutotile;
     }
     /**
      *  Load an autotile ID and add it to context rendering.
@@ -238,7 +239,7 @@ class SpecialElements {
             .toDataURL());
         texture.needsUpdate = true;
         textureAutotile.material = Manager.GL.createMaterial(texture);
-        this.texturesAutotiles[id] = textureAutotile;
+        this.texturesAutotiles[id].push(textureAutotile);
     }
     /**
      *  Get the wall texture.

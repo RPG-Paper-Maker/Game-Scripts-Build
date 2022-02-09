@@ -154,27 +154,34 @@ class MapPortion {
             return;
         }
         let texture = null;
-        let autotilesLength = Scene.Map.current.texturesAutotiles.length;
         // Create autotiles according to the textures
-        let i;
-        for (i = 0; i < autotilesLength; i++) {
-            this.staticAutotilesList.push(new Autotiles(Scene.Map.current
-                .texturesAutotiles[i]));
+        let i, l, texturesAutotile;
+        for (i = 0, l = Scene.Map.current.texturesAutotiles.length; i < l; i++) {
+            texturesAutotile = Scene.Map.current.texturesAutotiles[i];
+            if (texturesAutotile) {
+                for (let textureAutotile of texturesAutotile) {
+                    if (!this.staticAutotilesList[i]) {
+                        this.staticAutotilesList[i] = new Array;
+                    }
+                    this.staticAutotilesList[i].push(new Autotiles(textureAutotile));
+                }
+            }
         }
         // Read and update geometry
-        let l, jsonAutotile, position, autotile, indexPos, index, textureAutotile, autotiles, objCollision;
+        let j, m, jsonAutotile, position, autotile, indexPos, textureAutotile, autotiles, objCollision;
         for (i = 0, l = json.length; i < l; i++) {
             jsonAutotile = json[i];
             position = Position.createFromArray(jsonAutotile.k);
             autotile = new Autotile(jsonAutotile.v);
             indexPos = position.toIndex();
             texture = null;
-            for (index = 0; index < autotilesLength; index++) {
-                textureAutotile = Scene.Map.current.texturesAutotiles[index];
+            texturesAutotile = Scene.Map.current.texturesAutotiles[autotile.autotileID];
+            for (j = 0, m = texturesAutotile.length; j < m; j++) {
+                textureAutotile = texturesAutotile[j];
                 if (textureAutotile.isInTexture(autotile.autotileID, autotile
                     .texture)) {
                     texture = textureAutotile;
-                    autotiles = this.staticAutotilesList[index];
+                    autotiles = this.staticAutotilesList[autotile.autotileID][j];
                     break;
                 }
             }
@@ -187,10 +194,13 @@ class MapPortion {
             this.addToNonEmpty(position);
         }
         // Update all the geometry uvs and put it in the scene
-        for (i = 0, l = this.staticAutotilesList.length; i < l; i++) {
-            autotiles = this.staticAutotilesList[i];
-            autotiles.createMesh();
-            Scene.Map.current.scene.add(autotiles.mesh);
+        for (let list of this.staticAutotilesList) {
+            if (list) {
+                for (autotiles of list) {
+                    autotiles.createMesh();
+                    Scene.Map.current.scene.add(autotiles.mesh);
+                }
+            }
         }
     }
     /**
@@ -508,9 +518,12 @@ class MapPortion {
         for (i = 0, l = this.staticWallsList.length; i < l; i++) {
             Scene.Map.current.scene.remove(this.staticWallsList[i]);
         }
-        for (i = 0, l = this.staticAutotilesList.length; i < l; i++) {
-            Scene.Map.current.scene.remove(this.staticAutotilesList[i]
-                .mesh);
+        for (let list of this.staticAutotilesList) {
+            if (list) {
+                for (let autotiles of list) {
+                    Scene.Map.current.scene.remove(autotiles.mesh);
+                }
+            }
         }
         for (i = 0, l = this.staticMountainsList.length; i < l; i++) {
             Scene.Map.current.scene.remove(this.staticMountainsList[i]

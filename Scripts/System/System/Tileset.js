@@ -77,9 +77,9 @@ class Tileset extends Base {
      *  @returns {Promise<TextureBundle[]>}
      */
     async getTexturesAutotiles() {
-        let list = [];
+        let list = new Array;
         for (let id of this.autotiles) {
-            list.push(await Datas.SpecialElements.loadAutotileTexture(id));
+            list[id] = await Datas.SpecialElements.loadAutotileTexture(id);
         }
         return list;
     }
