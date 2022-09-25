@@ -91,6 +91,8 @@ class BattleSystems {
         this.battleMusic = new System.PlaySong(SongKind.Music, json.bmusic);
         this.battleLevelUp = new System.PlaySong(SongKind.Sound, json.blevelup);
         this.battleVictory = new System.PlaySong(SongKind.Music, json.bvictory);
+        // Options
+        this.cameraMoveInBattle = Utils.defaultValue(json.cmib, true);
     }
     /**
      *  Get the statistic corresponding to the level.

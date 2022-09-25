@@ -16,8 +16,7 @@ declare class Player extends Base {
     graphicLevel: Graphic.Text;
     graphicExpName: Graphic.Text;
     graphicExp: Graphic.Text;
-    listStatsNames: Graphic.Text[];
-    listStats: Graphic.Text[];
+    listStatistics: Graphic.Statistic[];
     maxStatNamesLength: number;
     maxStatLength: number;
     faceset: Picture2D;

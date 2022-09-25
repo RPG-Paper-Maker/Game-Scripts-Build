@@ -6,6 +6,7 @@ import { Core } from "../index.js";
 import { Vector3 } from "./Vector3.js";
 import { Vector2 } from "./Vector2.js";
 import { CustomGeometry } from "./CustomGeometry.js";
+import { CustomGeometryFace } from "./CustomGeometryFace.js";
 /** @class
  *  A sprite in the map.
  *  @extends MapElement
@@ -13,6 +14,7 @@ import { CustomGeometry } from "./CustomGeometry.js";
  *  sprite
  */
 declare class Sprite extends MapElement {
+    static MODEL: Core.Vector3[];
     static Y_AXIS: Core.Vector3;
     static X_AXIS: Core.Vector3;
     static Z_AXIS: Core.Vector3;
@@ -76,7 +78,7 @@ declare class Sprite extends MapElement {
      *  @param {Vector3} localPosition - The local position
      *  @returns {any[]}
      */
-    updateGeometry(geometry: CustomGeometry, width: number, height: number, position: Position, count: number, tileset: boolean, localPosition: Vector3): [number, StructMapElementCollision[]];
+    updateGeometry(geometry: CustomGeometry | CustomGeometryFace, width: number, height: number, position: Position, count: number, tileset: boolean, localPosition: Vector3): [number, StructMapElementCollision[]];
     /**
      *  Create the geometry associated to this sprite
      *  @param {number} width - The texture total width

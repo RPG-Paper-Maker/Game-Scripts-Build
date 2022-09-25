@@ -27,5 +27,17 @@ class Base extends Bitmap {
      */
     update() {
     }
+    /**
+     *  Drawing the graphic.
+     *  @param {number} x - The x position to draw graphic
+     *  @param {number} y - The y position to draw graphic
+     *  @param {number} w - The width dimention to draw graphic
+     *  @param {number} h - The height dimention to draw graphic
+     *  @param {boolean} positionResize - If checked, resize postion
+     *  according to screen resolution
+     */
+    drawChoice(x, y, w, h) {
+        this.draw(x, y, w, h);
+    }
 }
 export { Base };

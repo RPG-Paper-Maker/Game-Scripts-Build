@@ -9,6 +9,7 @@ declare class Statistic extends Translatable {
     suffixName: string;
     abbreviation: string;
     isFix: boolean;
+    pictureBarID: number;
     isRes: boolean;
     constructor(json?: Record<string, any>);
     /**

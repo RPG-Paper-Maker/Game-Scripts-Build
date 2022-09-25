@@ -30,6 +30,7 @@ declare class BattleSystems {
     static battleMusic: System.PlaySong;
     static battleLevelUp: System.PlaySong;
     static battleVictory: System.PlaySong;
+    static cameraMoveInBattle: boolean;
     constructor();
     /**
      *  Read the JSON file associated to battle System.

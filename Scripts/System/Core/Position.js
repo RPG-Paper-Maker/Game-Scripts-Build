@@ -25,9 +25,12 @@ import { Vector3 } from "./Vector3.js";
  *  @param {number} angleY - The angle on Y axis in degree
  *  @param {number} angleX - The angle on X axis in degree
  *  @param {number} angleZ - The angle on Z axis in degree
+ *  @param {number} scaleX - The scale on X axis multiple
+ *  @param {number} scaleY - The scale on Y axis multiple
+ *  @param {number} scaleZ - The scale on Z axis multiple
  */
 class Position extends Portion {
-    constructor(x = 0, y = 0, z = 0, yPixels = 0, layer = 0, centerX = 50, centerZ = 50, angleY = 0, angleX = 0, angleZ = 0) {
+    constructor(x = 0, y = 0, z = 0, yPixels = 0, layer = 0, centerX = 50, centerZ = 50, angleY = 0, angleX = 0, angleZ = 0, scaleX = 1, scaleY = 1, scaleZ = 1) {
         super(x, y, z);
         this.yPixels = yPixels;
         this.layer = layer;
@@ -36,6 +39,9 @@ class Position extends Portion {
         this.angleY = angleY;
         this.angleX = angleX;
         this.angleZ = angleZ;
+        this.scaleX = scaleX;
+        this.scaleY = scaleY;
+        this.scaleZ = scaleZ;
     }
     /**
      *  Create a position from an array.
@@ -44,7 +50,7 @@ class Position extends Portion {
      *  @returns {Position}
      */
     static createFromArray(array) {
-        return new Position(array[0], array[1], array[3], array[2], array[4], array[5], array[6], array[7], array[8], array[9]);
+        return new Position(array[0], array[1], array[3], array[2], array[4], array[5], array[6], array[7], array[8], array[9], array[10], array[11], array[12]);
     }
     /**
      *  Create a position from a three.js vector3.
@@ -64,7 +70,8 @@ class Position extends Portion {
             this.layer === position.layer && this.centerX === position.centerX
             && this.centerZ === position.centerZ && this.angleY === position
             .angleY && this.angleX === position.angleX && this.angleZ ===
-            position.angleZ;
+            position.angleZ && this.scaleX === position.scaleX && this.scaleY ===
+            position.scaleY && this.scaleZ === position.scaleZ;
     }
     /**
      *  Get the complete number of Y of a position.
@@ -104,6 +111,13 @@ class Position extends Portion {
             * Datas.Systems.SQUARE_SIZE) : 0), (this.y * Datas.Systems.SQUARE_SIZE) + (this.yPixels * Datas.Systems
             .SQUARE_SIZE / 100), (this.z * Datas.Systems.SQUARE_SIZE) + (center ? (this.centerZ / 100
             * Datas.Systems.SQUARE_SIZE) : 0));
+    }
+    /**
+     *  Transform a position to a scaling Vector3.
+     *  @returns {Vector3}
+     */
+    toScaleVector() {
+        return new Vector3(this.scaleX, this.scaleY, this.scaleZ);
     }
     /**
      *  Transform a position to index position on X/Z axis (used for map

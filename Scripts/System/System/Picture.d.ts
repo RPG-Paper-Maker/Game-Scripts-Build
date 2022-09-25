@@ -23,6 +23,8 @@ declare class Picture extends Base {
     width: number;
     height: number;
     isStopAnimation: boolean;
+    borderLeft: number;
+    borderRight: number;
     constructor(json?: Record<string, any>, kind?: PictureKind);
     /**
      *  Assign the default members.
@@ -118,5 +120,9 @@ declare class Picture extends Base {
      *  @returns {number[][][]}
      */
     getSquaresForStates(image: any): number[][];
+    /**
+     *  Check the borders to cut for filled bar.
+     */
+    checkBarBorder(): void;
 }
 export { Picture };

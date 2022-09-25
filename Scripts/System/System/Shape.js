@@ -11,9 +11,9 @@
 import { Enum, Constants, Paths, Utils, Platform } from "../Common/index.js";
 var CustomShapeKind = Enum.CustomShapeKind;
 import { Base } from "./Base.js";
-import { Datas } from "../index.js";
+import { Datas, Manager } from "../index.js";
 import { THREE } from "../Globals.js";
-import { Vector3, Vector2 } from "../Core/index.js";
+import { Vector3, Vector2, CustomGeometry } from "../Core/index.js";
 /** @class
  *  A shape of the game.
  *  @extends System.Base
@@ -209,6 +209,22 @@ class Shape extends Base {
                         }
                     });
                 });
+                let geometry = new CustomGeometry();
+                let vertices = this.geometry.vertices;
+                let uvs = this.geometry.uvs;
+                let count = 0;
+                let vecA, vecB, vecC;
+                for (let i = 0, l = this.geometry.vertices.length; i < l; i += 3) {
+                    vecA = vertices[i].clone();
+                    vecB = vertices[i + 1].clone();
+                    vecC = vertices[i + 2].clone();
+                    geometry.pushTriangleVertices(vecA, vecB, vecC);
+                    geometry.pushTriangleIndices(count);
+                    geometry.pushTriangleUVs(uvs[i].clone(), uvs[i + 1].clone(), uvs[i + 2].clone());
+                    count += 3;
+                }
+                geometry.updateAttributes();
+                this.mesh = new THREE.Mesh(geometry, Manager.Collisions.BB_MATERIAL);
             }
         }
     }

@@ -76,7 +76,7 @@ class Object3DBox extends Object3D {
         let angleY = position.angleY;
         let angleX = position.angleX;
         let angleZ = position.angleZ;
-        let size = this.datas.getSizeVector();
+        let size = this.datas.getSizeVector().multiply(position.toScaleVector());
         let center = new Vector3(localPosition.x + Math.floor(Datas.Systems
             .SQUARE_SIZE / 2), localPosition.y + (size.y / 2), localPosition.z +
             Math.floor(Datas.Systems.SQUARE_SIZE / 2));
@@ -138,9 +138,9 @@ class Object3DBox extends Object3D {
         // Collisions
         let objCollision = new Array;
         if (this.datas.collisionKind === ObjectCollisionKind.Perfect) {
-            let ws = this.datas.width();
-            let hs = this.datas.height();
-            let ds = this.datas.depth();
+            let ws = Math.floor(this.datas.width() * position.scaleX);
+            let hs = Math.floor(this.datas.height() * position.scaleY);
+            let ds = Math.floor(this.datas.depth() * position.scaleZ);
             objCollision.push({
                 p: position,
                 l: localPosition,
@@ -148,9 +148,9 @@ class Object3DBox extends Object3D {
                     centerReal.x,
                     centerReal.y,
                     centerReal.z,
-                    w,
-                    h,
-                    d,
+                    Math.floor(w * position.scaleX),
+                    Math.floor(h * position.scaleY),
+                    Math.floor(d * position.scaleZ),
                     angleY,
                     angleX,
                     angleZ

@@ -74,7 +74,8 @@ class Object3DCustom extends Object3D {
         let uvs = modelGeometry.uvs;
         let center = modelGeometry.center.clone();
         let scale = this.datas.scale;
-        let scaleVec = new Vector3(scale, scale, scale);
+        let scaleVec = new Vector3(scale * position.scaleX, scale * position
+            .scaleY, scale * position.scaleZ);
         let angleY = position.angleY;
         let angleX = position.angleX;
         let angleZ = position.angleZ;
@@ -83,6 +84,9 @@ class Object3DCustom extends Object3D {
             vecA = vertices[i].clone();
             vecB = vertices[i + 1].clone();
             vecC = vertices[i + 2].clone();
+            vecA.multiply(scaleVec);
+            vecB.multiply(scaleVec);
+            vecC.multiply(scaleVec);
             if (angleY !== 0.0) {
                 Sprite.rotateVertex(vecA, center, angleY, Sprite.Y_AXIS);
                 Sprite.rotateVertex(vecB, center, angleY, Sprite.Y_AXIS);
@@ -98,9 +102,6 @@ class Object3DCustom extends Object3D {
                 Sprite.rotateVertex(vecB, center, angleZ, Sprite.Z_AXIS);
                 Sprite.rotateVertex(vecC, center, angleZ, Sprite.Z_AXIS);
             }
-            vecA.multiply(scaleVec);
-            vecB.multiply(scaleVec);
-            vecC.multiply(scaleVec);
             vecA.add(localPosition);
             vecB.add(localPosition);
             vecC.add(localPosition);
@@ -114,13 +115,43 @@ class Object3DCustom extends Object3D {
         let objCollision = new Array;
         if (this.datas.collisionKind === ObjectCollisionKind.Simplified) {
             let obj = this.datas.getObj().geometry;
-            let w = obj.w * scale;
-            let h = obj.h * scale;
-            let d = obj.d * scale;
+            let w = obj.w * scale * position.scaleX;
+            let h = obj.h * scale * position.scaleY;
+            let d = obj.d * scale * position.scaleZ;
             let minPos = obj.minVertex.clone();
             minPos.multiply(scaleVec);
-            center.multiply(scaleVec);
             objCollision.push({
+                p: position,
+                l: localPosition,
+                b: [
+                    localPosition.x + minPos.x + (w / 2),
+                    localPosition.y + minPos.y + (h / 2),
+                    localPosition.z + minPos.z + (d / 2),
+                    w,
+                    h,
+                    d,
+                    angleY,
+                    angleX,
+                    angleZ
+                ],
+                c: center,
+                w: Math.ceil(w / 2 / Datas.Systems.SQUARE_SIZE),
+                h: Math.ceil(h / 2 / Datas.Systems.SQUARE_SIZE),
+                d: Math.ceil(d / 2 / Datas.Systems.SQUARE_SIZE),
+                m: Math.max(Math.max(Math.ceil(w / 2 / Datas.Systems.SQUARE_SIZE), Math.ceil(h / 2 / Datas.Systems.SQUARE_SIZE)), Math.ceil(d / 2 / Datas.Systems.SQUARE_SIZE)),
+                k: true
+            });
+        }
+        else if (this.datas.collisionKind === ObjectCollisionKind.Custom) {
+            let obj = Datas.Shapes.get(CustomShapeKind.Collisions, this.datas
+                .collisionCustomID).geometry;
+            let w = obj.w * scale * position.scaleX;
+            let h = obj.h * scale * position.scaleY;
+            let d = obj.d * scale * position.scaleZ;
+            let minPos = obj.minVertex.clone();
+            minPos.multiply(scaleVec);
+            objCollision.push({
+                id: this.datas.collisionCustomID,
                 p: position,
                 l: localPosition,
                 b: [

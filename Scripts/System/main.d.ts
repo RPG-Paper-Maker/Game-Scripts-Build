@@ -6,6 +6,10 @@
  */
 export declare class Main {
     static loaded: boolean;
+    static frames: number;
+    static firstTime: number;
+    static time: number;
+    static FPS: number;
     constructor();
     static initialize(): Promise<void>;
     /**

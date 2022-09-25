@@ -85,6 +85,7 @@ class Systems {
             Manager.Collisions.BB_MATERIAL.wireframe = true;
         }
         Manager.Collisions.BB_MATERIAL.visible = this.showBB;
+        this.showFPS = Utils.defaultValue(json.fps, false);
         this.ignoreAssetsLoadingErrors = false; //TODO
         // Lists
         this.itemsTypes = [];

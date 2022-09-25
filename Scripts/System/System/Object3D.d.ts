@@ -71,5 +71,10 @@ declare class Object3D extends SpecialElement {
      *  @returns {System.Shape}
      */
     getObj(): System.Shape;
+    /**
+     *  Get the collision shape obj.
+     *  @returns {System.Shape}
+     */
+    getCollisionObj(): System.Shape;
 }
 export { Object3D };

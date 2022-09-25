@@ -45,10 +45,8 @@ class Player extends Base {
             this.graphicExp = new Graphic.Text(this.player.getBarAbbreviation(expStat), { fontSize: Constants.MEDIUM_FONT_SIZE });
         }
         // Adding stats
-        this.listStatsNames = [];
-        this.listStats = [];
+        this.listStatistics = [];
         this.maxStatNamesLength = 0;
-        this.maxStatLength = 0;
         let statistics;
         let i, l;
         if (this.isMainMenu) {
@@ -61,7 +59,7 @@ class Player extends Base {
         else {
             statistics = Datas.BattleSystems.statisticsOrder;
         }
-        let id, statistic, graphic, c, txt;
+        let id, statistic, graphic;
         for (i = 0, l = statistics.length; i < l; i++) {
             id = statistics[i];
             if (id !== Datas.BattleSystems.idLevelStatistic && id !== Datas
@@ -69,28 +67,16 @@ class Player extends Base {
                 statistic = Datas.BattleSystems.getStatistic(id);
                 // Only display bars
                 if (!statistic.isFix) {
-                    graphic = new Graphic.Text(statistic.name() + Constants
-                        .STRING_COLON);
-                    graphic.measureText();
-                    c = graphic.textWidth;
-                    if (c > this.maxStatNamesLength) {
-                        this.maxStatNamesLength = c;
+                    graphic = new Graphic.Statistic(this.player, statistic);
+                    if (graphic.maxStatNamesLength > this.maxStatNamesLength) {
+                        this.maxStatNamesLength = graphic.maxStatNamesLength;
                     }
-                    this.listStatsNames.push(graphic);
-                    txt = Utils.numToString(this.player[statistic.abbreviation]);
-                    if (!statistic.isFix) {
-                        txt += Constants.STRING_SLASH + this.player[statistic
-                            .getMaxAbbreviation()];
-                    }
-                    graphic = new Graphic.Text(txt);
-                    graphic.measureText();
-                    c = graphic.textWidth;
-                    if (c > this.maxStatNamesLength) {
-                        this.maxStatLength = c;
-                    }
-                    this.listStats.push(graphic);
+                    this.listStatistics.push(graphic);
                 }
             }
+        }
+        for (graphic of this.listStatistics) {
+            graphic.maxStatNamesLength = this.maxStatNamesLength;
         }
         // Faceset
         this.faceset = Datas.Pictures.getPictureCopy(PictureKind.Facesets, hero
@@ -138,35 +124,8 @@ class Player extends Base {
         this.graphicLevelName.setText(levelStat.name());
         this.graphicLevel.setText(Utils.numToString(this.player[levelStat
             .abbreviation]));
-        // Adding stats
-        let statistics;
-        let i, l;
-        if (this.isMainMenu) {
-            l = Datas.Systems.heroesStatistics.length;
-            statistics = new Array(l);
-            for (i = 0; i < l; i++) {
-                statistics[i] = Datas.Systems.heroesStatistics[i].getValue();
-            }
-        }
-        else {
-            statistics = Datas.BattleSystems.statisticsOrder;
-        }
-        let id, statistic, txt;
-        for (let i = 0, j = 0, l = statistics.length; i < l; i++) {
-            id = statistics[i];
-            if (id !== Datas.BattleSystems.idLevelStatistic && id !== Datas
-                .BattleSystems.idExpStatistic) {
-                statistic = Datas.BattleSystems.getStatistic(id);
-                // Only display bars
-                if (!statistic.isFix) {
-                    txt = Utils.numToString(this.player[statistic.abbreviation]);
-                    if (!statistic.isFix) {
-                        txt += Constants.STRING_SLASH + this.player[statistic
-                            .getMaxAbbreviation()];
-                    }
-                    this.listStats[j++].setText(txt);
-                }
-            }
+        for (let graphic of this.listStatistics) {
+            graphic.update();
         }
     }
     /**
@@ -190,9 +149,8 @@ class Player extends Base {
         this.graphicName.setFontSize(Constants.MEDIUM_FONT_SIZE);
         this.graphicLevelName.setFontSize(Constants.MEDIUM_FONT_SIZE);
         this.graphicLevel.setFontSize(Constants.MEDIUM_FONT_SIZE);
-        for (let i = 0, l = this.listStatsNames.length; i < l; i++) {
-            this.listStatsNames[i].setFontSize(Constants.SMALL_FONT_SIZE);
-            this.listStats[i].setFontSize(Constants.SMALL_FONT_SIZE);
+        for (let graphic of this.listStatistics) {
+            graphic.setFontSize(Constants.SMALL_FONT_SIZE);
         }
     }
     /**
@@ -261,11 +219,9 @@ class Player extends Base {
             yOffset += ScreenResolution.getScreenMinXY(15);
         }
         let yStat;
-        for (let i = 0, l = this.listStatsNames.length; i < l; i++) {
+        for (let i = 0, l = this.listStatistics.length; i < l; i++) {
             yStat = yOffset + (i * ScreenResolution.getScreenMinXY(12));
-            this.listStatsNames[i].draw(x, y + yStat, 0, 0);
-            this.listStats[i].draw(x + this.maxStatNamesLength +
-                ScreenResolution.getScreenMinXY(10), y + yStat, 0, 0);
+            this.listStatistics[i].draw(x, y + yStat, w, h);
         }
     }
     /**
@@ -280,7 +236,6 @@ class Player extends Base {
         let yName = y + ScreenResolution.getScreenMinXY(20);
         let coef = Constants.BASIC_SQUARE_SIZE / Datas.Systems.SQUARE_SIZE;
         let wBattler = this.battler.w / Datas.Systems.battlersFrames;
-        let hBattler = this.battler.h / Datas.Systems.battlersColumns;
         let owBattler = this.battler.oW / Datas.Systems.battlersFrames;
         let ohBattler = this.battler.oH / Datas.Systems.battlersColumns;
         // Battler
@@ -303,11 +258,9 @@ class Player extends Base {
         if (this.isMainMenu) {
             let xStat = x + w - ScreenResolution.getScreenMinXY(125);
             let i, l, yStat;
-            for (i = 0, l = this.listStatsNames.length; i < l; i++) {
+            for (i = 0, l = this.listStatistics.length; i < l; i++) {
                 yStat = yName + ScreenResolution.getScreenMinXY(i * 20);
-                this.listStatsNames[i].draw(xStat, yStat, 0, 0);
-                this.listStats[i].draw(xStat + this.maxStatNamesLength +
-                    ScreenResolution.getScreenMinXY(10), yStat, 0, 0);
+                this.listStatistics[i].draw(xStat, yStat, w, h);
             }
         }
         // Level up
@@ -338,9 +291,8 @@ class Player extends Base {
             .MEDIUM_SPACE);
         let xLevel = xLevelName + wLevelName;
         let firstLineLength = xLevel + this.graphicLevel.textWidth;
-        let xOffset = this.reverse ? w - Math.max(firstLineLength, this
-            .maxStatNamesLength + ScreenResolution.getScreenMinXY(10) + this
-            .maxStatLength) : 0;
+        let xOffset = this.reverse ? ScreenResolution.getScreenMinXY(Datas.Systems
+            .facesetScalingWidth) : 0;
         // Name, level, status
         let yName = y + ScreenResolution.getScreenMinXY(10);
         this.graphicName.draw(x + xOffset, yName, 0, 0);
@@ -350,12 +302,10 @@ class Player extends Base {
         let yStats = yName + ScreenResolution.getScreenMinXY(20);
         // Stats
         let i, l, xStat, yStat;
-        for (i = 0, l = this.listStatsNames.length; i < l; i++) {
+        for (i = 0, l = this.listStatistics.length; i < l; i++) {
             xStat = x + xOffset;
             yStat = yStats + ScreenResolution.getScreenMinXY(i * 20);
-            this.listStatsNames[i].draw(xStat, yStat, 0, 0);
-            this.listStats[i].draw(xStat + this.maxStatNamesLength +
-                ScreenResolution.getScreenMinXY(10), yStat, 0, 0);
+            this.listStatistics[i].draw(xStat, yStat, w, h);
         }
         // Faceset
         this.faceset.draw({ sx: this.player.system.indexXFaceset * Datas.Systems

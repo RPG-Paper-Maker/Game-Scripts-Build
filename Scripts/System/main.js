@@ -91,6 +91,9 @@ export class Main {
      *  Main loop of the game.
      */
     static loop() {
+        if (Main.firstTime === -1) {
+            Main.firstTime = performance.now();
+        }
         requestAnimationFrame(Main.loop);
         // Update if everything is loaded
         if (Main.loaded) {
@@ -108,9 +111,21 @@ export class Main {
         Manager.Stack.averageElapsedTime = (Manager.Stack.averageElapsedTime +
             Manager.Stack.elapsedTime) / 2;
         Manager.Stack.lastUpdateTime = new Date().getTime();
+        let end = performance.now();
+        Main.frames++;
+        let t = end - Main.firstTime;
+        if (t >= 1000) {
+            Main.FPS = Main.frames;
+            Main.frames = 0;
+            Main.firstTime = -1;
+        }
     }
 }
 Main.loaded = false;
+Main.frames = 0;
+Main.firstTime = -1;
+Main.time = 0;
+Main.FPS = 60;
 // -------------------------------------------------------
 //
 // INITIALIZATION

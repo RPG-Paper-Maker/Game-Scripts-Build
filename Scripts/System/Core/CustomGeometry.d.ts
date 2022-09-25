@@ -30,6 +30,11 @@ export declare class CustomGeometry extends THREE.BufferGeometry {
      */
     static uvsQuadToTex(texA: Vector2, texB: Vector2, texC: Vector2, texD: Vector2, x: number, y: number, w: number, h: number): void;
     /**
+     *  Get the points vertices.
+     *  @returns {ArrayLike<number>}
+     */
+    getVerticesVectors(): THREE.Vector3[];
+    /**
      *  Get the vertices numbers array.
      *  @returns {ArrayLike<number>}
      */

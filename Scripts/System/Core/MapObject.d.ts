@@ -3,6 +3,7 @@ import { Frame } from "./Frame.js";
 import { Enum } from "../Common/index.js";
 import Orientation = Enum.Orientation;
 import { Vector3 } from "./Vector3.js";
+import { CustomGeometry } from "./CustomGeometry.js";
 interface StructSearchResult {
     object: MapObject;
     id: number;
@@ -25,8 +26,8 @@ declare class MapObject {
     movingState: Record<string, any>;
     previousPosition: Vector3;
     mesh: THREE.Mesh;
-    meshBoundingBox: THREE.Mesh[];
-    currentBoundingBox: THREE.Mesh;
+    meshBoundingBox: THREE.Mesh<CustomGeometry, THREE.Material | THREE.Material[]>[];
+    currentBoundingBox: THREE.Mesh<CustomGeometry, THREE.Material | THREE.Material[]>;
     boundingBoxSettings: Record<string, any>;
     frame: Frame;
     orientationEye: Orientation;

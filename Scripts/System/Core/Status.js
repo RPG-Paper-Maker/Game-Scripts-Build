@@ -40,21 +40,9 @@ class Status {
      *  @param {Enum.Align} [align=Enum.Align.Left]
      */
     static drawList(statusList, x, y, align = Enum.Align.Left) {
-        let totalWidth = 0;
-        let maxHeight = 0;
-        let maxWidth = 0;
-        let i, l, s, h, w;
-        for (let i = 0, l = statusList.length; i < l; i++) {
-            totalWidth += statusList[i].picture.w;
-            w = statusList[i].picture.w;
-            if (w > maxWidth) {
-                maxWidth = w;
-            }
-            h = statusList[i].picture.h;
-            if (h > maxHeight) {
-                maxHeight = h;
-            }
-        }
+        let l = statusList.length;
+        let totalWidth = l * ScreenResolution.getScreenMinXY(Datas.Systems.iconsSize);
+        let s;
         if (l > 1) {
             totalWidth += (l - 1) * ScreenResolution.getScreenMinXY(Constants
                 .MEDIUM_SPACE);
@@ -68,11 +56,13 @@ class Status {
                 totalWidth /= 2;
                 break;
         }
-        for (i = 0, l = statusList.length; i < l; i++) {
+        for (let i = 0, l = statusList.length; i < l; i++) {
             s = statusList[i];
-            xOffset += s.picture.w;
+            xOffset += ScreenResolution.getScreenMinXY(Datas.Systems.iconsSize);
             s.draw(x - totalWidth + xOffset + ScreenResolution.getScreenMinXY(i
-                * Constants.MEDIUM_SPACE) - maxWidth, y - (maxHeight / 2));
+                * Constants.MEDIUM_SPACE) - ScreenResolution.getScreenMinXY(Datas
+                .Systems.iconsSize), y - ScreenResolution.getScreenMinXY(Datas
+                .Systems.iconsSize));
         }
     }
     /**
@@ -113,7 +103,10 @@ class Status {
      *  @param {number} y - The y position
      */
     draw(x, y) {
-        this.picture.draw({ x: x, y: y });
+        this.picture.draw({ x: x, y: y, sx: this.system.pictureIndexX * Datas
+                .Systems.iconsSize, sy: this.system.pictureIndexY * Datas.Systems
+                .iconsSize, sw: Datas.Systems.iconsSize, sh: Datas.Systems.iconsSize,
+            w: ScreenResolution.getScreenMinXY(Datas.Systems.iconsSize), h: ScreenResolution.getScreenMinXY(Datas.Systems.iconsSize) });
     }
 }
 export { Status };

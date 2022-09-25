@@ -7,6 +7,8 @@ import { Vector3, Vector2 } from "../Core/index.js";
 declare class GL {
     static SHADER_FIX_VERTEX: string;
     static SHADER_FIX_FRAGMENT: string;
+    static SHADER_FACE_VERTEX: string;
+    static SHADER_FACE_FRAGMENT: string;
     static renderer: THREE.WebGLRenderer;
     static textureLoader: import("three").TextureLoader;
     static screenTone: import("three").Vector4;
@@ -45,6 +47,7 @@ declare class GL {
         flipX?: boolean;
         flipY?: boolean;
         uniforms?: Record<string, any>;
+        isFaceSprite?: boolean;
     }): THREE.ShaderMaterial;
     /**
      *  Get material THREE.Texture (if exists).

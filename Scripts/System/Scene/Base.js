@@ -9,8 +9,9 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { ReactionInterpreter } from "../Core/index.js";
-import { Scene, Manager } from "../index.js";
-import { Utils } from "../Common/index.js";
+import { Scene, Manager, Graphic, Datas } from "../index.js";
+import { Enum, Utils } from "../Common/index.js";
+import { Main } from "../main.js";
 /**
  *  The superclass who shape the structure of a scene.
  *  @abstract
@@ -21,6 +22,7 @@ class Base {
      *  loading asynchronosively.
      */
     constructor(loading = true, ...args) {
+        this.graphicFPS = null;
         this.reactionInterpreters = new Array;
         this.reactionInterpretersEffects = new Array;
         this.parallelCommands = new Array;
@@ -30,6 +32,9 @@ class Base {
             Utils.tryCatch(this.load, this);
         }
         this.create();
+        if (Datas.Systems.showFPS) {
+            this.graphicFPS = new Graphic.Text('', { verticalAlign: Enum.AlignVertical.Top });
+        }
     }
     initialize(...args) { }
     /**
@@ -155,6 +160,10 @@ class Base {
         this.updateInterpreters.call(this);
         // Parallel commands
         this.updateParallelCommands.call(this);
+        // FPS
+        if (this.graphicFPS) {
+            this.graphicFPS.setText("" + Main.FPS + "FPS");
+        }
     }
     /**
      *  Handle the scene reactions when a key is pressed.
@@ -239,6 +248,10 @@ class Base {
         }
         for (let command of this.parallelCommands) {
             command.drawHUD();
+        }
+        // Draw FPS
+        if (this.graphicFPS) {
+            this.graphicFPS.draw();
         }
     }
     /**

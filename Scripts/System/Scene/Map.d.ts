@@ -31,6 +31,7 @@ declare class Map extends Base {
     currentPortion: Portion;
     mapPortions: MapPortion[];
     textureTileset: THREE.ShaderMaterial;
+    textureTilesetFace: THREE.ShaderMaterial;
     texturesCharacters: THREE.ShaderMaterial[];
     texturesAutotiles: TextureBundle[][];
     texturesWalls: THREE.ShaderMaterial[];

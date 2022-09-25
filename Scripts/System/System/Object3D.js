@@ -107,5 +107,12 @@ class Object3D extends SpecialElement {
     getObj() {
         return Datas.Shapes.get(CustomShapeKind.OBJ, this.objID);
     }
+    /**
+     *  Get the collision shape obj.
+     *  @returns {System.Shape}
+     */
+    getCollisionObj() {
+        return Datas.Shapes.get(CustomShapeKind.Collisions, this.collisionCustomID);
+    }
 }
 export { Object3D };

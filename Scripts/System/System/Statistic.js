@@ -8,6 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { Utils } from "../Common/index.js";
 import { Translatable } from "./Translatable.js";
 /** @class
  *  A statistic of the game.
@@ -58,6 +59,7 @@ class Statistic extends Translatable {
         super.read(json);
         this.abbreviation = json.abr;
         this.isFix = json.fix;
+        this.pictureBarID = Utils.defaultValue(json.pid, -1);
     }
     /**
      *  Get the name according to current lang.

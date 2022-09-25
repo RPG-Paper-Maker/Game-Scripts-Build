@@ -13,6 +13,9 @@ import { Vector3 } from "./Vector3.js";
  *  @param {number} angleY - The angle on Y axis in degree
  *  @param {number} angleX - The angle on X axis in degree
  *  @param {number} angleZ - The angle on Z axis in degree
+ *  @param {number} scaleX - The scale on X axis multiple
+ *  @param {number} scaleY - The scale on Y axis multiple
+ *  @param {number} scaleZ - The scale on Z axis multiple
  */
 declare class Position extends Portion {
     yPixels: number;
@@ -22,7 +25,10 @@ declare class Position extends Portion {
     angleY: number;
     angleX: number;
     angleZ: number;
-    constructor(x?: number, y?: number, z?: number, yPixels?: number, layer?: number, centerX?: number, centerZ?: number, angleY?: number, angleX?: number, angleZ?: number);
+    scaleX: number;
+    scaleY: number;
+    scaleZ: number;
+    constructor(x?: number, y?: number, z?: number, yPixels?: number, layer?: number, centerX?: number, centerZ?: number, angleY?: number, angleX?: number, angleZ?: number, scaleX?: number, scaleY?: number, scaleZ?: number);
     /**
      *  Create a position from an array.
      *  @static
@@ -67,6 +73,11 @@ declare class Position extends Portion {
      *  @returns {Vector3}
      */
     toVector3(center?: boolean): Vector3;
+    /**
+     *  Transform a position to a scaling Vector3.
+     *  @returns {Vector3}
+     */
+    toScaleVector(): Vector3;
     /**
      *  Transform a position to index position on X/Z axis (used for map
      *  portion bounding boxes).

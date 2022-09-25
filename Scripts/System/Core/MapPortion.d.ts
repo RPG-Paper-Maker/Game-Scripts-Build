@@ -14,6 +14,7 @@ declare class MapPortion {
     portion: Portion;
     staticFloorsMesh: THREE.Mesh;
     staticSpritesMesh: THREE.Mesh;
+    faceSpritesMesh: THREE.Mesh;
     squareNonEmpty: number[][][];
     boundingBoxesLands: StructMapElementCollision[][];
     boundingBoxesSprites: StructMapElementCollision[][];
@@ -22,7 +23,6 @@ declare class MapPortion {
     staticAutotilesList: Autotiles[][];
     staticMountainsList: Mountains[];
     objectsList: MapObject[];
-    faceSpritesList: THREE.Mesh[];
     staticWallsList: THREE.Mesh[];
     staticObjects3DList: THREE.Mesh[];
     overflowMountains: Position[];

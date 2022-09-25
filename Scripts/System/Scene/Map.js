@@ -208,6 +208,10 @@ class Map extends Base {
         let path = tileset.getPath();
         this.textureTileset = path ? (await Manager.GL.loadTexture(path)) :
             Manager.GL.loadTextureEmpty();
+        this.textureTilesetFace = Manager.GL.createMaterial(this.textureTileset
+            .uniforms.t.value, {
+            isFaceSprite: true
+        });
         this.texturesAutotiles = await tileset.getTexturesAutotiles();
         this.texturesWalls = await tileset.getTexturesWalls();
         this.texturesMountains = await tileset.getTexturesMountains();
@@ -832,7 +836,7 @@ class Map extends Base {
         // Mouse down repeat
         if (!this.loading) {
             if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
-                Manager.Events.sendEvent(null, 0, 1, true, 5, [null, System
+                Manager.Events.sendEvent(null, 2, 0, true, 5, [null, System
                         .DynamicValue.createNumber(Inputs.mouseX), System
                         .DynamicValue.createNumber(Inputs.mouseY), System
                         .DynamicValue.createSwitch(Inputs.mouseLeftPressed), System
@@ -895,7 +899,7 @@ class Map extends Base {
         if (!this.loading) {
             // Send keyPressEvent to all the objects
             if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
-                Manager.Events.sendEvent(null, 0, 1, true, 3, [null, System
+                Manager.Events.sendEvent(null, 2, 0, true, 3, [null, System
                         .DynamicValue.createNumber(key), System.DynamicValue
                         .createSwitch(false), System.DynamicValue.createSwitch(false)], true, false);
             }
@@ -910,7 +914,7 @@ class Map extends Base {
         if (!this.loading) {
             // Send keyReleaseEvent to all the objects
             if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
-                Manager.Events.sendEvent(null, 0, 1, true, 4, [null, System
+                Manager.Events.sendEvent(null, 2, 0, true, 4, [null, System
                         .DynamicValue.createNumber(key)], true, false);
             }
             super.onKeyReleased(key);
@@ -924,7 +928,7 @@ class Map extends Base {
     onKeyPressedRepeat(key) {
         if (!this.loading) {
             if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
-                Manager.Events.sendEvent(null, 0, 1, true, 3, [null, System
+                Manager.Events.sendEvent(null, 2, 0, true, 3, [null, System
                         .DynamicValue.createNumber(key), System.DynamicValue
                         .createSwitch(true), System.DynamicValue.createSwitch(true)], true, false);
             }
@@ -940,7 +944,7 @@ class Map extends Base {
     onKeyPressedAndRepeat(key) {
         if (!this.loading) {
             if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
-                Manager.Events.sendEvent(null, 0, 1, true, 3, [null, System
+                Manager.Events.sendEvent(null, 2, 0, true, 3, [null, System
                         .DynamicValue.createNumber(key), System.DynamicValue
                         .createSwitch(true), System.DynamicValue.createSwitch(false)], true, false);
             }
@@ -956,7 +960,7 @@ class Map extends Base {
     onMouseDown(x, y) {
         if (!this.loading) {
             if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
-                Manager.Events.sendEvent(null, 0, 1, true, 5, [null, System
+                Manager.Events.sendEvent(null, 2, 0, true, 5, [null, System
                         .DynamicValue.createNumber(x), System.DynamicValue
                         .createNumber(y), System.DynamicValue.createSwitch(Inputs
                         .mouseLeftPressed), System.DynamicValue.createSwitch(false)], true, false);
@@ -972,7 +976,7 @@ class Map extends Base {
     onMouseMove(x, y) {
         if (!this.loading) {
             if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
-                Manager.Events.sendEvent(null, 0, 1, true, 7, [null, System
+                Manager.Events.sendEvent(null, 2, 0, true, 7, [null, System
                         .DynamicValue.createNumber(x), System.DynamicValue
                         .createNumber(y)], true, false);
             }
@@ -987,7 +991,7 @@ class Map extends Base {
     onMouseUp(x, y) {
         if (!this.loading) {
             if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
-                Manager.Events.sendEvent(null, 0, 1, true, 6, [null, System
+                Manager.Events.sendEvent(null, 2, 0, true, 6, [null, System
                         .DynamicValue.createNumber(x), System.DynamicValue
                         .createNumber(y), System.DynamicValue.createSwitch(Inputs
                         .mouseLeftPressed)], true, false);

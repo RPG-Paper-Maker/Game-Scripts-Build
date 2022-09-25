@@ -11,10 +11,12 @@
 import { Enum, Utils } from "../Common/index.js";
 var ElementMapKind = Enum.ElementMapKind;
 import { MapElement } from "./MapElement.js";
+import { THREE } from "../Globals.js";
 import { Datas, Scene } from "../index.js";
 import { Vector3 } from "./Vector3.js";
 import { Vector2 } from "./Vector2.js";
 import { CustomGeometry } from "./CustomGeometry.js";
+import { CustomGeometryFace } from "./CustomGeometryFace.js";
 /** @class
  *  A sprite in the map.
  *  @extends MapElement
@@ -111,13 +113,14 @@ class Sprite extends MapElement {
      *  @returns {any[]}
      */
     updateGeometry(geometry, width, height, position, count, tileset, localPosition) {
-        let vecA = new Vector3(-0.5, 1.0, 0.0);
-        let vecB = new Vector3(0.5, 1.0, 0.0);
-        let vecC = new Vector3(0.5, 0.0, 0.0);
-        let vecD = new Vector3(-0.5, 0.0, 0.0);
+        let vecA = Sprite.MODEL[0].clone();
+        let vecB = Sprite.MODEL[1].clone();
+        let vecC = Sprite.MODEL[2].clone();
+        let vecD = Sprite.MODEL[3].clone();
         let center = new Vector3(0, 0, 0);
-        let size = new Vector3(this.textureRect[2] * Datas.Systems
-            .SQUARE_SIZE, this.textureRect[3] * Datas.Systems.SQUARE_SIZE, 1.0);
+        let size = new Vector3(this.textureRect[2] * Datas.Systems.SQUARE_SIZE *
+            position.scaleX, this.textureRect[3] * Datas.Systems.SQUARE_SIZE *
+            position.scaleY, 1.0);
         // For static sprites
         super.scale(vecA, vecB, vecC, vecD, center, position, size, this.kind);
         if (localPosition !== null) {
@@ -162,8 +165,8 @@ class Sprite extends MapElement {
         CustomGeometry.uvsQuadToTex(texA, texB, texC, texD, x, y, w, h);
         // Collision
         let objCollision = new Array;
-        let twidth = Math.floor(this.textureRect[2] / 2);
-        let theight = Math.floor(this.textureRect[3] / 2);
+        let twidth = Math.floor(this.textureRect[2] * position.scaleX / 2);
+        let theight = Math.floor(this.textureRect[3] * position.scaleY / 2);
         if (tileset) {
             let collisions = Scene.Map.current.mapProperties.tileset.picture
                 .getSquaresForTexture(this.textureRect);
@@ -174,14 +177,15 @@ class Sprite extends MapElement {
                     p: position,
                     l: localPosition,
                     b: [
-                        (localPosition.x - (Math.floor(this.textureRect[2] / 2)
-                            * Datas.Systems.SQUARE_SIZE)) - ((this.textureRect[2] % 2) * Math.round(Datas.Systems.SQUARE_SIZE / 2))
-                            + rect[0] + Math.round(rect[2] / 2),
-                        localPosition.y + (this.textureRect[3] * Datas.Systems
-                            .SQUARE_SIZE) - rect[1] - Math.round(rect[3] / 2),
+                        (localPosition.x - (twidth * Datas.Systems.SQUARE_SIZE))
+                            - (((this.textureRect[2] * position.scaleX) % 2) *
+                                Math.round(Datas.Systems.SQUARE_SIZE / 2)) + rect[0]
+                            + Math.round(rect[2] * position.scaleX / 2),
+                        localPosition.y + (this.textureRect[3] * position.scaleY
+                            * Datas.Systems.SQUARE_SIZE) - rect[1] - Math.round(rect[3] * position.scaleY / 2),
                         localPosition.z,
-                        rect[2],
-                        rect[3],
+                        rect[2] * position.scaleX,
+                        rect[3] * position.scaleY,
                         1,
                         angleY,
                         angleX,
@@ -201,12 +205,23 @@ class Sprite extends MapElement {
                 k: this.kind === ElementMapKind.SpritesFix
             });
         }
-        // Simple sprite
-        let vecSimpleA = vecA.clone();
-        let vecSimpleB = vecB.clone();
-        let vecSimpleC = vecC.clone();
-        let vecSimpleD = vecD.clone();
-        count = Sprite.addStaticSpriteToGeometry(geometry, vecSimpleA, vecSimpleB, vecSimpleC, vecSimpleD, texA, texB, texC, texD, count);
+        if (geometry instanceof CustomGeometryFace) {
+            // Face sprite
+            geometry.pushQuadVerticesFace(Sprite.MODEL[0].clone(), Sprite.MODEL[1]
+                .clone(), Sprite.MODEL[2].clone(), Sprite.MODEL[3].clone(), size
+                .clone(), new THREE.Vector3(center.x, localPosition.y, center.z));
+            geometry.pushQuadIndices(count);
+            geometry.pushQuadUVs(texA, texB, texC, texD);
+            count = count + 4;
+        }
+        else {
+            // Simple sprite
+            let vecSimpleA = vecA.clone();
+            let vecSimpleB = vecB.clone();
+            let vecSimpleC = vecC.clone();
+            let vecSimpleD = vecD.clone();
+            count = Sprite.addStaticSpriteToGeometry(geometry, vecSimpleA, vecSimpleB, vecSimpleC, vecSimpleD, texA, texB, texC, texD, count);
+        }
         // Double sprite
         if (this.kind === ElementMapKind.SpritesDouble || this.kind ===
             ElementMapKind.SpritesQuadra) {
@@ -249,6 +264,12 @@ class Sprite extends MapElement {
         return [geometry, collisions];
     }
 }
+Sprite.MODEL = [
+    new Vector3(-0.5, 1.0, 0.0),
+    new Vector3(0.5, 1.0, 0.0),
+    new Vector3(0.5, 0.0, 0.0),
+    new Vector3(-0.5, 0.0, 0.0)
+];
 Sprite.Y_AXIS = new Vector3(0, 1, 0);
 Sprite.X_AXIS = new Vector3(1, 0, 0);
 Sprite.Z_AXIS = new Vector3(0, 0, 1);

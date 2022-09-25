@@ -73,6 +73,18 @@ export class CustomGeometry extends THREE.BufferGeometry {
         texD.set(x, y + h);
     }
     /**
+     *  Get the points vertices.
+     *  @returns {ArrayLike<number>}
+     */
+    getVerticesVectors() {
+        let vertices = [];
+        let array = this.getVertices();
+        for (let i = 0, l = array.length; i < l; i += 3) {
+            vertices.push(new THREE.Vector3(array[i], array[i + 1], array[i + 2]));
+        }
+        return vertices;
+    }
+    /**
      *  Get the vertices numbers array.
      *  @returns {ArrayLike<number>}
      */

@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { THREE } from "../Globals.js";
-import { Enum, Mathf, ScreenResolution } from "../Common/index.js";
+import { Enum, Mathf } from "../Common/index.js";
 import { Frame } from "./Frame.js";
 import { ProgressionTable } from "../System/index.js";
 import { Manager, Datas, Scene } from "../index.js";
@@ -477,9 +477,8 @@ class Battler {
      *  Draw the status on top of the battler.
      */
     drawStatus() {
-        Status.drawList(this.player.getFirstStatus(), ScreenResolution
-            .getScreenXReverse(this.damagePosition.x), ScreenResolution
-            .getScreenYReverse(this.damagePosition.y), Enum.Align.Center);
+        Status.drawList(this.player.getFirstStatus(), this.damagePosition.x, this
+            .damagePosition.y, Enum.Align.Center);
     }
     /**
      *  Draw the status animation

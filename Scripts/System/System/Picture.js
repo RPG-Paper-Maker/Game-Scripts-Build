@@ -335,5 +335,41 @@ class Picture extends Base {
         }
         return states;
     }
+    /**
+     *  Check the borders to cut for filled bar.
+     */
+    checkBarBorder() {
+        if (this.picture.image) {
+            Platform.ctxr.drawImage(this.picture.image, 0, 0);
+            let x = this.picture.image.width / 2;
+            let y = 0;
+            let isTransparent = true;
+            for (; x < this.picture.image.width; x++) {
+                for (y = 0; y < this.picture.image.height; y++) {
+                    if (Platform.ctxr.getImageData(x, y, 1, 1).data[3] !== 0) {
+                        isTransparent = false;
+                        break;
+                    }
+                }
+                if (!isTransparent) {
+                    break;
+                }
+            }
+            this.borderLeft = x - (this.picture.image.width / 2);
+            isTransparent = true;
+            for (x = this.picture.image.width - 1; x >= 0; x--) {
+                for (y = 0; y < this.picture.image.height; y++) {
+                    if (Platform.ctxr.getImageData(x, y, 1, 1).data[3] !== 0) {
+                        isTransparent = false;
+                        break;
+                    }
+                }
+                if (!isTransparent) {
+                    break;
+                }
+            }
+            this.borderRight = this.picture.image.width - x - 1;
+        }
+    }
 }
 export { Picture };

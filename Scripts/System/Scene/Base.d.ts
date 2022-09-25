@@ -1,5 +1,5 @@
 import { Camera, ReactionInterpreter, MapObject } from "../Core/index.js";
-import { System } from "../index.js";
+import { System, Graphic } from "../index.js";
 /**
  *  The superclass who shape the structure of a scene.
  *  @abstract
@@ -35,6 +35,7 @@ declare abstract class Base {
      *  @memberof Base
      */
     camera: Camera;
+    graphicFPS: Graphic.Text;
     /**
      *  @param {boolean} [loading = true] - Tells whether or not the scene is
      *  loading asynchronosively.

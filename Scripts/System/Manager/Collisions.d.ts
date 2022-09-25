@@ -5,23 +5,25 @@ import { MapObject, Position, MapPortion, StructMapElementCollision, Vector3, Cu
  */
 declare class Collisions {
     static BB_MATERIAL: import("three").MeshBasicMaterial;
-    static BB_BOX: import("three").Mesh<import("three").BufferGeometry, import("three").Material | import("three").Material[]>;
-    static BB_ORIENTED_BOX: import("three").Mesh<import("three").BufferGeometry, import("three").Material | import("three").Material[]>;
-    static BB_BOX_DETECTION: import("three").Mesh<import("three").BufferGeometry, import("three").Material | import("three").Material[]>;
-    static BB_BOX_DEFAULT_DETECTION: import("three").Mesh<import("three").BufferGeometry, import("three").Material | import("three").Material[]>;
+    static BB_EMPTY_MATERIAL: import("three").MeshBasicMaterial;
+    static BB_BOX: import("three").Mesh<CustomGeometry, import("three").Material | import("three").Material[]>;
+    static BB_ORIENTED_BOX: import("three").Mesh<CustomGeometry, import("three").Material | import("three").Material[]>;
+    static BB_BOX_DETECTION: import("three").Mesh<CustomGeometry, import("three").Material | import("three").Material[]>;
+    static BB_BOX_DEFAULT_DETECTION: import("three").Mesh<CustomGeometry, import("three").Material | import("three").Material[]>;
+    static currentCustomObject3D: THREE.Mesh<CustomGeometry, THREE.Material | THREE.Material[]>;
     constructor();
     /**
      *  Create a box for bounding box.
      *  @static
      *  @returns {THREE.Mesh}
      */
-    static createBox(): THREE.Mesh;
+    static createBox(): THREE.Mesh<CustomGeometry, THREE.Material | THREE.Material[]>;
     /**
      *  Create an oriented box for bounding box.
      *  @static
      *  @returns {THREE.Mesh}
      */
-    static createOrientedBox(): THREE.Mesh;
+    static createOrientedBox(): THREE.Mesh<CustomGeometry, THREE.Material | THREE.Material[]>;
     /**
      *  Apply transform for lands bounding box.
      *  @static
@@ -185,12 +187,32 @@ declare class Collisions {
      *  @static
      *  @param {MapPortion} mapPortion - The map portion to check
      *  @param {Position} jpositionAfter - The json position after collision
+     *  @param {THREE.Vector3} positionAfter - The position after collision
      *  @param {StructMapElementCollision[]} testedCollisions - The object
      *  collisions that were already tested
      *  @param {MapObject} object - The map object collision test
      *  @returns {boolean}
     */
-    static checkObjects3D(mapPortion: MapPortion, jpositionAfter: Position, testedCollisions: StructMapElementCollision[], object: MapObject): boolean;
+    static checkObjects3D(mapPortion: MapPortion, jpositionAfter: Position, positionAfter: THREE.Vector3, testedCollisions: StructMapElementCollision[], object: MapObject): boolean;
+    /**
+     *  Check if there is a collision with custom object 3D collision.
+     *  @static
+     *  @param {StructMapElementCollision} objCollision - The object colision
+     *  info to test
+     *  @param {MapObject} object - The map object collision test
+     *  @param {THREE.Vector3} positionAfter - The position after collision
+     *  @returns {boolean}
+    */
+    static checkCustomObject3D(objCollision: StructMapElementCollision, object: MapObject, positionAfter: THREE.Vector3): boolean;
+    /**
+     *  Check intersection between two complex meshes.
+     *  @static
+     *  @param {THREE.Mesh<CustomGeometry, THREE.Material | THREE.Material[]>} meshA - The first mesh
+     *  @param {THREE.Mesh<CustomGeometry, THREE.Material | THREE.Material[]>} meshB - The second mesh
+     *  @param {THREE.Vector3} direction - The meshA direction to mesh B
+     *  @returns {boolean}
+    */
+    static checkIntersectionMeshes(meshA: THREE.Mesh<CustomGeometry, THREE.Material | THREE.Material[]>, meshB: THREE.Mesh<CustomGeometry, THREE.Material | THREE.Material[]>, direction: THREE.Vector3): boolean;
     /**
      *  Check if there is a collision with mountains at this position.
      *  @static

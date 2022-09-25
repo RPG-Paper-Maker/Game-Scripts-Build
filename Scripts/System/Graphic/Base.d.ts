@@ -25,7 +25,7 @@ declare abstract class Base extends Bitmap {
      *  @param {boolean} positionResize - If checked, resize postion
      *  according to screen resolution
      */
-    abstract drawChoice(x: number, y: number, w: number, h: number): void;
+    drawChoice(x: number, y: number, w: number, h: number): void;
     /**
      *  Drawing the graphic in box.
      *  @param {number} x - The x position to draw graphic

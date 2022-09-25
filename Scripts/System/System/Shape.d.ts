@@ -1,6 +1,7 @@
 import { Enum } from "../Common/index.js";
 import CustomShapeKind = Enum.CustomShapeKind;
 import { Base } from "./Base.js";
+import { CustomGeometry } from "../Core/index.js";
 /** @class
  *  A shape of the game.
  *  @extends System.Base
@@ -16,6 +17,7 @@ declare class Shape extends Base {
     isBR: boolean;
     dlc: string;
     base64: string;
+    mesh: THREE.Mesh<CustomGeometry, THREE.Material | THREE.Material[]>;
     geometry: Record<string, any>;
     constructor(json?: Record<string, any>, kind?: CustomShapeKind);
     /**

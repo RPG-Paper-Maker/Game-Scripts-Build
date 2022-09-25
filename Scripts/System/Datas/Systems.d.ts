@@ -25,6 +25,7 @@ declare class Systems {
     static priceSoldItem: System.DynamicValue;
     static enterNameTable: string[][];
     static showBB: boolean;
+    static showFPS: boolean;
     private static itemsTypes;
     static inventoryFilters: System.InventoryFilter[];
     static mainMenuCommands: System.MainMenuCommand[];

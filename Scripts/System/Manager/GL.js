@@ -46,6 +46,10 @@ class GL {
         this.SHADER_FIX_VERTEX = json;
         json = await IO.openFile(Paths.SHADERS + "fix.frag");
         this.SHADER_FIX_FRAGMENT = json;
+        json = await IO.openFile(Paths.SHADERS + "face.vert");
+        this.SHADER_FACE_VERTEX = json;
+        json = await IO.openFile(Paths.SHADERS + "face.frag");
+        this.SHADER_FACE_FRAGMENT = json;
     }
     /**
      *  Set the camera aspect while resizing the window.
@@ -118,9 +122,9 @@ class GL {
         }
         let material = new THREE.ShaderMaterial({
             uniforms: opts.uniforms,
-            vertexShader: this.SHADER_FIX_VERTEX,
-            fragmentShader: this.SHADER_FIX_FRAGMENT,
-            side: THREE.DoubleSide,
+            vertexShader: opts.isFaceSprite ? this.SHADER_FACE_VERTEX : this.SHADER_FIX_VERTEX,
+            fragmentShader: opts.isFaceSprite ? this.SHADER_FACE_FRAGMENT : this.SHADER_FIX_FRAGMENT,
+            side: opts.isFaceSprite ? THREE.BackSide : THREE.DoubleSide,
             transparent: true
         });
         return material;

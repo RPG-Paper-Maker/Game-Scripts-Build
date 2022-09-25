@@ -14,6 +14,7 @@ export * from "./ShopCurrencies.js";
 export * from "./Skill.js";
 export * from "./SkillItem.js";
 export * from "./SpinBox.js";
+export * from "./Statistic.js";
 export * from "./StatisticProgression.js";
 export * from "./Text.js";
 export * from "./TextIcon.js";
