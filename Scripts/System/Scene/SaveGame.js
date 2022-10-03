@@ -10,9 +10,9 @@
 */
 import { SaveLoadGame } from "./SaveLoadGame.js";
 import { Graphic, Datas, Manager, Scene } from "../index.js";
-import { Enum, ScreenResolution } from "../Common/index.js";
+import { Enum } from "../Common/index.js";
 var Align = Enum.Align;
-import { Game, Rectangle, WindowBox, WindowChoices } from "../Core/index.js";
+import { Game } from "../Core/index.js";
 /** @class
  *  A scene in the menu for saving a game.
  *  @extends Scene.SaveLoadGame
@@ -20,64 +20,12 @@ import { Game, Rectangle, WindowBox, WindowChoices } from "../Core/index.js";
 class SaveGame extends SaveLoadGame {
     constructor() {
         super();
-        this.step = 0;
     }
     /**
      *  Create scene.
      */
     create() {
         super.create();
-        this.createAllWindows();
-    }
-    /**
-     *  Create all the windows in the scene.
-     */
-    createAllWindows() {
-        this.createWindowBoxConfirm();
-        this.createWindowChoicesConfirm();
-    }
-    /**
-     *  Create the window confirmation.
-     */
-    createWindowBoxConfirm() {
-        const width = 200;
-        const height = 75;
-        const rect = new Rectangle((ScreenResolution.SCREEN_X - width) / 2, (ScreenResolution.SCREEN_Y - height) / 2, width, height);
-        const graphic = new Graphic.Text("Confirm?", { align: Enum.Align.Center });
-        const options = {
-            content: graphic
-        };
-        this.windowBoxConfirm = new WindowBox(rect.x, rect.y, rect.width, rect
-            .height, options);
-    }
-    /**
-     *  Create the window information on top.
-     */
-    createWindowChoicesConfirm() {
-        const rect = new Rectangle(this.windowBoxConfirm.oX + ((this
-            .windowBoxConfirm.oW - WindowBox.SMALL_SLOT_WIDTH) / 2), this
-            .windowBoxConfirm.oY + this.windowBoxConfirm.oH, WindowBox
-            .SMALL_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
-        const options = {
-            listCallbacks: [
-                () => {
-                    this.loading = true;
-                    this.save();
-                    this.step = 0;
-                    return true;
-                },
-                () => {
-                    this.step = 0;
-                    Manager.Stack.requestPaintHUD = true;
-                    return false;
-                }
-            ]
-        };
-        const graphics = [
-            new Graphic.Text("Yes", { align: Enum.Align.Center }),
-            new Graphic.Text("No", { align: Enum.Align.Center })
-        ];
-        this.windowChoicesConfirm = new WindowChoices(rect.x, rect.y, rect.width, rect.height, graphics, options);
     }
     /**
      *  Load async stuff.
@@ -105,21 +53,10 @@ class SaveGame extends SaveLoadGame {
     action(isKey, options = {}) {
         // If action, save in the selected slot
         if (Scene.MenuBase.checkActionMenu(isKey, options)) {
-            switch (this.step) {
-                case 0:
-                    this.step = 1;
-                    Datas.Systems.soundConfirmation.playSound();
-                    Manager.Stack.requestPaintHUD = true;
-                    break;
-                case 1:
-                    if (isKey) {
-                        this.windowChoicesConfirm.onKeyPressed(options.key);
-                    }
-                    else {
-                        this.windowChoicesConfirm.onMouseUp(options.x, options.y);
-                    }
-                    break;
-            }
+            Datas.Systems.soundConfirmation.playSound();
+            Manager.Stack.push(new Scene.Confirm(() => {
+                this.save();
+            }));
         }
     }
     /**
@@ -128,14 +65,7 @@ class SaveGame extends SaveLoadGame {
      *  @param {{ key?: number, x?: number, y?: number }} [options={}]
      */
     move(isKey, options = {}) {
-        switch (this.step) {
-            case 0:
-                super.move(isKey, options);
-                break;
-            case 1:
-                this.windowChoicesConfirm.move(isKey, options);
-                break;
-        }
+        super.move(isKey, options);
     }
     /**
      *  Handle scene key pressed.
@@ -157,10 +87,6 @@ class SaveGame extends SaveLoadGame {
      */
     drawHUD() {
         super.drawHUD();
-        if (this.step === 1) {
-            this.windowBoxConfirm.draw();
-            this.windowChoicesConfirm.draw();
-        }
     }
 }
 export { SaveGame };

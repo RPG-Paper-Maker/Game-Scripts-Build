@@ -20,6 +20,7 @@ export * from "./BattleSelection.js";
 export * from "./BattleStartTurn.js";
 export * from "./BattleVictory.js";
 export * from "./ChangeLanguage.js";
+export * from "./Confirm.js";
 export * from "./GameOver.js";
 export * from "./KeyboardAssign.js";
 export * from "./LoadGame.js";

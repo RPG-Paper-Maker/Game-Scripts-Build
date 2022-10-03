@@ -10,7 +10,7 @@
 */
 import { THREE } from "../Globals.js";
 import { Base } from "./Base.js";
-import { Enum, Utils, Constants, IO, Paths, Inputs, Interpreter } from "../Common/index.js";
+import { Enum, Utils, Constants, IO, Paths, Inputs, Interpreter, Platform } from "../Common/index.js";
 var PictureKind = Enum.PictureKind;
 import { System, Datas, Scene, Manager } from "../index.js";
 import { Position, Portion, MapPortion, Camera, ReactionInterpreter, Vector3, Autotiles, Game, Frame, Vector2 } from "../Core/index.js";
@@ -56,8 +56,7 @@ class Map extends Base {
         if (Datas.Systems.showBB) {
             this.scene.add(Manager.Collisions.BB_BOX);
             this.scene.add(Manager.Collisions.BB_ORIENTED_BOX);
-            //this.scene.add(Manager.Collisions.BB_BOX_DETECTION);
-            //this.scene.add(Manager.Collisions.BB_BOX_DEFAULT_DETECTION);
+            this.scene.add(Manager.Collisions.BB_BOX_DEFAULT_DETECTION);
         }
         await this.readMapProperties();
         this.initializeCamera();
@@ -208,10 +207,11 @@ class Map extends Base {
         let path = tileset.getPath();
         this.textureTileset = path ? (await Manager.GL.loadTexture(path)) :
             Manager.GL.loadTextureEmpty();
-        this.textureTilesetFace = Manager.GL.createMaterial(this.textureTileset
-            .uniforms.t.value, {
-            isFaceSprite: true
-        });
+        let t = this.textureTileset.uniforms.t.value;
+        if (t.image.width % Datas.Systems.SQUARE_SIZE !== 0 || t.image.height % Datas.Systems.SQUARE_SIZE !== 0) {
+            Platform.showErrorMessage("Tileset in " + path + " is not in a size multiple of " +
+                Datas.Systems.SQUARE_SIZE + ". Please edit this picture size.");
+        }
         this.texturesAutotiles = await tileset.getTexturesAutotiles();
         this.texturesWalls = await tileset.getTexturesWalls();
         this.texturesMountains = await tileset.getTexturesMountains();

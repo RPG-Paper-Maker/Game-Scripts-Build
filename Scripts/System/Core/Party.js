@@ -1,3 +1,4 @@
+import { Scene } from "../index.js";
 import { Enum } from "../Common/index.js";
 /**
  * The class who handles the heroes party.
@@ -93,7 +94,8 @@ class Party {
                 break;
             case Enum.GroupKind.Hidden:
                 return this.hiddenHeroes;
-                break;
+            case Enum.GroupKind.Troop:
+                return Scene.Map.current.players[Enum.CharacterKind.Monster];
             default:
                 throw new Error("The team is unspecified");
                 break;

@@ -15,6 +15,7 @@ import { Chrono } from "./Chrono.js";
 import { MapObject } from "./MapObject.js";
 import { Paths, Constants, Utils, Enum, Platform } from "../Common/index.js";
 var GroupKind = Enum.GroupKind;
+var CharacterKind = Enum.CharacterKind;
 import { Vector3 } from "./Vector3.js";
 /** @class
  *  All the global informations of a particular game.
@@ -487,7 +488,15 @@ class Game {
         if (hero !== null) {
             return hero;
         }
-        return Game.getHeroInstanceInTab(this.hiddenHeroes, id);
+        hero = Game.getHeroInstanceInTab(this.hiddenHeroes, id);
+        if (hero !== null) {
+            return hero;
+        }
+        if (Scene.Map.current.isBattleMap) {
+            return Game.getHeroInstanceInTab(Scene.Map.current
+                .players[Enum.CharacterKind.Monster], id);
+        }
+        return null;
     }
     /**
      *  Use an item and remove it from inventory.
@@ -511,6 +520,8 @@ class Game {
                 return this.reserveHeroes;
             case GroupKind.Hidden:
                 return this.hiddenHeroes;
+            case GroupKind.Troop:
+                return Scene.Map.current.players[CharacterKind.Monster];
         }
     }
     /**

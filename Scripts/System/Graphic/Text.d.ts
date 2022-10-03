@@ -33,6 +33,7 @@ declare class Text extends Base {
     lines: string[];
     align: Align;
     fontSize: number;
+    oFontSize: number;
     fontName: string;
     verticalAlign: AlignVertical;
     color: System.Color;

@@ -5,10 +5,11 @@ import { MapObject, Position, MapPortion, StructMapElementCollision, Vector3, Cu
  */
 declare class Collisions {
     static BB_MATERIAL: import("three").MeshBasicMaterial;
+    static BB_MATERIAL_DETECTION: import("three").MeshBasicMaterial;
     static BB_EMPTY_MATERIAL: import("three").MeshBasicMaterial;
     static BB_BOX: import("three").Mesh<CustomGeometry, import("three").Material | import("three").Material[]>;
     static BB_ORIENTED_BOX: import("three").Mesh<CustomGeometry, import("three").Material | import("three").Material[]>;
-    static BB_BOX_DETECTION: import("three").Mesh<CustomGeometry, import("three").Material | import("three").Material[]>;
+    private static BB_BOX_DETECTION;
     static BB_BOX_DEFAULT_DETECTION: import("three").Mesh<CustomGeometry, import("three").Material | import("three").Material[]>;
     static currentCustomObject3D: THREE.Mesh<CustomGeometry, THREE.Material | THREE.Material[]>;
     constructor();
@@ -17,7 +18,7 @@ declare class Collisions {
      *  @static
      *  @returns {THREE.Mesh}
      */
-    static createBox(): THREE.Mesh<CustomGeometry, THREE.Material | THREE.Material[]>;
+    static createBox(detection?: boolean): THREE.Mesh<CustomGeometry, THREE.Material | THREE.Material[]>;
     /**
      *  Create an oriented box for bounding box.
      *  @static
@@ -45,6 +46,7 @@ declare class Collisions {
      *  @param {number[]} boundingBox - The bounding box list parameters
      */
     static applyOrientedBoxTransforms(box: THREE.Mesh, boundingBox: number[]): void;
+    static getBBBoxDetection(force?: boolean): import("three").Mesh<CustomGeometry, import("three").Material | import("three").Material[]>;
     /**
      *  Indicate if min and max are overlapping.
      *  @static

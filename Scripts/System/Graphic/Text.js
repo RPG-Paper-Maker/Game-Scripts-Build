@@ -98,6 +98,7 @@ class Text extends Base {
      *  @param {number} fontSize - The new font size
      */
     setFontSize(fontSize) {
+        this.oFontSize = fontSize;
         this.fontSize = ScreenResolution.getScreenMinXY(fontSize);
         this.font = Utils.createFont(this.fontSize, this.fontName, this.bold, this.italic);
     }

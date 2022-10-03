@@ -163,14 +163,20 @@ class MapObject {
                 }
             }
             if (moved === null) {
-                return {
-                    object: Game.current.hero,
-                    id: objectID,
-                    kind: 1,
-                    index: -1,
-                    list: null,
-                    datas: mapsDatas
-                };
+                if (Scene.Map.current.id === Datas.Systems.ID_MAP_START_HERO &&
+                    Game.current.hero.id === objectID) {
+                    return {
+                        object: Game.current.hero,
+                        id: objectID,
+                        kind: 1,
+                        index: -1,
+                        list: null,
+                        datas: mapsDatas
+                    };
+                }
+                else {
+                    return null;
+                }
             }
             else {
                 return {
@@ -202,14 +208,20 @@ class MapObject {
         let mapPortion = new MapPortion(globalPortion);
         let moved = mapPortion.getObjFromID(json, objectID);
         if (moved === null) {
-            return {
-                object: Game.current.hero,
-                id: objectID,
-                kind: 2,
-                index: -1,
-                list: null,
-                datas: mapsDatas
-            };
+            if (Scene.Map.current.id === Datas.Systems.ID_MAP_START_HERO &&
+                Game.current.hero.id === objectID) {
+                return {
+                    object: Game.current.hero,
+                    id: objectID,
+                    kind: 2,
+                    index: -1,
+                    list: null,
+                    datas: mapsDatas
+                };
+            }
+            else {
+                return null;
+            }
         }
         else {
             return {
@@ -249,10 +261,8 @@ class MapObject {
         else {
             let obj = Scene.Map.current.allObjects[this.system.id];
             if (Utils.isUndefined(obj)) {
-                Platform.showErrorMessage("Can't find object with name" + this
-                    .system.name + " and ID " + this.system.id + " in map " +
-                    Scene.Map.current.mapName +
-                    " in object linking. Please open the map, check where is the object and save.");
+                Platform.showErrorMessage("Object linking issue. Please go to map " +
+                    Scene.Map.current.mapName + " and use Options > Debug Options in map > Synchronize map objects. Please report it to dev.");
             }
             let portion = obj.getGlobalPortion();
             let portionDatas = Game.current.getPortionDatas(Scene.Map.current.id, portion);
@@ -365,10 +375,8 @@ class MapObject {
         else {
             let pos = Scene.Map.current.allObjects[this.system.id];
             if (Utils.isUndefined(pos)) {
-                Platform.showErrorMessage("Can't find object with name" + this
-                    .system.name + " and ID " + this.system.id + " in map " +
-                    Scene.Map.current.mapName +
-                    " in object linking. Please open the map, check where is the object and save.");
+                Platform.showErrorMessage("Object linking issue. Please go to map " +
+                    Scene.Map.current.mapName + " and use Options > Debug Options in map > Synchronize map objects. Please report it to dev.");
             }
             let portion = pos.getGlobalPortion();
             let portionDatas = Game.current.getPortionDatas(Scene.Map.current.id, portion);
@@ -651,7 +659,7 @@ class MapObject {
         let i, l;
         for (i = 0, l = this.meshBoundingBox.length; i < l; i++) {
             if (Manager.Collisions.obbVSobb(this.meshBoundingBox[i].geometry, Manager.Collisions
-                .BB_BOX_DETECTION.geometry)) {
+                .getBBBoxDetection(true).geometry)) {
                 return true;
             }
         }
@@ -659,12 +667,12 @@ class MapObject {
         if (l === 0) {
             Manager.Collisions.applyBoxSpriteTransforms(Manager.Collisions
                 .BB_BOX_DEFAULT_DETECTION, [this.position.x, this.position.y +
-                    (Datas.Systems.SQUARE_SIZE / 4), this.position.z, Datas.Systems
-                    .SQUARE_SIZE / 2, Datas.Systems.SQUARE_SIZE / 2, Datas.Systems
-                    .SQUARE_SIZE / 2, 0, 0, 0]);
+                    (Datas.Systems.SQUARE_SIZE / 2), this.position.z, Datas.Systems
+                    .SQUARE_SIZE, Datas.Systems.SQUARE_SIZE, Datas.Systems
+                    .SQUARE_SIZE, 0, 0, 0]);
             if (Manager.Collisions.obbVSobb(Manager.Collisions
                 .BB_BOX_DEFAULT_DETECTION.geometry, Manager
-                .Collisions.BB_BOX_DETECTION.geometry)) {
+                .Collisions.getBBBoxDetection(true).geometry)) {
                 return true;
             }
         }
@@ -847,6 +855,8 @@ class MapObject {
         this.moving = true;
         // Add to moving objects
         this.addMoveTemp();
+        // Update terrrain
+        this.updateTerrain();
     }
     /**
      *  Jump the object (one step).
@@ -1278,7 +1288,7 @@ class MapObject {
      */
     updateTerrain() {
         this.terrain = 0;
-        if (this.position) {
+        if (!Scene.Map.current.loading && this.position) {
             let mapPortion = Scene.Map.current.getMapPortion(Scene.Map.current
                 .getLocalPortion(Portion.createFromVector3(this.position)));
             if (mapPortion) {

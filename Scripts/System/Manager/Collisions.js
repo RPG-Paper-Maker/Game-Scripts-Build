@@ -26,9 +26,9 @@ class Collisions {
      *  @static
      *  @returns {THREE.Mesh}
      */
-    static createBox() {
-        let box = new THREE.Mesh(CustomGeometry.createBox(1, 1, 1), this
-            .BB_MATERIAL);
+    static createBox(detection = false) {
+        let box = new THREE.Mesh(CustomGeometry.createBox(1, 1, 1), detection ?
+            this.BB_MATERIAL_DETECTION : this.BB_MATERIAL);
         box['previousTranslate'] = [0, 0, 0];
         box['previousRotate'] = [0, 0, 0];
         box['previousScale'] = [1, 1, 1];
@@ -117,6 +117,17 @@ class Collisions {
         box['previousScale'] = [size, boundingBox[4], size];
         // Update geometry now
         box.updateMatrixWorld();
+    }
+    static getBBBoxDetection(force = false) {
+        if (Datas.Systems.showBB && !force) {
+            let box = Collisions.createBox(true);
+            this.BB_BOX_DETECTION = box;
+            Scene.Map.current.scene.add(box);
+            setTimeout(() => {
+                Scene.Map.current.scene.remove(box);
+            }, 100);
+        }
+        return this.BB_BOX_DETECTION;
     }
     /**
      *  Indicate if min and max are overlapping.
@@ -369,7 +380,54 @@ class Collisions {
                         }
                     }
                     if (maxY === null) {
-                        return [true, null];
+                        // redo with before pos for going down two following height angled
+                        portion = Scene.Map.current.getLocalPortion(Portion.createFromVector3(positionBefore));
+                        mapPortion = Scene.Map.current.getMapPortion(portion);
+                        if (mapPortion !== null) {
+                            floors = mapPortion.squareNonEmpty[jpositionBefore.x % Constants
+                                .PORTION_SIZE][jpositionBefore.z % Constants.PORTION_SIZE];
+                            if (floors.length === 0) {
+                                let otherMapPortion = Scene.Map.current.getMapPortion(new Portion(portion.x, portion.y + 1, portion.z));
+                                if (otherMapPortion) {
+                                    floors = otherMapPortion.squareNonEmpty[jpositionBefore.x %
+                                        Constants.PORTION_SIZE][jpositionBefore.z % Constants
+                                        .PORTION_SIZE];
+                                }
+                            }
+                            if (yMountain === null && floors.indexOf(positionBefore.y) === -1) {
+                                let l = floors.length;
+                                if (l === 0) {
+                                    return [true, null];
+                                }
+                                else {
+                                    let maxY = null;
+                                    let limitY = positionBefore.y - Datas.Systems
+                                        .mountainCollisionHeight.getValue();
+                                    let temp;
+                                    for (i = 0; i < l; i++) {
+                                        temp = floors[i];
+                                        if (temp <= (positionBefore.y + Datas.Systems
+                                            .mountainCollisionHeight.getValue()) && temp >=
+                                            limitY) {
+                                            if (maxY === null) {
+                                                maxY = temp;
+                                            }
+                                            else {
+                                                if (maxY < temp) {
+                                                    maxY = temp;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (maxY === null) {
+                                        return [true, null];
+                                    }
+                                    else {
+                                        yMountain = maxY;
+                                    }
+                                }
+                            }
+                        }
                     }
                     else {
                         yMountain = maxY;
@@ -809,9 +867,9 @@ class Collisions {
             else {
                 if (!pass) {
                     return [this.checkIntersectionSprite([x + (Datas.Systems
-                                .SQUARE_SIZE / 2), y + (Datas.Systems.SQUARE_SIZE / 2),
-                            z + (Datas.Systems.SQUARE_SIZE / 2), Datas.Systems
-                                .SQUARE_SIZE, h, Datas.Systems.SQUARE_SIZE, 0, 0, 0], true, object), null];
+                                .SQUARE_SIZE / 2), y + (h / 2), z + (Datas.Systems
+                                .SQUARE_SIZE / 2), Datas.Systems.SQUARE_SIZE, h, Datas
+                                .Systems.SQUARE_SIZE, 0, 0, 0], true, object), null];
                 }
             }
         }
@@ -997,10 +1055,11 @@ class Collisions {
     }
 }
 Collisions.BB_MATERIAL = new THREE.MeshBasicMaterial();
+Collisions.BB_MATERIAL_DETECTION = new THREE.MeshBasicMaterial();
 Collisions.BB_EMPTY_MATERIAL = new THREE.MeshBasicMaterial({ visible: false });
 Collisions.BB_BOX = Collisions.createBox();
 Collisions.BB_ORIENTED_BOX = Collisions.createOrientedBox();
-Collisions.BB_BOX_DETECTION = Collisions.createBox();
-Collisions.BB_BOX_DEFAULT_DETECTION = Collisions.createBox();
+Collisions.BB_BOX_DETECTION = Collisions.createBox(true);
+Collisions.BB_BOX_DEFAULT_DETECTION = Collisions.createBox(true);
 Collisions.currentCustomObject3D = null;
 export { Collisions };

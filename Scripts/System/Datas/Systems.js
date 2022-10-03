@@ -83,8 +83,11 @@ class Systems {
         if (this.showBB) {
             Manager.Collisions.BB_MATERIAL.color.setHex(0xff0000);
             Manager.Collisions.BB_MATERIAL.wireframe = true;
+            Manager.Collisions.BB_MATERIAL_DETECTION.color.setHex(0x00f2ff);
+            Manager.Collisions.BB_MATERIAL_DETECTION.wireframe = true;
         }
         Manager.Collisions.BB_MATERIAL.visible = this.showBB;
+        Manager.Collisions.BB_MATERIAL_DETECTION.visible = this.showBB;
         this.showFPS = Utils.defaultValue(json.fps, false);
         this.ignoreAssetsLoadingErrors = false; //TODO
         // Lists
@@ -273,11 +276,8 @@ class Systems {
             }
         }
         if (Utils.isUndefined(position)) {
-            Platform.showErrorMessage("Can't find hero in object linking. Please"
-                + " remove the hero object from your map and recreate it." +
-                "\nIf possible, report that you got this error and " +
-                "describe the steps for having this because we are trying "
-                + "to fix this issue.");
+            Platform.showErrorMessage("Object linking issue. Please go to map " +
+                Scene.Map.current.mapName + " and use Options > Debug Options in map > Synchronize map objects. Please report it to dev.");
         }
         let globalPortion = position.getGlobalPortion();
         let fileName = globalPortion.getFileName();

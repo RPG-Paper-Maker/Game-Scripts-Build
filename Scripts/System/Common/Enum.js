@@ -170,6 +170,7 @@ var Enum;
         GroupKind[GroupKind["Team"] = 0] = "Team";
         GroupKind[GroupKind["Reserve"] = 1] = "Reserve";
         GroupKind[GroupKind["Hidden"] = 2] = "Hidden";
+        GroupKind[GroupKind["Troop"] = 3] = "Troop";
     })(GroupKind = Enum.GroupKind || (Enum.GroupKind = {}));
     /**
      *   Enum for the different horizontal aligns kind.
@@ -205,7 +206,11 @@ var Enum;
         Orientation[Orientation["West"] = 1] = "West";
         Orientation[Orientation["North"] = 2] = "North";
         Orientation[Orientation["East"] = 3] = "East";
-        Orientation[Orientation["None"] = 4] = "None";
+        Orientation[Orientation["SouthWest"] = 4] = "SouthWest";
+        Orientation[Orientation["SouthEast"] = 5] = "SouthEast";
+        Orientation[Orientation["NorthWest"] = 6] = "NorthWest";
+        Orientation[Orientation["NorthEast"] = 7] = "NorthEast";
+        Orientation[Orientation["None"] = 8] = "None";
     })(Orientation = Enum.Orientation || (Enum.Orientation = {}));
     /**
      *   Enum for the different map elements kind.

@@ -12,7 +12,7 @@ import { THREE } from "../Globals.js";
 import { MapObject } from "./MapObject.js";
 import { Position } from "./Position.js";
 import { System, Datas, Manager, Scene } from "../index.js";
-import { Constants, Enum, Utils } from "../Common/index.js";
+import { Constants, Enum, Platform, Utils } from "../Common/index.js";
 import { Floor } from "./Floor.js";
 import { Autotiles } from "./Autotiles.js";
 import { Autotile } from "./Autotile.js";
@@ -585,6 +585,10 @@ class MapPortion {
      *  @returns {MapObject}
      */
     getHeroModel(json) {
+        let obj = json.objs;
+        if (!obj) {
+            Platform.showErrorMessage("Your hero object seems to be in a non existing map. Please use define as hero in a map to correct it.");
+        }
         json = json.objs.list;
         let jsonObject, position, jsonObjectValue, object;
         for (let i = 0, l = json.length; i < l; i++) {

@@ -151,7 +151,8 @@ declare namespace Enum {
     enum GroupKind {
         Team = 0,
         Reserve = 1,
-        Hidden = 2
+        Hidden = 2,
+        Troop = 3
     }
     /**
      *   Enum for the different horizontal aligns kind.
@@ -184,7 +185,11 @@ declare namespace Enum {
         West = 1,
         North = 2,
         East = 3,
-        None = 4
+        SouthWest = 4,
+        SouthEast = 5,
+        NorthWest = 6,
+        NorthEast = 7,
+        None = 8
     }
     /**
      *   Enum for the different map elements kind.

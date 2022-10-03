@@ -1,30 +1,14 @@
 import { SaveLoadGame } from "./SaveLoadGame.js";
-import { WindowBox, WindowChoices } from "../Core/index.js";
 /** @class
  *  A scene in the menu for saving a game.
  *  @extends Scene.SaveLoadGame
  */
 declare class SaveGame extends SaveLoadGame {
-    windowBoxConfirm: WindowBox;
-    windowChoicesConfirm: WindowChoices;
-    step: number;
     constructor();
     /**
      *  Create scene.
      */
     create(): void;
-    /**
-     *  Create all the windows in the scene.
-     */
-    createAllWindows(): void;
-    /**
-     *  Create the window confirmation.
-     */
-    createWindowBoxConfirm(): void;
-    /**
-     *  Create the window information on top.
-     */
-    createWindowChoicesConfirm(): void;
     /**
      *  Load async stuff.
      *  @async

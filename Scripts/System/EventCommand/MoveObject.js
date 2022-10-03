@@ -273,6 +273,14 @@ class MoveObject extends Base {
                 return Orientation.South;
             case Orientation.East:
                 return Orientation.West;
+            case Orientation.SouthWest:
+                return Orientation.NorthEast;
+            case Orientation.SouthEast:
+                return Orientation.NorthWest;
+            case Orientation.NorthWest:
+                return Orientation.SouthEast;
+            case Orientation.NorthEast:
+                return Orientation.SouthWest;
         }
     }
     /**
@@ -523,7 +531,18 @@ class MoveObject extends Base {
             if (opposite) {
                 orientation = EventCommand.MoveObject.oppositeOrientation(orientation);
             }
-            return this.move(currentState, object, parameters.square, orientation);
+            switch (orientation) {
+                case Orientation.SouthWest:
+                    return this.moveSouthWest(currentState, object, parameters);
+                case Orientation.SouthEast:
+                    return this.moveSouthEast(currentState, object, parameters);
+                case Orientation.NorthWest:
+                    return this.moveNorthWest(currentState, object, parameters);
+                case Orientation.NorthEast:
+                    return this.moveNorthEast(currentState, object, parameters);
+                default:
+                    return this.move(currentState, object, parameters.square, orientation);
+            }
         }
         return Orientation.None;
     }
@@ -1002,20 +1021,43 @@ class MoveObject extends Base {
     getHeroOrientation(object) {
         let xDif = object.position.x - Game.current.hero.position.x;
         let zDif = object.position.z - Game.current.hero.position.z;
-        if (Math.abs(xDif) > Math.abs(zDif)) {
-            if (xDif > 0) {
-                return Orientation.West;
-            }
-            else {
-                return Orientation.East;
-            }
+        let orientationX = Orientation.None;
+        let orientationZ = Orientation.None;
+        if (xDif > 1) {
+            orientationX = Orientation.West;
         }
-        else {
-            if (zDif > 0) {
-                return Orientation.North;
+        else if (xDif < -1) {
+            orientationX = Orientation.East;
+        }
+        if (zDif > 1) {
+            orientationZ = Orientation.North;
+        }
+        else if (zDif < -1) {
+            orientationZ = Orientation.South;
+        }
+        switch (orientationX) {
+            case Orientation.None: {
+                return orientationZ;
             }
-            else {
-                return Orientation.South;
+            case Orientation.West: {
+                switch (orientationZ) {
+                    case Orientation.None:
+                        return Orientation.West;
+                    case Orientation.North:
+                        return Orientation.NorthWest;
+                    case Orientation.South:
+                        return Orientation.SouthWest;
+                }
+            }
+            case Orientation.East: {
+                switch (orientationZ) {
+                    case Orientation.None:
+                        return Orientation.East;
+                    case Orientation.North:
+                        return Orientation.NorthEast;
+                    case Orientation.South:
+                        return Orientation.SouthEast;
+                }
             }
         }
     }
