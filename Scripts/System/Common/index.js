@@ -8,6 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+export * from "./ArrayUtils.js";
 export * from "./Constants.js";
 export * from "./Enum.js";
 export * from "./Inputs.js";

@@ -18,7 +18,6 @@ declare class PlayerDescription extends Base {
     graphicExp: Graphic.Text;
     listStatsNames: Graphic.Text[];
     listStats: Graphic.Text[];
-    listLength: number[];
     battler: Picture2D;
     battlerFrame: Frame;
     listStatsProgression: Graphic.Text[];

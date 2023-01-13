@@ -136,6 +136,10 @@ var Enum;
         EventCommandKind[EventCommandKind["ChangeWeather"] = 72] = "ChangeWeather";
         EventCommandKind[EventCommandKind["PlayAVideo"] = 73] = "PlayAVideo";
         EventCommandKind[EventCommandKind["SwitchTexture"] = 74] = "SwitchTexture";
+        EventCommandKind[EventCommandKind["StopASound"] = 75] = "StopASound";
+        EventCommandKind[EventCommandKind["DisplayHideABattler"] = 76] = "DisplayHideABattler";
+        EventCommandKind[EventCommandKind["TransformABattler"] = 77] = "TransformABattler";
+        EventCommandKind[EventCommandKind["ChangeBattlerGraphics"] = 78] = "ChangeBattlerGraphics";
     })(EventCommandKind = Enum.EventCommandKind || (Enum.EventCommandKind = {}));
     ;
     /**
@@ -210,7 +214,9 @@ var Enum;
         Orientation[Orientation["SouthEast"] = 5] = "SouthEast";
         Orientation[Orientation["NorthWest"] = 6] = "NorthWest";
         Orientation[Orientation["NorthEast"] = 7] = "NorthEast";
-        Orientation[Orientation["None"] = 8] = "None";
+        Orientation[Orientation["Up"] = 8] = "Up";
+        Orientation[Orientation["Down"] = 9] = "Down";
+        Orientation[Orientation["None"] = 10] = "None";
     })(Orientation = Enum.Orientation || (Enum.Orientation = {}));
     /**
      *   Enum for the different map elements kind.
@@ -463,6 +469,7 @@ var Enum;
         CharacteristicKind[CharacteristicKind["AllowForbidEquip"] = 2] = "AllowForbidEquip";
         CharacteristicKind[CharacteristicKind["AllowForbidChange"] = 3] = "AllowForbidChange";
         CharacteristicKind[CharacteristicKind["BeginEquipment"] = 4] = "BeginEquipment";
+        CharacteristicKind[CharacteristicKind["Element"] = 5] = "Element";
     })(CharacteristicKind = Enum.CharacteristicKind || (Enum.CharacteristicKind = {}));
     ;
     /**

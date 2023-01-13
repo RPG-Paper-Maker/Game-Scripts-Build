@@ -92,16 +92,6 @@ class Sprite extends MapElement {
         return count + 4;
     }
     /**
-     *  Read the JSON associated to the sprite.
-     *  @param {Record<string, any>} - json Json object describing the sprite
-     */
-    read(json) {
-        super.read(json);
-        this.front = Utils.defaultValue(json.f, true);
-        this.kind = json.k;
-        this.textureRect = json.t;
-    }
-    /**
      *  Update the geometry associated to this.
      *  @param {Core.CustomGeometry} geometry - The geometry
      *  @param {number} width - The total texture width
@@ -170,9 +160,7 @@ class Sprite extends MapElement {
         if (tileset) {
             let collisions = Scene.Map.current.mapProperties.tileset.picture
                 .getSquaresForTexture(this.textureRect);
-            let rect;
-            for (let i = 0, l = collisions.length; i < l; i++) {
-                rect = collisions[i];
+            for (let rect of collisions) {
                 objCollision.push({
                     p: position,
                     l: localPosition,
@@ -194,6 +182,36 @@ class Sprite extends MapElement {
                     w: twidth,
                     h: theight,
                     k: this.kind === ElementMapKind.SpritesFix
+                });
+            }
+            let climbing = Scene.Map.current.mapProperties.tileset.picture
+                .getSquaresClimbing(this.textureRect);
+            for (let [x, y] of climbing) {
+                objCollision.push({
+                    p: position,
+                    l: localPosition,
+                    b: [
+                        (localPosition.x - (twidth * Datas.Systems.SQUARE_SIZE))
+                            - (((this.textureRect[2] * position.scaleX) % 2) *
+                                Math.round(Datas.Systems.SQUARE_SIZE / 2)) + x
+                            + Math.round(Datas.Systems.SQUARE_SIZE * position.scaleX *
+                                position.scaleX / 2),
+                        (localPosition.y + this.yOffset * Datas.Systems.SQUARE_SIZE) + (this.textureRect[3] * position.scaleY
+                            * Datas.Systems.SQUARE_SIZE) - y - Math.round(Datas
+                            .Systems.SQUARE_SIZE * position.scaleY * position
+                            .scaleY / 2),
+                        localPosition.z,
+                        Datas.Systems.SQUARE_SIZE * position.scaleX,
+                        Datas.Systems.SQUARE_SIZE * position.scaleY,
+                        1,
+                        angleY,
+                        angleX,
+                        angleZ
+                    ],
+                    w: twidth,
+                    h: theight,
+                    k: this.kind === ElementMapKind.SpritesFix,
+                    cl: true
                 });
             }
         }
@@ -262,6 +280,16 @@ class Sprite extends MapElement {
         let collisions = this.updateGeometry(geometry, width, height, position, 0, tileset, null);
         geometry.updateAttributes();
         return [geometry, collisions];
+    }
+    /**
+     *  Read the JSON associated to the sprite.
+     *  @param {Record<string, any>} - json Json object describing the sprite
+     */
+    read(json) {
+        super.read(json);
+        this.front = Utils.defaultValue(json.f, true);
+        this.kind = json.k;
+        this.textureRect = json.t;
     }
 }
 Sprite.MODEL = [

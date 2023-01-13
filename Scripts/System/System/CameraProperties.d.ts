@@ -7,7 +7,7 @@ import { Camera } from "../Core/index.js";
  *  @param {Record<string, any>} - [json=undefined] Json object describing the
  *  camera properties
  */
-export declare class CameraProperties extends Base {
+declare class CameraProperties extends Base {
     distance: DynamicValue;
     horizontalAngle: DynamicValue;
     verticalAngle: DynamicValue;
@@ -20,6 +20,7 @@ export declare class CameraProperties extends Base {
     fov: DynamicValue;
     near: DynamicValue;
     far: DynamicValue;
+    orthographic: boolean;
     constructor(json?: Record<string, any>);
     /**
      *  Read the JSON associated to the camera properties.
@@ -33,3 +34,4 @@ export declare class CameraProperties extends Base {
      */
     initializeCamera(camera: Camera): void;
 }
+export { CameraProperties };

@@ -13,6 +13,7 @@ declare class Songs {
     static starts: number[];
     static ends: number[];
     static current: typeof Howl[];
+    static currentSounds: typeof Howl[];
     static progressionMusic: any;
     static progressionMusicTime: number;
     static progressionMusicEnd: number;
@@ -37,11 +38,12 @@ declare class Songs {
      *  @param {SongKind} kind - The kind of song to stop
      *  @param {number} time - The date seconds value in the first call of stop
      *  @param {number} seconds - The seconds needed for entirely stop the song
+     *  @param {number} id - For sounds only, to know which sound should be stopped
      *  @param {boolean} pause - Indicates if the song needs to be paused instead
      *  of stoppped
      *  @returns {boolean} Indicates if the song is stopped
      */
-    static stopSong(kind: SongKind, time: number, seconds: number, pause?: boolean): boolean;
+    static stopSong(kind: SongKind, time: number, seconds: number, id?: number, pause?: boolean): boolean;
     /**
      *  Unpause a song.
      *  @static

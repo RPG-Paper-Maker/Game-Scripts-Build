@@ -124,7 +124,7 @@ class GL {
             uniforms: opts.uniforms,
             vertexShader: opts.isFaceSprite ? this.SHADER_FACE_VERTEX : this.SHADER_FIX_VERTEX,
             fragmentShader: opts.isFaceSprite ? this.SHADER_FACE_FRAGMENT : this.SHADER_FIX_FRAGMENT,
-            side: opts.isFaceSprite ? THREE.BackSide : THREE.DoubleSide,
+            side: Utils.isUndefined(opts.side) ? (opts.isFaceSprite ? THREE.BackSide : THREE.DoubleSide) : opts.side,
             transparent: true
         });
         return material;

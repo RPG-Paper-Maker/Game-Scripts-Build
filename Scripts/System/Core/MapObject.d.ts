@@ -35,6 +35,10 @@ declare class MapObject {
     width: number;
     height: number;
     moving: boolean;
+    isClimbing: boolean;
+    isClimbingUp: boolean;
+    climbOrientationEye: Enum.Orientation;
+    climbOrientation: Enum.Orientation;
     moveFrequencyTick: number;
     isStartup: boolean;
     isInScene: boolean;
@@ -55,6 +59,8 @@ declare class MapObject {
     upPosition: Vector3;
     halfPosition: Vector3;
     currentOrientationStop: boolean;
+    isOrientationStopWalk: boolean;
+    currentOrientationClimbing: boolean;
     terrain: number;
     constructor(system: System.MapObject, position?: Vector3, isHero?: boolean);
     /**
@@ -106,7 +112,11 @@ declare class MapObject {
      *  @param {number} angle - The angle
      *  @returns {Vector3}
      */
-    getFuturPosition(orientation: Orientation, distance: number, angle: number): Vector3;
+    getFuturPosition(orientation: Orientation, distance: number, angle: number): [
+        Vector3,
+        boolean,
+        Enum.Orientation
+    ];
     /**
      *  Check collision with another object.
      *  @param {MapObject} object - The other map object
@@ -128,6 +138,11 @@ declare class MapObject {
      *  @param {Vector3} position - Position to update
      */
     updateBBPosition(position: Vector3): void;
+    /**
+     *  Only updates the current bounding box mesh position.
+     *  @param {Vector3} position - Position to update
+     */
+    updateMeshBBPosition(mesh: THREE.Mesh, bbSettings: number[], position: Vector3): void;
     /**
      *  Move the object (one step).
      *  @param {Orientation} orientation - Orientation to move
@@ -239,8 +254,18 @@ declare class MapObject {
      */
     getOrientationBetween(object: MapObject): Enum.Orientation;
     /**
+     *  Get the orientation between an object and a position.
+     *  @param {Vector3} position
+     *  @returns {Enum.Orientation}
+     */
+    getOrientationBetweenPosition(position: Vector3, priority?: boolean, priorityX?: boolean): Enum.Orientation;
+    /**
      *  Update the terrain the object is currently on.
      */
     updateTerrain(): void;
+    /**
+     *  Get all the squares positions where you need to check collision.
+     */
+    getSquaresBB(direction?: Vector3): [number, number, number, number, number, number];
 }
 export { StructSearchResult, MapObject };

@@ -78,7 +78,7 @@ class BattleInitialize {
             battler = new Battler(player, Position.createFromVector3(position), position, this.battle.camera);
             battler.updateDead(false);
             player.battler = battler;
-            battler.addToScene();
+            battler.updateHidden(false);
             this.battle.battlers[CharacterKind.Hero][i] = battler;
             this.battle.players[CharacterKind.Hero][i] = player;
             // Graphic player
@@ -124,7 +124,7 @@ class BattleInitialize {
             player.instanciate(troopMonster.level.getValue());
             battler = new Battler(player, Position.createFromVector3(position), position, this.battle.camera);
             player.battler = battler;
-            battler.addToScene();
+            battler.updateHidden(troopMonster.hidden.getValue());
             this.battle.battlers[CharacterKind.Monster][i] = battler;
             this.battle.players[CharacterKind.Monster][i] = player;
             // Graphic player

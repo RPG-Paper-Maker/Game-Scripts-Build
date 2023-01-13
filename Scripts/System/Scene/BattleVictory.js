@@ -42,12 +42,12 @@ class BattleVictory {
         }
         // If loosing, directly go to end transition
         if (!this.battle.winning) {
-            this.battle.windowTopInformations.content.setText("Defeat...");
+            this.battle.windowTopInformations.content.setText(Datas.Languages.extras.defeat.name());
             this.battle.subStep = 4;
             return;
         }
         // Change information bar content
-        this.battle.windowTopInformations.content.setText("Victory!");
+        this.battle.windowTopInformations.content.setText(Datas.Languages.extras.victory.name());
         // Rewards
         this.prepareRewards();
         let id;

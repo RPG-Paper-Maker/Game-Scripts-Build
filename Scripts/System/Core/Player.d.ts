@@ -38,6 +38,11 @@ declare class Player {
     currencyGain: Record<string, number>[];
     skillCostRes: Record<string, number>[];
     changedClass: System.Class;
+    elements: System.DynamicValue[];
+    battlerID: number;
+    facesetID: number;
+    facesetIndexX: number;
+    facesetIndexY: number;
     constructor(kind?: Enum.CharacterKind, id?: number, instanceID?: number, skills?: Record<string, any>[], status?: Record<string, any>[], name?: string, json?: Record<string, any>);
     /**
      *  Get the max size of equipment kind names.
@@ -232,6 +237,12 @@ declare class Player {
      */
     synchronizeLevel(): void;
     /**
+     *  Check if player has status with ID.
+     *  @param {number} id
+     *  @returns {boolean}
+     */
+    hasStatus(id: number): boolean;
+    /**
      *  Get the first status to display according to priority.
      *  @returns {Core.Status[]}
      */
@@ -255,7 +266,7 @@ declare class Player {
     /**
      *  Remove the status with release after attacked option.
      */
-    removeAfterAttackedStatus(): void;
+    removeAfterAttackedStatus(battler: Battler): void;
     /**
      *  Remove the status with release at start turn option.
      */
@@ -294,5 +305,29 @@ declare class Player {
      *  @returns {System.Characteristic[]}
      */
     getClass(): System.Class;
+    /**
+     *  Update the elements list according to characteristics.
+     */
+    updateElements(): void;
+    /**
+     *  Get battler ID from system, or another if modified with change graphics.
+     *  @returns {number}
+     */
+    getBattlerID(): number;
+    /**
+     *  Get faceset ID from system, or another if modified with change graphics.
+     *  @returns {number}
+     */
+    getFacesetID(): number;
+    /**
+     *  Get faceset index x from system, or another if modified with change graphics.
+     *  @returns {number}
+     */
+    getFacesetIndexX(): number;
+    /**
+     *  Get faceset index y from system, or another if modified with change graphics.
+     *  @returns {number}
+     */
+    getFacesetIndexY(): number;
 }
 export { Player };

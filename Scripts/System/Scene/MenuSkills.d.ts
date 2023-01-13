@@ -14,7 +14,8 @@ declare class MenuSkills extends Base {
     windowEmpty: WindowBox;
     windowBoxUseSkill: WindowBox;
     substep: number;
-    constructor();
+    title: string;
+    constructor(title: string);
     /**
      *  Create the choice list.
      */

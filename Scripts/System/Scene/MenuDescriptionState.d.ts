@@ -7,6 +7,7 @@ import { WindowBox, WindowChoices } from "../Core/index.js";
  * @extends {Base}
  */
 declare class MenuDescriptionState extends MenuBase {
+    title: string;
     /**
      * the top window
      *
@@ -32,13 +33,7 @@ declare class MenuDescriptionState extends MenuBase {
      * Creates an instance of MenuDescriptionState.
      * @memberof MenuDescriptionState
      */
-    constructor();
-    /**
-     * @inheritdoc
-     *
-     * @memberof MenuDescriptionState
-     */
-    create(): void;
+    constructor(title: string);
     /**
      * create all the windows in the scene.
      *

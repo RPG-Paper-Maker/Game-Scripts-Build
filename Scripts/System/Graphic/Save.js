@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Graphic } from "../index.js";
+import { Datas, Graphic } from "../index.js";
 import { Base } from "./Base.js";
 import { Enum, ScreenResolution, Utils } from "../Common/index.js";
 var Align = Enum.Align;
@@ -21,9 +21,11 @@ class Save extends Base {
     constructor(game) {
         super();
         this.game = game;
-        this.graphicSlot = new Graphic.Text("Slot " + this.game.slot, { align: Align.Center });
+        this.graphicSlot = new Graphic.Text(Datas.Languages.extras.slot.name() +
+            " " + this.game.slot, { align: Align.Center });
         if (this.game.isEmpty) {
-            this.graphicEmpty = new Graphic.Text("Empty", { align: Align.Center });
+            this.graphicEmpty = new Graphic.Text(Datas.Languages.extras.empty
+                .name(), { align: Align.Center });
         }
         else {
             this.graphicTimer = new Graphic.Text(Utils.getStringDate(this.game

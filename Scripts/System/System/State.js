@@ -67,6 +67,14 @@ class State extends Base {
             this.detection = Manager.Events.getEventCommand(this
                 .detection);
         }
+        this.centerX = System.DynamicValue.readOrDefaultNumberDouble(json.cx, 50);
+        this.centerZ = System.DynamicValue.readOrDefaultNumberDouble(json.cz, 50);
+        this.angleX = System.DynamicValue.readOrDefaultNumberDouble(json.ax, 0);
+        this.angleY = System.DynamicValue.readOrDefaultNumberDouble(json.ay, 0);
+        this.angleZ = System.DynamicValue.readOrDefaultNumberDouble(json.az, 0);
+        this.scaleX = System.DynamicValue.readOrDefaultNumberDouble(json.sx, 1);
+        this.scaleY = System.DynamicValue.readOrDefaultNumberDouble(json.sy, 1);
+        this.scaleZ = System.DynamicValue.readOrDefaultNumberDouble(json.sz, 1);
     }
     /**
      *  Create a new instance of the System object state.
@@ -88,7 +96,15 @@ class State extends Base {
             through: this.through,
             setWithCamera: this.setWithCamera,
             pixelOffset: this.pixelOffset,
-            keepPosition: this.keepPosition
+            keepPosition: this.keepPosition,
+            centerX: this.centerX.createCopy(),
+            centerZ: this.centerZ.createCopy(),
+            angleX: this.angleX.createCopy(),
+            angleY: this.angleY.createCopy(),
+            angleZ: this.angleZ.createCopy(),
+            scaleX: this.scaleX.createCopy(),
+            scaleY: this.scaleY.createCopy(),
+            scaleZ: this.scaleZ.createCopy()
         };
     }
 }

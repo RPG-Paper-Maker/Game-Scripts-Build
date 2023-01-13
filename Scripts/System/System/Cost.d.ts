@@ -1,3 +1,5 @@
+import { Enum } from "../Common/index.js";
+import DamagesKind = Enum.DamagesKind;
 import { Base } from "./Base.js";
 import { System } from "../index.js";
 import { Player } from "../Core/index.js";
@@ -19,7 +21,7 @@ declare class Cost extends Base {
     /**
      *  Get the price for several costs.
      */
-    static getPrice(list: System.Cost[]): Record<string, number>;
+    static getPrice(list: System.Cost[]): Record<string, [DamagesKind, number]>;
     /**
      *  Read the JSON associated to the cost.
      *  @param {Record<string, any>} - json Json object describing the cost

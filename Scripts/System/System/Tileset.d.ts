@@ -9,6 +9,7 @@ import { System } from "../index.js";
 declare class Tileset extends Base {
     collisions: CollisionSquare[];
     id: number;
+    battleMap: System.DynamicValue;
     picture: System.Picture;
     autotiles: number[];
     walls: number[];

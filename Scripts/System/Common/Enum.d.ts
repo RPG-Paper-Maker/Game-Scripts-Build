@@ -122,7 +122,11 @@ declare namespace Enum {
         ChangeChronometer = 71,
         ChangeWeather = 72,
         PlayAVideo = 73,
-        SwitchTexture = 74
+        SwitchTexture = 74,
+        StopASound = 75,
+        DisplayHideABattler = 76,
+        TransformABattler = 77,
+        ChangeBattlerGraphics = 78
     }
     /**
      *   Enum for the different items kind.
@@ -189,7 +193,9 @@ declare namespace Enum {
         SouthEast = 5,
         NorthWest = 6,
         NorthEast = 7,
-        None = 8
+        Up = 8,
+        Down = 9,
+        None = 10
     }
     /**
      *   Enum for the different map elements kind.
@@ -418,7 +424,8 @@ declare namespace Enum {
         Script = 1,
         AllowForbidEquip = 2,
         AllowForbidChange = 3,
-        BeginEquipment = 4
+        BeginEquipment = 4,
+        Element = 5
     }
     /**
      *   Enum for the different increase / decrease kind.

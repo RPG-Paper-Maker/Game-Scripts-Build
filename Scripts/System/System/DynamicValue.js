@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum, Utils } from "../Common/index.js";
+import { Enum, Platform, Utils } from "../Common/index.js";
 var DynamicValueKind = Enum.DynamicValueKind;
 import { System, Datas } from "../index.js";
 import { ReactionInterpreter, Game, Vector2, Vector3 } from "../Core/index.js";
@@ -291,9 +291,12 @@ class DynamicValue extends System.Base {
      *  Get the value
      *  @returns {any}
      */
-    getValue(forceVariable = false) {
+    getValue(forceVariable = false, deep = false) {
         switch (this.kind) {
             case DynamicValueKind.Variable:
+                if (!Game.current) {
+                    Platform.showErrorMessage("Trying to access a variable value without any game loaded.");
+                }
                 return forceVariable ? this.value : Game.current.variables[this.value];
             case DynamicValueKind.Parameter:
                 return ReactionInterpreter.currentParameters[this.value]
@@ -365,8 +368,22 @@ class DynamicValue extends System.Base {
             case DynamicValueKind.Model:
                 return Datas.CommonEvents.getCommonObject(this.value);
             case DynamicValueKind.CustomStructure:
+                if (deep) {
+                    let obj = {};
+                    for (let k in this.customStructure) {
+                        obj[k] = this.customStructure[k].getValue(forceVariable, true);
+                    }
+                    return obj;
+                }
                 return this.customStructure;
             case DynamicValueKind.CustomList:
+                if (deep) {
+                    let list = [];
+                    for (let v of this.customList) {
+                        list.push(v.getValue(forceVariable, true));
+                    }
+                    return list;
+                }
                 return this.customList;
             case DynamicValueKind.Vector2:
                 return new Vector2(this.x.getValue(), this.y.getValue());
@@ -435,6 +452,14 @@ class DynamicValue extends System.Base {
         }
         // If any other value, compare the direct values
         return this.getValue() === value.getValue();
+    }
+    /**
+     *  Create a copy of the value.
+     *  @param {System.DynamicValue} v
+     *  @returns {System.DynamicValue}
+     */
+    createCopy() {
+        return System.DynamicValue.create(this.kind, this.value);
     }
 }
 export { DynamicValue };

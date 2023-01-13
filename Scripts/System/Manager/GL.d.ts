@@ -48,6 +48,7 @@ declare class GL {
         flipY?: boolean;
         uniforms?: Record<string, any>;
         isFaceSprite?: boolean;
+        side?: THREE.Side;
     }): THREE.ShaderMaterial;
     /**
      *  Get material THREE.Texture (if exists).

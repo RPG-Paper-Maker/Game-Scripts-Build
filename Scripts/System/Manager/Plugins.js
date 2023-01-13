@@ -133,10 +133,11 @@ class Plugins {
      *  @static
      *  @param {string} pluginName
      *  @param {string} parameter
+     *  @param {boolean} [forceDeepGetValue=true]
      *  @returns {any}
      */
-    static getParameter(pluginName, parameter) {
-        return this.getParameters(pluginName)[parameter].getValue();
+    static getParameter(pluginName, parameter, forceDeepGetValue = true) {
+        return this.getParameters(pluginName)[parameter].getValue(false, forceDeepGetValue);
     }
     /**
      *  Check whether or not the plugin is enabled or not.
@@ -175,7 +176,7 @@ class Plugins {
      *  @param overwrite (METHODS ONLY) Should call original method's code or overwrite original method. (DEFAULT: false)
      *  @param loadBefore (METHODS ONLY) Should original method's code be executed before or after your code (NOTE: This is obviously disabled if param overwrite is set to true.) (DEFAULT: true)
      */
-    static inject(classObject, prototypeName, prototype, staticType = false, overwrite = false, loadBefore = true) {
+    static inject(classObject, prototypeName, prototype, staticType = false, overwrite = false, loadOriginalBefore = true) {
         let TheAnyPrototype = prototype; //force any type, system will not accept otherwise!
         if (!staticType) {
             let classPrototype = classObject.prototype[prototypeName];
@@ -186,7 +187,7 @@ class Plugins {
                         return TheAnyPrototype.call(this, ...args);
                     };
                 }
-                else if (loadBefore) {
+                else if (loadOriginalBefore) {
                     classObject.prototype[prototypeName] = function (...args) {
                         let result = classPrototype.call(this, ...args);
                         this.super = (...arggs) => { classPrototype.call(this, ...arggs); };
@@ -216,7 +217,7 @@ class Plugins {
                         return TheAnyPrototype.call(this, ...args);
                     };
                 }
-                else if (loadBefore) {
+                else if (loadOriginalBefore) {
                     classAnyObject[prototypeName] = function (...args) {
                         let result = classMethod.call(this, ...args);
                         this.super = (...arggs) => { classMethod.call(this, ...arggs); };

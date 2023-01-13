@@ -127,10 +127,10 @@ class Battle extends Map {
     isDefined(kind, index, target) {
         let battler = this.battlers[kind][index];
         if (target) {
-            return !this.skill || this.skill.isPossible(battler.player);
+            return !battler.hidden && (!this.skill || this.skill.isPossible(battler.player));
         }
-        return battler.active && !battler.player.isDead() && !battler
-            .containsRestriction(Enum.StatusRestrictionsKind.CantDoAnything) &&
+        return battler.active && !battler.player.isDead() && !battler.hidden &&
+            !battler.containsRestriction(Enum.StatusRestrictionsKind.CantDoAnything) &&
             !battler.containsRestriction(Enum.StatusRestrictionsKind
                 .AttackRandomAlly) && !battler.containsRestriction(Enum
             .StatusRestrictionsKind.AttackRandomEnemy) && !battler
@@ -149,13 +149,13 @@ class Battle extends Map {
         return true;
     }
     /**
-     *  Check if all the heroes or enemies are dead
+     *  Check if all the heroes or enemies are dead or hidden.
      *  @param {CharacterKind} group - Kind of player
      *  @returns {boolean}
      */
-    isGroupDead(group) {
-        for (let i = 0, l = this.battlers[group].length; i < l; i++) {
-            if (!this.battlers[group][i].player.isDead()) {
+    isGroupDeadHidden(group) {
+        for (let battler of this.battlers[group]) {
+            if (!battler.player.isDead() && !battler.hidden) {
                 return false;
             }
         }
@@ -166,14 +166,14 @@ class Battle extends Map {
      *  @returns {boolean}
      */
     isWin() {
-        return this.isGroupDead(CharacterKind.Monster);
+        return this.isGroupDeadHidden(CharacterKind.Monster);
     }
     /**
      *  Check if all the heroes are dead.
      *  @returns {boolean}
      */
     isLose() {
-        return this.isGroupDead(CharacterKind.Hero);
+        return this.isGroupDeadHidden(CharacterKind.Hero);
     }
     /**
      *  Transition to game over scene.

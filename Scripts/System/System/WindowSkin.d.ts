@@ -95,8 +95,9 @@ declare class WindowSkin extends System.Base {
      *  @param {number} y - The y position
      *  @param {number[]} rect - The source rect
      *  @param {number} zoom - The zoom to apply on damages
+     *  @returns {[number, number]} The x offset and height for after damages
      */
-    drawDamagesNumber(damage: number, x: number, y: number, rect: number[], zoom: number): void;
+    drawDamagesNumber(damage: number, x: number, y: number, rect: number[], zoom: number): [number, number];
     /**
      *  Draw a damage number according to the kind of damages.
      *  @param {number} damage - The damage number to display
@@ -105,7 +106,8 @@ declare class WindowSkin extends System.Base {
      *  @param {boolean} isCrit - Indicate if the damages are a critical hit
      *  @param {boolean} isMiss - Indicate if the damages are a missed hit
      *  @param {number} zoom - The zoom to apply on damages
+     *  @returns {[number, number]} The x offset and height for after damages
      */
-    drawDamages(damage: number, x: number, y: number, isCrit: boolean, isMiss: boolean, zoom: number): void;
+    drawDamages(damage: number, x: number, y: number, isCrit: boolean, isMiss: boolean, zoom: number): [number, number];
 }
 export { WindowSkin };

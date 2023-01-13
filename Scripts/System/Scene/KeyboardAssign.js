@@ -34,14 +34,17 @@ class KeyboardAssign extends Base {
         this.windowKeyboard = new WindowBox(Constants.HUGE_SPACE, Constants
             .HUGE_SPACE, WindowBox.MEDIUM_SLOT_WIDTH, WindowBox
             .LARGE_SLOT_HEIGHT, {
-            content: new Graphic.Text("KEYBOARD", { align: Enum.Align.Center }),
+            content: new Graphic.Text(Datas.Languages.extras.keyboardAssignment
+                .name(), { align: Enum.Align.Center }),
             padding: WindowBox.SMALL_SLOT_PADDING
         });
         this.windowInformations = new WindowBox(Constants.HUGE_SPACE + WindowBox
             .MEDIUM_SLOT_WIDTH + Constants.LARGE_SPACE, Constants.HUGE_SPACE, ScreenResolution.SCREEN_X - (2 * Constants.HUGE_SPACE) - WindowBox
             .MEDIUM_SLOT_WIDTH - Constants.LARGE_SPACE, WindowBox
             .LARGE_SLOT_HEIGHT, {
-            content: new Graphic.Text("Select a keyboard shortcut to edit.", { align: Enum.Align.Center }),
+            content: new Graphic.Text(Datas.Languages.extras
+                .keyboardAssignmentSelectedDescription.name(), { align: Enum
+                    .Align.Center }),
             padding: WindowBox.SMALL_SLOT_PADDING
         });
         this.windowChoicesMain = new WindowChoices(Constants.HUGE_SPACE, Constants.HUGE_SPACE + WindowBox.LARGE_SLOT_HEIGHT + Constants

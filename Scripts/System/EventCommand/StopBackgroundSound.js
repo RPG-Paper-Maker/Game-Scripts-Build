@@ -20,7 +20,7 @@ var SongKind = Enum.SongKind;
 class StopBackgroundSound extends Base {
     constructor(command) {
         super();
-        EventCommand.StopMusic.parseStopSong(this, command);
+        EventCommand.StopMusic.parseStopSong(this, command, Enum.SongKind.BackgroundSound);
         this.parallel = true;
     }
     /**

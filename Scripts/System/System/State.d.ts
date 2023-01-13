@@ -27,6 +27,14 @@ declare class State extends Base {
     pixelOffset: boolean;
     keepPosition: boolean;
     detection: EventCommand.Base;
+    centerX: System.DynamicValue;
+    centerZ: System.DynamicValue;
+    angleX: System.DynamicValue;
+    angleY: System.DynamicValue;
+    angleZ: System.DynamicValue;
+    scaleX: System.DynamicValue;
+    scaleY: System.DynamicValue;
+    scaleZ: System.DynamicValue;
     constructor(json?: Record<string, any>);
     /**
      *  Read the JSON associated to the object state.

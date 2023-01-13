@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Graphic, Manager, Scene } from "../index.js";
+import { Datas, Graphic, Manager, Scene } from "../index.js";
 import { Enum, ScreenResolution } from "../Common/index.js";
 import { Rectangle, WindowBox, WindowChoices } from "../Core/index.js";
 import { Base } from "./Base.js";
@@ -41,7 +41,7 @@ class Confirm extends Base {
         const width = 200;
         const height = 75;
         const rect = new Rectangle((ScreenResolution.SCREEN_X - width) / 2, (ScreenResolution.SCREEN_Y - height) / 2, width, height);
-        const graphic = new Graphic.Text("Confirm?", { align: Enum.Align.Center });
+        const graphic = new Graphic.Text(Datas.Languages.extras.confirm.name(), { align: Enum.Align.Center });
         const options = {
             content: graphic
         };
@@ -71,8 +71,8 @@ class Confirm extends Base {
             ]
         };
         const graphics = [
-            new Graphic.Text("Yes", { align: Enum.Align.Center }),
-            new Graphic.Text("No", { align: Enum.Align.Center })
+            new Graphic.Text(Datas.Languages.extras.yes.name(), { align: Enum.Align.Center }),
+            new Graphic.Text(Datas.Languages.extras.no.name(), { align: Enum.Align.Center })
         ];
         this.windowChoicesConfirm = new WindowChoices(rect.x, rect.y, rect.width, rect.height, graphics, options);
     }

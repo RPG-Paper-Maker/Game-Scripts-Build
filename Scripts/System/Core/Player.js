@@ -23,6 +23,10 @@ import { Status } from "./Status.js";
  */
 class Player {
     constructor(kind, id, instanceID, skills, status, name, json) {
+        this.battlerID = null;
+        this.facesetID = null;
+        this.facesetIndexX = null;
+        this.facesetIndexY = null;
         if (!Utils.isUndefined(kind)) {
             this.kind = kind;
             this.id = id;
@@ -48,6 +52,8 @@ class Player {
                 element = status[i];
                 this.status[i] = new Status(element.id, element.turn);
             }
+            // Elements
+            this.updateElements();
             // Experience list
             this.editedExpList = {};
             this.levelingUp = false;
@@ -207,7 +213,11 @@ class Player {
             stats: this.getSaveStat(),
             equip: this.getSaveEquip(),
             exp: this.editedExpList,
-            class: this.changedClass ? this.changedClass.id : undefined
+            class: this.changedClass ? this.changedClass.id : undefined,
+            battler: this.battlerID,
+            face: this.facesetID,
+            faceX: this.facesetIndexX,
+            faceY: this.facesetIndexY
         };
     }
     /**
@@ -256,8 +266,9 @@ class Player {
     instanciate(level) {
         // Skills
         this.skills = this.system.getSkills(level, this.changedClass);
-        // Begin equipment
+        // Begin equipment / elements
         let characteristics = this.system.getCharacteristics(this.changedClass);
+        this.elements = [];
         let i, l, characteristic, kind, itemID, item;
         for (i = 0, l = characteristics.length; i < l; i++) {
             characteristic = characteristics[i];
@@ -273,6 +284,9 @@ class Player {
                     item = new Item(kind, itemID, 0);
                 }
                 this.equip[characteristic.beginEquipmentID.getValue()] = item;
+            }
+            else if (characteristic.kind === Enum.CharacteristicKind.Element) {
+                this.elements.push(characteristic.elementID);
             }
         }
         // Stats
@@ -609,6 +623,11 @@ class Player {
         for (let i in json.exp) {
             this.expList[i] = json.exp[i];
         }
+        // Faceset and battler
+        this.facesetID = json.face;
+        this.facesetIndexX = json.faceX;
+        this.facesetIndexY = json.faceY;
+        this.battlerID = json.battler;
         this.updateAllStatsValues();
     }
     /**
@@ -799,6 +818,19 @@ class Player {
         }
     }
     /**
+     *  Check if player has status with ID.
+     *  @param {number} id
+     *  @returns {boolean}
+     */
+    hasStatus(id) {
+        for (let status of this.status) {
+            if (status.id === id) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
      *  Get the first status to display according to priority.
      *  @returns {Core.Status[]}
      */
@@ -882,14 +914,17 @@ class Player {
     /**
      *  Remove the status with release after attacked option.
      */
-    removeAfterAttackedStatus() {
+    removeAfterAttackedStatus(battler) {
         let test = false;
         let s;
         for (let i = this.status.length - 1; i >= 0; i--) {
             s = this.status[i];
             if (s.system.isReleaseAfterAttacked && Mathf.randomPercentTest(s.system
                 .chanceReleaseAfterAttacked.getValue())) {
+                s = this.status[0];
                 this.status.splice(i, 1);
+                battler.updateStatusStep();
+                battler.updateAnimationStatus(s);
                 test = true;
             }
         }
@@ -1000,6 +1035,46 @@ class Player {
      */
     getClass() {
         return Utils.defaultValue(this.changedClass, this.system.class);
+    }
+    /**
+     *  Update the elements list according to characteristics.
+     */
+    updateElements() {
+        this.elements = [];
+        const characteristics = this.system.getCharacteristics(this.changedClass);
+        for (let characteristic of characteristics) {
+            if (characteristic.kind === Enum.CharacteristicKind.Element) {
+                this.elements.push(characteristic.elementID);
+            }
+        }
+    }
+    /**
+     *  Get battler ID from system, or another if modified with change graphics.
+     *  @returns {number}
+     */
+    getBattlerID() {
+        return this.battlerID === null ? this.system.idBattler : this.battlerID;
+    }
+    /**
+     *  Get faceset ID from system, or another if modified with change graphics.
+     *  @returns {number}
+     */
+    getFacesetID() {
+        return this.facesetID === null ? this.system.idFaceset : this.facesetID;
+    }
+    /**
+     *  Get faceset index x from system, or another if modified with change graphics.
+     *  @returns {number}
+     */
+    getFacesetIndexX() {
+        return this.facesetIndexX === null ? this.system.indexXFaceset : this.facesetIndexX;
+    }
+    /**
+     *  Get faceset index y from system, or another if modified with change graphics.
+     *  @returns {number}
+     */
+    getFacesetIndexY() {
+        return this.facesetIndexY === null ? this.system.indexYFaceset : this.facesetIndexY;
     }
 }
 Player.MAX_STATUS_DISPLAY_TOP = 3;

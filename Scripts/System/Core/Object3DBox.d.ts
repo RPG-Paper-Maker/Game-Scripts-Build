@@ -12,6 +12,7 @@ import { CustomGeometry } from "./CustomGeometry.js";
  */
 declare class Object3DBox extends Object3D {
     static VERTICES: Core.Vector3[];
+    static VERTICES_CENTER: Core.Vector3[];
     static NB_VERTICES: number;
     static TEXTURES: number[][];
     static TEXTURES_VALUES: number[];

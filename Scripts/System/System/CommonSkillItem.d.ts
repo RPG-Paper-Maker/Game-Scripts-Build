@@ -79,7 +79,7 @@ declare class CommonSkillItem extends Icon {
      *  Get the price.
      *  @returns {number}
      */
-    getPrice(): Record<string, number>;
+    getPrice(): Record<string, [Enum.DamagesKind, number]>;
     /**
      *  Get the item kind.
      *  @returns {Enum.ItemKind}

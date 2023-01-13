@@ -15,7 +15,7 @@ declare class StopMusic extends Base {
      *  @param {any} that - The event command to parse
      *  @param {any[]} command - Direct JSON command to parse
      */
-    static parseStopSong(that: any, command: any[]): void;
+    static parseStopSong(that: any, command: any[], kind: Enum.SongKind): void;
     /**
      *  Stop the song.
      *  @static

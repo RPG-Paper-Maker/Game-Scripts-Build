@@ -177,11 +177,11 @@ declare class Battle extends Map {
      */
     isEndTurn(): boolean;
     /**
-     *  Check if all the heroes or enemies are dead
+     *  Check if all the heroes or enemies are dead or hidden.
      *  @param {CharacterKind} group - Kind of player
      *  @returns {boolean}
      */
-    isGroupDead(group: CharacterKind): boolean;
+    isGroupDeadHidden(group: CharacterKind): boolean;
     /**
      *  Check if all the enemies are dead.
      *  @returns {boolean}

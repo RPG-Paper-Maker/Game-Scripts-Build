@@ -174,13 +174,16 @@ class BattleAnimation {
      *  Update the targets attacked and check if they are dead.
      */
     updateTargetsAttacked() {
-        let target;
+        let target, isAttacked;
         for (let i = 0, l = this.battle.targets.length; i < l; i++) {
             target = this.battle.targets[i];
-            target.updateDead((target.damages > 0 || target == null) && !target
-                .isDamagesMiss, this.battle.user ? this.battle.user.player : null);
+            isAttacked = (target.damages > 0 || target == null) && !target
+                .isDamagesMiss;
+            target.updateDead(isAttacked, this.battle.user ? this.battle.user.player : null);
             // Release status after attacked
-            target.player.removeAfterAttackedStatus();
+            if (this.battle.currentEffectIndex === 0 && isAttacked) {
+                target.player.removeAfterAttackedStatus(target);
+            }
         }
     }
     /**

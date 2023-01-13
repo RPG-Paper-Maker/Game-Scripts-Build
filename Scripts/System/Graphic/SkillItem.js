@@ -36,8 +36,9 @@ class SkillItem extends Base {
             verticalAlign: AlignVertical.Top
         });
         if (this.system.hasTargetKind) {
-            this.graphicTarget = new Graphic.Text("Target: " + system
-                .getTargetKindString(), { align: Align.Right, fontSize: Constants.MEDIUM_FONT_SIZE });
+            this.graphicTarget = new Graphic.Text(Datas.Languages.extras.target
+                .name() + ": " + system.getTargetKindString(), { align: Align.Right,
+                fontSize: Constants.MEDIUM_FONT_SIZE });
         }
         this.graphicEffects = [];
         let i, l, effect, txt, graphic, graphicIcon;

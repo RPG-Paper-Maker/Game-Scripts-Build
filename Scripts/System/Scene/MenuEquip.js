@@ -22,17 +22,11 @@ var ItemKind = Enum.ItemKind;
  * @extends {MenuBase}
  */
 class MenuEquip extends MenuBase {
-    constructor() {
+    constructor(title) {
         super();
-        this.updateForTab();
-    }
-    /**
-     * @inheritdoc
-     *
-     * @memberof MenuEquip
-     */
-    create() {
+        this.title = title;
         this.createAllWindows();
+        this.updateForTab();
     }
     /**
      * create all the window in the scene.
@@ -54,7 +48,7 @@ class MenuEquip extends MenuBase {
     createWindowTop() {
         const rect = new Rectangle(20, 20, 200, 30);
         this.windowTop = new WindowBox(rect.x, rect.y, rect.width, rect.height, {
-            content: new Graphic.Text("Equip", { align: Align.Center })
+            content: new Graphic.Text(this.title, { align: Align.Center })
         });
     }
     /**
@@ -156,7 +150,8 @@ class MenuEquip extends MenuBase {
     updateEquipmentList() {
         const currentIndex = this.windowChoicesEquipment.currentSelectedIndex;
         let idEquipment = Datas.BattleSystems.equipmentsOrder[currentIndex];
-        let list = [new Graphic.Text("  [Remove]")];
+        let list = [new Graphic.Text("  [" + Datas.Languages
+                .extras.remove.name() + "]")];
         let item, systemItem;
         let type, nbItem;
         let player = Game.current.teamHeroes[this.windowChoicesTabs
@@ -171,6 +166,13 @@ class MenuEquip extends MenuBase {
                     nbItem = item.nb;
                     if (nbItem > 0) {
                         characteristics = player.getCharacteristics();
+                        // Also add weapons and armors
+                        for (let equipment of player.equip) {
+                            if (equipment) {
+                                characteristics = characteristics.concat(equipment
+                                    .system.characteristics);
+                            }
+                        }
                         allow = true;
                         for (j = 0, m = characteristics.length; j < m; j++) {
                             characteristic = characteristics[j];
@@ -264,14 +266,18 @@ class MenuEquip extends MenuBase {
         }
     }
     /**
-     * remove the selected equipment
-     *
-     * @memberof MenuEquip
+     *  Remove the selected equipment.
      */
     remove() {
+        this.removeAnEquipment(Datas.BattleSystems.equipmentsOrder[this
+            .windowChoicesEquipment.currentSelectedIndex]);
+    }
+    /**
+     *  Remove an equipment according to ID.
+     *  @param {number} id
+     */
+    removeAnEquipment(id) {
         let player = this.party()[this.windowChoicesTabs.currentSelectedIndex];
-        let id = Datas.BattleSystems.equipmentsOrder[this.windowChoicesEquipment
-            .currentSelectedIndex];
         let prev = player.equip[id];
         player.equip[id] = null;
         if (prev) {
@@ -286,9 +292,7 @@ class MenuEquip extends MenuBase {
         this.updateStats();
     }
     /**
-     * equip the selected equipment
-     *
-     * @memberof MenuEquip
+     *  Equip the selected equipment.
      */
     equip() {
         let index = this.windowChoicesTabs.currentSelectedIndex;
@@ -299,6 +303,21 @@ class MenuEquip extends MenuBase {
             .currentSelectedIndex];
         let prev = character.equip[id];
         character.equip[id] = gameItem;
+        // If "don't allow weapon/armor" characteristic now active, remove equipment
+        for (let characteristic of gameItem.system.characteristics) {
+            if (characteristic.kind === Enum.CharacteristicKind
+                .AllowForbidEquip && !characteristic.isAllowEquip) {
+                let weaponArmor = (characteristic.isAllowEquipWeapon) ? Datas
+                    .BattleSystems.getWeaponKind(characteristic.equipWeaponTypeID
+                    .getValue()) : Datas.BattleSystems.getArmorKind(characteristic
+                    .equipArmorTypeID.getValue());
+                for (let [id, equipment] of weaponArmor.equipments.entries()) {
+                    if (equipment) {
+                        this.removeAnEquipment(id);
+                    }
+                }
+            }
+        }
         // Remove one equip from inventory
         let item;
         for (let i = 0, l = Game.current.items.length; i < l; i++) {

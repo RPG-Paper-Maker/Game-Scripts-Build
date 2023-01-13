@@ -63,11 +63,6 @@ declare class Sprite extends MapElement {
      */
     static addStaticSpriteToGeometry(geometry: CustomGeometry, vecA: Core.Vector3, vecB: Vector3, vecC: Vector3, vecD: Vector3, texA: Vector2, texB: Vector2, texC: Vector2, texD: Vector2, count: number): number;
     /**
-     *  Read the JSON associated to the sprite.
-     *  @param {Record<string, any>} - json Json object describing the sprite
-     */
-    read(json: Record<string, any>): void;
-    /**
      *  Update the geometry associated to this.
      *  @param {Core.CustomGeometry} geometry - The geometry
      *  @param {number} width - The total texture width
@@ -88,5 +83,10 @@ declare class Sprite extends MapElement {
      *  @returns {any[]}
      */
     createGeometry(width: number, height: number, tileset: boolean, position: Position): [CustomGeometry, [number, StructMapElementCollision[]]];
+    /**
+     *  Read the JSON associated to the sprite.
+     *  @param {Record<string, any>} - json Json object describing the sprite
+     */
+    read(json: Record<string, any>): void;
 }
 export { Sprite };

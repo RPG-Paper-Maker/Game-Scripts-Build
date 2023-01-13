@@ -22,13 +22,16 @@ class TimeCurrencies extends Base {
         super();
         // Currencies
         this.currencies = [];
-        let graphic;
+        let graphic, systemCurrency;
         for (let id in Game.current.currencies) {
-            graphic = Graphic.TextIcon.createFromSystem(Mathf.numberWithCommas(Game.current.currencies[id]), Datas.Systems.getCurrency(parseInt(id)), {
-                side: Align.Right,
-                align: Align.Right
-            });
-            this.currencies.push(graphic);
+            systemCurrency = Datas.Systems.getCurrency(parseInt(id));
+            if (systemCurrency.displayInMenu.getValue()) {
+                graphic = Graphic.TextIcon.createFromSystem(Mathf.numberWithCommas(Game.current.currencies[id]), systemCurrency, {
+                    side: Align.Right,
+                    align: Align.Right
+                });
+                this.currencies.push(graphic);
+            }
         }
         // Time
         this.time = Game.current.playTime.getSeconds();

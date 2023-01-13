@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Graphic } from "../index.js";
+import { Graphic, Datas } from "../index.js";
 import { Enum } from "../Common/index.js";
 var Align = Enum.Align;
 import { Base } from "./Base.js";
@@ -23,9 +23,8 @@ class Keyboard extends Base {
         this.graphicTextName = new Graphic.Text(kb.name());
         this.graphicTextShort = new Graphic.Text(kb.toString(), { align: Align
                 .Center });
-        this.graphicTextInformation = new Graphic.Text("Press any keys...", {
-            align: Align.Center
-        });
+        this.graphicTextInformation = new Graphic.Text(Datas.Languages.extras
+            .pressAnyKeys.name(), { align: Align.Center });
     }
     /**
      *  Update short sc.

@@ -25,6 +25,7 @@ declare class Object3D extends SpecialElement {
     depthSquare: number;
     depthPixel: number;
     stretch: boolean;
+    isTopLeft: boolean;
     constructor(json?: Record<string, any>);
     /**
      *  Read the JSON associated to the object 3D.

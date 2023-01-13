@@ -12,7 +12,7 @@ import { THREE } from "../Globals.js";
 import { Enum, Mathf } from "../Common/index.js";
 import { Frame } from "./Frame.js";
 import { ProgressionTable } from "../System/index.js";
-import { Manager, Datas, Scene } from "../index.js";
+import { Manager, Datas, Scene, Graphic } from "../index.js";
 import { Sprite } from "./Sprite.js";
 import { Vector3 } from "./Vector3.js";
 import { Vector2 } from "./Vector2.js";
@@ -30,9 +30,12 @@ class Battler {
     constructor(player, position, vect, camera) {
         this.itemsNumbers = [];
         this.rect = new Rectangle();
+        this.graphicDamageName = new Graphic.Text("", { verticalAlign: Enum.AlignVertical.Bot });
         this.currentStatusAnimation = null;
         this.lastTarget = null;
+        this.hidden = false;
         this.player = player;
+        this.initialPosition = position;
         if (!position) {
             return;
         }
@@ -69,7 +72,7 @@ class Battler {
         this.progressionEnemyBack = ProgressionTable.createFromNumbers(this.position.x + Battler.OFFSET_SELECTED, this.position.x, 0);
         this.timerMove = 0;
         this.timeDamage = Battler.TOTAL_TIME_DAMAGE;
-        let idBattler = player.system.idBattler;
+        let idBattler = player.getBattlerID();
         if (idBattler === -1) {
             this.mesh = null;
         }
@@ -459,19 +462,36 @@ class Battler {
             this.updateUVs();
         }
     }
+    updateHidden(hidden) {
+        this.hidden = hidden;
+        if (this.hidden) {
+            this.removeFromScene();
+        }
+        else {
+            this.addToScene();
+        }
+    }
     /**
      *  Draw the arrow to select this battler.
      */
     drawArrow() {
-        Datas.Systems.getCurrentWindowSkin().drawArrowTarget(this.frameArrow
-            .value, this.arrowPosition.x, this.arrowPosition.y, false);
+        if (!this.hidden) {
+            Datas.Systems.getCurrentWindowSkin().drawArrowTarget(this.frameArrow
+                .value, this.arrowPosition.x, this.arrowPosition.y, false);
+        }
     }
     /**
      *  Draw the damages on top of the battler.
      */
     drawDamages() {
-        Datas.Systems.getCurrentWindowSkin().drawDamages(this.damages, this
-            .damagePosition.x, this.damagePosition.y, this.isDamagesCritical, this.isDamagesMiss, this.timeDamage / Battler.TOTAL_TIME_DAMAGE);
+        const zoom = this.timeDamage / Battler.TOTAL_TIME_DAMAGE;
+        const [x, height] = Datas.Systems.getCurrentWindowSkin().drawDamages(this.damages, this.damagePosition.x, this.damagePosition.y, this.isDamagesCritical, this.isDamagesMiss, zoom);
+        if (this.damagesName && this.damages && !this.isDamagesMiss) {
+            this.graphicDamageName.setText(this.damagesName);
+            this.graphicDamageName.zoom = zoom;
+            this.graphicDamageName.draw(x, this.damagePosition.y, this
+                .graphicDamageName.textWidth * zoom, height);
+        }
     }
     /**
      *  Draw the status on top of the battler.

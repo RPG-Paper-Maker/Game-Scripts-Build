@@ -9,6 +9,7 @@ import { Base } from "./Base.js";
 declare class TroopMonster extends Base {
     id: number;
     level: System.DynamicValue;
+    hidden: System.DynamicValue;
     isSpecificPosition: boolean;
     specificPosition: System.DynamicValue;
     constructor(json?: Record<string, any>);

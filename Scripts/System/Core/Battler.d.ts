@@ -2,6 +2,7 @@ import { Player } from "./Player.js";
 import { Enum } from "../Common/index.js";
 import { Frame } from "./Frame.js";
 import { ProgressionTable } from "../System/index.js";
+import { Graphic } from "../index.js";
 import { Camera } from "./Camera.js";
 import { Position } from "./Position.js";
 import { Vector3 } from "./Vector3.js";
@@ -20,6 +21,7 @@ declare class Battler {
     static TIME_MOVE: number;
     static TOTAL_TIME_DAMAGE: number;
     player: Player;
+    initialPosition: Position;
     position: Vector3;
     arrowPosition: Vector2;
     damagePosition: Vector2;
@@ -57,12 +59,15 @@ declare class Battler {
     moving: boolean;
     attacking: boolean;
     damages: number;
+    damagesName: string;
+    graphicDamageName: Graphic.Text;
     isDamagesMiss: boolean;
     isDamagesCritical: boolean;
     currentStatusAnimation: Animation;
     lastStatus: Status;
     lastStatusHealed: Status;
     lastTarget: Battler;
+    hidden: boolean;
     constructor(player: Player, position?: Position, vect?: Vector3, camera?: Camera);
     /**
      *  Check at least one affected status contains the following restriction.
@@ -188,6 +193,7 @@ declare class Battler {
      *  Update status step (first priority status displayed).
      */
     updateStatusStep(): void;
+    updateHidden(hidden: boolean): void;
     /**
      *  Draw the arrow to select this battler.
      */

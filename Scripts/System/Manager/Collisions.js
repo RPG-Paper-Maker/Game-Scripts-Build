@@ -9,10 +9,11 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Mathf, Constants, Enum } from "../Common/index.js";
-import { Position, Portion, Vector3, Vector2, Game, CustomGeometry } from "../Core/index.js";
+import { MapObject, Position, Portion, Vector3, Vector2, Game, CustomGeometry } from "../Core/index.js";
 import { Datas, Scene } from "../index.js";
 var ElementMapKind = Enum.ElementMapKind;
 import { THREE } from "../Globals.js";
+import { Main } from "../main.js";
 /** @class
  *  The collisions manager.
  *  @static
@@ -254,49 +255,20 @@ class Collisions {
      *  @param {MapObject} object - The map object to test collision
      *  @returns {boolean}
      */
-    static checkRay(positionBefore, positionAfter, object) {
+    static checkRay(positionBefore, positionAfter, object, bbSettings) {
         let direction = new Vector3();
         direction.subVectors(positionAfter, positionBefore).normalize();
         let jpositionBefore = Position.createFromVector3(positionBefore);
         let jpositionAfter = Position.createFromVector3(positionAfter);
+        let positionBeforePlus = new Vector3();
         let positionAfterPlus = new Vector3();
         let testedCollisions = [];
         let yMountain = null;
         // Squares to inspect according to the direction of the object
-        let startI, endI, startJ, endJ, startK, endK;
-        if (direction.x > 0) {
-            startI = 0;
-            endI = object.boundingBoxSettings.w;
-        }
-        else if (direction.x < 0) {
-            startI = -object.boundingBoxSettings.w;
-            endI = 0;
-        }
-        else {
-            startI = -object.boundingBoxSettings.w;
-            endI = object.boundingBoxSettings.w;
-        }
-        if (object.boundingBoxSettings.k) {
-            startK = 0;
-            endK = 0;
-        }
-        else if (direction.z > 0) {
-            startK = 0;
-            endK = object.boundingBoxSettings.w;
-        }
-        else if (direction.z < 0) {
-            startK = -object.boundingBoxSettings.w;
-            endK = 0;
-        }
-        else {
-            startK = -object.boundingBoxSettings.w;
-            endK = object.boundingBoxSettings.w;
-        }
-        startJ = 0;
-        endJ = 0;
+        let [startI, endI, startJ, endJ, startK, endK] = object.getSquaresBB();
         // Check collision outside
         let block = false;
-        let i, j, k, portion, mapPortion, result;
+        let i, j, k, i2, j2, k2, portion, mapPortion, result;
         for (i = startI; i <= endI; i++) {
             for (j = startJ; j <= endJ; j++) {
                 for (k = startK; k <= endK; k++) {
@@ -310,6 +282,36 @@ class Collisions {
                     if (mapPortion !== null) {
                         result = this.check(mapPortion, jpositionBefore, new Position(jpositionAfter.x + i, jpositionAfter
                             .y + j, jpositionAfter.z + k), positionAfter, object, direction, testedCollisions);
+                        if (result[0] === null) {
+                            // If not already climbing, be sure that the before position can colide with climbling sprite
+                            if (!object.isClimbing) {
+                                object.updateMeshBBPosition(object.currentBoundingBox, bbSettings, positionBefore);
+                                for (i2 = startI; i2 <= endI; i2++) {
+                                    for (j2 = startJ; j2 <= endJ; j2++) {
+                                        for (k2 = startK; k2 <= endK; k2++) {
+                                            positionBeforePlus.set(positionBefore.x + i2 * Datas.Systems
+                                                .SQUARE_SIZE, positionBefore.y + j2 * Datas.Systems
+                                                .SQUARE_SIZE, positionBefore.z + k2 * Datas.Systems
+                                                .SQUARE_SIZE);
+                                            portion = Scene.Map.current.getLocalPortion(Portion.createFromVector3(positionBeforePlus));
+                                            mapPortion = Scene.Map.current.getMapPortion(portion);
+                                            if (mapPortion !== null) {
+                                                let [b, y] = this.checkSprites(mapPortion, new Position(jpositionBefore.x + i2, jpositionBefore
+                                                    .y + j2, jpositionBefore.z + k2), [], object);
+                                                // If before and after collides, get up!
+                                                if (b === null) {
+                                                    object.updateMeshBBPosition(object.currentBoundingBox, bbSettings, positionAfter);
+                                                    return [null, y, result[2]];
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                object.updateMeshBBPosition(object.currentBoundingBox, bbSettings, positionAfter);
+                                return [false, null, Enum.Orientation.None];
+                            }
+                            return [result[0], result[1], result[2]];
+                        }
                         if (result[0]) {
                             block = true;
                         }
@@ -323,12 +325,12 @@ class Collisions {
             }
         }
         if (block && (yMountain === null)) {
-            return [true, null];
+            return [true, null, Enum.Orientation.None];
         }
         // Check collision inside & with other objects
         if (object !== Game.current.hero && object.checkCollisionObject(Game
             .current.hero)) {
-            return [true, null];
+            return [true, null, Enum.Orientation.None];
         }
         // Check objects collisions
         portion = Scene.Map.current.getLocalPortion(Portion.createFromVector3(positionAfter));
@@ -336,7 +338,7 @@ class Collisions {
             for (j = 0; j < 2; j++) {
                 mapPortion = Scene.Map.current.getMapPortion(new Portion(portion.x + i, portion.y, portion.z + j));
                 if (mapPortion && this.checkObjects(mapPortion, object)) {
-                    return [true, null];
+                    return [true, null, Enum.Orientation.None];
                 }
             }
         }
@@ -357,7 +359,7 @@ class Collisions {
             if (yMountain === null && floors.indexOf(positionAfter.y) === -1) {
                 let l = floors.length;
                 if (l === 0) {
-                    return [true, null];
+                    return [null, null, Enum.Orientation.None];
                 }
                 else {
                     let maxY = null;
@@ -397,7 +399,7 @@ class Collisions {
                             if (yMountain === null && floors.indexOf(positionBefore.y) === -1) {
                                 let l = floors.length;
                                 if (l === 0) {
-                                    return [true, null];
+                                    return [null, null, Enum.Orientation.None];
                                 }
                                 else {
                                     let maxY = null;
@@ -420,7 +422,89 @@ class Collisions {
                                         }
                                     }
                                     if (maxY === null) {
-                                        return [true, null];
+                                        if (object.orientation === object.previousOrientation) {
+                                            // If non empty square on front of object, then force move front
+                                            let positionFront = positionBefore.clone();
+                                            switch (object.orientationEye) {
+                                                case Enum.Orientation.North:
+                                                    positionFront.setZ(positionFront.z - (Datas.Systems.SQUARE_SIZE / 2));
+                                                    break;
+                                                case Enum.Orientation.South:
+                                                    positionFront.setZ(positionFront.z + (Datas.Systems.SQUARE_SIZE / 2));
+                                                    break;
+                                                case Enum.Orientation.West:
+                                                    positionFront.setX(positionFront.x - (Datas.Systems.SQUARE_SIZE / 2));
+                                                    break;
+                                                case Enum.Orientation.East:
+                                                    positionFront.setX(positionFront.x + (Datas.Systems.SQUARE_SIZE / 2));
+                                                    break;
+                                            }
+                                            portion = Scene.Map.current.getLocalPortion(Portion.createFromVector3(positionFront));
+                                            mapPortion = Scene.Map.current.getMapPortion(portion);
+                                            if (mapPortion !== null) {
+                                                floors = mapPortion.squareNonEmpty[Math.floor(positionFront.x / Datas.Systems.SQUARE_SIZE) % Constants.PORTION_SIZE][Math.floor(positionFront.z / Datas.Systems.SQUARE_SIZE) % Constants.PORTION_SIZE];
+                                                if (floors.length > 0) {
+                                                    for (let y of floors) {
+                                                        if (y === positionFront.y) {
+                                                            return [false, null, Enum.Orientation.None];
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        // Check if climbing stuff in 1 px bottom
+                                        const positionBottom = positionBefore.clone();
+                                        positionBottom.setY(positionBottom.y - 1);
+                                        for (i = startI; i <= endI; i++) {
+                                            for (j = startJ; j <= endJ; j++) {
+                                                for (k = startK; k <= endK; k++) {
+                                                    positionBeforePlus.set(positionBefore.x + i * Datas.Systems
+                                                        .SQUARE_SIZE, (positionBefore.y + j * Datas.Systems
+                                                        .SQUARE_SIZE) - 1, positionBefore.z + k * Datas.Systems
+                                                        .SQUARE_SIZE);
+                                                    portion = Scene.Map.current.getLocalPortion(Portion.createFromVector3(positionBeforePlus));
+                                                    mapPortion = Scene.Map.current.getMapPortion(portion);
+                                                    if (mapPortion !== null) {
+                                                        const jpositionBottom = Position.createFromVector3(positionBeforePlus);
+                                                        const climbingUp = object.isClimbingUp;
+                                                        object.isClimbingUp = false;
+                                                        object.updateMeshBBPosition(object.currentBoundingBox, bbSettings, positionBottom);
+                                                        let [b, y, o] = this.checkSprites(mapPortion, jpositionBottom, [], object);
+                                                        if (b === null) {
+                                                            // Check if after moving the collision still occurs. If not, go down
+                                                            const positionBottomAfter = positionAfter.clone();
+                                                            positionBottomAfter.setY(positionBottomAfter.y - 1);
+                                                            for (i2 = startI; i2 <= endI; i2++) {
+                                                                for (j2 = startJ; j2 <= endJ; j2++) {
+                                                                    for (k2 = startK; k2 <= endK; k2++) {
+                                                                        positionAfterPlus.set(positionAfter.x + i2 * Datas.Systems
+                                                                            .SQUARE_SIZE, (positionAfter.y + j2 * Datas.Systems
+                                                                            .SQUARE_SIZE) - 1, positionAfter.z + k2 * Datas.Systems
+                                                                            .SQUARE_SIZE);
+                                                                        portion = Scene.Map.current.getLocalPortion(Portion.createFromVector3(positionAfterPlus));
+                                                                        mapPortion = Scene.Map.current.getMapPortion(portion);
+                                                                        if (mapPortion) {
+                                                                            const jpositionBottomAfter = Position.createFromVector3(positionAfterPlus);
+                                                                            object.updateMeshBBPosition(object.currentBoundingBox, bbSettings, positionBottomAfter);
+                                                                            b = this.checkSprites(mapPortion, jpositionBottomAfter, [], object)[0];
+                                                                            if (b === null) {
+                                                                                object.updateMeshBBPosition(object.currentBoundingBox, bbSettings, positionAfter);
+                                                                                return [null, null, Enum.Orientation.None];
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                            object.updateMeshBBPosition(object.currentBoundingBox, bbSettings, positionAfter);
+                                                            return [null, y, o];
+                                                        }
+                                                        object.updateMeshBBPosition(object.currentBoundingBox, bbSettings, positionAfter);
+                                                        object.isClimbingUp = climbingUp;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        return [true, null, Enum.Orientation.None];
                                     }
                                     else {
                                         yMountain = maxY;
@@ -437,9 +521,9 @@ class Collisions {
             // Check lands inside collisions
             portion = Scene.Map.current.getLocalPortion(Portion.createFromVector3(positionBefore));
             mapPortion = Scene.Map.current.getMapPortion(portion);
-            return [this.checkLandsInside(mapPortion, jpositionBefore, jpositionAfter, direction), yMountain];
+            return [this.checkLandsInside(mapPortion, jpositionBefore, jpositionAfter, direction), yMountain, Enum.Orientation.None];
         }
-        return [true, null];
+        return [true, null, Enum.Orientation.None];
     }
     /**
      *  Check if there is a collision at this position.
@@ -455,14 +539,20 @@ class Collisions {
      *  @returns {boolean}
      */
     static check(mapPortion, jpositionBefore, jpositionAfter, positionAfter, object, direction, testedCollisions) {
+        // Check sprites and climbing
+        let [isCollision, yMountain, o] = this.checkSprites(mapPortion, jpositionAfter, testedCollisions, object);
+        // Climbing
+        if (isCollision || yMountain !== null) {
+            return [isCollision, yMountain, o];
+        }
         // Check mountain collision first for elevation
-        let result = this.checkMountains(mapPortion, jpositionAfter, positionAfter, testedCollisions, object);
-        if (result[0]) {
-            return result;
+        [isCollision, yMountain] = this.checkMountains(mapPortion, jpositionAfter, positionAfter, testedCollisions, object);
+        if (isCollision) {
+            return [isCollision, yMountain, Enum.Orientation.None];
         }
         // Check other tests
-        return [(this.checkLands(mapPortion, jpositionBefore, jpositionAfter, object, direction, testedCollisions) || this.checkSprites(mapPortion, jpositionAfter, testedCollisions, object) || this.checkObjects3D(mapPortion, jpositionAfter, positionAfter, testedCollisions, object)),
-            result[1]];
+        return [(this.checkLands(mapPortion, jpositionBefore, jpositionAfter, object, direction, testedCollisions) || this.checkObjects3D(mapPortion, jpositionAfter, positionAfter, testedCollisions, object)),
+            yMountain, Enum.Orientation.None];
     }
     /**
      *  Check if there is a collision with lands at this position.
@@ -618,12 +708,24 @@ class Collisions {
                 if (testedCollisions.indexOf(objCollision) === -1) {
                     testedCollisions.push(objCollision);
                     if (this.checkIntersectionSprite(objCollision.b, objCollision.k, object)) {
-                        return true;
+                        if (objCollision.cl) {
+                            const speed = object.speed.getValue() * MapObject
+                                .SPEED_NORMAL * Math.max(60, Main.FPS) * Datas
+                                .Systems.SQUARE_SIZE / 4;
+                            const limitTop = objCollision.b[1] + Math.ceil(objCollision.b[4] / 2);
+                            const limitBot = objCollision.b[1] - Math.ceil(objCollision.b[4] / 2);
+                            const y = object.isClimbingUp ? Math.min(object.position.y + speed, limitTop) : Math.max(object.position.y - speed, limitBot);
+                            if (y === object.position.y) {
+                                continue;
+                            }
+                            return [null, y, object.getOrientationBetweenPosition(objCollision.l)];
+                        }
+                        return [true, null, Enum.Orientation.None];
                     }
                 }
             }
         }
-        return false;
+        return [false, null, Enum.Orientation.None];
     }
     /**
      *  Check intersection between ray and an object.

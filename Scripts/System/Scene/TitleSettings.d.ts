@@ -9,7 +9,8 @@ declare class TitleSettings extends Base {
     windowSettings: WindowBox;
     windowInformations: WindowBox;
     windowChoicesMain: WindowChoices;
-    constructor();
+    title: string;
+    constructor(title: string);
     /**
      *  Load async stuff.
      */

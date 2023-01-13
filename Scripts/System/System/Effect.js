@@ -68,6 +68,7 @@ class Effect extends Base {
                     .readOrDefaultMessage(json.dpf, Utils.numToString(100));
                 this.isDamageStockVariableID = Utils.defaultValue(json.idsv, false);
                 this.damageStockVariableID = Utils.defaultValue(json.dsv, 1);
+                this.isDamageDisplayName = Utils.defaultValue(json.iddn, false);
                 break;
             }
             case EffectKind.Status:
@@ -119,14 +120,15 @@ class Effect extends Base {
         let target, battler;
         switch (this.kind) {
             case EffectKind.Damages: {
-                let damage, miss, crit, precision, variance, fixRes, percentRes, element, critical, stat, abbreviation, max, before, currencyID;
+                let damage, damageName, miss, crit, precision, variance, fixRes, percentRes, element, critical, stat, abbreviation, max, before, currencyID, targetElement, systemElement;
                 for (let i = 0; i < l; i++) {
                     battler = targets[i];
                     target = battler.player;
-                    if (!this.skillItem.isPossible(target, false)) {
+                    if (this.skillItem && !this.skillItem.isPossible(target, false)) {
                         continue;
                     }
                     damage = 0;
+                    damageName = "";
                     miss = false;
                     crit = false;
                     // Calculate damages
@@ -149,6 +151,11 @@ class Effect extends Base {
                         }
                         if (this.isDamageElement) {
                             element = this.damageElementID.getValue();
+                            systemElement = Datas.BattleSystems.getElement(element);
+                            // If target also has elements
+                            for (targetElement of target.elements) {
+                                damage *= systemElement.efficiency[targetElement.getValue()].getValue();
+                            }
                             fixRes = target[Datas.BattleSystems.getStatistic(Datas.BattleSystems.statisticsElements[element])
                                 .abbreviation];
                             percentRes = target[Datas.BattleSystems.getStatistic(Datas.BattleSystems.statisticsElementsPercent[element]).abbreviation];
@@ -183,9 +190,22 @@ class Effect extends Base {
                         Game.current.variables[this.damageStockVariableID]
                             = damage === null ? 0 : damage;
                     }
+                    if (this.isDamageDisplayName) {
+                        switch (this.damageKind) {
+                            case Enum.DamagesKind.Stat:
+                                damageName = Datas.BattleSystems.getStatistic(this.damageStatisticID.getValue()).name();
+                                break;
+                            case Enum.DamagesKind.Currency:
+                                damageName = Datas.Systems.getCurrency(this.damageCurrencyID.getValue()).name();
+                                break;
+                            default:
+                                break;
+                        }
+                    }
                     // For diplaying result in HUD
                     if (Scene.Map.current.isBattleMap) {
                         battler.damages = damage;
+                        battler.damagesName = damageName;
                         battler.isDamagesMiss = miss;
                         battler.isDamagesCritical = crit;
                     }
@@ -350,12 +370,14 @@ class Effect extends Base {
                 if (this.isDamagePrecision) {
                     precision = Interpreter.evaluate(this.damagePrecisionFormula
                         .getValue(), { user: user, target: target });
-                    options.push("precision: " + precision + "%");
+                    options.push(Datas.Languages.extras.precision.name() + ": " +
+                        precision + "%");
                 }
                 if (this.isDamageCritical) {
                     critical = Interpreter.evaluate(this.damageCriticalFormula
                         .getValue(), { user: user, target: target });
-                    options.push("critical: " + critical + "%");
+                    options.push(Datas.Languages.extras.critical.name() + ": " +
+                        critical + "%");
                 }
                 let damageName = "";
                 switch (this.damageKind) {
@@ -371,19 +393,24 @@ class Effect extends Base {
                         damageName = Datas.Variables.get(this.damageVariableID);
                         break;
                 }
-                return (damage > 0 ? "Damage" : "Heal") + " " + damageName +
-                    ": " + (min === max ? min : min + " - " + max) + (options
-                    .length > 0 ? " [" + options.join(" - ") + "]" : "");
+                return (damage > 0 ? Datas.Languages.extras.damage.name() : Datas
+                    .Languages.extras.heal.name()) + " " + damageName + ": " +
+                    (min === max ? min : min + " - " + max) + (options.length >
+                    0 ? " [" + options.join(" - ") + "]" : "");
             case EffectKind.Status:
-                return (this.isAddStatus ? "Add" : "Remove") + " " + Datas
-                    .Status.get(this.statusID.getValue()).name() + " [precision: " +
-                    Interpreter.evaluate(this.statusPrecisionFormula.getValue(), { user: user, target: target }) + "%]";
+                return (this.isAddStatus ? Datas.Languages.extras.add.name() :
+                    Datas.Languages.extras.remove.name()) + " " + Datas.Status
+                    .get(this.statusID.getValue()).name() + " [" + Datas.Languages
+                    .extras.precision.name() + ": " + Interpreter.evaluate(this
+                    .statusPrecisionFormula.getValue(), { user: user, target: target }) + "%]";
             case EffectKind.AddRemoveSkill:
-                return (this.isAddSkill ? "Add" : "Remove") + " skill " + Datas
-                    .Skills.get(this.addSkillID.getValue()).name();
-            case EffectKind.PerformSkill:
-                return "Perform skill " + Datas.Skills.get(this.performSkillID
+                return (this.isAddSkill ? Datas.Languages.extras.add.name() :
+                    Datas.Languages.extras.remove.name()) + " " + Datas.Languages
+                    .extras.skill.name() + " " + Datas.Skills.get(this.addSkillID
                     .getValue()).name();
+            case EffectKind.PerformSkill:
+                return Datas.Languages.extras.performSkill.name() + " " + Datas
+                    .Skills.get(this.performSkillID.getValue()).name();
             default:
                 return "";
         }

@@ -32,6 +32,7 @@ declare class Characteristic extends Base {
     beginEquipmentID: DynamicValue;
     beginWeaponArmorID: DynamicValue;
     isBeginWeapon: boolean;
+    elementID: DynamicValue;
     constructor(json?: Record<string, any>);
     /**
      *  Read the JSON associated to the characteristic.

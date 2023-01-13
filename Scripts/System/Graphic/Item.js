@@ -35,9 +35,11 @@ class Item extends Base {
             this.graphicCurrencies = [];
             let graphic;
             for (let id in price) {
+                let [kind, value] = price[id];
                 graphic = Graphic.TextIcon.createFromSystem(Mathf
                     .numberWithCommas(showSellPrice ? Math.round(Datas.Systems
-                    .priceSoldItem.getValue() * price[id] / 100) : price[id]), Datas.Systems.getCurrency(parseInt(id)), { align: Align
+                    .priceSoldItem.getValue() * value / 100) : value), kind === Enum.DamagesKind.Currency ? Datas.Systems
+                    .getCurrency(parseInt(id)) : null, { align: Align
                         .Right }, possible ? {} : { color: System.Color.GREY });
                 this.graphicCurrencies.push(graphic);
             }

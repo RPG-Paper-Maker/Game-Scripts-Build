@@ -12,7 +12,7 @@ import { Enum, Utils } from "../Common/index.js";
 var PictureKind = Enum.PictureKind;
 import { Base } from "./Base.js";
 import { Game } from "../Core/index.js";
-import { Datas } from "../index.js";
+import { System, Datas } from "../index.js";
 /** @class
  *  A tileset of the game.
  *  @extends System.Base
@@ -35,6 +35,7 @@ class Tileset extends Base {
     read(json) {
         this.id = json.id;
         this.picture = Datas.Pictures.get(PictureKind.Tilesets, json.pic);
+        this.battleMap = System.DynamicValue.readOrDefaultDatabase(json.bm, 1);
         // Special elements
         let jsonSpecials = json.auto;
         let l = jsonSpecials.length;

@@ -19,8 +19,9 @@ var Align = Enum.Align;
  *  @extends Scene.Base
  */
 class TitleSettings extends Base {
-    constructor() {
+    constructor(title) {
         super();
+        this.title = title;
     }
     /**
      *  Load async stuff.
@@ -36,7 +37,7 @@ class TitleSettings extends Base {
         this.windowSettings = new WindowBox(Constants.HUGE_SPACE, Constants
             .HUGE_SPACE, WindowBox.MEDIUM_SLOT_WIDTH, WindowBox
             .LARGE_SLOT_HEIGHT, {
-            content: new Graphic.Text("SETTINGS", { align: Align.Center }),
+            content: new Graphic.Text(this.title, { align: Align.Center }),
             padding: WindowBox.SMALL_SLOT_PADDING
         });
         this.windowInformations = new WindowBox(Constants.HUGE_SPACE + WindowBox

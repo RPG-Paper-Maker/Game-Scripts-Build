@@ -23,6 +23,7 @@ declare class Picture extends Base {
     width: number;
     height: number;
     isStopAnimation: boolean;
+    isClimbAnimation: boolean;
     borderLeft: number;
     borderRight: number;
     constructor(json?: Record<string, any>, kind?: PictureKind);
@@ -124,5 +125,6 @@ declare class Picture extends Base {
      *  Check the borders to cut for filled bar.
      */
     checkBarBorder(): void;
+    getSquaresClimbing(texture: number[]): [number, number][];
 }
 export { Picture };

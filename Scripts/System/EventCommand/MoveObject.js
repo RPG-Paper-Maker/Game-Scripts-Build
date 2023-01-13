@@ -320,7 +320,7 @@ class MoveObject extends Base {
             .horizontalAngle : -90.0;
         if (currentState.position === null && square) {
             currentState.position = object.getFuturPosition(orientation, Datas
-                .Systems.SQUARE_SIZE, angle);
+                .Systems.SQUARE_SIZE, angle)[0];
         }
         if (object.previousMoveCommand === null && object.previousOrientation
             === null) {
@@ -747,7 +747,11 @@ class MoveObject extends Base {
                 ];
             }
             else {
-                if (!parameters.dontChangeOrientation) {
+                if (parameters.dontChangeOrientation) {
+                    object.currentStateInstance.indexX = object.frame.value;
+                    object.currentStateInstance.indexY = object.orientation;
+                }
+                else {
                     object.currentStateInstance.indexX = parameters.indexX;
                     object.currentStateInstance.indexY = parameters.indexY;
                 }

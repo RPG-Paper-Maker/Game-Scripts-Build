@@ -31,9 +31,11 @@ class PlayerDescription extends Base {
         this.graphicNameCenter = new Graphic.Text(this.player.name, { align: Enum
                 .Align.Center });
         this.graphicName = new Graphic.Text(this.player.name);
-        this.graphicDescription = new Graphic.Text(system.description.name());
-        this.graphicClass = new Graphic.Text(cl.name(), { fontSize: Constants
-                .MEDIUM_FONT_SIZE });
+        this.graphicDescription = new Graphic.Text(system.description.name(), {
+            fontSize: Constants.MEDIUM_FONT_SIZE
+        }),
+            this.graphicClass = new Graphic.Text(cl.name(), { fontSize: Constants
+                    .MEDIUM_FONT_SIZE });
         this.graphicLevelName = new Graphic.Text(levelStat.name());
         this.graphicLevel = new Graphic.Text(Utils.numToString(player[levelStat
             .abbreviation]));
@@ -47,8 +49,6 @@ class PlayerDescription extends Base {
         // Adding stats
         this.listStatsNames = new Array;
         this.listStats = new Array;
-        this.listLength = new Array;
-        let maxLength = 0;
         let id, statistic, graphicName, txt;
         for (let i = 0, j = 0, l = Datas.BattleSystems.statisticsOrder.length; i
             < l; i++) {
@@ -61,11 +61,6 @@ class PlayerDescription extends Base {
                 }
                 graphicName = new Graphic.Text(statistic.name() + Constants
                     .STRING_COLON);
-                maxLength = Math.max(graphicName.textWidth, maxLength);
-                if (j % 7 === 6) {
-                    this.listLength.push(maxLength);
-                    maxLength = 0;
-                }
                 this.listStatsNames.push(graphicName);
                 txt = Utils.numToString(this.player[statistic.abbreviation]);
                 if (!statistic.isFix) {
@@ -76,9 +71,8 @@ class PlayerDescription extends Base {
                 j++;
             }
         }
-        this.listLength.push(maxLength);
         // Battler
-        this.battler = Datas.Pictures.getPictureCopy(Enum.PictureKind.Battlers, system.idBattler);
+        this.battler = Datas.Pictures.getPictureCopy(Enum.PictureKind.Battlers, player.getBattlerID());
         this.battlerFrame = new Frame(250, { frames: Datas.Systems.battlersFrames });
     }
     /**
@@ -227,16 +221,22 @@ class PlayerDescription extends Base {
                 ScreenResolution.getScreenMinXY(Constants.LARGE_SPACE), yExp, 0, 0);
             yDescription += ScreenResolution.getScreenMinXY(Constants.HUGE_SPACE);
         }
-        this.graphicDescription.draw(xCharacter, yDescription, 0, 0);
-        let yStats = yDescription + ScreenResolution.getScreenMinXY(30);
+        this.graphicDescription.draw(xCharacter, yDescription, ScreenResolution
+            .getScreenX(450), 0);
+        let yStats = yDescription + this.graphicDescription.textHeight +
+            ScreenResolution.getScreenMinXY(Constants.HUGE_SPACE);
         // Stats
         let xStat, yStat;
-        for (let i = 0, l = this.listStatsNames.length; i < l; i++) {
-            xStat = x + ScreenResolution.getScreenMinXY(Math.floor(i / 7) * 190);
-            yStat = yStats + ScreenResolution.getScreenMinXY((i % 7) * 30);
-            this.listStatsNames[i].draw(xStat, yStat, 0, 0);
-            this.listStats[i].draw(xStat + this.listLength[Math.floor(i / 7)] +
-                ScreenResolution.getScreenMinXY(Constants.LARGE_SPACE), yStat, 0, 0);
+        if (this.listStats.length > 0) {
+            const space = ScreenResolution.getScreenMinXY(30);
+            const rows = Math.floor((h - yStats + y) / space);
+            for (let i = 0, l = this.listStatsNames.length; i < l; i++) {
+                xStat = x + ScreenResolution.getScreenMinXY(Math.floor(i / rows) * 190);
+                yStat = yStats + ((i % rows) * space);
+                this.listStatsNames[i].draw(xStat, yStat, 0, 0);
+                this.listStats[i].draw(xStat + ScreenResolution.getScreenMinXY(80) +
+                    ScreenResolution.getScreenMinXY(Constants.LARGE_SPACE), yStat, 0, 0);
+            }
         }
     }
 }

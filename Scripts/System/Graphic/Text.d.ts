@@ -46,6 +46,7 @@ declare class Text extends Base {
     textHeight: number;
     datas: any;
     lastW: number;
+    zoom: number;
     constructor(text?: string, { x, y, w, h, align, fontSize, fontName, verticalAlign, color, bold, italic, backColor, strokeColor }?: {
         x?: number;
         y?: number;
@@ -68,6 +69,10 @@ declare class Text extends Base {
      */
     setFontSize(fontSize: number): void;
     /**
+     *  Set the final font.
+     */
+    updateFont(): void;
+    /**
      *  Set the current displayed text.
      *  @param {string} text - The new text
      */
@@ -82,10 +87,10 @@ declare class Text extends Base {
     measureText(): void;
     /**
      *  Drawing the text in choice box.
-     *  @param {number} [x=this.oX] - The x position to draw graphic
-     *  @param {number} [y=this.oY] - The y position to draw graphic
-     *  @param {number} [w=this.oW] - The width dimention to draw graphic
-     *  @param {number} [h=this.oH] - The height dimention to draw graphic
+     *  @param {number} [x=this.x] - The x position to draw graphic
+     *  @param {number} [y=this.y] - The y position to draw graphic
+     *  @param {number} [w=this.w] - The width dimention to draw graphic
+     *  @param {number} [h=this.h] - The height dimention to draw graphic
      */
     drawChoice(x?: number, y?: number, w?: number, h?: number): void;
     /**

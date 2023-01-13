@@ -23,6 +23,7 @@ interface StructMapElementCollision {
     bot?: boolean;
     a?: number;
     id?: number;
+    cl?: boolean;
 }
 /** @class
  *  An element in the map.

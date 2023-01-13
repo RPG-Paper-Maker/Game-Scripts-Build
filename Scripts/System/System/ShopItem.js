@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Datas, System } from "../index.js";
+import { Datas, Scene, System } from "../index.js";
 import { Enum, Utils } from "../Common/index.js";
-import { Game } from "../Core/index.js";
+import { Game, Player } from "../Core/index.js";
 import { Base } from "./Base.js";
 /** @class
  *  A skill learned by a player.
@@ -95,8 +95,23 @@ class ShopItem extends Base {
      */
     isPossiblePrice() {
         let price = this.getPrice();
+        let user = Scene.Map.current.user ? Scene.Map.current.user
+            .player : Player.getTemporaryPlayer();
         for (let id in price) {
-            if (Game.current.currencies[id] < price[id]) {
+            let [kind, value] = price[id];
+            let currentValue = 0;
+            switch (kind) {
+                case Enum.DamagesKind.Currency:
+                    currentValue = Game.current.currencies[id];
+                    break;
+                case Enum.DamagesKind.Stat:
+                    currentValue = user[Datas.BattleSystems.getStatistic(parseInt(id)).abbreviation];
+                    break;
+                case Enum.DamagesKind.Variable:
+                    currentValue = Game.current.getVariable(parseInt(id));
+                    break;
+            }
+            if (currentValue < value) {
                 return false;
             }
         }
@@ -109,12 +124,24 @@ class ShopItem extends Base {
      */
     getMax(initial) {
         let price = this.getPrice();
+        let user = Scene.Map.current.user ? Scene.Map.current.user.player : Player.getTemporaryPlayer();
         let max = initial;
-        let p;
         for (let id in price) {
-            p = price[id];
-            if (p !== 0) {
-                max = Math.min(max, Math.floor(Game.current.currencies[id] / p));
+            let [kind, value] = price[id];
+            let currentValue = 0;
+            switch (kind) {
+                case Enum.DamagesKind.Currency:
+                    currentValue = Game.current.currencies[id];
+                    break;
+                case Enum.DamagesKind.Stat:
+                    currentValue = user[Datas.BattleSystems.getStatistic(parseInt(id)).abbreviation];
+                    break;
+                case Enum.DamagesKind.Variable:
+                    currentValue = Game.current.getVariable(parseInt(id));
+                    break;
+            }
+            if (value !== 0) {
+                max = Math.min(max, Math.floor(currentValue / value));
             }
         }
         return max;

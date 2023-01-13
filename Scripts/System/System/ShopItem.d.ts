@@ -37,7 +37,7 @@ declare class ShopItem extends Base {
      *  Get the price.
      *  @returns {number}
      */
-    getPrice(): Record<string, number>;
+    getPrice(): Record<string, [Enum.DamagesKind, number]>;
     /**
      *  Get the initial stock.
      *  @returns {number}

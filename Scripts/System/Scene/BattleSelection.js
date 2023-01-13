@@ -58,7 +58,7 @@ class BattleSelection {
             return;
         }
         this.battle.battleCommandKind = EffectSpecialActionKind.None;
-        this.battle.windowTopInformations.content.setText("Select an ally");
+        this.battle.windowTopInformations.content.setText(Datas.Languages.extras.selectAnAlly.name());
         this.battle.selectedUserIndex = this.selectFirstIndex(CharacterKind.Hero, 0);
         this.battle.kindSelection = CharacterKind.Hero;
         this.battle.userTarget = false;
@@ -402,14 +402,16 @@ class BattleSelection {
      */
     onTargetsSelected() {
         this.battle.skill = null;
-        let player = this.battle.battlers[this.battle.kindSelection];
+        let battlers = this.battle.battlers[this.battle.kindSelection];
         if (this.battle.all) {
-            for (let i = 0, l = player.length; i < l; i++) {
-                this.battle.targets.push(player[i]);
+            for (let battler of battlers) {
+                if (!battler.hidden) {
+                    this.battle.targets.push(battler);
+                }
             }
         }
         else {
-            this.battle.targets.push(player[this.selectedUserTargetIndex()]);
+            this.battle.targets.push(battlers[this.selectedUserTargetIndex()]);
         }
         this.battle.windowChoicesBattleCommands.unselect();
         this.battle.changeStep(BattleStep.Animation);
@@ -610,15 +612,14 @@ class BattleSelection {
                 .updateReverse(false);
         }
         // Arrows
-        let player = this.battle.battlers[this.battle.kindSelection];
+        let battlers = this.battle.battlers[this.battle.kindSelection];
         if (this.battle.all) {
-            for (let i = 0, l = player.length; i < l; i++) {
-                player[i].drawArrow();
+            for (let battler of battlers) {
+                battler.drawArrow();
             }
         }
         else {
-            player[this.selectedUserTargetIndex()]
-                .drawArrow();
+            battlers[this.selectedUserTargetIndex()].drawArrow();
         }
         // Commands
         if (this.battle.subStep === 1) {

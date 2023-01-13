@@ -29,11 +29,21 @@ class Cost extends Base {
      */
     static getPrice(list) {
         let price = {};
-        let cost;
+        let cost, value;
         for (let i = 0, l = list.length; i < l; i++) {
             cost = list[i];
-            price[cost.currencyID.getValue()] = Interpreter.evaluate(cost
-                .valueFormula.getValue());
+            value = [cost.kind, Interpreter.evaluate(cost.valueFormula.getValue())];
+            switch (cost.kind) {
+                case DamagesKind.Stat:
+                    price[cost.statisticID.getValue()] = value;
+                    break;
+                case DamagesKind.Currency:
+                    price[cost.currencyID.getValue()] = value;
+                    break;
+                case DamagesKind.Variable:
+                    price[cost.variableID] = value;
+                    break;
+            }
         }
         return price;
     }

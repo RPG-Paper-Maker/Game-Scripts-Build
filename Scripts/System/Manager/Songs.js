@@ -38,6 +38,7 @@ class Songs {
         this.current[SongKind.Music] = null;
         this.current[SongKind.BackgroundSound] = null;
         this.current[SongKind.MusicEffect] = null;
+        this.currentSounds = [];
     }
     /**
      *  Play a music.
@@ -86,16 +87,18 @@ class Songs {
      *  @param {SongKind} kind - The kind of song to stop
      *  @param {number} time - The date seconds value in the first call of stop
      *  @param {number} seconds - The seconds needed for entirely stop the song
+     *  @param {number} id - For sounds only, to know which sound should be stopped
      *  @param {boolean} pause - Indicates if the song needs to be paused instead
      *  of stoppped
      *  @returns {boolean} Indicates if the song is stopped
      */
-    static stopSong(kind, time, seconds, pause = false) {
+    static stopSong(kind, time, seconds, id = -1, pause = false) {
         System.PlaySong.currentPlayingMusic = new System.PlaySong(SongKind.Music);
         let current = new Date().getTime();
         let ellapsedTime = current - time;
-        let currentHowl = this.current[kind];
-        if (currentHowl === null) {
+        let currentHowl = kind === SongKind.Sound ? this.currentSounds[id] : this
+            .current[kind];
+        if (!currentHowl) {
             return true;
         }
         if (ellapsedTime >= (seconds * 1000)) {
@@ -157,6 +160,7 @@ class Songs {
                 src: [sound.getPath()],
                 volume: volume
             });
+            this.currentSounds[id] = howl;
             howl.play();
         }
     }
@@ -182,7 +186,7 @@ class Songs {
             this.musicEffectStep++;
         }
         if (this.musicEffectStep === 1) {
-            if (this.stopSong(SongKind.Music, currentState.timeStop, 0, true)) {
+            if (this.stopSong(SongKind.Music, currentState.timeStop, 0, -1, true)) {
                 this.musicEffectStep++;
             }
         }
@@ -235,7 +239,7 @@ class Songs {
      */
     static stopMusic(time) {
         this.isMusicNone = true;
-        this.stopSong(SongKind.Music, time, 0, false);
+        this.stopSong(SongKind.Music, time, 0, -1, false);
         this.initializeProgressionMusic(this.current[SongKind.Music] ===
             null ? 0 : this.current[SongKind.Music].volume(), 0, 0, time);
     }
@@ -292,6 +296,12 @@ class Songs {
             this.current[SongKind.MusicEffect] = null;
             this.musicEffectStep = 0;
         }
+        for (let sound of this.currentSounds) {
+            if (sound) {
+                sound.stop();
+            }
+        }
+        this.currentSounds = [];
     }
 }
 Songs.musicEffectStep = 0;

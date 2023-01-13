@@ -214,6 +214,7 @@ class WindowSkin extends System.Base {
      *  @param {number} y - The y position
      *  @param {number[]} rect - The source rect
      *  @param {number} zoom - The zoom to apply on damages
+     *  @returns {[number, number]} The x offset and height for after damages
      */
     drawDamagesNumber(damage, x, y, rect, zoom) {
         let digits = Utils.numToString(damage).split("").map(Number);
@@ -226,6 +227,8 @@ class WindowSkin extends System.Base {
                 sw: width, sh: height, positionResize: false });
         }
         this.picture.stretch = true;
+        return [x + ((digits.length - ((digits.length - 1) / 2)) * (ScreenResolution
+                .getScreenMinXY(width) * zoom)), height * zoom];
     }
     /**
      *  Draw a damage number according to the kind of damages.
@@ -235,20 +238,22 @@ class WindowSkin extends System.Base {
      *  @param {boolean} isCrit - Indicate if the damages are a critical hit
      *  @param {boolean} isMiss - Indicate if the damages are a missed hit
      *  @param {number} zoom - The zoom to apply on damages
+     *  @returns {[number, number]} The x offset and height for after damages
      */
     drawDamages(damage, x, y, isCrit, isMiss, zoom) {
         if (isMiss) {
             this.drawElement(this.textMiss, x - ScreenResolution.getScreenX(this
                 .textMiss[2] / 2), y, this.textMiss[2], this.textMiss[3], zoom, false);
+            return null;
         }
         else if (damage < 0) {
-            this.drawDamagesNumber(damage, x, y, this.textHeal, zoom);
+            return this.drawDamagesNumber(damage, x, y, this.textHeal, zoom);
         }
         else if (isCrit) {
-            this.drawDamagesNumber(damage, x, y, this.textCritical, zoom);
+            return this.drawDamagesNumber(damage, x, y, this.textCritical, zoom);
         }
         else {
-            this.drawDamagesNumber(damage, x, y, this.textNormal, zoom);
+            return this.drawDamagesNumber(damage, x, y, this.textNormal, zoom);
         }
     }
 }

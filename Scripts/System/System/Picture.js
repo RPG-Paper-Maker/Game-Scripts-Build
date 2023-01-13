@@ -145,6 +145,7 @@ class Picture extends Base {
         this.jsonCollisions = Utils.defaultValue(json.col, []);
         this.collisionsRepeat = Utils.defaultValue(json.rcol, false);
         this.isStopAnimation = Utils.defaultValue(json.isStopAnimation, false);
+        this.isClimbAnimation = Utils.defaultValue(json.ica, false);
     }
     /**
      *  Read the JSON associated to the picture.
@@ -163,7 +164,7 @@ class Picture extends Base {
     getRows() {
         switch (this.kind) {
             case Enum.PictureKind.Characters:
-                return 4 + (this.isStopAnimation ? 4 : 0);
+                return 4 + (this.isStopAnimation ? 4 : 0) + (this.isClimbAnimation ? 4 : 0);
             default:
                 return 1;
         }
@@ -370,6 +371,21 @@ class Picture extends Base {
             }
             this.borderRight = this.picture.image.width - x - 1;
         }
+    }
+    getSquaresClimbing(texture) {
+        const w = texture[2];
+        const h = texture[3];
+        const squares = [];
+        let square, x, y;
+        for (let i = 0, l = w * h; i < l; i++) {
+            x = i % w;
+            y = Math.floor(i / w);
+            square = this.getCollisionAtPos(texture[0] + x, texture[1] + y);
+            if (square !== null && square.climbing) {
+                squares.push([x, y]);
+            }
+        }
+        return squares;
     }
 }
 export { Picture };

@@ -21,8 +21,9 @@ var AvailableKind = Enum.AvailableKind;
  *  @extends Scene.Base
  */
 class MenuSkills extends Base {
-    constructor() {
+    constructor(title) {
         super(false);
+        this.title = title;
         // Tab heroes
         let nbHeroes = Game.current.teamHeroes.length;
         let listHeroes = new Array(nbHeroes);
@@ -37,7 +38,7 @@ class MenuSkills extends Base {
         }
         // All the windows
         this.windowTop = new WindowBox(20, 20, 200, 30, {
-            content: new Graphic.Text("Skills", { align: Align.Center })
+            content: new Graphic.Text(this.title, { align: Align.Center })
         });
         this.windowChoicesTabs = new WindowChoices(50, 60, 110, WindowBox
             .SMALL_SLOT_HEIGHT, listHeroes, {
@@ -48,7 +49,7 @@ class MenuSkills extends Base {
         this.createWindowChoicesList();
         this.createWindowBoxInformation();
         this.windowEmpty = new WindowBox(10, 100, ScreenResolution.SCREEN_X - 20, WindowBox.SMALL_SLOT_HEIGHT, {
-            content: new Graphic.Text("Empty", { align: Align.Center }),
+            content: new Graphic.Text(Datas.Languages.extras.empty.name(), { align: Align.Center }),
             padding: WindowBox.SMALL_SLOT_PADDING
         });
         this.windowBoxUseSkill = new WindowBox(240, 320, 360, 140, {

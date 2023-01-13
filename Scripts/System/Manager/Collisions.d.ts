@@ -1,3 +1,4 @@
+import { Enum } from "../Common/index.js";
 import { MapObject, Position, MapPortion, StructMapElementCollision, Vector3, CustomGeometry } from "../Core/index.js";
 /** @class
  *  The collisions manager.
@@ -95,7 +96,7 @@ declare class Collisions {
      *  @param {MapObject} object - The map object to test collision
      *  @returns {boolean}
      */
-    static checkRay(positionBefore: Vector3, positionAfter: Vector3, object: MapObject): [boolean, number];
+    static checkRay(positionBefore: Vector3, positionAfter: Vector3, object: MapObject, bbSettings: number[]): [boolean, number, Enum.Orientation];
     /**
      *  Check if there is a collision at this position.
      *  @static
@@ -109,7 +110,7 @@ declare class Collisions {
      *  collisions that were already tested
      *  @returns {boolean}
      */
-    static check(mapPortion: MapPortion, jpositionBefore: Position, jpositionAfter: Position, positionAfter: Vector3, object: MapObject, direction: Vector3, testedCollisions: StructMapElementCollision[]): [boolean, number];
+    static check(mapPortion: MapPortion, jpositionBefore: Position, jpositionAfter: Position, positionAfter: Vector3, object: MapObject, direction: Vector3, testedCollisions: StructMapElementCollision[]): [boolean, number, Enum.Orientation];
     /**
      *  Check if there is a collision with lands at this position.
      *  @static
@@ -174,7 +175,7 @@ declare class Collisions {
      *  @param {MapObject} object - The map object collision test
      *  @returns {boolean}
     */
-    static checkSprites(mapPortion: MapPortion, jpositionAfter: Position, testedCollisions: StructMapElementCollision[], object: MapObject): boolean;
+    static checkSprites(mapPortion: MapPortion, jpositionAfter: Position, testedCollisions: StructMapElementCollision[], object: MapObject): [boolean, number, Enum.Orientation];
     /**
      *  Check intersection between ray and an object.
      *  @static

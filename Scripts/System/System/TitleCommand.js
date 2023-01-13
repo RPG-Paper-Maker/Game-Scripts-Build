@@ -45,7 +45,10 @@ class TitleCommand extends Translatable {
             case TitleCommandKind.LoadGame:
                 return TitleCommand.loadGame;
             case TitleCommandKind.Settings:
-                return TitleCommand.showSettings;
+                const name = this.name();
+                return () => {
+                    return TitleCommand.showSettings(name);
+                };
             case TitleCommandKind.Exit:
                 return TitleCommand.exit;
             case TitleCommandKind.Script:
@@ -81,8 +84,8 @@ class TitleCommand extends Translatable {
      *  Callback function for loading an existing game.
      *   @returns {boolean}
      */
-    static showSettings() {
-        Manager.Stack.push(new Scene.TitleSettings());
+    static showSettings(title) {
+        Manager.Stack.push(new Scene.TitleSettings(title));
         return true;
     }
     /**

@@ -14,7 +14,8 @@ declare class MenuInventory extends Base {
     windowBoxUseItem: WindowBox;
     positionChoice: StructPositionChoice[];
     substep: number;
-    constructor();
+    title: string;
+    constructor(title: string);
     /**
      *  Create the choice list.
      */

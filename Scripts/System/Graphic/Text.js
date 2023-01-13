@@ -46,6 +46,7 @@ class Text extends Base {
         .v_tcText, System.Color.WHITE), bold = false, italic = false, backColor = Utils.defaultValue(Datas.Systems.dbOptions.v_tcBackground, null), strokeColor = Utils.defaultValue(Datas.Systems.dbOptions.tOutline, false) ? Utils.defaultValue(Datas.Systems.dbOptions.v_tcOutline, null) : null } = {}) {
         super(x, y, w, h);
         this.lastW = 0;
+        this.zoom = 1;
         this.align = align;
         this.fontName = fontName;
         this.verticalAlign = verticalAlign;
@@ -100,6 +101,12 @@ class Text extends Base {
     setFontSize(fontSize) {
         this.oFontSize = fontSize;
         this.fontSize = ScreenResolution.getScreenMinXY(fontSize);
+        this.updateFont();
+    }
+    /**
+     *  Set the final font.
+     */
+    updateFont() {
         this.font = Utils.createFont(this.fontSize, this.fontName, this.bold, this.italic);
     }
     /**
@@ -136,24 +143,29 @@ class Text extends Base {
                 this.textWidth = size;
             }
         }
-        this.textHeight = (this.fontSize + (this.fontSize / 3)) * l;
+        this.textHeight = this.fontSize * 2 * l;
     }
     /**
      *  Drawing the text in choice box.
-     *  @param {number} [x=this.oX] - The x position to draw graphic
-     *  @param {number} [y=this.oY] - The y position to draw graphic
-     *  @param {number} [w=this.oW] - The width dimention to draw graphic
-     *  @param {number} [h=this.oH] - The height dimention to draw graphic
+     *  @param {number} [x=this.x] - The x position to draw graphic
+     *  @param {number} [y=this.y] - The y position to draw graphic
+     *  @param {number} [w=this.w] - The width dimention to draw graphic
+     *  @param {number} [h=this.h] - The height dimention to draw graphic
      */
     drawChoice(x = this.x, y = this.y, w = this.w, h = this.h) {
-        this.updateContextFont();
+        // Correcting x and y according to alignment
+        let xBack = x;
+        if (this.zoom !== 1) {
+            this.fontSize *= this.zoom;
+            this.updateFont();
+            this.measureText();
+        }
         // Wrap text if != 0
         if (this.lastW !== w && w !== 0) {
             this.lastW = w;
+            this.updateContextFont();
             this.wrapText(w);
         }
-        // Correcting x and y according to alignment
-        let xBack = x;
         let textWidth = this.textWidth;
         let textHeight = this.fontSize + ScreenResolution.getScreenMinXY(this
             .strokeColor === null ? 0 : 2);
@@ -210,6 +222,11 @@ class Text extends Base {
         for (i = 0; i < l; i++) {
             Platform.ctx.fillText(this.lines[i], x, y + yOffset);
             yOffset += lineHeight;
+        }
+        // Fix font back
+        if (this.zoom !== 1) {
+            this.setFontSize(this.oFontSize);
+            this.measureText();
         }
     }
     /**

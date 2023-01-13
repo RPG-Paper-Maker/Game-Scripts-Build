@@ -37,7 +37,7 @@ declare class TitleCommand extends Translatable {
      *  Callback function for loading an existing game.
      *   @returns {boolean}
      */
-    static showSettings(): boolean;
+    static showSettings(title: string): boolean;
     /**
      *  Callback function for closing the window.
      *  @returns {boolean}

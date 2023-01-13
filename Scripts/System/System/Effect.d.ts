@@ -31,6 +31,7 @@ declare class Effect extends Base {
     damagePrecisionFormula: System.DynamicValue;
     isDamageStockVariableID: boolean;
     damageStockVariableID: number;
+    isDamageDisplayName: boolean;
     isAddStatus: boolean;
     statusID: System.DynamicValue;
     statusPrecisionFormula: System.DynamicValue;

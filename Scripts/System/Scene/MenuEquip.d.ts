@@ -63,13 +63,8 @@ declare class MenuEquip extends MenuBase {
      * @memberof MenuEquip
      */
     bonus: number[];
-    constructor();
-    /**
-     * @inheritdoc
-     *
-     * @memberof MenuEquip
-     */
-    create(): void;
+    title: string;
+    constructor(title: string);
     /**
      * create all the window in the scene.
      *
@@ -135,15 +130,16 @@ declare class MenuEquip extends MenuBase {
         y?: number;
     }): void;
     /**
-     * remove the selected equipment
-     *
-     * @memberof MenuEquip
+     *  Remove the selected equipment.
      */
     remove(): void;
     /**
-     * equip the selected equipment
-     *
-     * @memberof MenuEquip
+     *  Remove an equipment according to ID.
+     *  @param {number} id
+     */
+    removeAnEquipment(id: number): void;
+    /**
+     *  Equip the selected equipment.
      */
     equip(): void;
     /**

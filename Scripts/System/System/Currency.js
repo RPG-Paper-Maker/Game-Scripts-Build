@@ -8,6 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { System } from "../index.js";
 import { Icon } from "./Icon.js";
 /** @class
  *  A currency of the game.
@@ -18,6 +19,14 @@ import { Icon } from "./Icon.js";
 class Currency extends Icon {
     constructor(json) {
         super(json);
+    }
+    /**
+     *  Read the JSON associated to the cost.
+     *  @param {Record<string, any>} - json Json object describing the cost
+     */
+    read(json) {
+        super.read(json);
+        this.displayInMenu = System.DynamicValue.readOrDefaultSwitch(json.dim, true);
     }
 }
 export { Currency };

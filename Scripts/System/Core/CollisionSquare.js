@@ -21,6 +21,7 @@ class CollisionSquare {
         this.top = true;
         this.bot = true;
         this.terrain = 0;
+        this.climbing = false;
     }
     /**
      *  Union of the collision squares.
@@ -147,6 +148,7 @@ class CollisionSquare {
         this.top = Utils.defaultValue(json.t, true);
         this.bot = Utils.defaultValue(json.b, true);
         this.terrain = Utils.defaultValue(json.terrain, 0);
+        this.climbing = Utils.defaultValue(json.c, false);
         if (!Utils.isUndefined(rect)) {
             this.rect = rect === null ? null : [Math.round(rect[0] * Datas
                     .Systems.SQUARE_SIZE / 100), Math.round(rect[1] * Datas.Systems

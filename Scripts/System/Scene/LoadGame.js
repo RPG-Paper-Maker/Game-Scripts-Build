@@ -27,7 +27,8 @@ class LoadGame extends SaveLoadGame {
      */
     async load() {
         await super.load();
-        this.setContents(new Graphic.Text("Load a game", { align: Align.Center }), new Graphic.Text("Select a slot you want to load.", { align: Align.Center }));
+        this.setContents(new Graphic.Text(Datas.Languages.extras.loadAGame.name(), { align: Align.Center }), new Graphic.Text(Datas.Languages.extras
+            .loadAGameDescription.name(), { align: Align.Center }));
         if (Datas.TitlescreenGameover.isTitleBackgroundImage) {
             this.pictureBackground = await Picture2D.createWithID(Datas
                 .TitlescreenGameover.titleBackgroundImageID, PictureKind

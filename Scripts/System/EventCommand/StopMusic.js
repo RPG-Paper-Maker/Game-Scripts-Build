@@ -20,7 +20,7 @@ var SongKind = Enum.SongKind;
 class StopMusic extends Base {
     constructor(command) {
         super();
-        EventCommand.StopMusic.parseStopSong(this, command);
+        EventCommand.StopMusic.parseStopSong(this, command, Enum.SongKind.Music);
         this.parallel = true;
     }
     /**
@@ -29,11 +29,14 @@ class StopMusic extends Base {
      *  @param {any} that - The event command to parse
      *  @param {any[]} command - Direct JSON command to parse
      */
-    static parseStopSong(that, command) {
+    static parseStopSong(that, command, kind) {
         let iterator = {
             i: 0
         };
         that.seconds = System.DynamicValue.createValueCommand(command, iterator);
+        if (kind === Enum.SongKind.Sound) {
+            that.soundID = System.DynamicValue.createValueCommand(command, iterator);
+        }
     }
     /**
      *  Stop the song.
@@ -43,8 +46,8 @@ class StopMusic extends Base {
      *  @param {number} time - The date seconds value in the first call of stop
      */
     static stopSong(that, kind, time) {
-        return Manager.Songs.stopSong(kind, time, that.seconds.getValue()) ? 1 :
-            0;
+        return Manager.Songs.stopSong(kind, time, that.seconds.getValue(), kind
+            === Enum.SongKind.Sound ? that.soundID.getValue() : -1) ? 1 : 0;
     }
     /**
      *  Initialize the current state.

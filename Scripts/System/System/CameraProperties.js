@@ -20,7 +20,7 @@ import { Datas } from "../index.js";
  *  @param {Record<string, any>} - [json=undefined] Json object describing the
  *  camera properties
  */
-export class CameraProperties extends Base {
+class CameraProperties extends Base {
     constructor(json) {
         super(json);
     }
@@ -42,18 +42,26 @@ export class CameraProperties extends Base {
         this.fov = DynamicValue.readOrDefaultNumberDouble(json.fov, 45);
         this.near = DynamicValue.readOrDefaultNumberDouble(json.n, 1);
         this.far = DynamicValue.readOrDefaultNumberDouble(json.f, 100000);
+        this.orthographic = Utils.defaultValue(json.o, false);
     }
     /**
      *  Initialize a camera according this System properties
      *  @param {Camera} camera - The camera
      */
     initializeCamera(camera) {
-        camera.isPerspective = true;
-        camera.perspectiveCamera = new THREE.PerspectiveCamera(this.fov
-            .getValue(), ScreenResolution.CANVAS_WIDTH / ScreenResolution
-            .CANVAS_HEIGHT, this.near.getValue(), this.far.getValue());
+        camera.isPerspective = !this.orthographic;
         camera.distance = this.distance.getValue() * (Datas.Systems.SQUARE_SIZE
             / Constants.BASIC_SQUARE_SIZE);
+        if (camera.isPerspective) {
+            camera.perspectiveCamera = new THREE.PerspectiveCamera(this.fov
+                .getValue(), ScreenResolution.CANVAS_WIDTH / ScreenResolution
+                .CANVAS_HEIGHT, this.near.getValue(), this.far.getValue());
+        }
+        else {
+            let x = ScreenResolution.CANVAS_WIDTH * (camera.distance / 1000);
+            let y = ScreenResolution.CANVAS_HEIGHT * (camera.distance / 1000);
+            camera.orthographicCamera = new THREE.OrthographicCamera(-x, x, y, -y, -this.far.getValue(), this.far.getValue());
+        }
         camera.horizontalAngle = this.horizontalAngle.getValue();
         camera.verticalAngle = this.verticalAngle.getValue();
         camera.targetPosition = new Vector3();
@@ -72,3 +80,4 @@ export class CameraProperties extends Base {
         camera.targetOffset = new Vector3(x, y, z);
     }
 }
+export { CameraProperties };
