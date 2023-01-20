@@ -55,6 +55,13 @@ export declare class CustomGeometry extends THREE.BufferGeometry {
      */
     getNormals(): ArrayLike<number>;
     /**
+     *  Rotate all the vertices around a specified center Y.
+     *  @param {number} angle
+     *  @param {THREE.Vector3} axis
+     *  @param {THREE.Vector3} center
+     */
+    rotate(angle: number, axis: Vector3, center: Vector3): void;
+    /**
      *  Push vertices for triangle geometries.
      *  @param {Core.Vector3} vecA
      *  @param {Core.Vector3} vecB

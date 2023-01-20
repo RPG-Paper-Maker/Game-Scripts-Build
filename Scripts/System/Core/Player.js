@@ -624,9 +624,9 @@ class Player {
             this.expList[i] = json.exp[i];
         }
         // Faceset and battler
-        this.facesetID = json.face;
-        this.facesetIndexX = json.faceX;
-        this.facesetIndexY = json.faceY;
+        this.facesetID = Utils.defaultValue(json.face, null);
+        this.facesetIndexX = Utils.defaultValue(json.faceX, null);
+        this.facesetIndexY = Utils.defaultValue(json.faceY, null);
         this.battlerID = json.battler;
         this.updateAllStatsValues();
     }
@@ -772,9 +772,7 @@ class Player {
      */
     pauseExperience() {
         this.totalTimeXP -= new Date().getTime() - this.timeXP;
-        if (this.totalTimeXP < 0) {
-            this.totalTimeXP = 0;
-        }
+        this.remainingXP -= this.obtainedXP;
         this.obtainedXP = 0;
     }
     /**
@@ -1027,7 +1025,15 @@ class Player {
      *  @returns {System.Characteristic[]}
      */
     getCharacteristics() {
-        return this.system.getCharacteristics(this.changedClass);
+        let characteristics = this.system.getCharacteristics(this.changedClass);
+        // Also add weapons and armors
+        for (let equipment of this.equip) {
+            if (equipment) {
+                characteristics = characteristics.concat(equipment
+                    .system.characteristics);
+            }
+        }
+        return characteristics;
     }
     /**
      *  Get player class (depends on if it was changed).
@@ -1075,6 +1081,36 @@ class Player {
      */
     getFacesetIndexY() {
         return this.facesetIndexY === null ? this.system.indexYFaceset : this.facesetIndexY;
+    }
+    /**
+     *  Check if player can equip this weapon or armor.
+     *  @param {Core.Item} weaponArmor
+     *  @returns {boolean}
+     */
+    canEquipWeaponArmor(weaponArmor) {
+        let characteristics = this.getCharacteristics();
+        for (let characteristic of characteristics) {
+            if (characteristic.kind === Enum.CharacteristicKind
+                .AllowForbidEquip && ((weaponArmor.kind === Enum.ItemKind
+                .Weapon && characteristic.isAllowEquipWeapon &&
+                weaponArmor.system.type === characteristic.equipWeaponTypeID
+                    .getValue()) || (weaponArmor.kind === Enum.ItemKind.Armor
+                && !characteristic.isAllowEquipWeapon &&
+                weaponArmor.system.type === characteristic.equipArmorTypeID
+                    .getValue())) && !characteristic.isAllowEquip) {
+                return false;
+            }
+            if (characteristic.kind === Enum.CharacteristicKind.AllowForbidChange
+                && !characteristic.isAllowChangeEquipment) {
+                let type = weaponArmor.kind === Enum.ItemKind.Weapon ? Datas
+                    .BattleSystems.getWeaponKind(weaponArmor.system.type) : Datas
+                    .BattleSystems.getArmorKind(weaponArmor.system.type);
+                if (type.equipments[characteristic.changeEquipmentID.getValue()]) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }
 Player.MAX_STATUS_DISPLAY_TOP = 3;

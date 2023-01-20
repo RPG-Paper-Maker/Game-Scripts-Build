@@ -91,6 +91,10 @@ declare class Map extends Base {
      */
     loadTextures(): Promise<void>;
     /**
+     *  Update shaders for autotiles.
+     */
+    updateTexturesShaders(): void;
+    /**
      *  Load the collisions settings.
      */
     loadCollisions(): void;

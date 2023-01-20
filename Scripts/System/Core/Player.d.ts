@@ -329,5 +329,11 @@ declare class Player {
      *  @returns {number}
      */
     getFacesetIndexY(): number;
+    /**
+     *  Check if player can equip this weapon or armor.
+     *  @param {Core.Item} weaponArmor
+     *  @returns {boolean}
+     */
+    canEquipWeaponArmor(weaponArmor: Item): boolean;
 }
 export { Player };

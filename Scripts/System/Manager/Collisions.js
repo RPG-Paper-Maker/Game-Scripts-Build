@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Mathf, Constants, Enum } from "../Common/index.js";
-import { MapObject, Position, Portion, Vector3, Vector2, Game, CustomGeometry } from "../Core/index.js";
+import { MapObject, Position, Portion, Vector3, Vector2, Game, CustomGeometry, Sprite } from "../Core/index.js";
 import { Datas, Scene } from "../index.js";
 var ElementMapKind = Enum.ElementMapKind;
 import { THREE } from "../Globals.js";
@@ -33,6 +33,8 @@ class Collisions {
         box['previousTranslate'] = [0, 0, 0];
         box['previousRotate'] = [0, 0, 0];
         box['previousScale'] = [1, 1, 1];
+        box['previousIsFix'] = false;
+        box['previousCenter'] = 0;
         return box;
     }
     /**
@@ -77,23 +79,40 @@ class Collisions {
      *  @param {THREE.Mesh} box - The mesh bounding box
      *  @param {number[]} boundingBox - The bounding box list parameters
      */
-    static applyBoxSpriteTransforms(box, boundingBox) {
+    static applyBoxSpriteTransforms(box, boundingBox, isFixSprite = false, center = 0) {
         // Cancel previous geometry transforms
-        box.geometry.translate(-box['previousTranslate'][0], -box['previousTranslate'][1], -box['previousTranslate'][2]);
-        box.geometry.rotateZ(-box['previousRotate'][2] * Math.PI / 180.0);
-        box.geometry.rotateX(-box['previousRotate'][1] * Math.PI / 180.0);
-        box.geometry.rotateY(-box['previousRotate'][0] * Math.PI / 180.0);
+        box.geometry.translate(-box['previousTranslate'][0], -box['previousTranslate'][1] + box['previousCenter'], -box['previousTranslate'][2]);
+        let geometry = box.geometry;
+        if (box['previousIsFix'] && (box['previousRotate'][1] !== 0 || box['previousRotate'][2] !== 0)) {
+            geometry.rotate(-box['previousRotate'][2], Sprite.Z_AXIS, new Vector3(0, box['previousCenter'], 0));
+            geometry.rotate(-box['previousRotate'][1], Sprite.X_AXIS, new Vector3(0, box['previousCenter'], 0));
+            geometry.rotate(-box['previousRotate'][0], Sprite.Y_AXIS, new Vector3(0, box['previousCenter'], 0));
+        }
+        else {
+            box.geometry.rotateZ(-box['previousRotate'][2] * Math.PI / 180.0);
+            box.geometry.rotateX(-box['previousRotate'][1] * Math.PI / 180.0);
+            box.geometry.rotateY(-box['previousRotate'][0] * Math.PI / 180.0);
+        }
         box.geometry.scale(1 / box['previousScale'][0], 1 / box['previousScale'][1], 1 / box['previousScale'][2]);
         // Update to the new ones
         box.geometry.scale(boundingBox[3], boundingBox[4], boundingBox[5]);
-        box.geometry.rotateY(boundingBox[6] * Math.PI / 180.0);
-        box.geometry.rotateX(boundingBox[7] * Math.PI / 180.0);
-        box.geometry.rotateZ(boundingBox[8] * Math.PI / 180.0);
-        box.geometry.translate(boundingBox[0], boundingBox[1], boundingBox[2]);
+        if (isFixSprite && (boundingBox[7] !== 0 || boundingBox[8] !== 0)) {
+            geometry.rotate(boundingBox[6], Sprite.Y_AXIS, new Vector3(0, center, 0));
+            geometry.rotate(boundingBox[7], Sprite.X_AXIS, new Vector3(0, center, 0));
+            geometry.rotate(boundingBox[8], Sprite.Z_AXIS, new Vector3(0, center, 0));
+        }
+        else {
+            box.geometry.rotateY(boundingBox[6] * Math.PI / 180.0);
+            box.geometry.rotateX(boundingBox[7] * Math.PI / 180.0);
+            box.geometry.rotateZ(boundingBox[8] * Math.PI / 180.0);
+        }
+        box.geometry.translate(boundingBox[0], boundingBox[1] - center, boundingBox[2]);
         // Register previous transforms to current
         box['previousTranslate'] = [boundingBox[0], boundingBox[1], boundingBox[2]];
         box['previousRotate'] = [boundingBox[6], boundingBox[7], boundingBox[8]];
         box['previousScale'] = [boundingBox[3], boundingBox[4], boundingBox[5]];
+        box['previousIsFix'] = isFixSprite;
+        box['previousCenter'] = center;
         // Update geometry now
         box.updateMatrixWorld();
     }
@@ -740,7 +759,7 @@ class Collisions {
             return false;
         }
         if (fix) {
-            this.applyBoxSpriteTransforms(this.BB_BOX, boundingBox);
+            this.applyBoxSpriteTransforms(this.BB_BOX, boundingBox, true);
             return this.obbVSobb(object.currentBoundingBox
                 .geometry, this.BB_BOX.geometry);
         }

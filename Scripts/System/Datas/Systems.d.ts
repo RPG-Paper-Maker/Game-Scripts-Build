@@ -53,6 +53,9 @@ declare class Systems {
     static saveSlots: number;
     static modelHero: MapObject;
     static ignoreAssetsLoadingErrors: boolean;
+    static windowWidth: number;
+    static windowHeight: number;
+    static isScreenWindow: boolean;
     constructor();
     /**
      *  Read the JSON file associated to System.
@@ -159,5 +162,18 @@ declare class Systems {
      *  @returns {SystemWindowSkin}
      */
     static getCurrentWindowSkin(): System.WindowSkin;
+    /**
+     *  Update the window size and all the canvas sizes.
+     *  @static
+     *  @param {number} w
+     *  @param {number} h
+     *  @param {boolean} fullscreen
+     */
+    static updateWindowSize(w: number, h: number, fullscreen: boolean): void;
+    /**
+     *  Switch between window and fullscreen.
+     *  @static
+     */
+    static switchFullscreen(): void;
 }
 export { Systems };

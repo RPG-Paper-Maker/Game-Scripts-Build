@@ -4,6 +4,11 @@ import { StructPositionChoice } from "./Menu.js";
 import { MenuBase } from "./MenuBase.js";
 /**
  * The scene handling and processing the shop system.
+ * STEP 0 => Buy or sell?
+ * STEP 1 => Selection of item
+ * STEP 2 => Selection of number (spinbox)
+ * STEP 3 => Selection of ally
+ * STEP 4 => Confirmation of equip
  * @class
  * @extends {MenuBase}
  */

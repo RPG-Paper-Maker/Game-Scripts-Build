@@ -39,7 +39,7 @@ declare class Collisions {
      *  @param {THREE.Mesh} box - The mesh bounding box
      *  @param {number[]} boundingBox - The bounding box list parameters
      */
-    static applyBoxSpriteTransforms(box: THREE.Mesh, boundingBox: number[]): void;
+    static applyBoxSpriteTransforms(box: THREE.Mesh, boundingBox: number[], isFixSprite?: boolean, center?: number): void;
     /**
      *  Apply transform for oriented bounding box.
      *  @static

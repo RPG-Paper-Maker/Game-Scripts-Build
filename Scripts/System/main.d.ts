@@ -5,11 +5,14 @@
  * @class Main
  */
 export declare class Main {
+    static clock: import("three").Clock;
+    static clockFPS: import("three").Clock;
+    static delta: number;
+    static maxFPS: number;
+    static FPS: number;
     static loaded: boolean;
     static frames: number;
-    static firstTime: number;
     static time: number;
-    static FPS: number;
     constructor();
     static initialize(): Promise<void>;
     /**

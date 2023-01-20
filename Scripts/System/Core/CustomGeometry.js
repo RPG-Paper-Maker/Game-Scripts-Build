@@ -9,6 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { THREE } from "../Globals.js";
+import { Sprite } from "./Sprite.js";
 import { Vector3 } from "./Vector3.js";
 /**
  *  The geometry used to apply vertices + indices + uvs.
@@ -111,6 +112,21 @@ export class CustomGeometry extends THREE.BufferGeometry {
      */
     getNormals() {
         return this.getAttribute('normal').array;
+    }
+    /**
+     *  Rotate all the vertices around a specified center Y.
+     *  @param {number} angle
+     *  @param {THREE.Vector3} axis
+     *  @param {THREE.Vector3} center
+     */
+    rotate(angle, axis, center) {
+        for (let vertex of this.getVerticesVectors()) {
+            Sprite.rotateVertex(vertex, center, angle, axis);
+            this.b_vertices.push(vertex.x, vertex.y, vertex.z);
+        }
+        this.setAttribute('position', new THREE.Float32BufferAttribute(this
+            .b_vertices, 3));
+        this.b_vertices = [];
     }
     /**
      *  Push vertices for triangle geometries.

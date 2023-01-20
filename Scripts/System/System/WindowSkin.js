@@ -244,7 +244,7 @@ class WindowSkin extends System.Base {
         if (isMiss) {
             this.drawElement(this.textMiss, x - ScreenResolution.getScreenX(this
                 .textMiss[2] / 2), y, this.textMiss[2], this.textMiss[3], zoom, false);
-            return null;
+            return [0, 0];
         }
         else if (damage < 0) {
             return this.drawDamagesNumber(damage, x, y, this.textHeal, zoom);

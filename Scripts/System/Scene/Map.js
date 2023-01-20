@@ -222,7 +222,12 @@ class Map extends Base {
         this.texturesMountains = await tileset.getTexturesMountains();
         this.texturesObjects3D = await tileset.getTexturesObjects3D();
         this.texturesCharacters = Datas.Tilesets.texturesCharacters;
-        // Update shaders for autotiles
+        this.updateTexturesShaders();
+    }
+    /**
+     *  Update shaders for autotiles.
+     */
+    updateTexturesShaders() {
         for (let list of this.texturesAutotiles) {
             if (list) {
                 for (let texture of list) {

@@ -1,6 +1,6 @@
 import { Base } from "./Base.js";
 import { Graphic, System } from "../index.js";
-import { Player } from "../Core/index.js";
+import { Item, Player } from "../Core/index.js";
 /** @class
  *  The graphic displaying a skill or an item use.
  *  @extends Graphic.Base
@@ -56,6 +56,7 @@ declare class UseSkillItem extends Base {
      *  Update stat short to none.
      */
     updateStatShortNone(): void;
+    updateGraphicCharactersEquip(equip: Item): void;
     /**
      *  A widget move.
      *  @param {boolean} isKey

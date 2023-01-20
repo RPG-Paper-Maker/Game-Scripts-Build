@@ -56,13 +56,15 @@ class GL {
      *  @static
      */
     static resize() {
-        this.renderer.setSize(ScreenResolution.CANVAS_WIDTH, ScreenResolution
-            .CANVAS_HEIGHT, true);
-        let camera;
-        for (let i = 0, l = Stack.content.length; i < l; i++) {
-            camera = Stack.content[i].camera;
-            if (!Utils.isUndefined(camera)) {
-                camera.resizeGL();
+        if (this.renderer) {
+            this.renderer.setSize(ScreenResolution.CANVAS_WIDTH, ScreenResolution
+                .CANVAS_HEIGHT, true);
+            let camera;
+            for (let i = 0, l = Stack.content.length; i < l; i++) {
+                camera = Stack.content[i].camera;
+                if (!Utils.isUndefined(camera)) {
+                    camera.resizeGL();
+                }
             }
         }
     }

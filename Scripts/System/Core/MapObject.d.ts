@@ -62,6 +62,9 @@ declare class MapObject {
     isOrientationStopWalk: boolean;
     currentOrientationClimbing: boolean;
     terrain: number;
+    currentCenterOffset: THREE.Vector3;
+    currentAngle: THREE.Vector3;
+    currentScale: THREE.Vector3;
     constructor(system: System.MapObject, position?: Vector3, isHero?: boolean);
     /**
      *  Search an object in the map.

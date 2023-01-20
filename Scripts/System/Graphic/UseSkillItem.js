@@ -19,13 +19,7 @@ import { Battler, Game } from "../Core/index.js";
 class UseSkillItem extends Base {
     constructor({ hideArrow = false } = {}) {
         super();
-        this.graphicCharacters = new Array;
-        let player;
-        for (let i = 0, l = Game.current.teamHeroes.length; i < l; i++) {
-            player = new Graphic.Player(Game.current.teamHeroes[i]);
-            player.initializeCharacter(true);
-            this.graphicCharacters.push(player);
-        }
+        this.updateGraphicCharactersEquip(null);
         this.hideArrow = hideArrow;
     }
     /**
@@ -116,6 +110,21 @@ class UseSkillItem extends Base {
             this.graphicCharacters[i].updateStatShortNone();
         }
     }
+    updateGraphicCharactersEquip(equip) {
+        this.graphicCharacters = [];
+        let graphicPlayer, isPossible;
+        for (let player of Game.current.teamHeroes) {
+            isPossible = true;
+            if (equip !== null) {
+                isPossible = player.canEquipWeaponArmor(equip);
+            }
+            if (isPossible) {
+                graphicPlayer = new Graphic.Player(player);
+                graphicPlayer.initializeCharacter(true);
+                this.graphicCharacters.push(graphicPlayer);
+            }
+        }
+    }
     /**
      *  A widget move.
      *  @param {boolean} isKey
@@ -187,7 +196,7 @@ class UseSkillItem extends Base {
     drawArrowAtIndex(index, x, y, h) {
         Datas.Systems.getCurrentWindowSkin().drawArrowTarget(this
             .graphicCharacters[index].battlerFrame.value, x + ScreenResolution
-            .getScreenMinXY(32) + (index * 85), y + h - ScreenResolution
+            .getScreenMinXY(32 + (index * 85)), y + h - ScreenResolution
             .getScreenMinXY(20));
     }
     /**

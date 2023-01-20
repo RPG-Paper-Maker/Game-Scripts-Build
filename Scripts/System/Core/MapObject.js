@@ -29,7 +29,6 @@ import { Object3DCustom } from "./Object3DCustom.js";
 import { CustomGeometry } from "./CustomGeometry.js";
 import { Vector2 } from "./Vector2.js";
 import { Portion } from "./Portion.js";
-import { Main } from "../main.js";
 /**
  * Object in local map that can move.
  *
@@ -43,6 +42,9 @@ class MapObject {
         this.climbOrientationEye = Enum.Orientation.None;
         this.climbOrientation = Enum.Orientation.None;
         this.isOrientationStopWalk = false;
+        this.currentCenterOffset = new THREE.Vector3();
+        this.currentAngle = new THREE.Vector3();
+        this.currentScale = new THREE.Vector3();
         this.system = system;
         this.id = system.id;
         this.position = position;
@@ -436,6 +438,11 @@ class MapObject {
         }
         this.meshBoundingBox = new Array;
         let texture = Manager.GL.getMaterialTexture(material);
+        this.position.set(this.position.x - this.currentCenterOffset.x, 0, this
+            .position.z - this.currentCenterOffset.z);
+        this.currentCenterOffset.set(0, 0, 0);
+        this.currentAngle.set(0, 0, 0);
+        this.currentScale.set(1, 1, 1);
         if (this.currentState !== null && !this.isNone() && texture) {
             this.speed = Datas.Systems.getSpeed(this.currentStateInstance.speedID);
             this.frequency = Datas.Systems.getFrequency(this.currentStateInstance.frequencyID);
@@ -507,10 +514,18 @@ class MapObject {
                     this.width, this.height]);
                 result = sprite.createGeometry(this.width, this.height, this
                     .currentStateInstance.graphicID === 0, positionTranformation);
+                this.currentCenterOffset.set(positionTranformation.getPixelsCenterX()
+                    - (Datas.Systems.SQUARE_SIZE / 2), 0, positionTranformation
+                    .getPixelsCenterZ() - (Datas.Systems.SQUARE_SIZE / 2));
             }
             let geometry = result[0];
             let objCollision = result[1];
             this.mesh = new THREE.Mesh(geometry, material);
+            this.currentAngle.set(positionTranformation.angleX, positionTranformation
+                .angleY, positionTranformation.angleZ);
+            this.currentScale.set(positionTranformation.scaleX, positionTranformation
+                .scaleY, positionTranformation.scaleZ);
+            this.position.set(this.position.x + this.currentCenterOffset.x, 0, this.position.z + this.currentCenterOffset.z);
             this.mesh.position.set(this.position.x, this.position.y, this
                 .position.z);
             this.boundingBoxSettings = objCollision[1][0];
@@ -734,13 +749,13 @@ class MapObject {
                                 position.x + this.boundingBoxSettings.b[i][0],
                                 position.y + this.boundingBoxSettings.b[i][1],
                                 position.z + this.boundingBoxSettings.b[i][2],
-                                this.boundingBoxSettings.b[i][3],
-                                this.boundingBoxSettings.b[i][4],
-                                this.boundingBoxSettings.b[i][5],
-                                this.boundingBoxSettings.b[i][6],
-                                this.boundingBoxSettings.b[i][7],
-                                this.boundingBoxSettings.b[i][8]
-                            ]);
+                                this.currentScale.x * this.boundingBoxSettings.b[i][3],
+                                this.currentScale.y * this.boundingBoxSettings.b[i][4],
+                                this.currentScale.z * this.boundingBoxSettings.b[i][5],
+                                this.currentAngle.y,
+                                this.currentAngle.x,
+                                this.currentAngle.z
+                            ], true, this.boundingBoxSettings.b[i][1] / 2 / Datas.Systems.SQUARE_SIZE);
                         }
                         else {
                             box = Manager.Collisions.createOrientedBox();
@@ -748,8 +763,8 @@ class MapObject {
                                 position.x + this.boundingBoxSettings.b[i][0],
                                 position.y + this.boundingBoxSettings.b[i][1],
                                 position.z + this.boundingBoxSettings.b[i][2],
-                                this.boundingBoxSettings.b[i][3],
-                                this.boundingBoxSettings.b[i][4],
+                                this.currentScale.x * this.boundingBoxSettings.b[i][3],
+                                this.currentScale.y * this.boundingBoxSettings.b[i][4],
                             ]);
                         }
                         box.geometry.computeBoundingBox();
@@ -833,7 +848,8 @@ class MapObject {
         // Remove from move
         this.removeMoveTemp();
         // Set position
-        let speed = this.speed.getValue() * MapObject.SPEED_NORMAL * Math.max(60, Main.FPS) * Datas.Systems.SQUARE_SIZE;
+        let speed = this.speed.getValue() * MapObject.SPEED_NORMAL * Manager
+            .Stack.averageElapsedTime * Datas.Systems.SQUARE_SIZE;
         if (this.otherMoveCommand !== null) {
             speed *= Math.SQRT1_2;
         }
@@ -1418,5 +1434,5 @@ class MapObject {
         return [startI, endI, startJ, endJ, startK, endK];
     }
 }
-MapObject.SPEED_NORMAL = 0.0011666;
+MapObject.SPEED_NORMAL = 0.004666;
 export { MapObject };
