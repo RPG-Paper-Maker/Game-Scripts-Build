@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2022 Wano
+    RPG Paper Maker Copyright (C) 2017-2023 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -120,7 +120,8 @@ class ChangeBattlerGraphics extends Base {
                 player.facesetIndexY = this.facesetIndexY;
             }
             if (Scene.Map.current.isBattleMap) {
-                let newBattler = new Battler(player, battler.initialPosition, battler.position, map.camera);
+                let newBattler = new Battler(player, battler.isEnemy, battler
+                    .initialPosition, battler.position, map.camera);
                 map.battlers[side][index].removeFromScene();
                 newBattler.addToScene();
                 map.battlers[side][index] = newBattler;

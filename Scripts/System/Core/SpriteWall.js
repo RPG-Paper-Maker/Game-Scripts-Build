@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2022 Wano
+    RPG Paper Maker Copyright (C) 2017-2023 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -94,29 +94,52 @@ class SpriteWall extends MapElement {
             if (picture) {
                 collisions = picture.getSquaresForWall(textureRect);
             }
-        }
-        let rect;
-        for (let i = 0, l = collisions.length; i < l; i++) {
-            rect = collisions[i];
-            objCollision.push({
-                p: position,
-                l: localPosition,
-                b: [
-                    localPosition.x,
-                    localPosition.y + Math.floor((textureRect[3] * Datas.Systems
-                        .SQUARE_SIZE - rect[1]) / 2),
-                    localPosition.z,
-                    rect[2],
-                    rect[3],
-                    1,
-                    angle,
-                    0,
-                    0
-                ],
-                w: 0,
-                h: textureRect[3],
-                k: true
-            });
+            let rect;
+            for (let i = 0, l = collisions.length; i < l; i++) {
+                rect = collisions[i];
+                objCollision.push({
+                    p: position,
+                    l: localPosition,
+                    b: [
+                        localPosition.x,
+                        localPosition.y + Math.floor((textureRect[3] * Datas.Systems
+                            .SQUARE_SIZE - rect[1]) / 2),
+                        localPosition.z,
+                        rect[2],
+                        rect[3] - 0.001,
+                        1,
+                        angle,
+                        0,
+                        0
+                    ],
+                    w: 0,
+                    h: textureRect[3],
+                    k: true
+                });
+                let climbing = picture.getSquaresClimbing(textureRect);
+                for (let [x, y] of climbing) {
+                    objCollision.push({
+                        p: position,
+                        l: localPosition,
+                        b: [
+                            localPosition.x + x,
+                            localPosition.y + Math.floor((textureRect[3] * Datas.Systems
+                                .SQUARE_SIZE - y) / 2),
+                            localPosition.z,
+                            rect[2],
+                            rect[3],
+                            1,
+                            angle,
+                            0,
+                            0
+                        ],
+                        w: 0,
+                        h: textureRect[3],
+                        k: true,
+                        cl: true
+                    });
+                }
+            }
         }
         // Add sprite to geometry
         Sprite.rotateSprite(vecA, vecB, vecC, vecD, center, angle, Sprite.Y_AXIS);

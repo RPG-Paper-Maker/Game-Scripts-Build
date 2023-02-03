@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2022 Wano
+    RPG Paper Maker Copyright (C) 2017-2023 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -10,10 +10,9 @@
 */
 import { Mathf, Constants, Enum } from "../Common/index.js";
 import { MapObject, Position, Portion, Vector3, Vector2, Game, CustomGeometry, Sprite } from "../Core/index.js";
-import { Datas, Scene } from "../index.js";
+import { Datas, Scene, Manager } from "../index.js";
 var ElementMapKind = Enum.ElementMapKind;
 import { THREE } from "../Globals.js";
-import { Main } from "../main.js";
 /** @class
  *  The collisions manager.
  *  @static
@@ -378,7 +377,7 @@ class Collisions {
             if (yMountain === null && floors.indexOf(positionAfter.y) === -1) {
                 let l = floors.length;
                 if (l === 0) {
-                    return [null, null, Enum.Orientation.None];
+                    return [true, null, Enum.Orientation.None];
                 }
                 else {
                     let maxY = null;
@@ -508,6 +507,7 @@ class Collisions {
                                                                             b = this.checkSprites(mapPortion, jpositionBottomAfter, [], object)[0];
                                                                             if (b === null) {
                                                                                 object.updateMeshBBPosition(object.currentBoundingBox, bbSettings, positionAfter);
+                                                                                object.isClimbingUp = climbingUp;
                                                                                 return [null, null, Enum.Orientation.None];
                                                                             }
                                                                         }
@@ -515,6 +515,7 @@ class Collisions {
                                                                 }
                                                             }
                                                             object.updateMeshBBPosition(object.currentBoundingBox, bbSettings, positionAfter);
+                                                            object.isClimbingUp = climbingUp;
                                                             return [null, y, o];
                                                         }
                                                         object.updateMeshBBPosition(object.currentBoundingBox, bbSettings, positionAfter);
@@ -720,6 +721,7 @@ class Collisions {
     */
     static checkSprites(mapPortion, jpositionAfter, testedCollisions, object) {
         let sprites = mapPortion.boundingBoxesSprites[jpositionAfter.toIndex()];
+        let tested = false;
         if (sprites !== null) {
             let objCollision;
             for (let i = 0, l = sprites.length; i < l; i++) {
@@ -729,22 +731,33 @@ class Collisions {
                     if (this.checkIntersectionSprite(objCollision.b, objCollision.k, object)) {
                         if (objCollision.cl) {
                             const speed = object.speed.getValue() * MapObject
-                                .SPEED_NORMAL * Math.max(60, Main.FPS) * Datas
-                                .Systems.SQUARE_SIZE / 4;
+                                .SPEED_NORMAL * Manager.Stack.averageElapsedTime *
+                                Datas.Systems.SQUARE_SIZE / 4;
                             const limitTop = objCollision.b[1] + Math.ceil(objCollision.b[4] / 2);
                             const limitBot = objCollision.b[1] - Math.ceil(objCollision.b[4] / 2);
                             const y = object.isClimbingUp ? Math.min(object.position.y + speed, limitTop) : Math.max(object.position.y - speed, limitBot);
                             if (y === object.position.y) {
                                 continue;
                             }
-                            return [null, y, object.getOrientationBetweenPosition(objCollision.l)];
+                            let angle = objCollision.b[6];
+                            let force = false, front = false;
+                            if (angle === 0 || angle === 180) {
+                                force = true;
+                                front = true;
+                            }
+                            else if (angle === 90 || angle === 270) {
+                                force = true;
+                            }
+                            return [null, y, object.getOrientationBetweenPosition(objCollision.l, force, front)];
                         }
-                        return [true, null, Enum.Orientation.None];
+                        if (!object.isClimbing) {
+                            tested = true;
+                        }
                     }
                 }
             }
         }
-        return [false, null, Enum.Orientation.None];
+        return [tested, null, Enum.Orientation.None];
     }
     /**
      *  Check intersection between ray and an object.

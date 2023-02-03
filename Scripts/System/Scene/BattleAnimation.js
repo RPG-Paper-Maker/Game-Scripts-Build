@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2022 Wano
+    RPG Paper Maker Copyright (C) 2017-2023 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -147,6 +147,9 @@ class BattleAnimation {
                 break;
         }
         this.battle.currentEffectIndex = -1;
+        if (this.battle.effects.length > 0) {
+            this.battle.effects[0].getMissAndCrit();
+        }
         this.battle.currentTargetIndex = null;
         if (this.battle.animationUser && this.battle.animationUser.system === null) {
             this.battle.animationUser = null;
@@ -160,11 +163,11 @@ class BattleAnimation {
      *  @returns {AnimationEffectConditionKind}
      */
     getCondition() {
-        if (this.battle.targets[0]) {
-            if (this.battle.targets[0].isDamagesMiss) {
+        for (let target of this.battle.targets) {
+            if (target.tempIsDamagesMiss) {
                 return AnimationEffectConditionKind.Miss;
             }
-            if (this.battle.targets[0].isDamagesCritical) {
+            if (target.tempIsDamagesCritical) {
                 return AnimationEffectConditionKind.Critical;
             }
         }
@@ -252,13 +255,13 @@ class BattleAnimation {
                         this.battle.user.updateDead(false);
                     }
                     // Testing end of battle
-                    let effect, isAnotherEffect;
+                    let isAnotherEffect;
                     // Apply effect
                     if (this.battle.currentTargetIndex === null) {
                         this.battle.currentEffectIndex++;
                         for (l = this.battle.effects.length; this.battle
                             .currentEffectIndex < l; this.battle.currentEffectIndex++) {
-                            effect = this.battle.effects[this.battle.currentEffectIndex];
+                            let effect = this.battle.effects[this.battle.currentEffectIndex];
                             effect.execute();
                             if (effect.isAnimated()) {
                                 if (effect.kind === Enum.EffectKind.Status) {

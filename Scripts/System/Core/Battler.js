@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2022 Wano
+    RPG Paper Maker Copyright (C) 2017-2023 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -27,14 +27,17 @@ import { Rectangle } from "./Rectangle.js";
  *  @param {Camera} camera - the camera associated to the battle
  */
 class Battler {
-    constructor(player, position, vect, camera) {
+    constructor(player, isEnemy = false, position, vect, camera) {
         this.itemsNumbers = [];
         this.rect = new Rectangle();
         this.graphicDamageName = new Graphic.Text("", { verticalAlign: Enum.AlignVertical.Bot });
+        this.tempIsDamagesMiss = null;
+        this.tempIsDamagesCritical = null;
         this.currentStatusAnimation = null;
         this.lastTarget = null;
         this.hidden = false;
         this.player = player;
+        this.isEnemy = isEnemy;
         this.initialPosition = position;
         if (!position) {
             return;
@@ -105,7 +108,7 @@ class Battler {
                 * Datas.Systems.SQUARE_SIZE), this.position.y, this.position.z);
             this.upPosition = new Vector3(this.position.x, this.position.y + (this.height * Datas.Systems.SQUARE_SIZE), this.position.z);
             this.halfPosition = new Vector3(this.position.x, this.position.y + (this.height * Datas.Systems.SQUARE_SIZE / 2), this.position.z);
-            if (player.kind === Enum.CharacterKind.Monster) {
+            if (isEnemy) {
                 this.mesh.scale.set(-1, 1, 1);
             }
             this.updateUVs();
@@ -272,13 +275,13 @@ class Battler {
     updateSelected() {
         let newX = this.mesh.position.x;
         let progression;
-        if (this.player.kind === Enum.CharacterKind.Hero) {
-            progression = this.selected ? this.progressionAllyFront : this
-                .progressionAllyBack;
-        }
-        else if (this.player.kind === Enum.CharacterKind.Monster) {
+        if (this.isEnemy) {
             progression = this.selected ? this.progressionEnemyFront : this
                 .progressionEnemyBack;
+        }
+        else {
+            progression = this.selected ? this.progressionAllyFront : this
+                .progressionAllyBack;
         }
         let time = new Date().getTime() - this.timerMove;
         if (time <= Battler.TIME_MOVE) {

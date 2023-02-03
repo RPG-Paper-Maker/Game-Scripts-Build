@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2022 Wano
+    RPG Paper Maker Copyright (C) 2017-2023 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -220,10 +220,12 @@ class BattleStartTurn {
                     let battler = tab[0];
                     let status = tab[1];
                     let s = status[0];
-                    this.battle.windowTopInformations.content
-                        .setText(s.getMessageHealed(battler));
-                    this.battle.time = new Date().getTime() - (Scene.Battle
-                        .TIME_ACTION_ANIMATION / 2);
+                    let message = s.getMessageHealed(battler);
+                    this.battle.windowTopInformations.content.setText(message);
+                    if (message !== "") {
+                        this.battle.time = new Date().getTime() - (Scene.Battle
+                            .TIME_ACTION_ANIMATION / 2);
+                    }
                     status.splice(0, 1);
                     if (status.length === 0) {
                         this.statusHealed.splice(0, 1);
@@ -239,14 +241,16 @@ class BattleStartTurn {
                     let battler = tab[0];
                     let status = tab[1];
                     let s = status[0];
-                    this.battle.windowTopInformations.content
-                        .setText(s.getMessageStillAffected(battler));
+                    let message = s.getMessageStillAffected(battler);
+                    this.battle.windowTopInformations.content.setText(message);
                     status.splice(0, 1);
                     if (status.length === 0) {
                         this.statusStill.splice(0, 1);
                     }
-                    this.battle.time = new Date().getTime() - (Scene.Battle
-                        .TIME_ACTION_ANIMATION / 2);
+                    if (message !== "") {
+                        this.battle.time = new Date().getTime() - (Scene.Battle
+                            .TIME_ACTION_ANIMATION / 2);
+                    }
                     // If effects, apply animation only for those
                     let effects = s.system.getEffects();
                     if (effects.length > 0) {

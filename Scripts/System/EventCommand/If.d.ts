@@ -50,6 +50,7 @@ declare class If extends Base {
     chronometerOperation: number;
     chronometerSeconds: System.DynamicValue;
     script: System.DynamicValue;
+    objectIDClimbing: System.DynamicValue;
     constructor(command: any[]);
     /**
      *  Get the hero instance ID.

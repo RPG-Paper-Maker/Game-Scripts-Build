@@ -51,6 +51,10 @@ declare class Effect extends Base {
      */
     read(json: Record<string, any>): void;
     /**
+     *  Get if effect is miss in battler temp variables.
+     */
+    getMissAndCrit(): void;
+    /**
      *  Execute the effect.
      *  @returns {boolean}
      */

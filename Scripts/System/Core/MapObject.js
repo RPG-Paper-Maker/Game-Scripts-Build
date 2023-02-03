@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2022 Wano
+    RPG Paper Maker Copyright (C) 2017-2023 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -846,14 +846,18 @@ class MapObject {
         if (this.removed) {
             return [0, 0];
         }
-        // Remove from move
-        this.removeMoveTemp();
         // Set position
         let speed = this.speed.getValue() * MapObject.SPEED_NORMAL * Manager
             .Stack.averageElapsedTime * Datas.Systems.SQUARE_SIZE;
-        if (this.otherMoveCommand !== null) {
+        if (this.previousOrientation !== null && this.previousOrientation !== this.orientation) {
+            // If already climbing, ignore
+            if (this.isClimbing && ((this.previousOrientation % 2) !== (this.orientation % 2))) {
+                return [0, 0];
+            }
             speed *= Math.SQRT1_2;
         }
+        // Remove from move
+        this.removeMoveTemp();
         let normalDistance = Math.min(limit, speed);
         let [position, isClimbing, o] = this.getFuturPosition(orientation, normalDistance, angle);
         let distance = (position.equals(this.position)) ? 0 : normalDistance;
@@ -867,7 +871,9 @@ class MapObject {
         this.position.set(position.x, position.y, position.z);
         // Update orientation
         let climbOrientationEye = this.climbOrientationEye;
-        this.climbOrientationEye = o;
+        if (o !== Enum.Orientation.None) {
+            this.climbOrientationEye = o;
+        }
         if (this.currentStateInstance && !this.currentStateInstance.directionFix) {
             this.orientationEye = orientation;
             orientation = this.orientation;
@@ -1211,6 +1217,7 @@ class MapObject {
         // Climbing up
         if (!this.moving) {
             this.isClimbingUp = true;
+            this.previousOrientation = null;
         }
         this.moving = false;
     }
@@ -1358,11 +1365,11 @@ class MapObject {
      *  @param {Vector3} position
      *  @returns {Enum.Orientation}
      */
-    getOrientationBetweenPosition(position, priority = false, priorityX = true) {
+    getOrientationBetweenPosition(position, force = false, front = false) {
         let x = Math.abs(position.x - this.position.x);
         let z = Math.abs(position.z - this.position.z);
         let orientation = this.orientationEye;
-        if (x >= z) {
+        if ((!force && x >= z) || (force && !front)) {
             if (position.x >= this.position.x) {
                 orientation = Enum.Orientation.East;
             }
@@ -1404,15 +1411,15 @@ class MapObject {
         let startI, endI, startJ, endJ, startK, endK;
         if (direction.x > 0) {
             startI = 0;
-            endI = this.boundingBoxSettings.w;
+            endI = this.boundingBoxSettings.w + 1;
         }
         else if (direction.x < 0) {
-            startI = -this.boundingBoxSettings.w;
+            startI = -this.boundingBoxSettings.w - 1;
             endI = 0;
         }
         else {
-            startI = -this.boundingBoxSettings.w;
-            endI = this.boundingBoxSettings.w;
+            startI = -this.boundingBoxSettings.w - 1;
+            endI = this.boundingBoxSettings.w + 1;
         }
         if (this.boundingBoxSettings.k) {
             startK = 0;
@@ -1420,15 +1427,15 @@ class MapObject {
         }
         else if (direction.z > 0) {
             startK = 0;
-            endK = this.boundingBoxSettings.w;
+            endK = this.boundingBoxSettings.w + 1;
         }
         else if (direction.z < 0) {
-            startK = -this.boundingBoxSettings.w;
+            startK = -this.boundingBoxSettings.w - 1;
             endK = 0;
         }
         else {
-            startK = -this.boundingBoxSettings.w;
-            endK = this.boundingBoxSettings.w;
+            startK = -this.boundingBoxSettings.w - 1;
+            endK = this.boundingBoxSettings.w + 1;
         }
         startJ = 0;
         endJ = 0;

@@ -36,6 +36,11 @@ declare class MapPortion {
      */
     read(json: Record<string, any>, isMapHero: boolean): void;
     /**
+     *  Read the JSON associated to the map portion, but only the static part.
+     *  @param {Record<string, any>} json - object describing the map portion
+     */
+    readStatic(json: Record<string, any>): void;
+    /**
      *  Read the JSON associated to the lands in the portion.
      *  @param {Record<string, any>} json - object describing the lands
      */
@@ -82,6 +87,10 @@ declare class MapPortion {
      *  at the beginning of the game
     */
     readObjects(json: Record<string, any>, isMapHero: boolean): void;
+    /**
+     *  Remove all the static stuff from the scene.
+     */
+    cleanStatic(): void;
     /**
      *  Remove all the objects from the scene.
      */

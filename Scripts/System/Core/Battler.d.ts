@@ -21,6 +21,7 @@ declare class Battler {
     static TIME_MOVE: number;
     static TOTAL_TIME_DAMAGE: number;
     player: Player;
+    isEnemy: boolean;
     initialPosition: Position;
     position: Vector3;
     arrowPosition: Vector2;
@@ -63,12 +64,14 @@ declare class Battler {
     graphicDamageName: Graphic.Text;
     isDamagesMiss: boolean;
     isDamagesCritical: boolean;
+    tempIsDamagesMiss: boolean;
+    tempIsDamagesCritical: boolean;
     currentStatusAnimation: Animation;
     lastStatus: Status;
     lastStatusHealed: Status;
     lastTarget: Battler;
     hidden: boolean;
-    constructor(player: Player, position?: Position, vect?: Vector3, camera?: Camera);
+    constructor(player: Player, isEnemy?: boolean, position?: Position, vect?: Vector3, camera?: Camera);
     /**
      *  Check at least one affected status contains the following restriction.
      *  @param {Enum.StatusRestrictionsKind} restriction - The kind of restriction

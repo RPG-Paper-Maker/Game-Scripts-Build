@@ -58,6 +58,10 @@ declare class Map extends Base {
      */
     load(): Promise<void>;
     /**
+     *  Reload only the textures + collisions
+     */
+    reloadTextures(): Promise<void>;
+    /**
      *  Generate the map name according to the ID.
      *  @static
      *  @param {number} id - ID of the map

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2022 Wano
+    RPG Paper Maker Copyright (C) 2017-2023 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -72,32 +72,35 @@ class SwitchTexture extends Base {
      *  @returns {number} The number of node to pass
     */
     update(currentState, object, state) {
-        if (this.isTilesetID) {
-            Game.current.textures.tilesets[this.tilesetID.getValue()] = this
-                .tilesetPictureID.getValue();
+        if (!currentState.loading) {
+            currentState.loading = true;
+            if (this.isTilesetID) {
+                Game.current.textures.tilesets[this.tilesetID.getValue()] = this
+                    .tilesetPictureID.getValue();
+            }
+            if (this.isAutotileID) {
+                Game.current.textures.autotiles[this.autotileID.getValue()] = this
+                    .autotilePictureID.getValue();
+            }
+            if (this.isWallID) {
+                Game.current.textures.walls[this.wallID.getValue()] = this
+                    .wallPictureID.getValue();
+            }
+            if (this.isObject3DID) {
+                Game.current.textures.objects3D[this.object3DID.getValue()] = this
+                    .object3DPictureID.getValue();
+            }
+            if (this.isMountainID) {
+                Game.current.textures.mountains[this.mountainID.getValue()] = this
+                    .mountainPictureID.getValue();
+            }
+            //Scene.Map.current.close();
+            Scene.Map.current.loading = true;
+            (async () => {
+                await Scene.Map.current.reloadTextures();
+                currentState.loaded = true;
+            })();
         }
-        if (this.isAutotileID) {
-            Game.current.textures.autotiles[this.autotileID.getValue()] = this
-                .autotilePictureID.getValue();
-        }
-        if (this.isWallID) {
-            Game.current.textures.walls[this.wallID.getValue()] = this
-                .wallPictureID.getValue();
-        }
-        if (this.isObject3DID) {
-            Game.current.textures.objects3D[this.object3DID.getValue()] = this
-                .object3DPictureID.getValue();
-        }
-        if (this.isMountainID) {
-            Game.current.textures.mountains[this.mountainID.getValue()] = this
-                .mountainPictureID.getValue();
-        }
-        Scene.Map.current.close();
-        Scene.Map.current.loading = true;
-        (async () => {
-            await Scene.Map.current.load();
-            currentState.loaded = true;
-        })();
         return currentState.loaded ? 1 : 0;
     }
 }

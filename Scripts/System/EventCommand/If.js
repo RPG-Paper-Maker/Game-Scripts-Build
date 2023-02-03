@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2022 Wano
+    RPG Paper Maker Copyright (C) 2017-2023 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -119,6 +119,9 @@ class If extends Base {
                 this.chronometerID = System.DynamicValue.createValueCommand(command, iterator);
                 this.chronometerOperation = command[iterator.i++];
                 this.chronometerSeconds = System.DynamicValue.createValueCommand(command, iterator);
+                break;
+            case 11:
+                this.objectIDClimbing = System.DynamicValue.createValueCommand(command, iterator);
                 break;
         }
     }
@@ -368,6 +371,22 @@ class If extends Base {
                     result = Mathf.OPERATORS_COMPARE[this.chronometerOperation](chrono.getSeconds(), this.chronometerSeconds.getValue());
                 }
                 break;
+            case 11: {
+                if (!currentState.waitingObject) {
+                    let objectID = this.objectIDClimbing.getValue();
+                    MapObject.search(objectID, (result) => {
+                        currentState.object = result.object;
+                    }, object);
+                    currentState.waitingObject = true;
+                }
+                if (currentState.object === null) {
+                    return 0;
+                }
+                else {
+                    result = currentState.object.isClimbing;
+                    break;
+                }
+            }
             default:
                 break;
         }

@@ -261,7 +261,7 @@ declare class MapObject {
      *  @param {Vector3} position
      *  @returns {Enum.Orientation}
      */
-    getOrientationBetweenPosition(position: Vector3, priority?: boolean, priorityX?: boolean): Enum.Orientation;
+    getOrientationBetweenPosition(position: Vector3, force?: boolean, front?: boolean): Enum.Orientation;
     /**
      *  Update the terrain the object is currently on.
      */

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2022 Wano
+    RPG Paper Maker Copyright (C) 2017-2023 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -69,6 +69,43 @@ class Map extends Base {
         this.createWeather(false);
         this.createWeather();
         Manager.Stack.requestPaintHUD = true;
+        this.loading = false;
+    }
+    /**
+     *  Reload only the textures + collisions
+     */
+    async reloadTextures() {
+        let limit = this.getMapPortionLimit();
+        let i, j, k;
+        for (i = -limit; i <= limit; i++) {
+            for (j = -limit; j <= limit; j++) {
+                for (k = -limit; k <= limit; k++) {
+                    let mapPortion = this.getMapPortion(new Portion(i, j, k));
+                    if (mapPortion) {
+                        mapPortion.cleanStatic();
+                    }
+                }
+            }
+        }
+        this.collisions = new Array;
+        await this.readMapProperties();
+        this.initializeCamera();
+        await this.loadTextures();
+        this.loadCollisions();
+        for (i = -limit; i <= limit; i++) {
+            for (j = -limit; j <= limit; j++) {
+                for (k = -limit; k <= limit; k++) {
+                    let mapPortion = this.getMapPortion(new Portion(i, j, k));
+                    if (mapPortion) {
+                        let portion = new Portion(this.currentPortion.x + i, this
+                            .currentPortion.y + j, this.currentPortion.z + k);
+                        let json = await IO.parseFileJSON(Paths.FILE_MAPS + this
+                            .mapName + Constants.STRING_SLASH + portion.getFileName());
+                        mapPortion.readStatic(json);
+                    }
+                }
+            }
+        }
         this.loading = false;
     }
     /**

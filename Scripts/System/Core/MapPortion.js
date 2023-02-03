@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2022 Wano
+    RPG Paper Maker Copyright (C) 2017-2023 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -73,6 +73,14 @@ class MapPortion {
      *  at the beginning of the game.
      */
     read(json, isMapHero) {
+        this.readStatic(json);
+        this.readObjects(json.objs.list, isMapHero);
+    }
+    /**
+     *  Read the JSON associated to the map portion, but only the static part.
+     *  @param {Record<string, any>} json - object describing the map portion
+     */
+    readStatic(json) {
         this.readLands(json.lands);
         this.readSprites(json.sprites);
         if (json.moun) {
@@ -81,7 +89,6 @@ class MapPortion {
         if (json.objs3d) {
             this.readObjects3D(json.objs3d);
         }
-        this.readObjects(json.objs.list, isMapHero);
     }
     /**
      *  Read the JSON associated to the lands in the portion.
@@ -177,13 +184,15 @@ class MapPortion {
             indexPos = position.toIndex();
             texture = null;
             texturesAutotile = Scene.Map.current.texturesAutotiles[autotile.autotileID];
-            for (j = 0, m = texturesAutotile.length; j < m; j++) {
-                textureAutotile = texturesAutotile[j];
-                if (textureAutotile.isInTexture(autotile.autotileID, autotile
-                    .texture)) {
-                    texture = textureAutotile;
-                    autotiles = this.staticAutotilesList[autotile.autotileID][j];
-                    break;
+            if (texturesAutotile) {
+                for (j = 0, m = texturesAutotile.length; j < m; j++) {
+                    textureAutotile = texturesAutotile[j];
+                    if (textureAutotile.isInTexture(autotile.autotileID, autotile
+                        .texture)) {
+                        texture = textureAutotile;
+                        autotiles = this.staticAutotilesList[autotile.autotileID][j];
+                        break;
+                    }
                 }
             }
             if (texture !== null && texture.material !== null) {
@@ -507,10 +516,9 @@ class MapPortion {
         }
     }
     /**
-     *  Remove all the objects from the scene.
+     *  Remove all the static stuff from the scene.
      */
-    cleanAll() {
-        // Static stuff
+    cleanStatic() {
         if (this.staticFloorsMesh !== null) {
             Scene.Map.current.scene.remove(this.staticFloorsMesh);
         }
@@ -524,6 +532,7 @@ class MapPortion {
         for (i = 0, l = this.staticWallsList.length; i < l; i++) {
             Scene.Map.current.scene.remove(this.staticWallsList[i]);
         }
+        this.staticWallsList = [];
         for (let list of this.staticAutotilesList) {
             if (list) {
                 for (let autotiles of list) {
@@ -531,14 +540,25 @@ class MapPortion {
                 }
             }
         }
+        this.staticAutotilesList = [];
         for (i = 0, l = this.staticMountainsList.length; i < l; i++) {
             Scene.Map.current.scene.remove(this.staticMountainsList[i]
                 .mesh);
         }
+        this.staticMountainsList = [];
         for (i = 0, l = this.staticObjects3DList.length; i < l; i++) {
             Scene.Map.current.scene.remove(this.staticObjects3DList[i]);
         }
+        this.staticObjects3DList = [];
+    }
+    /**
+     *  Remove all the objects from the scene.
+     */
+    cleanAll() {
+        // Static stuff
+        this.cleanStatic();
         // Objects
+        let i, l;
         for (i = 0, l = this.objectsList.length; i < l; i++) {
             this.objectsList[i].removeFromScene();
         }
