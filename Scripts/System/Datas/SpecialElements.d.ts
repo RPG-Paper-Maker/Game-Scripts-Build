@@ -133,5 +133,15 @@ declare class SpecialElements {
      *  @returns {Promise<THREE.ShaderMaterial>}
      */
     static loadObject3DTexture(id: number): Promise<THREE.ShaderMaterial>;
+    /**
+     *  Check if a special element picture is in correct format size.
+     *  @param {string} type The type of special element as a string
+     *  @param {string} name The name of the picture
+     *  @param {number} w The picture width
+     *  @param {number} h The picture height
+     *  @param {number} cw The excepted width
+     *  @param {number} ch The excepted height
+     */
+    static checkPictureSize(type: string, name: string, w: number, h: number, cw: number, ch: number, strictw: boolean, stricth: boolean): void;
 }
 export { SpecialElements };

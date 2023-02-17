@@ -7,61 +7,14 @@ import { WindowBox, WindowChoices } from "../Core/index.js";
  * @extends {MenuBase}
  */
 declare class MenuEquip extends MenuBase {
-    /**
-     *  the top window
-     *
-     * @type {WindowBox}
-     * @memberof MenuEquip
-     */
+    static MAX_SLOTS_EQUIPMENTS: number;
     windowTop: WindowBox;
-    /**
-     * the window choices tabs
-     *
-     * @type {WindowChoices}
-     * @memberof MenuEquip
-     */
     windowChoicesTabs: WindowChoices;
-    /**
-     * the equipment choice window
-     *
-     * @type {WindowChoices}
-     * @memberof MenuEquip
-     */
     windowChoicesEquipment: WindowChoices;
-    /**
-     * the window choice list
-     *
-     * @type {WindowChoices}
-     * @memberof MenuEquip
-     */
     windowChoicesList: WindowChoices;
-    /**
-     * the information window.
-     *
-     * @type {WindowBox}
-     * @memberof MenuEquip
-     */
     windowInformation: WindowBox;
-    /**
-     * the current selected equipment.
-     *
-     * @type {number}
-     * @memberof MenuEquip
-     */
     selectedEquipment: number;
-    /**
-     * the equipment list
-     *
-     * @type {number[]}
-     * @memberof MenuEquip
-     */
     list: number[];
-    /**
-     * the bonus stats.
-     *
-     * @type {number[]}
-     * @memberof MenuEquip
-     */
     bonus: number[];
     title: string;
     constructor(title: string);

@@ -108,10 +108,10 @@ declare class Map extends Base {
     initializePortions(): Promise<void>;
     /**
      *  Get the portion file name.
-     *  @param {boolean} noNewPortion - Indicate if the map portions array needs
-     *  to be initialized
+     *  @param {boolean} update - Indicate if the map portions array had previous
+     *  values.
      */
-    loadPortions(noNewPortion?: boolean): Promise<void>;
+    loadPortions(update?: boolean): Promise<void>;
     /**
      *  Load a portion.
      *  @param {number} realX - The global x portion

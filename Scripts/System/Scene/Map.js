@@ -297,8 +297,7 @@ class Map extends Base {
             p = pictures[i];
             if (p) {
                 p.readCollisionsImage(image);
-                this.collisions[PictureKind.Characters][i] = p
-                    .getSquaresForStates(image);
+                this.collisions[PictureKind.Characters][i] = p.getSquaresForStates(image);
             }
             else {
                 this.collisions[PictureKind.Characters][i] = null;
@@ -332,22 +331,56 @@ class Map extends Base {
     }
     /**
      *  Get the portion file name.
-     *  @param {boolean} noNewPortion - Indicate if the map portions array needs
-     *  to be initialized
+     *  @param {boolean} update - Indicate if the map portions array had previous
+     *  values.
      */
-    async loadPortions(noNewPortion = false) {
-        this.currentPortion = Portion.createFromVector3(this.camera
-            .getThreeCamera().position);
-        let limit = this.getMapPortionLimit();
-        if (!noNewPortion) {
+    async loadPortions(update = false) {
+        let previousPortion = this.currentPortion;
+        this.currentPortion = Portion.createFromVector3(this.camera.getThreeCamera().position);
+        if (!previousPortion) {
+            previousPortion = this.currentPortion;
+        }
+        // If just need update but same current portion, then nothing to do
+        if (update && previousPortion.equals(this.currentPortion)) {
+            return;
+        }
+        if (!update) {
             this.mapPortions = [];
         }
-        let i, j, k;
+        let limit = this.getMapPortionLimit();
+        let minX = previousPortion.x - limit;
+        let minY = previousPortion.y - limit;
+        let minZ = previousPortion.z - limit;
+        let maxX = previousPortion.x + limit;
+        let maxY = previousPortion.y + limit;
+        let maxZ = previousPortion.x + limit;
+        let temp = new Array(this.mapPortions.length);
+        let i, j, k, x, y, z;
+        if (update) {
+            for (let i = 0, l = this.mapPortions.length; i < l; i++) {
+                temp[i] = this.mapPortions[i];
+            }
+        }
         for (i = -limit; i <= limit; i++) {
             for (j = -limit; j <= limit; j++) {
                 for (k = -limit; k <= limit; k++) {
-                    await this.loadPortion(this.currentPortion.x + i, this
-                        .currentPortion.y + j, this.currentPortion.z + k, i, j, k);
+                    x = this.currentPortion.x + i;
+                    y = this.currentPortion.y + j;
+                    z = this.currentPortion.z + k;
+                    // Load normally
+                    if (update && x >= minX && x <= maxX && y >= minY && y <= maxY &&
+                        z >= minZ && z <= maxZ) {
+                        let newIndex = this.getPortionIndex(new Portion(i, j, k));
+                        let previousIndex = this.getPortionIndex(new Portion(x - previousPortion.x, y - previousPortion.y, z -
+                            previousPortion.z));
+                        this.mapPortions[newIndex] = temp[previousIndex];
+                        if (temp[previousIndex] !== null) {
+                            this.mapPortions[previousIndex] = null;
+                        }
+                    }
+                    else {
+                        await this.loadPortion(x, y, z, i, j, k);
+                    }
                 }
             }
         }

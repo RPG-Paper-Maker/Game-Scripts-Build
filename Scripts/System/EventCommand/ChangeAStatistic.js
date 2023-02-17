@@ -101,8 +101,8 @@ class ChangeAStatistic extends Base {
                 target[abr] = Math.max(target[stat.getMaxAbbreviation()], target[abr]);
             }
             after = target[abr];
-            if (isChangingLevel || isChangingExperience || stat.isFix || this
-                .isApplyToMax) {
+            if (!isChangingExperience && (isChangingLevel || stat.isFix || this
+                .isApplyToMax)) {
                 if (isChangingLevel) {
                     target[abr] = before;
                     while (target.getCurrentLevel() < after) {
@@ -113,9 +113,9 @@ class ChangeAStatistic extends Base {
                 else {
                     target[stat.getAddedAbbreviation()] += after - before;
                 }
-                if (isChangingExperience) {
-                    target.synchronizeLevel();
-                }
+            }
+            if (isChangingExperience) {
+                target.synchronizeLevel();
             }
             // Recalculate stats
             target.updateAllStatsValues();

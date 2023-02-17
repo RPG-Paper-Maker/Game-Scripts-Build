@@ -17,8 +17,11 @@ declare class Systems {
     static isMouseControls: boolean;
     static mountainCollisionHeight: System.DynamicValue;
     static mountainCollisionAngle: System.DynamicValue;
+    static climbingSpeed: System.DynamicValue;
     static mapFrameDuration: System.DynamicValue;
     static battlersFrames: number;
+    static battlersFrameDuration: string;
+    static battlersFrameAttackingDuration: string;
     static battlersColumns: number;
     static autotilesFrames: number;
     static autotilesFrameDuration: number;

@@ -96,7 +96,8 @@ declare class Collisions {
      *  @param {MapObject} object - The map object to test collision
      *  @returns {boolean}
      */
-    static checkRay(positionBefore: Vector3, positionAfter: Vector3, object: MapObject, bbSettings: number[]): [boolean, number, Enum.Orientation];
+    static checkRay(positionBefore: Vector3, positionAfter: Vector3, object: MapObject, bbSettings: number[], reverseTestObjects?: boolean): [boolean, number, Enum.Orientation];
+    static checkObjectsRay(positionAfter: Vector3, object: MapObject): [boolean, number, Enum.Orientation];
     /**
      *  Check if there is a collision at this position.
      *  @static

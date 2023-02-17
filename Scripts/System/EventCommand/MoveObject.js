@@ -10,7 +10,7 @@
 */
 import { Base } from "./Base.js";
 import { System, Datas, EventCommand, Scene, Manager } from "../index.js";
-import { Enum, Utils, Mathf } from "../Common/index.js";
+import { Enum, Utils, Mathf, Platform } from "../Common/index.js";
 var CommandMoveKind = Enum.CommandMoveKind;
 var Orientation = Enum.Orientation;
 import { MapObject, Game, Vector3 } from "../Core/index.js";
@@ -598,6 +598,10 @@ class MoveObject extends Base {
                     .y, parameters.z.getValue() * square + currentState.startJump.z);
                 currentState.peak = parameters.peakY.getValue() * Datas.Systems
                     .SQUARE_SIZE + parameters.peakYPlus.getValue();
+                if (currentState.peak < currentState.endJump.y) {
+                    Platform.showErrorMessage("Move object command: jump peak cannot be lower than final y position offset. Final position=" +
+                        currentState.endJump.y + "px, Peak position=" + currentState.peak + "px");
+                }
                 currentState.time = parameters.time.getValue() * 1000;
             }
             currentState.currentTime = object.jump(currentState.startJump, currentState.endJump, currentState.peak, currentState
@@ -792,6 +796,8 @@ class MoveObject extends Base {
                 }
                 options.sid = object.currentStateInstance.speedID;
             }
+            object.currentStateInstance.indexX = object.frame.value;
+            object.currentStateInstance.indexY = object.orientation;
             object.changeState();
         }
         return Orientation.None;
@@ -815,6 +821,8 @@ class MoveObject extends Base {
                 }
                 options.fid = object.currentStateInstance.frequencyID;
             }
+            object.currentStateInstance.indexX = object.frame.value;
+            object.currentStateInstance.indexY = object.orientation;
             object.changeState();
         }
         return Orientation.None;

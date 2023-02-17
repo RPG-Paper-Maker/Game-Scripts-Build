@@ -83,6 +83,10 @@ class MapObject {
         let result = this.searchInMap(objectID, thisObject);
         if (result === null) {
             (async () => {
+                // If this object is out of the map for some reasons
+                if (objectID === -1 && thisObject) {
+                    objectID = thisObject.system.id;
+                }
                 result = await this.searchOutMap(objectID);
                 callback.call(null, result);
             })();
@@ -102,16 +106,21 @@ class MapObject {
         let object = null;
         switch (objectID) {
             case -1: // This object
-                objectID = thisObject.system.id;
-                if (thisObject.isInScene) {
-                    object = thisObject;
+                if (thisObject) {
+                    objectID = thisObject.system.id;
+                    if (thisObject.isInScene) {
+                        object = thisObject;
+                    }
+                    if (thisObject.isHero || thisObject.isStartup) {
+                        return {
+                            object: thisObject,
+                            id: objectID,
+                            datas: null
+                        };
+                    }
                 }
-                if (thisObject.isHero || thisObject.isStartup) {
-                    return {
-                        object: thisObject,
-                        id: objectID,
-                        datas: null
-                    };
+                else {
+                    return null;
                 }
                 break;
             case 0: // Hero
@@ -125,6 +134,10 @@ class MapObject {
         }
         // Check if direct
         let position = Scene.Map.current.allObjects[objectID];
+        if (!position && Scene.Map.current.isBattleMap && Scene.Map.current.id ===
+            Game.current.currentMapID) { // Ignore if is in battle and same map
+            return null;
+        }
         if (!position) { // If cannot find, inform that the object doesn't exist in the map
             Platform.showErrorMessage("Can't find object with ID" + objectID +
                 " in map " + Scene.Map.current.mapName + ". Please check where " +
@@ -209,12 +222,16 @@ class MapObject {
      *  @returns {Promise<StructSearchResult>}
      */
     static async searchOutMap(objectID) {
-        let object = Scene.Map.current.allObjects[objectID];
-        if (!object) {
+        let position = Scene.Map.current.allObjects[objectID];
+        if (!position && Scene.Map.current.isBattleMap && Scene.Map.current.id ===
+            Game.current.currentMapID) { // Ignore if is in battle and same map
+            return null;
+        }
+        if (!position) {
             Platform.showErrorMessage("Trying to access an object ID " + objectID
                 + " that doesn't exists. Please check your commands.");
         }
-        let globalPortion = object.getGlobalPortion();
+        let globalPortion = position.getGlobalPortion();
         let mapsDatas = Game.current.getPortionDatas(Scene.Map.current.id, globalPortion);
         let json = await IO.parseFileJSON(Paths.FILE_MAPS + Scene.Map.current
             .mapName + Constants.STRING_SLASH + globalPortion.getFileName());
@@ -654,15 +671,16 @@ class MapObject {
             }
         }
         if (blocked || blocked === null && yMountain !== null) {
-            position = this.position;
+            position = this.position.clone();
         }
         /* If not blocked and possible Y up/down, check if there is no collision
         on top */
         if (!blocked && yMountain !== null) {
             position.setY(yMountain);
+            this.updateBBPosition(position);
             for (i = 0, l = this.meshBoundingBox.length; i < l; i++) {
                 this.currentBoundingBox = this.meshBoundingBox[i];
-                result = Manager.Collisions.checkRay(this.position, position, this, this.boundingBoxSettings.b[i]);
+                result = Manager.Collisions.checkRay(this.position, position, this, this.boundingBoxSettings.b[i], true);
                 if (result[0]) {
                     position = this.position;
                     break;
@@ -1397,9 +1415,10 @@ class MapObject {
                 .getLocalPortion(Portion.createFromVector3(this.position)));
             if (mapPortion) {
                 let position = Position.createFromVector3(this.position);
-                let collision = mapPortion.boundingBoxesLands[position.toIndex()][0];
-                if (collision && collision.cs) {
-                    this.terrain = collision.cs.terrain;
+                let boundingBoxes = mapPortion.boundingBoxesLands[position.toIndex()];
+                if (boundingBoxes.length > 0) {
+                    let collision = boundingBoxes[boundingBoxes.length - 1];
+                    this.terrain = collision && collision.cs ? collision.cs.terrain : 0;
                 }
             }
         }

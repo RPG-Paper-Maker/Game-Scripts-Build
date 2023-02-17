@@ -48,10 +48,12 @@ class Systems {
         this.PORTIONS_RAY_NEAR = Utils.defaultValue(json.portionRayIngame, 3);
         this.FRAMES = json.frames;
         this.mountainCollisionHeight = System.DynamicValue.readOrDefaultNumber(json.mch, 4);
-        this.mountainCollisionAngle = System.DynamicValue
-            .readOrDefaultNumberDouble(json.mca, 45);
+        this.mountainCollisionAngle = System.DynamicValue.readOrDefaultNumberDouble(json.mca, 45);
+        this.climbingSpeed = System.DynamicValue.readOrDefaultNumberDouble(json.cs, 0.25);
         this.mapFrameDuration = System.DynamicValue.readOrDefaultNumber(json.mfd, 150);
         this.battlersFrames = Utils.defaultValue(json.battlersFrames, 4);
+        this.battlersFrameDuration = Utils.defaultValue(json.bfd, "Common.Mathf.random(250, 300)");
+        this.battlersFrameAttackingDuration = Utils.defaultValue(json.bfad, "200");
         this.battlersColumns = Utils.defaultValue(json.battlersColumns, 9);
         this.autotilesFrames = Utils.defaultValue(json.battlersColumns, 4);
         this.autotilesFrameDuration = Utils.defaultValue(json.battlersColumns, 150);

@@ -29,7 +29,6 @@ Constants.HUGE_SPACE = 20;
 Constants.PORTIONS_RAY_FAR = 0;
 Constants.PORTION_SIZE = 16;
 Constants.MAX_PICTURE_SIZE = 4096;
-Constants.ONE_SECOND_MILLI = 1000;
 Constants.NUM_BOOL_TRUE = 1;
 Constants.NUM_BOOL_FALSE = 0;
 Constants.CLASS_HIDDEN = "hidden";

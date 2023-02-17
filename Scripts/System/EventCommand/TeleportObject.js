@@ -134,6 +134,7 @@ class TeleportObject extends Base {
             if (currentState.position !== null) {
                 MapObject.search(objectID, async (result) => {
                     // If needs teleport hero in another map
+                    let needReload = false;
                     if (this.mapID !== null) {
                         let id = this.mapID.getValue();
                         // If hero set the current map
@@ -152,7 +153,7 @@ class TeleportObject extends Base {
                                 currentState.distance = null;
                             }
                             else {
-                                await Scene.Map.current.loadPortions(true);
+                                needReload = true;
                                 Game.current.hero.orientationEye = Mathf.mod(direction + Scene.Map.current.camera
                                     .getMapOrientation() - 2, 4);
                                 Game.current.hero.updateUVs();
@@ -160,6 +161,11 @@ class TeleportObject extends Base {
                         }
                     }
                     result.object.teleport(currentState.position);
+                    if (needReload) {
+                        Scene.Map.current.camera.updateTargetPosition();
+                        Scene.Map.current.camera.updateCameraPosition();
+                        await Scene.Map.current.loadPortions(true);
+                    }
                     currentState.teleported = true;
                 }, object);
                 currentState.waitingObject = true;

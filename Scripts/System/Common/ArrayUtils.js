@@ -18,5 +18,8 @@ class ArrayUtils {
     static removeElement(array, value) {
         this.removeAt(array, array.indexOf(value));
     }
+    static insert(array, index, value) {
+        array.splice(index, 0, value);
+    }
 }
 export { ArrayUtils };

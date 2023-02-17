@@ -15,7 +15,6 @@ declare class Constants {
     static readonly PORTIONS_RAY_FAR = 0;
     static readonly PORTION_SIZE = 16;
     static readonly MAX_PICTURE_SIZE = 4096;
-    static readonly ONE_SECOND_MILLI = 1000;
     static readonly NUM_BOOL_TRUE = 1;
     static readonly NUM_BOOL_FALSE = 0;
     static readonly CLASS_HIDDEN = "hidden";

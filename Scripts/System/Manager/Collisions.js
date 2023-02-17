@@ -273,7 +273,7 @@ class Collisions {
      *  @param {MapObject} object - The map object to test collision
      *  @returns {boolean}
      */
-    static checkRay(positionBefore, positionAfter, object, bbSettings) {
+    static checkRay(positionBefore, positionAfter, object, bbSettings, reverseTestObjects = false) {
         let direction = new Vector3();
         direction.subVectors(positionAfter, positionBefore).normalize();
         let jpositionBefore = Position.createFromVector3(positionBefore);
@@ -284,6 +284,13 @@ class Collisions {
         let yMountain = null;
         // Squares to inspect according to the direction of the object
         let [startI, endI, startJ, endJ, startK, endK] = object.getSquaresBB();
+        // Test objects
+        if (reverseTestObjects) {
+            let result = this.checkObjectsRay(positionAfter, object);
+            if (result !== null) {
+                return result;
+            }
+        }
         // Check collision outside
         let block = false;
         let i, j, k, i2, j2, k2, portion, mapPortion, result;
@@ -345,34 +352,25 @@ class Collisions {
         if (block && (yMountain === null)) {
             return [true, null, Enum.Orientation.None];
         }
-        // Check collision inside & with other objects
-        if (object !== Game.current.hero && object.checkCollisionObject(Game
-            .current.hero)) {
-            return [true, null, Enum.Orientation.None];
-        }
-        // Check objects collisions
-        portion = Scene.Map.current.getLocalPortion(Portion.createFromVector3(positionAfter));
-        for (i = 0; i < 2; i++) {
-            for (j = 0; j < 2; j++) {
-                mapPortion = Scene.Map.current.getMapPortion(new Portion(portion.x + i, portion.y, portion.z + j));
-                if (mapPortion && this.checkObjects(mapPortion, object)) {
-                    return [true, null, Enum.Orientation.None];
-                }
+        // Test objects
+        if (!reverseTestObjects) {
+            let result = this.checkObjectsRay(positionAfter, object);
+            if (result !== null) {
+                return result;
             }
         }
         // Check empty square or square mountain height possible down
+        portion = Scene.Map.current.getLocalPortion(Portion.createFromVector3(positionAfter));
         mapPortion = Scene.Map.current.getMapPortion(portion);
         let floors;
         if (mapPortion !== null) {
             floors = mapPortion.squareNonEmpty[jpositionAfter.x % Constants
                 .PORTION_SIZE][jpositionAfter.z % Constants.PORTION_SIZE];
-            if (floors.length === 0) {
-                let otherMapPortion = Scene.Map.current.getMapPortion(new Portion(portion.x, portion.y + 1, portion.z));
-                if (otherMapPortion) {
-                    floors = otherMapPortion.squareNonEmpty[jpositionAfter.x %
-                        Constants.PORTION_SIZE][jpositionAfter.z % Constants
-                        .PORTION_SIZE];
-                }
+            let otherMapPortion = Scene.Map.current.getMapPortion(new Portion(portion.x, portion.y + 1, portion.z));
+            if (otherMapPortion) {
+                floors = floors.concat(otherMapPortion.squareNonEmpty[jpositionAfter
+                    .x % Constants.PORTION_SIZE][jpositionAfter.z % Constants
+                    .PORTION_SIZE]);
             }
             if (yMountain === null && floors.indexOf(positionAfter.y) === -1) {
                 let l = floors.length;
@@ -406,13 +404,11 @@ class Collisions {
                         if (mapPortion !== null) {
                             floors = mapPortion.squareNonEmpty[jpositionBefore.x % Constants
                                 .PORTION_SIZE][jpositionBefore.z % Constants.PORTION_SIZE];
-                            if (floors.length === 0) {
-                                let otherMapPortion = Scene.Map.current.getMapPortion(new Portion(portion.x, portion.y + 1, portion.z));
-                                if (otherMapPortion) {
-                                    floors = otherMapPortion.squareNonEmpty[jpositionBefore.x %
-                                        Constants.PORTION_SIZE][jpositionBefore.z % Constants
-                                        .PORTION_SIZE];
-                                }
+                            let otherMapPortion = Scene.Map.current.getMapPortion(new Portion(portion.x, portion.y + 1, portion.z));
+                            if (otherMapPortion) {
+                                floors = floors.concat(otherMapPortion.squareNonEmpty[jpositionBefore.x %
+                                    Constants.PORTION_SIZE][jpositionBefore.z % Constants
+                                    .PORTION_SIZE]);
                             }
                             if (yMountain === null && floors.indexOf(positionBefore.y) === -1) {
                                 let l = floors.length;
@@ -544,6 +540,25 @@ class Collisions {
             return [this.checkLandsInside(mapPortion, jpositionBefore, jpositionAfter, direction), yMountain, Enum.Orientation.None];
         }
         return [true, null, Enum.Orientation.None];
+    }
+    static checkObjectsRay(positionAfter, object) {
+        // Check collision inside & with other objects
+        if (object !== Game.current.hero && object.checkCollisionObject(Game
+            .current.hero)) {
+            return [true, null, Enum.Orientation.None];
+        }
+        // Check objects collisions
+        let portion = Scene.Map.current.getLocalPortion(Portion.createFromVector3(positionAfter));
+        let i, j, mapPortion;
+        for (i = 0; i < 2; i++) {
+            for (j = 0; j < 2; j++) {
+                mapPortion = Scene.Map.current.getMapPortion(new Portion(portion.x + i, portion.y, portion.z + j));
+                if (mapPortion && this.checkObjects(mapPortion, object)) {
+                    return [true, null, Enum.Orientation.None];
+                }
+            }
+        }
+        return null;
     }
     /**
      *  Check if there is a collision at this position.
@@ -732,7 +747,7 @@ class Collisions {
                         if (objCollision.cl) {
                             const speed = object.speed.getValue() * MapObject
                                 .SPEED_NORMAL * Manager.Stack.averageElapsedTime *
-                                Datas.Systems.SQUARE_SIZE / 4;
+                                Datas.Systems.SQUARE_SIZE * Datas.Systems.climbingSpeed.getValue();
                             const limitTop = objCollision.b[1] + Math.ceil(objCollision.b[4] / 2);
                             const limitBot = objCollision.b[1] - Math.ceil(objCollision.b[4] / 2);
                             const y = object.isClimbingUp ? Math.min(object.position.y + speed, limitTop) : Math.max(object.position.y - speed, limitBot);

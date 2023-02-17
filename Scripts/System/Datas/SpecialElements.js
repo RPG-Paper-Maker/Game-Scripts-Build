@@ -134,6 +134,10 @@ class SpecialElements {
     static async loadTextureAutotile(textureAutotile, texture, picture, offset, id, isAnimated) {
         let frames = isAnimated ? Datas.Systems.autotilesFrames : 1;
         let picture2D = await Picture2D.create(picture);
+        // Check if correct format size
+        this.checkPictureSize("autotile", picture.name, picture2D.image.width, picture2D.image.height, 2 * Datas.Systems.SQUARE_SIZE * frames, 3 *
+            Datas.Systems.SQUARE_SIZE, false, false);
+        // Get width and height
         let width = Math.floor((picture2D.image.width / 2) / Datas.Systems
             .SQUARE_SIZE) / frames;
         let height = Math.floor((picture2D.image.height / 3) / Datas.Systems
@@ -189,43 +193,37 @@ class SpecialElements {
         let offsetY = point[1] * 3 * Datas.Systems.SQUARE_SIZE;
         let sDiv = Math.floor(Datas.Systems.SQUARE_SIZE / 2);
         let y = offset * Autotiles.COUNT_LIST * 2;
-        try {
-            let a, b, c, d, count, lA, lB, lC, lD;
-            for (a = 0; a < Autotiles.COUNT_LIST; a++) {
-                lA = Autotiles.AUTOTILE_BORDER[Autotiles.LIST_A[a]];
-                count = 0;
-                row++;
-                for (b = 0; b < Autotiles.COUNT_LIST; b++) {
-                    lB = Autotiles.AUTOTILE_BORDER[Autotiles.LIST_B[b]];
-                    for (c = 0; c < Autotiles.COUNT_LIST; c++) {
-                        lC = Autotiles.AUTOTILE_BORDER[Autotiles.LIST_C[c]];
-                        for (d = 0; d < Autotiles.COUNT_LIST; d++) {
-                            lD = Autotiles.AUTOTILE_BORDER[Autotiles.LIST_D[d]];
-                            // Draw
-                            Platform.ctxr.drawImage(img, (lA % 4 * sDiv) +
-                                offsetX, (Math.floor(lA / 4) * sDiv) + offsetY, sDiv, sDiv, count * Datas.Systems.SQUARE_SIZE, (row + y) * Datas.Systems.SQUARE_SIZE, sDiv, sDiv);
-                            Platform.ctxr.drawImage(img, (lB % 4 * sDiv) +
-                                offsetX, (Math.floor(lB / 4) * sDiv) + offsetY, sDiv, sDiv, count * Datas.Systems.SQUARE_SIZE +
-                                sDiv, (row + y) * Datas.Systems.SQUARE_SIZE, sDiv, sDiv);
-                            Platform.ctxr.drawImage(img, (lC % 4 * sDiv) +
-                                offsetX, (Math.floor(lC / 4) * sDiv) + offsetY, sDiv, sDiv, count * Datas.Systems.SQUARE_SIZE, (row + y) * Datas.Systems.SQUARE_SIZE + sDiv, sDiv, sDiv);
-                            Platform.ctxr.drawImage(img, (lD % 4 * sDiv) +
-                                offsetX, (Math.floor(lD / 4) * sDiv) + offsetY, sDiv, sDiv, count * Datas.Systems.SQUARE_SIZE +
-                                sDiv, (row + y) * Datas.Systems.SQUARE_SIZE +
-                                sDiv, sDiv, sDiv);
-                            count++;
-                            if (count === 64) {
-                                count = 0;
-                                row++;
-                            }
+        let a, b, c, d, count, lA, lB, lC, lD;
+        for (a = 0; a < Autotiles.COUNT_LIST; a++) {
+            lA = Autotiles.AUTOTILE_BORDER[Autotiles.LIST_A[a]];
+            count = 0;
+            row++;
+            for (b = 0; b < Autotiles.COUNT_LIST; b++) {
+                lB = Autotiles.AUTOTILE_BORDER[Autotiles.LIST_B[b]];
+                for (c = 0; c < Autotiles.COUNT_LIST; c++) {
+                    lC = Autotiles.AUTOTILE_BORDER[Autotiles.LIST_C[c]];
+                    for (d = 0; d < Autotiles.COUNT_LIST; d++) {
+                        lD = Autotiles.AUTOTILE_BORDER[Autotiles.LIST_D[d]];
+                        // Draw
+                        Platform.ctxr.drawImage(img, (lA % 4 * sDiv) +
+                            offsetX, (Math.floor(lA / 4) * sDiv) + offsetY, sDiv, sDiv, count * Datas.Systems.SQUARE_SIZE, (row + y) * Datas.Systems.SQUARE_SIZE, sDiv, sDiv);
+                        Platform.ctxr.drawImage(img, (lB % 4 * sDiv) +
+                            offsetX, (Math.floor(lB / 4) * sDiv) + offsetY, sDiv, sDiv, count * Datas.Systems.SQUARE_SIZE +
+                            sDiv, (row + y) * Datas.Systems.SQUARE_SIZE, sDiv, sDiv);
+                        Platform.ctxr.drawImage(img, (lC % 4 * sDiv) +
+                            offsetX, (Math.floor(lC / 4) * sDiv) + offsetY, sDiv, sDiv, count * Datas.Systems.SQUARE_SIZE, (row + y) * Datas.Systems.SQUARE_SIZE + sDiv, sDiv, sDiv);
+                        Platform.ctxr.drawImage(img, (lD % 4 * sDiv) +
+                            offsetX, (Math.floor(lD / 4) * sDiv) + offsetY, sDiv, sDiv, count * Datas.Systems.SQUARE_SIZE +
+                            sDiv, (row + y) * Datas.Systems.SQUARE_SIZE +
+                            sDiv, sDiv, sDiv);
+                        count++;
+                        if (count === 64) {
+                            count = 0;
+                            row++;
                         }
                     }
                 }
             }
-        }
-        catch (e) {
-            Platform.showErrorMessage("Error: Wrong autotile (with ID:" + id +
-                ") parsing. Please verify that you have a 2 x 3 picture (for each individual autotile).");
         }
     }
     /**
@@ -284,6 +282,9 @@ class SpecialElements {
         if (w === 0 || h === 0) {
             return Manager.GL.loadTextureEmpty();
         }
+        // Check if correct format size
+        this.checkPictureSize("wall", picture.name, picture2D.image.width, picture2D.image.height, 3 * Datas.Systems.SQUARE_SIZE, Datas.Systems
+            .SQUARE_SIZE, true, false);
         // Update picture infos for collisions
         picture.width = Math.floor(w / Datas.Systems.SQUARE_SIZE);
         picture.height = Math.floor(h / Datas.Systems.SQUARE_SIZE);
@@ -368,6 +369,9 @@ class SpecialElements {
         let width = 3;
         let height = 3;
         let size = 9;
+        // Check if correct format size
+        this.checkPictureSize("mountain", picture.name, picture2D.image.width, picture2D.image.height, 3 * Datas.Systems.SQUARE_SIZE, 3 * Datas
+            .Systems.SQUARE_SIZE, true, true);
         // Update picture width and height for collisions settings
         if (picture) {
             picture.width = width;
@@ -474,6 +478,31 @@ class SpecialElements {
             this.texturesObjects3D[pictureID] = textureObject3D;
         }
         return textureObject3D;
+    }
+    /**
+     *  Check if a special element picture is in correct format size.
+     *  @param {string} type The type of special element as a string
+     *  @param {string} name The name of the picture
+     *  @param {number} w The picture width
+     *  @param {number} h The picture height
+     *  @param {number} cw The excepted width
+     *  @param {number} ch The excepted height
+     */
+    static checkPictureSize(type, name, w, h, cw, ch, strictw, stricth) {
+        let isOKW = strictw ? w === cw : w % cw === 0;
+        let isOKH = stricth ? h === ch : h % ch === 0;
+        let error = "Wrong " + type + " size for " + name + ". ";
+        if (!isOKW) {
+            error += "Width should be " + (strictw ? "" : "a multiple of ") + cw
+                + " but it's currently " + w + ".";
+        }
+        if (!isOKH) {
+            error += "Height should be " + (stricth ? "" : "a multiple of ") + ch
+                + " but it's currently " + h + ".";
+        }
+        if (!isOKW || !isOKH) {
+            Platform.showErrorMessage(error);
+        }
     }
 }
 SpecialElements.texturesAutotiles = [];

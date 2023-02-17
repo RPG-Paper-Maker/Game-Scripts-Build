@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum, Utils } from "../Common/index.js";
+import { ArrayUtils, Enum, Utils } from "../Common/index.js";
 var PictureKind = Enum.PictureKind;
 import { Base } from "./Base.js";
 import { Game } from "../Core/index.js";
@@ -39,10 +39,16 @@ class Tileset extends Base {
         // Special elements
         let jsonSpecials = json.auto;
         let l = jsonSpecials.length;
-        this.autotiles = new Array(l);
-        let i;
+        this.autotiles = [];
+        let i, j, id;
         for (i = 0; i < l; i++) {
-            this.autotiles[i] = jsonSpecials[i].id;
+            id = jsonSpecials[i].id;
+            for (j = 0; j < i; j++) {
+                if (id <= this.autotiles[j]) {
+                    break;
+                }
+            }
+            ArrayUtils.insert(this.autotiles, j, id);
         }
         jsonSpecials = json.walls;
         l = jsonSpecials.length;
@@ -52,9 +58,15 @@ class Tileset extends Base {
         }
         jsonSpecials = json.moun;
         l = jsonSpecials.length;
-        this.mountains = new Array(l);
+        this.mountains = [];
         for (i = 0; i < l; i++) {
-            this.mountains[i] = jsonSpecials[i].id;
+            id = jsonSpecials[i].id;
+            for (j = 0; j < i; j++) {
+                if (id <= this.mountains[j]) {
+                    break;
+                }
+            }
+            ArrayUtils.insert(this.mountains, j, id);
         }
         jsonSpecials = json.objs;
         l = jsonSpecials.length;

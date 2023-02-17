@@ -11,7 +11,7 @@
 import { Base } from "./Base.js";
 import { Datas, Manager, Scene, System } from "../index.js";
 import { MapObject, Position, Game, Item } from "../Core/index.js";
-import { Mathf, Enum } from "../Common/index.js";
+import { Mathf, Enum, Platform } from "../Common/index.js";
 /** @class
  *  An event command for changing variables values.
  *  @extends EventCommand.Base
@@ -111,6 +111,10 @@ class ChangeVariables extends Base {
                     currentState.valid = false;
                     MapObject.search(objectID, (result) => {
                         let obj = result.object;
+                        if (!obj) {
+                            Platform.showErrorMessage("Cannot find object ID " +
+                                objectID + " in change variables for map object characteristics.");
+                        }
                         switch (this.valueMapObjectChar) {
                             case Enum.VariableMapObjectCharacteristicKind.XSquarePosition:
                                 currentState.value = Position.createFromVector3(obj.position).x;

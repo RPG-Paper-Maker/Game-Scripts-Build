@@ -78,7 +78,7 @@ class MenuEquip extends MenuBase {
         const rect = new Rectangle(20, 100, 290, WindowBox.SMALL_SLOT_HEIGHT);
         const nbEquipments = Datas.BattleSystems.equipmentsOrder.length;
         const options = {
-            nbItemsMax: nbEquipments
+            nbItemsMax: Math.min(Scene.MenuEquip.MAX_SLOTS_EQUIPMENTS, nbEquipments)
         };
         this.windowChoicesEquipment = new WindowChoices(rect.x, rect.y, rect
             .width, rect.height, new Array(nbEquipments), options);
@@ -89,7 +89,8 @@ class MenuEquip extends MenuBase {
      * @memberof MenuEquip
      */
     createWindowChoiceList() {
-        const nbEquips = Datas.BattleSystems.equipmentsOrder.length;
+        const nbEquips = Math.min(Scene.MenuEquip.MAX_SLOTS_EQUIPMENTS, Datas
+            .BattleSystems.equipmentsOrder.length);
         const nbEquipChoice = MenuBase.SLOTS_TO_DISPLAY - nbEquips - 1;
         const y = 100 + (nbEquips + 1) * WindowBox.SMALL_SLOT_HEIGHT;
         const rect = new Rectangle(20, y, 290, WindowBox.SMALL_SLOT_HEIGHT);
@@ -460,4 +461,5 @@ class MenuEquip extends MenuBase {
         this.windowInformation.draw();
     }
 }
+MenuEquip.MAX_SLOTS_EQUIPMENTS = 7;
 export { MenuEquip };
