@@ -15,6 +15,11 @@ declare class Collisions {
     static currentCustomObject3D: THREE.Mesh<CustomGeometry, THREE.Material | THREE.Material[]>;
     constructor();
     /**
+     *  Initialize necessary collisions.
+     *  @static
+     */
+    static initialize(): void;
+    /**
      *  Create a box for bounding box.
      *  @static
      *  @returns {THREE.Mesh}
@@ -47,7 +52,14 @@ declare class Collisions {
      *  @param {number[]} boundingBox - The bounding box list parameters
      */
     static applyOrientedBoxTransforms(box: THREE.Mesh, boundingBox: number[]): void;
-    static getBBBoxDetection(force?: boolean): import("three").Mesh<CustomGeometry, import("three").Material | import("three").Material[]>;
+    /**
+     *  Get a bounding box mesh for detection. Keep the same existing one or
+     *  force creating a new one for cases you need several.
+     *  @static
+     *  @param {number} [force=false]
+     *  @returns {THREE.Mesh}
+     */
+    static getBBBoxDetection(force?: boolean): THREE.Mesh;
     /**
      *  Indicate if min and max are overlapping.
      *  @static
@@ -97,7 +109,11 @@ declare class Collisions {
      *  @returns {boolean}
      */
     static checkRay(positionBefore: Vector3, positionAfter: Vector3, object: MapObject, bbSettings: number[], reverseTestObjects?: boolean): [boolean, number, Enum.Orientation];
-    static checkObjectsRay(positionAfter: Vector3, object: MapObject): [boolean, number, Enum.Orientation];
+    static checkObjectsRay(positionAfter: Vector3, object: MapObject): [
+        boolean,
+        number,
+        Enum.Orientation
+    ];
     /**
      *  Check if there is a collision at this position.
      *  @static

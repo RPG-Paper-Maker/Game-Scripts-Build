@@ -1,4 +1,5 @@
 import { CustomGeometry } from "./CustomGeometry.js";
+import { Vector3 } from "./Vector3.js";
 /**
  *  The geometry used to apply vertices + indices + uvs.
  *
@@ -8,6 +9,8 @@ import { CustomGeometry } from "./CustomGeometry.js";
 export declare class CustomGeometryFace extends CustomGeometry {
     b_size: number[];
     b_center: number[];
+    centerPoints: number[];
+    currentAngle: number;
     constructor();
     /**
      *  Push vertices for quad geometries.
@@ -18,7 +21,14 @@ export declare class CustomGeometryFace extends CustomGeometry {
      *  @param {THREE.Vector3} size
      *  @param {THREE.Vector3} center
      */
-    pushQuadVerticesFace(vecA: THREE.Vector3, vecB: THREE.Vector3, vecC: THREE.Vector3, vecD: THREE.Vector3, size: THREE.Vector3, center: THREE.Vector3): void;
+    pushQuadVerticesFace(vecA: THREE.Vector3, vecB: THREE.Vector3, vecC: THREE.Vector3, vecD: THREE.Vector3, center: THREE.Vector3): void;
+    /**
+     *  Rotate all the vertices around a specified center Y.
+     *  @param {number} angle
+     *  @param {THREE.Vector3} axis
+     *  @param {THREE.Vector3} center
+     */
+    rotate(angle: number, axis: Vector3): void;
     /**
      *  Update vertices, indices, and uvs buffer geometry attributes.
      */

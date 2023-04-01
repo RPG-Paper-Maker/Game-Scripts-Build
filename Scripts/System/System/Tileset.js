@@ -98,7 +98,7 @@ class Tileset extends Base {
     }
     /**
      *  Get the textures for walls.
-     *  @returns {Promise<THREE.ShaderMaterial[]>}
+     *  @returns {Promise<THREE.MeshPhongMaterial[]>}
      */
     async getTexturesWalls() {
         let list = [];
@@ -109,7 +109,7 @@ class Tileset extends Base {
     }
     /**
      *  Get the textures for 3D objects.
-     *  @returns {Promise<THREE.ShaderMaterial[]>}
+     *  @returns {Promise<THREE.MeshPhongMaterial[]>}
      */
     async getTexturesObjects3D() {
         let list = [];

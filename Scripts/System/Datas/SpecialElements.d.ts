@@ -10,8 +10,8 @@ declare class SpecialElements {
     static mountains: System.Mountain[];
     static objects: System.Object3D[];
     static texturesAutotiles: TextureBundle[][];
-    static texturesWalls: THREE.ShaderMaterial[];
-    static texturesObjects3D: THREE.ShaderMaterial[];
+    static texturesWalls: THREE.MeshPhongMaterial[];
+    static texturesObjects3D: THREE.MeshPhongMaterial[];
     static texturesMountains: TextureBundle[];
     constructor();
     /**
@@ -82,16 +82,16 @@ declare class SpecialElements {
     /**
      *  Get the wall texture.
      *  @param {number} id
-     *  @returns {Promise<THREE.ShaderMaterial>}
+     *  @returns {Promise<THREE.MeshPhongMaterial>}
      */
-    static loadWallTexture(id: number): Promise<THREE.ShaderMaterial>;
+    static loadWallTexture(id: number): Promise<THREE.MeshPhongMaterial>;
     /**
      *  Load a wall texture.
      *  @param {System.Picture} picture - The picture to load
      *  @param {number} id - The picture id
-     *  @returns {THREE.ShaderMaterial}
+     *  @returns {THREE.MeshPhongMaterial}
      */
-    static loadTextureWall(picture: System.Picture, id: number): Promise<THREE.ShaderMaterial>;
+    static loadTextureWall(picture: System.Picture, id: number): Promise<THREE.MeshPhongMaterial>;
     /**
      *  Get the max possible offset of a mountain texture.
      *  @returns {number}
@@ -130,9 +130,9 @@ declare class SpecialElements {
     /**
      *  Get the wall texture.
      *  @param {number} id
-     *  @returns {Promise<THREE.ShaderMaterial>}
+     *  @returns {Promise<THREE.MeshPhongMaterial>}
      */
-    static loadObject3DTexture(id: number): Promise<THREE.ShaderMaterial>;
+    static loadObject3DTexture(id: number): Promise<THREE.MeshPhongMaterial>;
     /**
      *  Check if a special element picture is in correct format size.
      *  @param {string} type The type of special element as a string

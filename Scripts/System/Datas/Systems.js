@@ -45,7 +45,7 @@ class Systems {
         this.isMouseControls = Utils.defaultValue(json.isMouseControls, true);
         // Other numbers
         this.SQUARE_SIZE = json.ss;
-        this.PORTIONS_RAY_NEAR = Utils.defaultValue(json.portionRayIngame, 3);
+        this.PORTIONS_RAY = Utils.defaultValue(json.portionRayIngame, 3);
         this.FRAMES = json.frames;
         this.mountainCollisionHeight = System.DynamicValue.readOrDefaultNumber(json.mch, 4);
         this.mountainCollisionAngle = System.DynamicValue.readOrDefaultNumberDouble(json.mca, 45);

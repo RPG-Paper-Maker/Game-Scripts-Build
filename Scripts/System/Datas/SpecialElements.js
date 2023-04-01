@@ -236,13 +236,13 @@ class SpecialElements {
         texture.image = await Picture2D.loadImage(Platform.canvasRendering
             .toDataURL());
         texture.needsUpdate = true;
-        textureAutotile.material = Manager.GL.createMaterial(texture);
+        textureAutotile.material = Manager.GL.createMaterial({ texture: texture });
         this.texturesAutotiles[id].push(textureAutotile);
     }
     /**
      *  Get the wall texture.
      *  @param {number} id
-     *  @returns {Promise<THREE.ShaderMaterial>}
+     *  @returns {Promise<THREE.MeshPhongMaterial>}
      */
     static async loadWallTexture(id) {
         let wall = this.getWall(id);
@@ -272,7 +272,7 @@ class SpecialElements {
      *  Load a wall texture.
      *  @param {System.Picture} picture - The picture to load
      *  @param {number} id - The picture id
-     *  @returns {THREE.ShaderMaterial}
+     *  @returns {THREE.MeshPhongMaterial}
      */
     static async loadTextureWall(picture, id) {
         let picture2D = await Picture2D.create(picture);
@@ -309,7 +309,7 @@ class SpecialElements {
         texture.image = await Picture2D.loadImage(Platform.canvasRendering
             .toDataURL());
         texture.needsUpdate = true;
-        return Manager.GL.createMaterial(texture);
+        return Manager.GL.createMaterial({ texture: texture });
     }
     /**
      *  Get the max possible offset of a mountain texture.
@@ -450,13 +450,13 @@ class SpecialElements {
     static async updateTextureMountain(textureMountain, texture, id) {
         texture.image = await Picture2D.loadImage(Platform.canvasRendering.toDataURL());
         texture.needsUpdate = true;
-        textureMountain.material = Manager.GL.createMaterial(texture);
+        textureMountain.material = Manager.GL.createMaterial({ texture: texture });
         this.texturesMountains[id] = textureMountain;
     }
     /**
      *  Get the wall texture.
      *  @param {number} id
-     *  @returns {Promise<THREE.ShaderMaterial>}
+     *  @returns {Promise<THREE.MeshPhongMaterial>}
      */
     static async loadObject3DTexture(id) {
         let object3D = this.getObject3D(id);

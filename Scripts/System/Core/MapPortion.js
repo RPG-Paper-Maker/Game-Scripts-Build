@@ -103,7 +103,7 @@ class MapPortion {
      *  @param {Record<string, any>} json - Json object describing the floors
      */
     readFloors(json) {
-        let material = Scene.Map.current.textureTileset;
+        const material = Scene.Map.current.textureTileset;
         let texture = Manager.GL.getMaterialTexture(material);
         let width = texture ? texture.image.width : 0;
         let height = texture ? texture.image.height : 0;
@@ -151,6 +151,11 @@ class MapPortion {
         geometry.updateAttributes();
         this.staticFloorsMesh = new THREE.Mesh(geometry, material);
         this.staticFloorsMesh.renderOrder = 0;
+        if (Scene.Map.current.mapProperties.isSunLight) {
+            this.staticFloorsMesh.receiveShadow = true;
+            this.staticFloorsMesh.castShadow = true;
+            this.staticFloorsMesh.customDepthMaterial = material.userData.customDepthMaterial;
+        }
         Scene.Map.current.scene.add(this.staticFloorsMesh);
     }
     /**
@@ -208,6 +213,12 @@ class MapPortion {
             if (list) {
                 for (autotiles of list) {
                     autotiles.createMesh();
+                    if (Scene.Map.current.mapProperties.isSunLight) {
+                        autotiles.mesh.receiveShadow = true;
+                        autotiles.mesh.castShadow = true;
+                        autotiles.mesh.customDepthMaterial = autotiles.bundle
+                            .material.userData.customDepthMaterial;
+                    }
                     Scene.Map.current.scene.add(autotiles.mesh);
                 }
             }
@@ -225,12 +236,11 @@ class MapPortion {
      *  @param {Record<string, any>} json - Json object describing the sprites globals
     */
     readSpritesGlobals(json) {
-        let staticMaterial = Scene.Map.current.textureTileset;
-        let faceMaterial = Scene.Map.current.textureTilesetFace;
+        const material = Scene.Map.current.textureTileset;
         let staticGeometry = new CustomGeometry();
         let faceGeometry = new CustomGeometryFace();
         let staticCount = 0, faceCount = 0;
-        let texture = Manager.GL.getMaterialTexture(staticMaterial);
+        let texture = Manager.GL.getMaterialTexture(material);
         if (texture) {
             let s, position, sprite, localPosition, collisions, resultUpdate;
             for (let i = 0, l = json.length; i < l; i++) {
@@ -258,12 +268,21 @@ class MapPortion {
         }
         staticGeometry.updateAttributes();
         faceGeometry.updateAttributes();
-        this.staticSpritesMesh = new THREE.Mesh(staticGeometry, staticMaterial);
+        this.staticSpritesMesh = new THREE.Mesh(staticGeometry, material);
         this.staticSpritesMesh.renderOrder = 999;
+        if (Scene.Map.current.mapProperties.isSunLight) {
+            this.staticSpritesMesh.receiveShadow = true;
+            this.staticSpritesMesh.castShadow = true;
+            this.staticSpritesMesh.customDepthMaterial = material.userData.customDepthMaterial;
+        }
         Scene.Map.current.scene.add(this.staticSpritesMesh);
-        this.faceSpritesMesh = new THREE.Mesh(faceGeometry, faceMaterial);
+        this.faceSpritesMesh = new THREE.Mesh(faceGeometry, material);
         this.faceSpritesMesh.renderOrder = 999;
-        this.faceSpritesMesh.frustumCulled = false;
+        if (Scene.Map.current.mapProperties.isSunLight) {
+            this.faceSpritesMesh.castShadow = true;
+            this.faceSpritesMesh.receiveShadow = true;
+            this.faceSpritesMesh.customDepthMaterial = material.userData.customDepthMaterial;
+        }
         Scene.Map.current.scene.add(this.faceSpritesMesh);
     }
     /**
@@ -322,6 +341,11 @@ class MapPortion {
                 geometry = obj.geometry;
                 geometry.updateAttributes();
                 mesh = new THREE.Mesh(geometry, obj.material);
+                if (Scene.Map.current.mapProperties.isSunLight) {
+                    mesh.receiveShadow = true;
+                    mesh.castShadow = true;
+                    mesh.customDepthMaterial = obj.material.userData.customDepthMaterial;
+                }
                 this.staticWallsList.push(mesh);
                 Scene.Map.current.scene.add(mesh);
             }
@@ -369,6 +393,12 @@ class MapPortion {
         for (i = 0, l = this.staticMountainsList.length; i < l; i++) {
             mountains = this.staticMountainsList[i];
             mountains.createMesh();
+            if (Scene.Map.current.mapProperties.isSunLight) {
+                mountains.mesh.receiveShadow = true;
+                mountains.mesh.castShadow = true;
+                mountains.mesh.customDepthMaterial = mountains.bundle.material
+                    .userData.customDepthMaterial;
+            }
             Scene.Map.current.scene.add(mountains.mesh);
         }
         // Handle overflow
@@ -453,6 +483,11 @@ class MapPortion {
                 mesh = new THREE.Mesh(geometry, obj.material);
                 this.staticObjects3DList.push(mesh);
                 mesh.renderOrder = 999;
+                if (Scene.Map.current.mapProperties.isSunLight) {
+                    mesh.receiveShadow = true;
+                    mesh.castShadow = true;
+                    mesh.customDepthMaterial = obj.material.userData.customDepthMaterial;
+                }
                 Scene.Map.current.scene.add(mesh);
             }
         }
@@ -632,9 +667,9 @@ class MapPortion {
      *  @param {number} angle - The angle on the Y axis
      */
     updateFaceSprites(angle) {
-        let i, l;
-        for (i = 0, l = this.objectsList.length; i < l; i++) {
-            this.objectsList[i].update(angle);
+        this.faceSpritesMesh.geometry.rotate(angle, Sprite.Y_AXIS);
+        for (let object of this.objectsList) {
+            object.update(angle);
         }
     }
     /**

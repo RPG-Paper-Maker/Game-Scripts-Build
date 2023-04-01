@@ -20,8 +20,8 @@ declare class Skybox extends Base {
     read(json: Record<string, any>): void;
     /**
      *  Create the textures for the background
-     *  @returns {THREE.ShaderMaterial[]}
+     *  @returns {THREE.MeshPhongMaterial[]}
      */
-    createTextures(): THREE.ShaderMaterial[];
+    createTextures(): THREE.MeshBasicMaterial[];
 }
 export { Skybox };

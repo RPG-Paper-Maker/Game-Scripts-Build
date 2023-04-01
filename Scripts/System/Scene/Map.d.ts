@@ -29,14 +29,14 @@ declare class Map extends Base {
     scene: THREE.Scene;
     allObjects: Position[];
     currentPortion: Portion;
+    previousPortion: Portion;
     mapPortions: MapPortion[];
-    textureTileset: THREE.ShaderMaterial;
-    textureTilesetFace: THREE.ShaderMaterial;
-    texturesCharacters: THREE.ShaderMaterial[];
+    textureTileset: THREE.MeshPhongMaterial;
+    texturesCharacters: THREE.MeshPhongMaterial[];
     texturesAutotiles: TextureBundle[][];
-    texturesWalls: THREE.ShaderMaterial[];
+    texturesWalls: THREE.MeshPhongMaterial[];
     texturesMountains: TextureBundle[];
-    texturesObjects3D: THREE.ShaderMaterial[];
+    texturesObjects3D: THREE.MeshPhongMaterial[];
     collisions: number[][][][];
     previousCameraPosition: Vector3;
     portionsObjectsUpdated: boolean;
@@ -52,6 +52,7 @@ declare class Map extends Base {
     weatherVelocities: number[];
     weatherRotationsAngle: number[];
     weatherRotationsPoint: Vector3[];
+    sunLight: THREE.DirectionalLight;
     constructor(id: number, isBattleMap?: boolean, minimal?: boolean, heroOrientation?: Enum.Orientation);
     /**
      *  Load async stuff.
@@ -78,6 +79,10 @@ declare class Map extends Base {
      *  @returns {Player[]}
      */
     getPossibleTargets(targetKind: Enum.TargetKind): Player[];
+    /**
+     *  Initialize sun light.
+     */
+    initializeSunLight(): void;
     /**
      *  Initialize the map objects.
      */
@@ -106,6 +111,12 @@ declare class Map extends Base {
      *  Initialize the map portions.
      */
     initializePortions(): Promise<void>;
+    /**
+     *  Update previous and current portion and return true if current changed
+     *  from previous.
+     *  @returns {boolean}
+     */
+    updateCurrentPortion(): boolean;
     /**
      *  Get the portion file name.
      *  @param {boolean} update - Indicate if the map portions array had previous
@@ -174,7 +185,13 @@ declare class Map extends Base {
      *  @param {number} z - The local z portion
      *  @returns {MapPortion}
     */
-    getMapPortion(portion: Portion): MapPortion;
+    getMapPortion(x: number, y: number, z: number): MapPortion;
+    /**
+     *  Get a map portion at local portion.
+     *  @param {Portion} portion - The local portion
+     *  @returns {MapPortion}
+    */
+    getMapPortionFromPortion(portion: Portion): MapPortion;
     /**
      *  Get a map portion at json position.
      *  @param {Position} position - The position
@@ -188,22 +205,25 @@ declare class Map extends Base {
      */
     getBrutMapPortion(index: number): MapPortion;
     /**
-     *  Get portion index according to local position.
+     *  Get portion index according to local positions of portion.
+     *  @param {number} x - The local x position of portion
+     *  @param {number} y - The local y position of portion
+     *  @param {number} z - The local z position of portion
+     *  @returns {number}
+    */
+    getPortionIndex(x: number, y: number, z: number): number;
+    /**
+     *  Get portion index according to local portion.
      *  @param {Portion} portion - The local portion
      *  @returns {number}
     */
-    getPortionIndex(portion: Portion): number;
+    getPortionIndexFromPortion(portion: Portion): number;
     /**
      *  Set a local portion with a global portion.
      *  @param {Portion} portion - The global portion
      *  @returns {Portion}
      */
     getLocalPortion(portion: Portion): Portion;
-    /**
-     *  Get the map portion limit.
-     *  @returns {number}
-     */
-    getMapPortionLimit(): number;
     /**
      *  Get the map portions size.
      *  @returns {number}
@@ -242,22 +262,6 @@ declare class Map extends Base {
      *  @param {SpecialElement[]} specials - The specials list
     */
     loadSpecialsCollision(list: number[], kind: PictureKind, specials: System.SpecialElement[]): void;
-    /**
-     *  Update moving portions.
-     */
-    updateMovingPortions(): void;
-    /**
-     *  Update moving portions for east and west.
-     */
-    updateMovingPortionsEastWest(newPortion: Portion): void;
-    /**
-     *  Update moving portions for north and south.
-     */
-    updateMovingPortionsNorthSouth(newPortion: Portion): void;
-    /**
-     *  Update moving portions for up and down
-     */
-    updateMovingPortionsUpDown(newPortion: Portion): void;
     /**
      *  Update portions according to a callback.
      */

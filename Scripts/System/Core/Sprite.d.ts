@@ -36,7 +36,7 @@ declare class Sprite extends MapElement {
      *  @param {number} angle - The angle in degree
      *  @param {Vector3} axis - The vector axis
      */
-    static rotateVertex(vec: Vector3, center: Vector3, angle: number, axis: Vector3): void;
+    static rotateVertex(vec: Vector3, center: Vector3, angle: number, axis: Vector3, isDegree?: boolean): void;
     /** Rotate the four vertices of a sprite around a specified center.
      *   @static
      *   @param {Vector3} vecA - The A vertex to rotate

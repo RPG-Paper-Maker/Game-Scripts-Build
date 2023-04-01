@@ -6,7 +6,7 @@ import { MapObject } from "../Core/index.js";
 */
 declare class Systems {
     static SQUARE_SIZE: number;
-    static PORTIONS_RAY_NEAR: number;
+    static PORTIONS_RAY: number;
     static FRAMES: number;
     static PATH_BR: string;
     static PATH_DLCS: string;

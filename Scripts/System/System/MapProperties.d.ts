@@ -36,6 +36,7 @@ declare class MapProperties extends Base {
     skyboxGeometry: THREE.BoxGeometry;
     skyboxMesh: THREE.Mesh;
     maxNumberSteps: number;
+    isSunLight: boolean;
     constructor();
     /**
      *  Read the JSON associated to the map properties.

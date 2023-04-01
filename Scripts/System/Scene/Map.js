@@ -59,6 +59,7 @@ class Map extends Base {
             this.scene.add(Manager.Collisions.BB_BOX_DEFAULT_DETECTION);
         }
         await this.readMapProperties();
+        this.initializeSunLight();
         this.initializeCamera();
         this.orientation = this.camera.getMapOrientation();
         await this.initializeObjects();
@@ -75,12 +76,12 @@ class Map extends Base {
      *  Reload only the textures + collisions
      */
     async reloadTextures() {
-        let limit = this.getMapPortionLimit();
+        const limit = Datas.Systems.PORTIONS_RAY;
         let i, j, k;
         for (i = -limit; i <= limit; i++) {
             for (j = -limit; j <= limit; j++) {
                 for (k = -limit; k <= limit; k++) {
-                    let mapPortion = this.getMapPortion(new Portion(i, j, k));
+                    let mapPortion = this.getMapPortion(i, j, k);
                     if (mapPortion) {
                         mapPortion.cleanStatic();
                     }
@@ -95,7 +96,7 @@ class Map extends Base {
         for (i = -limit; i <= limit; i++) {
             for (j = -limit; j <= limit; j++) {
                 for (k = -limit; k <= limit; k++) {
-                    let mapPortion = this.getMapPortion(new Portion(i, j, k));
+                    let mapPortion = this.getMapPortion(i, j, k);
                     if (mapPortion) {
                         let portion = new Portion(this.currentPortion.x + i, this
                             .currentPortion.y + j, this.currentPortion.z + k);
@@ -144,6 +145,31 @@ class Map extends Base {
         }
         else {
             return [];
+        }
+    }
+    /**
+     *  Initialize sun light.
+     */
+    initializeSunLight() {
+        const ambient = new THREE.AmbientLight(0xffffff, this.mapProperties
+            .isSunLight ? 0.75 : 1);
+        this.scene.add(ambient);
+        if (this.mapProperties.isSunLight) {
+            this.sunLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            this.sunLight.position.set(-1, 1.75, 1);
+            this.sunLight.position.multiplyScalar(Datas.Systems.SQUARE_SIZE * 10);
+            this.sunLight.target.position.set(0, 0, 0);
+            this.scene.add(this.sunLight);
+            this.sunLight.castShadow = true;
+            this.sunLight.shadow.mapSize.width = 2048;
+            this.sunLight.shadow.mapSize.height = 2048;
+            const d = Datas.Systems.SQUARE_SIZE * 10;
+            this.sunLight.shadow.camera.left = -d;
+            this.sunLight.shadow.camera.right = d;
+            this.sunLight.shadow.camera.top = d;
+            this.sunLight.shadow.camera.bottom = -d;
+            this.sunLight.shadow.camera.far = Datas.Systems.SQUARE_SIZE * 350;
+            this.sunLight.shadow.bias = -0.0003;
         }
     }
     /**
@@ -245,15 +271,11 @@ class Map extends Base {
         let path = tileset.getPath();
         this.textureTileset = path ? (await Manager.GL.loadTexture(path)) :
             Manager.GL.loadTextureEmpty();
-        let t = this.textureTileset.uniforms.t.value;
+        let t = this.textureTileset.map;
         if (t.image.width % Datas.Systems.SQUARE_SIZE !== 0 || t.image.height % Datas.Systems.SQUARE_SIZE !== 0) {
             Platform.showErrorMessage("Tileset in " + path + " is not in a size multiple of " +
                 Datas.Systems.SQUARE_SIZE + ". Please edit this picture size.");
         }
-        this.textureTilesetFace = Manager.GL.createMaterial(this.textureTileset
-            .uniforms.t.value, {
-            isFaceSprite: true
-        });
         this.texturesAutotiles = await tileset.getTexturesAutotiles();
         this.texturesWalls = await tileset.getTexturesWalls();
         this.texturesMountains = await tileset.getTexturesMountains();
@@ -268,8 +290,8 @@ class Map extends Base {
         for (let list of this.texturesAutotiles) {
             if (list) {
                 for (let texture of list) {
-                    texture.material.uniforms.offset.value = texture.isAnimated ?
-                        this.autotilesOffset : new Vector2();
+                    texture.material.userData.uniforms.offset.value = texture
+                        .isAnimated ? this.autotilesOffset : new Vector2();
                 }
             }
         }
@@ -313,6 +335,7 @@ class Map extends Base {
      *  Initialize the map portions.
      */
     async initializePortions() {
+        this.updateCurrentPortion();
         await this.loadPortions();
         // Hero initialize
         if (!this.isBattleMap) {
@@ -330,60 +353,99 @@ class Map extends Base {
         }
     }
     /**
+     *  Update previous and current portion and return true if current changed
+     *  from previous.
+     *  @returns {boolean}
+     */
+    updateCurrentPortion() {
+        if (!this.camera) {
+            return false;
+        }
+        this.previousPortion = this.currentPortion;
+        this.currentPortion = Portion.createFromVector3(this.camera.getThreeCamera().position);
+        if (!this.previousPortion) {
+            this.previousPortion = this.currentPortion;
+        }
+        return !this.previousPortion.equals(this.currentPortion);
+    }
+    /**
      *  Get the portion file name.
      *  @param {boolean} update - Indicate if the map portions array had previous
      *  values.
      */
     async loadPortions(update = false) {
-        let previousPortion = this.currentPortion;
-        this.currentPortion = Portion.createFromVector3(this.camera.getThreeCamera().position);
-        if (!previousPortion) {
-            previousPortion = this.currentPortion;
+        if (!update) {
+            this.mapPortions = new Array(this.getMapPortionTotalSize());
         }
-        // If just need update but same current portion, then nothing to do
-        if (update && previousPortion.equals(this.currentPortion)) {
+        const offsetX = this.currentPortion.x - this.previousPortion.x;
+        const offsetY = this.currentPortion.y - this.previousPortion.y;
+        const offsetZ = this.currentPortion.z - this.previousPortion.z;
+        const limit = Datas.Systems.PORTIONS_RAY;
+        let i, j, k;
+        if (!update) {
+            for (i = -limit; i <= limit; i++) {
+                for (j = -limit; j <= limit; j++) {
+                    for (k = -limit; k <= limit; k++) {
+                        await this.loadPortion(this.currentPortion.x + i, this
+                            .currentPortion.y + j, this.currentPortion.z + k, i, j, k);
+                    }
+                }
+            }
             return;
         }
-        if (!update) {
-            this.mapPortions = [];
+        // Make a temp copy for moving stuff correctly
+        const temp = new Array(this.mapPortions.length);
+        for (let i = 0, l = this.mapPortions.length; i < l; i++) {
+            temp[i] = this.mapPortions[i];
         }
-        let limit = this.getMapPortionLimit();
-        let minX = previousPortion.x - limit;
-        let minY = previousPortion.y - limit;
-        let minZ = previousPortion.z - limit;
-        let maxX = previousPortion.x + limit;
-        let maxY = previousPortion.y + limit;
-        let maxZ = previousPortion.x + limit;
-        let temp = new Array(this.mapPortions.length);
-        let i, j, k, x, y, z;
-        if (update) {
-            for (let i = 0, l = this.mapPortions.length; i < l; i++) {
-                temp[i] = this.mapPortions[i];
-            }
-        }
+        // Remove existing portions
+        let x, y, z, oi, oj, ok;
         for (i = -limit; i <= limit; i++) {
             for (j = -limit; j <= limit; j++) {
                 for (k = -limit; k <= limit; k++) {
                     x = this.currentPortion.x + i;
                     y = this.currentPortion.y + j;
                     z = this.currentPortion.z + k;
-                    // Load normally
-                    if (update && x >= minX && x <= maxX && y >= minY && y <= maxY &&
-                        z >= minZ && z <= maxZ) {
-                        let newIndex = this.getPortionIndex(new Portion(i, j, k));
-                        let previousIndex = this.getPortionIndex(new Portion(x - previousPortion.x, y - previousPortion.y, z -
-                            previousPortion.z));
-                        this.mapPortions[newIndex] = temp[previousIndex];
-                        if (temp[previousIndex] !== null) {
-                            this.mapPortions[previousIndex] = null;
-                        }
-                    }
-                    else {
-                        await this.loadPortion(x, y, z, i, j, k);
+                    oi = i - offsetX;
+                    oj = j - offsetY;
+                    ok = k - offsetZ;
+                    // If with negative offset, out of ray boundaries, remove
+                    if (oi < -limit || oi > limit || oj < -limit || oj > limit ||
+                        ok < -limit || ok > limit) {
+                        this.removePortion(i, j, k);
                     }
                 }
             }
         }
+        // Move / Load
+        for (i = -limit; i <= limit; i++) {
+            for (j = -limit; j <= limit; j++) {
+                for (k = -limit; k <= limit; k++) {
+                    x = this.currentPortion.x + i;
+                    y = this.currentPortion.y + j;
+                    z = this.currentPortion.z + k;
+                    oi = i - offsetX;
+                    oj = j - offsetY;
+                    ok = k - offsetZ;
+                    // If with negative offset, in ray boundaries, move
+                    if (oi >= -limit && oi <= limit && oj >= -limit &&
+                        oj <= limit && ok >= -limit && ok <= limit) {
+                        let previousIndex = this.getPortionIndex(i, j, k);
+                        let newIndex = this.getPortionIndex(oi, oj, ok);
+                        this.mapPortions[newIndex] = temp[previousIndex];
+                    }
+                    oi = i + offsetX;
+                    oj = j + offsetY;
+                    ok = k + offsetZ;
+                    // If with positive offset, out of ray boundaries, load
+                    if (oi < -limit || oi > limit || oj < -limit || oj > limit ||
+                        ok < -limit || ok > limit) {
+                        await this.loadPortion(x, y, z, i, j, k, true);
+                    }
+                }
+            }
+        }
+        this.loading = false;
     }
     /**
      *  Load a portion.
@@ -439,9 +501,11 @@ class Map extends Base {
      *  @param {number} z - The local z portion
     */
     removePortion(x, y, z) {
-        let mapPortion = this.getMapPortion(new Portion(x, y, z));
+        const index = this.getPortionIndex(x, y, z);
+        const mapPortion = this.mapPortions[index];
         if (mapPortion !== null) {
             mapPortion.cleanAll();
+            this.mapPortions[index] = null;
         }
     }
     /**
@@ -454,7 +518,7 @@ class Map extends Base {
      *  @param {number} o - The new z portion
     */
     setPortion(i, j, k, m, n, o) {
-        this.setMapPortion(i, j, k, this.getMapPortion(new Portion(m, n, o)), true);
+        this.setMapPortion(i, j, k, this.getMapPortion(m, n, o), true);
     }
     /**
      *  Set a portion.
@@ -466,7 +530,7 @@ class Map extends Base {
      *  loaded
     */
     setMapPortion(x, y, z, mapPortion, move) {
-        let index = this.getPortionIndex(new Portion(x, y, z));
+        let index = this.getPortionIndex(x, y, z);
         let currentMapPortion = this.mapPortions[index];
         if (currentMapPortion && !move) {
             currentMapPortion.cleanAll();
@@ -488,8 +552,16 @@ class Map extends Base {
      *  @param {number} z - The local z portion
      *  @returns {MapPortion}
     */
-    getMapPortion(portion) {
-        return this.getBrutMapPortion(this.getPortionIndex(portion));
+    getMapPortion(x, y, z) {
+        return this.getBrutMapPortion(this.getPortionIndex(x, y, z));
+    }
+    /**
+     *  Get a map portion at local portion.
+     *  @param {Portion} portion - The local portion
+     *  @returns {MapPortion}
+    */
+    getMapPortionFromPortion(portion) {
+        return this.getMapPortion(portion.x, portion.y, portion.z);
     }
     /**
      *  Get a map portion at json position.
@@ -497,7 +569,7 @@ class Map extends Base {
      *  @returns {MapPortion}
      */
     getMapPortionByPosition(position) {
-        return this.getMapPortion(this.getLocalPortion(position.getGlobalPortion()));
+        return this.getMapPortionFromPortion(this.getLocalPortion(position.getGlobalPortion()));
     }
     /**
      *  Get map portion according to portion index.
@@ -508,14 +580,24 @@ class Map extends Base {
         return this.mapPortions[index];
     }
     /**
-     *  Get portion index according to local position.
+     *  Get portion index according to local positions of portion.
+     *  @param {number} x - The local x position of portion
+     *  @param {number} y - The local y position of portion
+     *  @param {number} z - The local z position of portion
+     *  @returns {number}
+    */
+    getPortionIndex(x, y, z) {
+        const size = this.getMapPortionSize();
+        const limit = Datas.Systems.PORTIONS_RAY;
+        return ((x + limit) * size * size) + ((y + limit) * size) + (z + limit);
+    }
+    /**
+     *  Get portion index according to local portion.
      *  @param {Portion} portion - The local portion
      *  @returns {number}
     */
-    getPortionIndex(portion) {
-        let size = this.getMapPortionSize();
-        let limit = this.getMapPortionLimit();
-        return ((portion.x + limit) * size * size) + ((portion.y + limit) * size) + (portion.z + limit);
+    getPortionIndexFromPortion(portion) {
+        return this.getPortionIndex(portion.x, portion.y, portion.z);
     }
     /**
      *  Set a local portion with a global portion.
@@ -526,26 +608,20 @@ class Map extends Base {
         return new Portion(portion.x - this.currentPortion.x, portion.y - this.currentPortion.y, portion.z - this.currentPortion.z);
     }
     /**
-     *  Get the map portion limit.
-     *  @returns {number}
-     */
-    getMapPortionLimit() {
-        return Datas.Systems.PORTIONS_RAY_NEAR + Constants.PORTIONS_RAY_FAR;
-    }
-    /**
      *  Get the map portions size.
      *  @returns {number}
      */
     getMapPortionSize() {
-        return (this.getMapPortionLimit() * 2) + 1;
+        return (Datas.Systems.PORTIONS_RAY * 2) + 1;
     }
     /**
      *  Get the map portion total size.
      *  @returns {number}
      */
     getMapPortionTotalSize() {
-        let size = this.getMapPortionSize();
-        return size * size * size;
+        const size = this.getMapPortionSize();
+        const limit = Datas.Systems.PORTIONS_RAY;
+        return ((limit * 2) * size * size) + ((limit * 2) * size) + (limit * 2);
     }
     /**
      *  Check if a local portion if in the limit
@@ -553,7 +629,7 @@ class Map extends Base {
      *  @returns {boolean}
     */
     isInPortion(portion) {
-        let limit = this.getMapPortionLimit();
+        let limit = Datas.Systems.PORTIONS_RAY;
         return (portion.x >= -limit && portion.x <= limit && portion.y >= -limit
             && portion.y <= limit && portion.z >= -limit && portion.z <= limit);
     }
@@ -600,116 +676,10 @@ class Map extends Base {
         }
     }
     /**
-     *  Update moving portions.
-     */
-    updateMovingPortions() {
-        let newPortion = Portion.createFromVector3(this.camera.getThreeCamera()
-            .position);
-        if (!newPortion.equals(this.currentPortion)) {
-            this.updateMovingPortionsEastWest(newPortion);
-            this.updateMovingPortionsNorthSouth(newPortion);
-            this.updateMovingPortionsUpDown(newPortion);
-        }
-        this.currentPortion = newPortion;
-    }
-    /**
-     *  Update moving portions for east and west.
-     */
-    updateMovingPortionsEastWest(newPortion) {
-        let r = this.getMapPortionLimit();
-        let i, j, k;
-        if (newPortion.x > this.currentPortion.x) {
-            for (k = -r; k <= r; k++) {
-                for (j = -r; j <= r; j++) {
-                    i = -r;
-                    this.removePortion(i, k, j);
-                    for (; i < r; i++) {
-                        this.setPortion(i, k, j, i + 1, k, j);
-                    }
-                    this.loadPortionFromPortion(newPortion, r, k, j, true);
-                }
-            }
-        }
-        else if (newPortion.x < this.currentPortion.x) {
-            for (k = -r; k <= r; k++) {
-                for (j = -r; j <= r; j++) {
-                    i = r;
-                    this.removePortion(i, k, j);
-                    for (; i > -r; i--) {
-                        this.setPortion(i, k, j, i - 1, k, j);
-                    }
-                    this.loadPortionFromPortion(newPortion, -r, k, j, true);
-                }
-            }
-        }
-    }
-    /**
-     *  Update moving portions for north and south.
-     */
-    updateMovingPortionsNorthSouth(newPortion) {
-        let r = this.getMapPortionLimit();
-        let i, j, k;
-        if (newPortion.z > this.currentPortion.z) {
-            for (k = -r; k <= r; k++) {
-                for (i = -r; i <= r; i++) {
-                    j = -r;
-                    this.removePortion(i, k, j);
-                    for (; j < r; j++) {
-                        this.setPortion(i, k, j, i, k, j + 1);
-                    }
-                    this.loadPortionFromPortion(newPortion, i, k, r, true);
-                }
-            }
-        }
-        else if (newPortion.z < this.currentPortion.z) {
-            for (k = -r; k <= r; k++) {
-                for (i = -r; i <= r; i++) {
-                    j = r;
-                    this.removePortion(i, k, j);
-                    for (; j > -r; j--) {
-                        this.setPortion(i, k, j, i, k, j - 1);
-                    }
-                    this.loadPortionFromPortion(newPortion, i, k, -r, true);
-                }
-            }
-        }
-    }
-    /**
-     *  Update moving portions for up and down
-     */
-    updateMovingPortionsUpDown(newPortion) {
-        let r = this.getMapPortionLimit();
-        let i, j, k;
-        if (newPortion.y > this.currentPortion.y) {
-            for (i = -r; i <= r; i++) {
-                for (j = -r; j <= r; j++) {
-                    k = -r;
-                    this.removePortion(i, k, j);
-                    for (; k < r; k++) {
-                        this.setPortion(i, k, j, i, k + 1, j);
-                    }
-                    this.loadPortionFromPortion(newPortion, i, r, j, true);
-                }
-            }
-        }
-        else if (newPortion.y < this.currentPortion.y) {
-            for (i = -r; i <= r; i++) {
-                for (j = -r; j <= r; j++) {
-                    k = r;
-                    this.removePortion(i, k, j);
-                    for (; k > -r; k--) {
-                        this.setPortion(i, k, j, i, k - 1, j);
-                    }
-                    this.loadPortionFromPortion(newPortion, i, -r, j, true);
-                }
-            }
-        }
-    }
-    /**
      *  Update portions according to a callback.
      */
     updatePortions(base, callback) {
-        let limit = this.getMapPortionLimit();
+        const limit = Datas.Systems.PORTIONS_RAY;
         let lx = Math.ceil(this.mapProperties.length / Constants.PORTION_SIZE);
         let lz = Math.ceil(this.mapProperties.width / Constants.PORTION_SIZE);
         let ld = Math.ceil(this.mapProperties.depth / Constants.PORTION_SIZE);
@@ -923,7 +893,6 @@ class Map extends Base {
                         .DynamicValue.createSwitch(true)], true, false);
             }
         }
-        this.updateMovingPortions();
         // Update autotiles animated
         if (this.autotileFrame.update()) {
             this.autotilesOffset.setY((this.autotileFrame.value * Autotiles
@@ -943,7 +912,7 @@ class Map extends Base {
         // Getting the Y angle of the camera
         let vector = new Vector3();
         this.camera.getThreeCamera().getWorldDirection(vector);
-        let angle = Math.atan2(vector.x, vector.z) + (180 * Math.PI / 180.0);
+        let angle = Math.atan2(vector.x, vector.z) + Math.PI;
         this.mapProperties.startupObject.update();
         // Update the objects
         if (!this.isBattleMap) {
@@ -961,7 +930,7 @@ class Map extends Base {
                 movedObjects[p].update(angle);
             }
             // Update face sprites
-            let mapPortion = this.getMapPortion(new Portion(i, j, k));
+            let mapPortion = this.getMapPortion(i, j, k);
             if (mapPortion) {
                 mapPortion.updateFaceSprites(angle);
             }
@@ -970,6 +939,11 @@ class Map extends Base {
         this.updateWeather();
         // Update scene game (interpreters)
         super.update();
+        // Update portion
+        if (Scene.Map.current.updateCurrentPortion()) {
+            this.loadPortions(true);
+            this.loading = true;
+        }
     }
     /**
      *  Handle scene key pressed.

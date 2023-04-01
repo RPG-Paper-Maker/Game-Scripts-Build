@@ -3,7 +3,7 @@
  */
 declare class TextureBundle {
     list: any[][];
-    material: THREE.ShaderMaterial;
+    material: THREE.MeshPhongMaterial;
     beginID: number;
     beginPoint: number[];
     endID: number;

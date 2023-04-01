@@ -31,6 +31,7 @@ class GL {
         this.renderer.autoClear = false;
         this.renderer.setSize(ScreenResolution.CANVAS_WIDTH, ScreenResolution
             .CANVAS_HEIGHT, true);
+        this.renderer.shadowMap.enabled = true;
         if (Datas.Systems.antialias) {
             this.renderer.setPixelRatio(2);
         }
@@ -90,55 +91,79 @@ class GL {
                 }
             });
         }));
-        return this.createMaterial(texture);
+        return this.createMaterial({ texture: texture });
     }
     /**
      *  Load a texture empty.
      *  @returns {THREE.Material}
      */
     static loadTextureEmpty() {
-        return new THREE.ShaderMaterial({
-            transparent: true,
-            side: THREE.DoubleSide,
-            alphaTest: 0.5,
-            uniforms: {
-                t: { value: undefined }
-            }
-        });
+        const material = new THREE.MeshPhongMaterial();
+        material.userData.uniforms = {
+            t: { value: undefined }
+        };
+        return material;
     }
     /**
      *  Create a material from texture.
-     *  @returns {THREE.ShaderMaterial}
+     *  @returns {THREE.MeshPhongMaterial}
      */
-    static createMaterial(texture, opts = {}) {
-        texture.magFilter = THREE.NearestFilter;
-        texture.minFilter = THREE.NearestFilter;
-        texture.flipY = opts.flipY;
-        if (!opts.uniforms) {
-            opts.uniforms = {
-                t: { type: "t", value: texture },
-                colorD: { type: "v4", value: this.screenTone },
-                reverseH: { type: "b", value: opts.flipX },
-                offset: { type: "v2", value: new Vector2() }
-            };
+    static createMaterial(opts) {
+        if (!opts.texture) {
+            opts.texture = new THREE.Texture();
         }
-        let material = new THREE.ShaderMaterial({
-            uniforms: opts.uniforms,
-            vertexShader: opts.isFaceSprite ? this.SHADER_FACE_VERTEX : this.SHADER_FIX_VERTEX,
-            fragmentShader: opts.isFaceSprite ? this.SHADER_FACE_FRAGMENT : this.SHADER_FIX_FRAGMENT,
-            side: Utils.isUndefined(opts.side) ? (opts.isFaceSprite ? THREE.BackSide : THREE.DoubleSide) : opts.side,
-            transparent: true
+        opts.texture.magFilter = THREE.NearestFilter;
+        opts.texture.minFilter = THREE.NearestFilter;
+        opts.texture.flipY = (opts.flipY) ? true : false;
+        opts.repeat = Utils.defaultValue(opts.repeat, 1.0);
+        opts.opacity = Utils.defaultValue(opts.opacity, 1.0);
+        const fragment = this.SHADER_FIX_FRAGMENT;
+        const vertex = this.SHADER_FIX_VERTEX;
+        const screenTone = this.screenTone;
+        const uniforms = opts.uniforms ? opts.uniforms : {
+            offset: { value: new THREE.Vector2() },
+            colorD: { value: screenTone }
+        };
+        // Program cache key for multiple shader programs
+        const key = fragment === this.SHADER_FIX_FRAGMENT ? 0 : 1;
+        // Create material
+        const material = new THREE.MeshPhongMaterial({
+            map: opts.texture,
+            side: THREE.DoubleSide,
+            transparent: true,
+            alphaTest: 0.5
         });
+        material.userData.uniforms = uniforms;
+        material.userData.customDepthMaterial = new THREE.MeshDepthMaterial({
+            depthPacking: THREE.RGBADepthPacking,
+            map: opts.texture,
+            alphaTest: 0.5
+        });
+        // Edit shader information before compiling shader
+        material.onBeforeCompile = (shader) => {
+            shader.fragmentShader = fragment;
+            shader.vertexShader = vertex;
+            shader.uniforms.colorD = uniforms.colorD;
+            shader.uniforms.reverseH = { value: opts.flipX };
+            shader.uniforms.repeat = { value: opts.repeat };
+            shader.uniforms.opacity = { value: opts.opacity };
+            shader.uniforms.offset = uniforms.offset;
+            material.userData.uniforms = shader.uniforms;
+            // Important to run a unique shader only once and be able to use 
+            // multiple shader with before compile
+            material.customProgramCacheKey = () => {
+                return '' + key;
+            };
+        };
         return material;
     }
     /**
      *  Get material THREE.Texture (if exists).
-     *  @param {THREE.ShaderMaterial}
+     *  @param {THREE.MeshPhongMaterial}
      *  @returns {THREE.Texture}
      */
     static getMaterialTexture(material) {
-        return material && material.uniforms.t.value ? material.uniforms.t.value
-            : null;
+        return material && material.map ? material.map : null;
     }
     /**
      *  Update the background color

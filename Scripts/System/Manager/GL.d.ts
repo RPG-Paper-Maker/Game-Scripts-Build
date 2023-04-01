@@ -33,29 +33,32 @@ declare class GL {
      *  @param {string} path - The path of the texture
      *  @returns {Promise<THREE.Material>}
      */
-    static loadTexture(path: string): Promise<THREE.ShaderMaterial>;
+    static loadTexture(path: string): Promise<THREE.MeshPhongMaterial>;
     /**
      *  Load a texture empty.
      *  @returns {THREE.Material}
      */
-    static loadTextureEmpty(): THREE.ShaderMaterial;
+    static loadTextureEmpty(): THREE.MeshPhongMaterial;
     /**
      *  Create a material from texture.
-     *  @returns {THREE.ShaderMaterial}
+     *  @returns {THREE.MeshPhongMaterial}
      */
-    static createMaterial(texture: THREE.Texture, opts?: {
+    static createMaterial(opts: {
+        texture?: THREE.Texture | null;
         flipX?: boolean;
         flipY?: boolean;
         uniforms?: Record<string, any>;
+        side?: number;
         isFaceSprite?: boolean;
-        side?: THREE.Side;
-    }): THREE.ShaderMaterial;
+        repeat?: number;
+        opacity?: number;
+    }): THREE.MeshPhongMaterial;
     /**
      *  Get material THREE.Texture (if exists).
-     *  @param {THREE.ShaderMaterial}
+     *  @param {THREE.MeshPhongMaterial}
      *  @returns {THREE.Texture}
      */
-    static getMaterialTexture(material: THREE.ShaderMaterial): THREE.Texture;
+    static getMaterialTexture(material: THREE.MeshPhongMaterial): THREE.Texture;
     /**
      *  Update the background color
      *  @static

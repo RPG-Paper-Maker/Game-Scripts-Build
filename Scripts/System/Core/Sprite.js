@@ -51,9 +51,9 @@ class Sprite extends MapElement {
      *  @param {number} angle - The angle in degree
      *  @param {Vector3} axis - The vector axis
      */
-    static rotateVertex(vec, center, angle, axis) {
+    static rotateVertex(vec, center, angle, axis, isDegree = true) {
         vec.sub(center);
-        vec.applyAxisAngle(axis, angle * Math.PI / 180.0);
+        vec.applyAxisAngle(axis, isDegree ? angle * Math.PI / 180.0 : angle);
         vec.add(center);
     }
     /** Rotate the four vertices of a sprite around a specified center.
@@ -227,9 +227,11 @@ class Sprite extends MapElement {
         }
         if (geometry instanceof CustomGeometryFace) {
             // Face sprite
-            geometry.pushQuadVerticesFace(Sprite.MODEL[0].clone(), Sprite.MODEL[1]
-                .clone(), Sprite.MODEL[2].clone(), Sprite.MODEL[3].clone(), size
-                .clone(), new THREE.Vector3(center.x, localPosition.y, center.z));
+            const c = new THREE.Vector3(center.x, localPosition.y, center.z);
+            geometry.pushQuadVerticesFace(Sprite.MODEL[0].clone().multiply(size)
+                .add(c), Sprite.MODEL[1].clone().multiply(size).add(c), Sprite
+                .MODEL[2].clone().multiply(size).add(c), Sprite.MODEL[3].clone()
+                .multiply(size).add(c), c);
             geometry.pushQuadIndices(count);
             geometry.pushQuadUVs(texA, texB, texC, texD);
             count = count + 4;

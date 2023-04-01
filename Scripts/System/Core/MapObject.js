@@ -176,7 +176,7 @@ class MapObject {
         let localPortion = Scene.Map.current.getLocalPortion(globalPortion);
         let mapPortion;
         if (Scene.Map.current.isInPortion(localPortion)) {
-            mapPortion = Scene.Map.current.getMapPortion(localPortion);
+            mapPortion = Scene.Map.current.getMapPortionFromPortion(localPortion);
             let objects = mapPortion.objectsList;
             for (i = 0, l = objects.length; i < l; i++) {
                 if (objects[i].system.id === objectID) {
@@ -544,6 +544,11 @@ class MapObject {
                 .scaleY, positionTranformation.scaleZ);
             this.position.set(this.position.x + this.currentCenterOffset.x, this
                 .position.y, this.position.z + this.currentCenterOffset.z);
+            if (Scene.Map.current.mapProperties.isSunLight) {
+                this.mesh.receiveShadow = true;
+                this.mesh.castShadow = true;
+                this.mesh.customDepthMaterial = material.userData.customDepthMaterial;
+            }
             this.mesh.position.set(this.position.x, this.position.y, this
                 .position.z);
             this.boundingBoxSettings = objCollision[1][0];
@@ -786,7 +791,6 @@ class MapObject {
                                 this.currentScale.y * this.boundingBoxSettings.b[i][4],
                             ]);
                         }
-                        box.geometry.computeBoundingBox();
                         this.meshBoundingBox.push(box);
                     }
                     break;
@@ -804,7 +808,6 @@ class MapObject {
                     this.boundingBoxSettings.b[0][7],
                     this.boundingBoxSettings.b[0][8]
                 ]);
-                box.geometry.computeBoundingBox();
                 this.meshBoundingBox.push(box);
                 break;
         }
@@ -838,7 +841,6 @@ class MapObject {
                 bbSettings[7],
                 bbSettings[8]
             ]);
-            mesh.geometry.computeBoundingBox();
         }
         else if (this.currentStateInstance.graphicKind === ElementMapKind.SpritesFace) {
             Manager.Collisions.applyOrientedBoxTransforms(mesh, [
@@ -848,7 +850,6 @@ class MapObject {
                 bbSettings[3],
                 bbSettings[4]
             ]);
-            mesh.geometry.computeBoundingBox();
         }
     }
     /**
@@ -1041,8 +1042,8 @@ class MapObject {
             movedObjects = objects.m;
             if (movedObjects && movedObjects.indexOf(this) === -1) {
                 movedObjects.push(this);
-                movedObjects = Scene.Map.current.getMapPortion(Scene.Map.current
-                    .getLocalPortion(originalPortion)).objectsList;
+                movedObjects = Scene.Map.current.getMapPortionFromPortion(Scene
+                    .Map.current.getLocalPortion(originalPortion)).objectsList;
                 index = movedObjects.indexOf(this);
                 if (index !== -1) {
                     movedObjects.splice(index, 1);
@@ -1315,13 +1316,24 @@ class MapObject {
                     x = (this.frame.value >= Datas.Systems.FRAMES ? Datas
                         .Systems.FRAMES - 1 : this.frame.value) * w;
                     y = this.isClimbing ? this.climbOrientation : this.orientation;
+                    let p = Datas.Pictures.get(Enum.PictureKind.Characters, this
+                        .currentStateInstance.graphicID);
                     if (this.currentOrientationClimbing || (this.currentStateInstance
                         .climbAnimation && this.isClimbing)) {
-                        y += 8;
+                        if (p.isClimbAnimation) {
+                            if (p.isStopAnimation) {
+                                y += 8;
+                            }
+                            else {
+                                y += 4;
+                            }
+                        }
                     }
                     else if (this.currentOrientationStop || (this.currentStateInstance
                         .stopAnimation && !this.moving)) {
-                        y += 4;
+                        if (p.isStopAnimation) {
+                            y += 4;
+                        }
                     }
                     y *= h;
                 }
@@ -1411,8 +1423,8 @@ class MapObject {
     updateTerrain() {
         this.terrain = 0;
         if (!Scene.Map.current.loading && this.position) {
-            let mapPortion = Scene.Map.current.getMapPortion(Scene.Map.current
-                .getLocalPortion(Portion.createFromVector3(this.position)));
+            let mapPortion = Scene.Map.current.getMapPortionFromPortion(Scene.Map
+                .current.getLocalPortion(Portion.createFromVector3(this.position)));
             if (mapPortion) {
                 let position = Position.createFromVector3(this.position);
                 let boundingBoxes = mapPortion.boundingBoxesLands[position.toIndex()];

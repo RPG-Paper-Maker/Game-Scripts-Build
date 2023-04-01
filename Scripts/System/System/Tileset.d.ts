@@ -37,14 +37,14 @@ declare class Tileset extends Base {
     getTexturesAutotiles(): Promise<TextureBundle[][]>;
     /**
      *  Get the textures for walls.
-     *  @returns {Promise<THREE.ShaderMaterial[]>}
+     *  @returns {Promise<THREE.MeshPhongMaterial[]>}
      */
-    getTexturesWalls(): Promise<THREE.ShaderMaterial[]>;
+    getTexturesWalls(): Promise<THREE.MeshPhongMaterial[]>;
     /**
      *  Get the textures for 3D objects.
-     *  @returns {Promise<THREE.ShaderMaterial[]>}
+     *  @returns {Promise<THREE.MeshPhongMaterial[]>}
      */
-    getTexturesObjects3D(): Promise<THREE.ShaderMaterial[]>;
+    getTexturesObjects3D(): Promise<THREE.MeshPhongMaterial[]>;
     /**
      *  Get the textures for mountains.
      *  @returns {Promise<TextureBundle[]>}

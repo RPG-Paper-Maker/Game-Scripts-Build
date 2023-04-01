@@ -86,6 +86,7 @@ class MapProperties extends Base {
         this.randomBattleNumberStep = System.DynamicValue.readOrDefaultNumber(json.randomBattleNumberStep, 300);
         this.randomBattleVariance = System.DynamicValue.readOrDefaultNumber(json.randomBattleVariance, 20);
         this.updateMaxNumberSteps();
+        this.isSunLight = Utils.defaultValue(json.isl, true);
     }
     /**
      *  Update the background.
@@ -110,8 +111,11 @@ class MapProperties extends Base {
      *  Update the background image.
      */
     updateBackgroundImage() {
-        let bgMat = Manager.GL.createMaterial(Manager.GL.textureLoader.load(Datas.Pictures.get(PictureKind.Pictures, this.backgroundImageID)
-            .getPath()), { flipY: true });
+        let bgMat = Manager.GL.createMaterial({
+            texture: Manager.GL.textureLoader.load(Datas.Pictures.get(PictureKind
+                .Pictures, this.backgroundImageID).getPath()),
+            flipY: true
+        });
         bgMat.depthTest = false;
         bgMat.depthWrite = false;
         this.sceneBackground = new THREE.Scene();

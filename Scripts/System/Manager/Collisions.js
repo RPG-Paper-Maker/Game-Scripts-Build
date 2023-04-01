@@ -22,6 +22,13 @@ class Collisions {
         throw new Error("This is a static class");
     }
     /**
+     *  Initialize necessary collisions.
+     *  @static
+     */
+    static initialize() {
+        this.BB_BOX_DETECTION.geometry.boundingBox = new THREE.Box3();
+    }
+    /**
      *  Create a box for bounding box.
      *  @static
      *  @returns {THREE.Mesh}
@@ -71,6 +78,10 @@ class Collisions {
         box['previousScale'] = [boundingBox[3], 1, boundingBox[4]];
         // Update geometry now
         box.updateMatrixWorld();
+        // Compute bounding box manually
+        if (box.geometry.boundingBox === null) {
+            box.geometry.computeBoundingBox();
+        }
     }
     /**
      *  Apply transform for sprite bounding box.
@@ -114,6 +125,10 @@ class Collisions {
         box['previousCenter'] = center;
         // Update geometry now
         box.updateMatrixWorld();
+        // Compute bounding box manually
+        if (box.geometry.boundingBox === null) {
+            box.geometry.computeBoundingBox();
+        }
     }
     /**
      *  Apply transform for oriented bounding box.
@@ -136,15 +151,27 @@ class Collisions {
         box['previousScale'] = [size, boundingBox[4], size];
         // Update geometry now
         box.updateMatrixWorld();
+        // Compute bounding box manually
+        if (box.geometry.boundingBox === null) {
+            box.geometry.computeBoundingBox();
+        }
     }
+    /**
+     *  Get a bounding box mesh for detection. Keep the same existing one or
+     *  force creating a new one for cases you need several.
+     *  @static
+     *  @param {number} [force=false]
+     *  @returns {THREE.Mesh}
+     */
     static getBBBoxDetection(force = false) {
         if (Datas.Systems.showBB && !force) {
             let box = Collisions.createBox(true);
             this.BB_BOX_DETECTION = box;
+            box.geometry.boundingBox = new THREE.Box3();
             Scene.Map.current.scene.add(box);
             setTimeout(() => {
                 Scene.Map.current.scene.remove(box);
-            }, 100);
+            }, 1);
         }
         return this.BB_BOX_DETECTION;
     }
@@ -192,6 +219,9 @@ class Collisions {
      *  @returns {boolean}
      */
     static obbVSobb(shapeA, shapeB) {
+        if (!shapeA.boundingBox.intersectsBox(shapeB.boundingBox)) {
+            return false;
+        }
         let facesA = shapeA.getNormals();
         let facesB = shapeB.getNormals();
         let verticesA = shapeA.getVertices();
@@ -303,7 +333,7 @@ class Collisions {
                         .SQUARE_SIZE);
                     portion = Scene.Map.current.getLocalPortion(Portion
                         .createFromVector3(positionAfterPlus));
-                    mapPortion = Scene.Map.current.getMapPortion(portion);
+                    mapPortion = Scene.Map.current.getMapPortionFromPortion(portion);
                     if (mapPortion !== null) {
                         result = this.check(mapPortion, jpositionBefore, new Position(jpositionAfter.x + i, jpositionAfter
                             .y + j, jpositionAfter.z + k), positionAfter, object, direction, testedCollisions);
@@ -319,7 +349,7 @@ class Collisions {
                                                 .SQUARE_SIZE, positionBefore.z + k2 * Datas.Systems
                                                 .SQUARE_SIZE);
                                             portion = Scene.Map.current.getLocalPortion(Portion.createFromVector3(positionBeforePlus));
-                                            mapPortion = Scene.Map.current.getMapPortion(portion);
+                                            mapPortion = Scene.Map.current.getMapPortionFromPortion(portion);
                                             if (mapPortion !== null) {
                                                 let [b, y] = this.checkSprites(mapPortion, new Position(jpositionBefore.x + i2, jpositionBefore
                                                     .y + j2, jpositionBefore.z + k2), [], object);
@@ -361,12 +391,12 @@ class Collisions {
         }
         // Check empty square or square mountain height possible down
         portion = Scene.Map.current.getLocalPortion(Portion.createFromVector3(positionAfter));
-        mapPortion = Scene.Map.current.getMapPortion(portion);
+        mapPortion = Scene.Map.current.getMapPortionFromPortion(portion);
         let floors;
         if (mapPortion !== null) {
             floors = mapPortion.squareNonEmpty[jpositionAfter.x % Constants
                 .PORTION_SIZE][jpositionAfter.z % Constants.PORTION_SIZE];
-            let otherMapPortion = Scene.Map.current.getMapPortion(new Portion(portion.x, portion.y + 1, portion.z));
+            let otherMapPortion = Scene.Map.current.getMapPortion(portion.x, portion.y + 1, portion.z);
             if (otherMapPortion) {
                 floors = floors.concat(otherMapPortion.squareNonEmpty[jpositionAfter
                     .x % Constants.PORTION_SIZE][jpositionAfter.z % Constants
@@ -400,11 +430,11 @@ class Collisions {
                     if (maxY === null) {
                         // redo with before pos for going down two following height angled
                         portion = Scene.Map.current.getLocalPortion(Portion.createFromVector3(positionBefore));
-                        mapPortion = Scene.Map.current.getMapPortion(portion);
+                        mapPortion = Scene.Map.current.getMapPortionFromPortion(portion);
                         if (mapPortion !== null) {
                             floors = mapPortion.squareNonEmpty[jpositionBefore.x % Constants
                                 .PORTION_SIZE][jpositionBefore.z % Constants.PORTION_SIZE];
-                            let otherMapPortion = Scene.Map.current.getMapPortion(new Portion(portion.x, portion.y + 1, portion.z));
+                            let otherMapPortion = Scene.Map.current.getMapPortion(portion.x, portion.y + 1, portion.z);
                             if (otherMapPortion) {
                                 floors = floors.concat(otherMapPortion.squareNonEmpty[jpositionBefore.x %
                                     Constants.PORTION_SIZE][jpositionBefore.z % Constants
@@ -454,7 +484,7 @@ class Collisions {
                                                     break;
                                             }
                                             portion = Scene.Map.current.getLocalPortion(Portion.createFromVector3(positionFront));
-                                            mapPortion = Scene.Map.current.getMapPortion(portion);
+                                            mapPortion = Scene.Map.current.getMapPortionFromPortion(portion);
                                             if (mapPortion !== null) {
                                                 floors = mapPortion.squareNonEmpty[Math.floor(positionFront.x / Datas.Systems.SQUARE_SIZE) % Constants.PORTION_SIZE][Math.floor(positionFront.z / Datas.Systems.SQUARE_SIZE) % Constants.PORTION_SIZE];
                                                 if (floors.length > 0) {
@@ -477,7 +507,7 @@ class Collisions {
                                                         .SQUARE_SIZE) - 1, positionBefore.z + k * Datas.Systems
                                                         .SQUARE_SIZE);
                                                     portion = Scene.Map.current.getLocalPortion(Portion.createFromVector3(positionBeforePlus));
-                                                    mapPortion = Scene.Map.current.getMapPortion(portion);
+                                                    mapPortion = Scene.Map.current.getMapPortionFromPortion(portion);
                                                     if (mapPortion !== null) {
                                                         const jpositionBottom = Position.createFromVector3(positionBeforePlus);
                                                         const climbingUp = object.isClimbingUp;
@@ -496,7 +526,7 @@ class Collisions {
                                                                             .SQUARE_SIZE) - 1, positionAfter.z + k2 * Datas.Systems
                                                                             .SQUARE_SIZE);
                                                                         portion = Scene.Map.current.getLocalPortion(Portion.createFromVector3(positionAfterPlus));
-                                                                        mapPortion = Scene.Map.current.getMapPortion(portion);
+                                                                        mapPortion = Scene.Map.current.getMapPortionFromPortion(portion);
                                                                         if (mapPortion) {
                                                                             const jpositionBottomAfter = Position.createFromVector3(positionAfterPlus);
                                                                             object.updateMeshBBPosition(object.currentBoundingBox, bbSettings, positionBottomAfter);
@@ -536,7 +566,7 @@ class Collisions {
             }
             // Check lands inside collisions
             portion = Scene.Map.current.getLocalPortion(Portion.createFromVector3(positionBefore));
-            mapPortion = Scene.Map.current.getMapPortion(portion);
+            mapPortion = Scene.Map.current.getMapPortionFromPortion(portion);
             return [this.checkLandsInside(mapPortion, jpositionBefore, jpositionAfter, direction), yMountain, Enum.Orientation.None];
         }
         return [true, null, Enum.Orientation.None];
@@ -552,7 +582,7 @@ class Collisions {
         let i, j, mapPortion;
         for (i = 0; i < 2; i++) {
             for (j = 0; j < 2; j++) {
-                mapPortion = Scene.Map.current.getMapPortion(new Portion(portion.x + i, portion.y, portion.z + j));
+                mapPortion = Scene.Map.current.getMapPortion(portion.x + i, portion.y, portion.z + j);
                 if (mapPortion && this.checkObjects(mapPortion, object)) {
                     return [true, null, Enum.Orientation.None];
                 }
@@ -928,8 +958,8 @@ class Collisions {
         let j, m, objCollision, position, mapPortionOverflow;
         for (i = 0, l = mapPortion.overflowMountains.length; i < l; i++) {
             position = mapPortion.overflowMountains[i];
-            mapPortionOverflow = Scene.Map.current.getMapPortion(Scene.Map.current
-                .getLocalPortion(position.getGlobalPortion()));
+            mapPortionOverflow = Scene.Map.current.getMapPortionFromPortion(Scene
+                .Map.current.getLocalPortion(position.getGlobalPortion()));
             if (!mapPortionOverflow) {
                 continue;
             }
@@ -1010,15 +1040,23 @@ class Collisions {
             let pass = forceNever || -(!forceAlways && ((y + h) <= (positionAfter
                 .y + Datas.Systems.mountainCollisionHeight.getValue())));
             if (Mathf.isPointOnRectangle(point, x, x + Datas.Systems.SQUARE_SIZE, z, z + Datas.Systems.SQUARE_SIZE)) {
-                return pass ? [false, (positionAfter.y - y - h) ===
-                        0 ? null : y + h] : [true, null];
+                return pass ? [false, (positionAfter.y - y - h) === 0 ? null : y + h] : [true, null];
             }
             else {
                 if (!pass) {
-                    return [this.checkIntersectionSprite([x + (Datas.Systems
-                                .SQUARE_SIZE / 2), y + (h / 2), z + (Datas.Systems
-                                .SQUARE_SIZE / 2), Datas.Systems.SQUARE_SIZE, h, Datas
-                                .Systems.SQUARE_SIZE, 0, 0, 0], true, object), null];
+                    // Collide with BB (avoiding use of checkIntersectionSprite here for perfs issues)
+                    let vertices = object.currentBoundingBox.geometry.getVertices();
+                    let vy = 0;
+                    for (let i = 0, l = vertices.length; i < l; i += 3) {
+                        vy = vertices[i + 1];
+                        if (vy >= y && vy <= y + h) {
+                            point = new Vector2(vertices[i], vertices[i + 2]);
+                            if (Mathf.isPointOnRectangle(point, x, x + Datas.Systems
+                                .SQUARE_SIZE, z, z + Datas.Systems.SQUARE_SIZE)) {
+                                return [true, null];
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -1149,8 +1187,8 @@ class Collisions {
             // If going down, check if there's a blocking floor
             let jposition = (newPosition.y - positionAfter.y) < 0 ? new Position(Math.floor(positionAfter.x / Datas.Systems.SQUARE_SIZE), Math
                 .ceil(positionAfter.y / Datas.Systems.SQUARE_SIZE), Math.floor(positionAfter.z / Datas.Systems.SQUARE_SIZE)) : jpositionAfter;
-            mapPortion = Scene.Map.current.getMapPortion(Scene.Map.current
-                .getLocalPortion(jposition.getGlobalPortion()));
+            mapPortion = Scene.Map.current.getMapPortionFromPortion(Scene.Map
+                .current.getLocalPortion(jposition.getGlobalPortion()));
             let isFloor = mapPortion.boundingBoxesLands[jposition.toIndex()]
                 .length > 0;
             if (isFloor && (newPosition.y - positionAfter.y) < 0) {

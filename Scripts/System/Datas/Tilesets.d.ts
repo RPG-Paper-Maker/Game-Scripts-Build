@@ -9,8 +9,8 @@ declare class Tilesets {
     static PROPERTY_TEXTURES_CHARACTERS: string;
     static PROPERTY_TEXTURES_BATTLERS: string;
     private static list;
-    static texturesCharacters: THREE.ShaderMaterial[];
-    static texturesBattlers: THREE.ShaderMaterial[];
+    static texturesCharacters: THREE.MeshPhongMaterial[];
+    static texturesBattlers: THREE.MeshPhongMaterial[];
     constructor();
     /**
      *  Read the JSON file associated to tilesets.

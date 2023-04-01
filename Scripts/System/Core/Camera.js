@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { ScreenResolution, Mathf } from "../Common/index.js";
-import { Scene } from "../index.js";
+import { Scene, Datas } from "../index.js";
 /** @class
  *  The camera of the current map.
  *  @param {System.CameraProperties} cameraProperties - The System camera
@@ -188,6 +188,20 @@ class Camera {
         this.updateCameraPosition();
         // Update view
         this.updateView();
+        // Update light
+        if (Scene.Map.current.mapProperties.isSunLight) {
+            Scene.Map.current.sunLight.target.position.copy(this.targetPosition);
+            Scene.Map.current.sunLight.target.updateMatrixWorld();
+            Scene.Map.current.sunLight.position.set(-1, 1.75, 1).multiplyScalar(Datas.Systems.SQUARE_SIZE * 10).add(this.targetPosition);
+            const d = Math.min(Datas.Systems.SQUARE_SIZE * this.distance / 10, 1000);
+            if (d !== Scene.Map.current.sunLight.shadow.camera.right) {
+                Scene.Map.current.sunLight.shadow.camera.left = -d;
+                Scene.Map.current.sunLight.shadow.camera.right = d;
+                Scene.Map.current.sunLight.shadow.camera.top = d;
+                Scene.Map.current.sunLight.shadow.camera.bottom = -d;
+                Scene.Map.current.sunLight.shadow.camera.updateProjectionMatrix();
+            }
+        }
     }
 }
 export { Camera };

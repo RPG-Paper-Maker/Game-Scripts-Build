@@ -232,7 +232,7 @@ class Events {
                             }
                         }
                         // Static
-                        let mapPortion = Scene.Map.current.getMapPortion(new Portion(i, j, k));
+                        let mapPortion = Scene.Map.current.getMapPortion(i, j, k);
                         if (mapPortion) {
                             for (a = 0, l = mapPortion.objectsList.length; a < l; a++) {
                                 object = mapPortion.objectsList[a];
@@ -272,7 +272,7 @@ class Events {
             Manager.Events.sendEventObjects(objects.min, sender, targetID, isSystem, eventID, parameters, senderNoReceiver, onlyTheClosest, closests);
             Manager.Events.sendEventObjects(objects.mout, sender, targetID, isSystem, eventID, parameters, senderNoReceiver, onlyTheClosest, closests);
             // Static
-            let mapPortion = Scene.Map.current.getMapPortion(new Portion(i, j, k));
+            let mapPortion = Scene.Map.current.getMapPortion(i, j, k);
             if (mapPortion) {
                 Manager.Events.sendEventObjects(mapPortion.objectsList, sender, targetID, isSystem, eventID, parameters, senderNoReceiver, onlyTheClosest, closests);
             }
