@@ -58,37 +58,40 @@ void main() {
 		sampledDiffuseColor = vec4( mix( pow( sampledDiffuseColor.rgb * 0.9478672986 + vec3( 0.0521327014 ), vec3( 2.4 ) ), sampledDiffuseColor.rgb * 0.0773993808, vec3( lessThanEqual( sampledDiffuseColor.rgb, vec3( 0.04045 ) ) ) ), sampledDiffuseColor.w );
 	#endif
 	diffuseColor *= sampledDiffuseColor;
-
-	#include <color_fragment>
-	#include <alphamap_fragment>
-	#include <alphatest_fragment>
-	#include <specularmap_fragment>
-	#include <emissivemap_fragment>
-	#ifdef DOUBLE_SIDED
-		reflectedLight.indirectDiffuse += ( gl_FrontFacing ) ? vIndirectFront : vIndirectBack;
-	#else
-		reflectedLight.indirectDiffuse += vIndirectFront;
-	#endif
-	#include <lightmap_fragment>
-	reflectedLight.indirectDiffuse *= BRDF_Lambert( diffuseColor.rgb );
-	#ifdef DOUBLE_SIDED
-		reflectedLight.directDiffuse = ( gl_FrontFacing ) ? vLightFront : vLightBack;
-	#else
-		reflectedLight.directDiffuse = vLightFront;
-	#endif
-	reflectedLight.directDiffuse *= BRDF_Lambert( diffuseColor.rgb ) * getShadowMask();
-	#include <aomap_fragment>
-	vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance;
-	#include <envmap_fragment>
-	#include <output_fragment>
-	#include <tonemapping_fragment>
-	#include <encodings_fragment>
+	if (sampledDiffuseColor.a >= 1.0) {
+		#include <color_fragment>
+		#include <alphamap_fragment>
+		#include <alphatest_fragment>
+		#include <specularmap_fragment>
+		#include <emissivemap_fragment>
+		#ifdef DOUBLE_SIDED
+			reflectedLight.indirectDiffuse += ( gl_FrontFacing ) ? vIndirectFront : vIndirectBack;
+		#else
+			reflectedLight.indirectDiffuse += vIndirectFront;
+		#endif
+		#include <lightmap_fragment>
+		reflectedLight.indirectDiffuse *= BRDF_Lambert( diffuseColor.rgb );
+		#ifdef DOUBLE_SIDED
+			reflectedLight.directDiffuse = ( gl_FrontFacing ) ? vLightFront : vLightBack;
+		#else
+			reflectedLight.directDiffuse = vLightFront;
+		#endif
+		reflectedLight.directDiffuse *= BRDF_Lambert( diffuseColor.rgb ) * getShadowMask();
+		#include <aomap_fragment>
+		vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance;
+		#include <envmap_fragment>
+		#include <output_fragment>
+		#include <tonemapping_fragment>
+		#include <encodings_fragment>
+	} else {
+		gl_FragColor = sampledDiffuseColor;
+	}
 
 	vec3 rgb = vec3(gl_FragColor.x + colorD.x, gl_FragColor.y + colorD.y, gl_FragColor.z + colorD.z);
     const vec3 W = vec3(0.2125, 0.7154, 0.0721);
     vec3 intensity = vec3(dot(rgb, W));
     gl_FragColor = vec4(mix(intensity, rgb, colorD.w), gl_FragColor.a);
-    if (opacity < 1.0f)
+    if (opacity < 1.0)
     	gl_FragColor = vec4(gl_FragColor.x, gl_FragColor.y, gl_FragColor.z, opacity);
 
 	#include <fog_fragment>
