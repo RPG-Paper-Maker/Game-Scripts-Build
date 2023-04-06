@@ -30,7 +30,7 @@ class Map extends Base {
         this.weatherPoints = null;
         this.id = id;
         this.isBattleMap = isBattleMap;
-        this.mapName = Scene.Map.generateMapName(id);
+        this.mapFilename = Scene.Map.generateMapName(id);
         this.loading = false;
         this.heroOrientation = heroOrientation;
         if (!minimal) {
@@ -101,7 +101,7 @@ class Map extends Base {
                         let portion = new Portion(this.currentPortion.x + i, this
                             .currentPortion.y + j, this.currentPortion.z + k);
                         let json = await IO.parseFileJSON(Paths.FILE_MAPS + this
-                            .mapName + Constants.STRING_SLASH + portion.getFileName());
+                            .mapFilename + Constants.STRING_SLASH + portion.getFileName());
                         mapPortion.readStatic(json);
                     }
                 }
@@ -123,7 +123,7 @@ class Map extends Base {
      */
     async readMapProperties(minimal = false) {
         this.mapProperties = new System.MapProperties();
-        let json = await IO.parseFileJSON(Paths.FILE_MAPS + this.mapName + Paths
+        let json = await IO.parseFileJSON(Paths.FILE_MAPS + this.mapFilename + Paths
             .FILE_MAP_INFOS);
         this.mapProperties.read(json);
         if (!minimal) {
@@ -194,7 +194,7 @@ class Map extends Base {
      *  Initialize the map objects.
      */
     async initializeObjects() {
-        let json = (await IO.parseFileJSON(Paths.FILE_MAPS + this.mapName +
+        let json = (await IO.parseFileJSON(Paths.FILE_MAPS + this.mapFilename +
             Paths.FILE_MAP_OBJECTS)).objs;
         let l = json.length;
         this.allObjects = new Array(l + 1);
@@ -466,7 +466,7 @@ class Map extends Base {
         if (realX >= 0 && realX < lx && realY >= -ld && realY < lh &&
             realZ >= 0 && realZ < lz) {
             let portion = new Portion(realX, realY, realZ);
-            let json = await IO.parseFileJSON(Paths.FILE_MAPS + this.mapName +
+            let json = await IO.parseFileJSON(Paths.FILE_MAPS + this.mapFilename +
                 Constants.STRING_SLASH + portion.getFileName());
             if (json.hasOwnProperty("lands")) {
                 let mapPortion = new MapPortion(portion);

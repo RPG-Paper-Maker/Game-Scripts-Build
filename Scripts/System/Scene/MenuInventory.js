@@ -275,7 +275,7 @@ class MenuInventory extends Base {
      *  Update the scene.
      */
     update() {
-        Scene.Base.prototype.update.call(Scene.Map.current);
+        super.update();
         this.windowChoicesList.update();
         this.windowChoicesTabs.update();
         if (this.windowChoicesList.currentSelectedIndex !== -1) {
@@ -287,15 +287,17 @@ class MenuInventory extends Base {
      *  @param {number} key - The key ID
      */
     onKeyPressed(key) {
-        Scene.Base.prototype.onKeyPressed.call(Scene.Map.current, key);
-        this.action(true, { key: key });
+        super.onKeyPressed(key);
+        if (this.reactionInterpreters.length === 0) {
+            this.action(true, { key: key });
+        }
     }
     /**
      *  Handle scene key released.
      *  @param {number} key - The key ID
      */
     onKeyReleased(key) {
-        Scene.Base.prototype.onKeyReleased.call(Scene.Map.current, key);
+        super.onKeyReleased(key);
     }
     /**
      *  Handle scene pressed repeat key.
@@ -303,7 +305,7 @@ class MenuInventory extends Base {
      *  @returns {boolean}
      */
     onKeyPressedRepeat(key) {
-        return Scene.Base.prototype.onKeyPressedRepeat.call(Scene.Map.current, key);
+        return super.onKeyPressedRepeat(key);
     }
     /**
      *  Handle scene pressed and repeat key.
@@ -311,9 +313,10 @@ class MenuInventory extends Base {
      *  @returns {boolean}
      */
     onKeyPressedAndRepeat(key) {
-        let res = Scene.Base.prototype.onKeyPressedAndRepeat.call(Scene.Map
-            .current, key);
-        this.move(true, { key: key });
+        let res = super.onKeyPressedAndRepeat(key);
+        if (this.reactionInterpreters.length === 0) {
+            this.move(true, { key: key });
+        }
         return res;
     }
     /**
@@ -321,14 +324,18 @@ class MenuInventory extends Base {
      */
     onMouseMove(x, y) {
         super.onMouseMove(x, y);
-        this.move(false, { x: x, y: y });
+        if (this.reactionInterpreters.length === 0) {
+            this.move(false, { x: x, y: y });
+        }
     }
     /**
      *  @inheritdoc
      */
     onMouseUp(x, y) {
         super.onMouseUp(x, y);
-        this.action(false, { x: x, y: y });
+        if (this.reactionInterpreters.length === 0) {
+            this.action(false, { x: x, y: y });
+        }
     }
     /**
      *  Draw the HUD scene.
@@ -349,6 +356,8 @@ class MenuInventory extends Base {
         else {
             this.windowEmpty.draw();
         }
+        // Draw interpreters
+        super.drawHUD();
     }
 }
 export { MenuInventory };

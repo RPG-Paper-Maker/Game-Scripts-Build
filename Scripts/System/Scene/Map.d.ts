@@ -18,7 +18,7 @@ declare class Map extends Base {
     static allowMainMenu: boolean;
     static allowSaves: boolean;
     id: number;
-    mapName: string;
+    mapFilename: string;
     orientation: Orientation;
     user: Battler;
     isBattleMap: boolean;

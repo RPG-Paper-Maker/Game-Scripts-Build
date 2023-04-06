@@ -276,6 +276,8 @@ class Menu extends MenuBase {
         this.windowChoicesTeam.draw();
         // Draw play time and currencies
         this.windowTimeCurrencies.draw();
+        // Draw interpreters
+        super.drawHUD();
     }
     /**
      * @inheritdoc

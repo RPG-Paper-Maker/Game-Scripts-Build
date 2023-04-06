@@ -120,6 +120,7 @@ class ReactionInterpreter {
         }
         this.updateObjectParameters();
         // Update can return different type of values
+        ReactionInterpreter.currentReaction = this;
         let result = this.currentCommand.data.update(this.currentCommandState, this.currentMapObject, this.currentState);
         let value = null;
         // If the value is a string, then it can only be a label call

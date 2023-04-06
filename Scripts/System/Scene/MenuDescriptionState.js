@@ -189,6 +189,8 @@ class MenuDescriptionState extends MenuBase {
         this.windowTop.draw();
         this.windowChoicesTabs.draw();
         this.windowInformation.draw();
+        // Draw interpreters
+        super.drawHUD();
     }
 }
 export { MenuDescriptionState };
