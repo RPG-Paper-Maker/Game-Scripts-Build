@@ -50,6 +50,7 @@ class Systems {
         this.mountainCollisionHeight = System.DynamicValue.readOrDefaultNumber(json.mch, 4);
         this.mountainCollisionAngle = System.DynamicValue.readOrDefaultNumberDouble(json.mca, 45);
         this.climbingSpeed = System.DynamicValue.readOrDefaultNumberDouble(json.cs, 0.25);
+        this.moveCameraOnBlockView = System.DynamicValue.readOrDefaultSwitch(json.mcobv, true);
         this.mapFrameDuration = System.DynamicValue.readOrDefaultNumber(json.mfd, 150);
         this.battlersFrames = Utils.defaultValue(json.battlersFrames, 4);
         this.battlersFrameDuration = Utils.defaultValue(json.bfd, "Common.Mathf.random(250, 300)");

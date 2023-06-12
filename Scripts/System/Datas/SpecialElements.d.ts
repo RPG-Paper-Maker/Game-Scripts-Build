@@ -59,11 +59,10 @@ declare class SpecialElements {
      *  @param {THREE.Texture} texture - The texture to paint on
      *  @param {System.Picture} picture - The picture to paint
      *  @param {number} offset - The offset
-     *  @param {number} id - The autotile id
      *  @param {boolean} isAnimated
      *  @returns {any[]}
      */
-    static loadTextureAutotile(textureAutotile: TextureBundle, texture: THREE.Texture, picture: System.Picture, offset: number, id: number, isAnimated: boolean): Promise<any[]>;
+    static loadTextureAutotile(textureAutotile: TextureBundle, texture: THREE.Texture, picture: System.Picture, offset: number, isAnimated: boolean): Promise<any[]>;
     /**
      *  Paint the picture in texture.
      *  @param {Image} img - The image to draw
@@ -71,7 +70,7 @@ declare class SpecialElements {
      *  @param {number[]} point - The in several texture
      *  @param {number} id - The autotile id
      */
-    static paintPictureAutotile(img: HTMLImageElement, offset: number, point: number[], id: number): void;
+    static paintPictureAutotile(img: HTMLImageElement, offset: number, point: number[]): void;
     /**
      *  Update texture of a TextureAutotile.
      *  @param {TextureBundle} textureAutotile - The autotile several texture

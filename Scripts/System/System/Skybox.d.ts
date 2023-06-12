@@ -22,6 +22,6 @@ declare class Skybox extends Base {
      *  Create the textures for the background
      *  @returns {THREE.MeshPhongMaterial[]}
      */
-    createTextures(): THREE.MeshBasicMaterial[];
+    createTextures(): THREE.MeshPhongMaterial[];
 }
 export { Skybox };

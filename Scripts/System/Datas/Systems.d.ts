@@ -18,6 +18,7 @@ declare class Systems {
     static mountainCollisionHeight: System.DynamicValue;
     static mountainCollisionAngle: System.DynamicValue;
     static climbingSpeed: System.DynamicValue;
+    static moveCameraOnBlockView: System.DynamicValue;
     static mapFrameDuration: System.DynamicValue;
     static battlersFrames: number;
     static battlersFrameDuration: string;

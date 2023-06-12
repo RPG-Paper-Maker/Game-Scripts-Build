@@ -31,8 +31,6 @@ declare class MapProperties extends Base {
     randomBattles: System.RandomBattle[];
     randomBattleNumberStep: System.DynamicValue;
     randomBattleVariance: System.DynamicValue;
-    cameraBackground: THREE.Camera;
-    sceneBackground: THREE.Scene;
     skyboxGeometry: THREE.BoxGeometry;
     skyboxMesh: THREE.Mesh;
     maxNumberSteps: number;

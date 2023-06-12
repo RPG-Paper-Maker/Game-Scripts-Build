@@ -25,7 +25,7 @@ declare class MapObject {
     isHero: boolean;
     movingState: Record<string, any>;
     previousPosition: Vector3;
-    mesh: THREE.Mesh;
+    mesh: THREE.Mesh<CustomGeometry, THREE.MeshPhongMaterial>;
     meshBoundingBox: THREE.Mesh<CustomGeometry, THREE.Material | THREE.Material[]>[];
     currentBoundingBox: THREE.Mesh<CustomGeometry, THREE.Material | THREE.Material[]>;
     boundingBoxSettings: Record<string, any>;

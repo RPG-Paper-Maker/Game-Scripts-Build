@@ -192,8 +192,8 @@ class MapPortion {
             if (texturesAutotile) {
                 for (j = 0, m = texturesAutotile.length; j < m; j++) {
                     textureAutotile = texturesAutotile[j];
-                    if (textureAutotile.isInTexture(autotile.autotileID, autotile
-                        .texture)) {
+                    if (textureAutotile.isInTexture(Datas.SpecialElements
+                        .getAutotile(autotile.autotileID).pictureID, autotile.texture)) {
                         texture = textureAutotile;
                         autotiles = this.staticAutotilesList[autotile.autotileID][j];
                         break;
@@ -309,15 +309,17 @@ class MapPortion {
             // If ID exists in this tileset
             if (!Utils.isUndefined(obj)) {
                 if (obj === null) {
-                    geometry = new CustomGeometry();
                     material = Scene.Map.current.texturesWalls[sprite.id];
-                    count = 0;
-                    obj = {
-                        geometry: geometry,
-                        material: material,
-                        c: count
-                    };
-                    hash[sprite.id] = obj;
+                    if (material) {
+                        geometry = new CustomGeometry();
+                        count = 0;
+                        obj = {
+                            geometry: geometry,
+                            material: material,
+                            c: count
+                        };
+                        hash[sprite.id] = obj;
+                    }
                 }
                 else {
                     geometry = obj.geometry;
@@ -346,6 +348,7 @@ class MapPortion {
                     mesh.castShadow = true;
                     mesh.customDepthMaterial = obj.material.userData.customDepthMaterial;
                 }
+                mesh.layers.enable(1);
                 this.staticWallsList.push(mesh);
                 Scene.Map.current.scene.add(mesh);
             }
@@ -378,7 +381,8 @@ class MapPortion {
             indexPos = position.toIndex();
             for (index = 0; index < mountainsLength; index++) {
                 textureMountain = Scene.Map.current.texturesMountains[index];
-                if (textureMountain.isInTexture(mountain.mountainID)) {
+                if (textureMountain.isInTexture(Datas.SpecialElements
+                    .getMountain(mountain.mountainID).pictureID)) {
                     texture = textureMountain;
                     mountains = this.staticMountainsList[index];
                     break;
@@ -399,6 +403,7 @@ class MapPortion {
                 mountains.mesh.customDepthMaterial = mountains.bundle.material
                     .userData.customDepthMaterial;
             }
+            mountains.mesh.layers.enable(1);
             Scene.Map.current.scene.add(mountains.mesh);
         }
         // Handle overflow
@@ -490,6 +495,7 @@ class MapPortion {
                     mesh.castShadow = true;
                     mesh.customDepthMaterial = obj.material.userData.customDepthMaterial;
                 }
+                mesh.layers.enable(1);
                 Scene.Map.current.scene.add(mesh);
             }
         }

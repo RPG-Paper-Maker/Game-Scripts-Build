@@ -98,6 +98,10 @@ class Detection extends Base {
                     x = pz;
                     z = -px;
                     break;
+                default:
+                    x = 0;
+                    z = 0;
+                    break;
             }
             list[i] = [
                 localPosition.x + x,

@@ -117,21 +117,26 @@ class GL {
         opts.texture.flipY = (opts.flipY) ? true : false;
         opts.repeat = Utils.defaultValue(opts.repeat, 1.0);
         opts.opacity = Utils.defaultValue(opts.opacity, 1.0);
+        opts.shadows = Utils.defaultValue(opts.shadows, true);
+        opts.side = Utils.defaultValue(opts.side, THREE.DoubleSide);
         const fragment = this.SHADER_FIX_FRAGMENT;
         const vertex = this.SHADER_FIX_VERTEX;
         const screenTone = this.screenTone;
         const uniforms = opts.uniforms ? opts.uniforms : {
             offset: { value: new THREE.Vector2() },
-            colorD: { value: screenTone }
+            colorD: { value: screenTone },
+            repeat: { value: opts.repeat },
+            enableShadows: { value: opts.shadows }
         };
         // Program cache key for multiple shader programs
         const key = fragment === this.SHADER_FIX_FRAGMENT ? 0 : 1;
         // Create material
         const material = new THREE.MeshPhongMaterial({
             map: opts.texture,
-            side: THREE.DoubleSide,
+            side: opts.side,
             transparent: true,
-            alphaTest: 0.5
+            alphaTest: 0.5,
+            opacity: opts.opacity
         });
         material.userData.uniforms = uniforms;
         material.userData.customDepthMaterial = new THREE.MeshDepthMaterial({
@@ -146,8 +151,8 @@ class GL {
             shader.uniforms.colorD = uniforms.colorD;
             shader.uniforms.reverseH = { value: opts.flipX };
             shader.uniforms.repeat = { value: opts.repeat };
-            shader.uniforms.opacity = { value: opts.opacity };
             shader.uniforms.offset = uniforms.offset;
+            shader.uniforms.enableShadows = { value: opts.shadows };
             material.userData.uniforms = shader.uniforms;
             // Important to run a unique shader only once and be able to use 
             // multiple shader with before compile
@@ -156,6 +161,16 @@ class GL {
             };
         };
         return material;
+    }
+    static cloneMaterial(material) {
+        return this.createMaterial({
+            texture: material.map,
+            flipY: material.map.flipY,
+            side: material.side,
+            repeat: material.userData.uniforms.repeat.value,
+            opacity: material.opacity,
+            shadows: material.userData.uniforms.enableShadows.value
+        });
     }
     /**
      *  Get material THREE.Texture (if exists).
@@ -190,5 +205,6 @@ class GL {
     }
 }
 GL.textureLoader = new THREE.TextureLoader();
+GL.raycaster = new THREE.Raycaster();
 GL.screenTone = new THREE.Vector4(0, 0, 0, 1);
 export { GL };

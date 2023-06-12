@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { ScreenResolution, Mathf } from "../Common/index.js";
-import { Scene, Datas } from "../index.js";
+import { Scene, Datas, Manager } from "../index.js";
 /** @class
  *  The camera of the current map.
  *  @param {System.CameraProperties} cameraProperties - The System camera
@@ -18,6 +18,13 @@ import { Scene, Datas } from "../index.js";
  */
 class Camera {
     constructor(cameraProperties, target) {
+        this.hidingDistance = -1;
+        this.previousHidingDistance = -1;
+        this.hidingTime = 1;
+        this.hidingStart = -1;
+        this.hidingEnd = -1;
+        this.hidingCurrent = -1;
+        this.forceNoHide = true;
         this.system = cameraProperties;
         this.initialize();
         this.target = target;
@@ -39,6 +46,13 @@ class Camera {
         }
     }
     /**
+     *  Check if camera is currently hiding with walls / mountains.
+     *  @returns {boolean}
+     */
+    isHiding() {
+        return this.hidingDistance !== -1;
+    }
+    /**
      *  Get the map orientation according to the camera.
      *  @returns {Orientation}
      */
@@ -46,18 +60,37 @@ class Camera {
         return Mathf.mod(Math.round((this.horizontalAngle) / 90) - 1, 4);
     }
     /**
+     *  Get the time percentage progress.
+     *  @returns {number}
+     */
+    getHidingTimeProgress() {
+        return this.hidingTime / Camera.HIDDING_MOVE_TIME;
+    }
+    /**
+     *  Get the distance according to hiding distance.
+     *  @returns {number}
+     */
+    getHidingDistance() {
+        if (Datas.Systems.moveCameraOnBlockView && !this.forceNoHide) {
+            return this.hidingCurrent === -1 ? this.distance : this.hidingCurrent;
+        }
+        return this.distance;
+    }
+    /**
      *  Get the distance according to vertical angle.
      *  @returns {number}
      */
     getDistance() {
-        return this.distance * Math.sin(this.verticalAngle * Math.PI / 180.0);
+        const d = this.getHidingDistance();
+        return d * Math.sin(this.verticalAngle * Math.PI / 180.0);
     }
     /**
      *  Get the height according to vertical angle.
      *  @returns {number}
      */
     getHeight() {
-        return this.distance * Math.cos(this.verticalAngle * Math.PI / 180.0);
+        const d = this.getHidingDistance();
+        return d * Math.cos(this.verticalAngle * Math.PI / 180.0);
     }
     /**
      *  Get the horizontal angle between two positions.
@@ -179,6 +212,29 @@ class Camera {
         Scene.Map.current.orientation = this.getMapOrientation();
     }
     /**
+     * Update timer for hidding camera smooth move.
+     */
+    updateTimer() {
+        if (this.previousHidingDistance !== this.hidingDistance && Math.abs(this
+            .previousHidingDistance - this.hidingDistance) > Datas.Systems.SQUARE_SIZE) {
+            this.hidingTime = 0;
+            this.hidingStart = this.hidingCurrent;
+            this.hidingEnd = this.isHiding() ? this.hidingDistance : this.distance;
+        }
+        else {
+            this.hidingTime = Math.min(this.hidingTime + Manager.Stack.elapsedTime, Camera.HIDDING_MOVE_TIME);
+        }
+        const time = this.getHidingTimeProgress();
+        if (time === 1) {
+            const dist = this.isHiding() ? this.hidingDistance : this.distance;
+            this.hidingCurrent = dist;
+            this.hidingStart = dist;
+            this.hidingEnd = dist;
+        }
+        this.previousHidingDistance = this.hidingDistance;
+        this.hidingCurrent = this.hidingStart + (this.hidingEnd - this.hidingStart) * time;
+    }
+    /**
      * Update all the parameters.
      */
     update() {
@@ -204,4 +260,5 @@ class Camera {
         }
     }
 }
+Camera.HIDDING_MOVE_TIME = 250;
 export { Camera };

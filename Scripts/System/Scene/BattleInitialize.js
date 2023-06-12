@@ -276,6 +276,7 @@ class BattleInitialize {
      */
     updateTransitionStartZoom() {
         let offset;
+        this.battle.sceneMap.camera.forceNoHide = true;
         if (this.battle.transitionZoom) {
             this.battle.sceneMap.camera.distance = ((this.battle
                 .mapCameraDistance - Scene.Battle.START_CAMERA_DISTANCE) * (1 -

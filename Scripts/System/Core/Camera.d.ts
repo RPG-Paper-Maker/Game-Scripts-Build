@@ -1,7 +1,6 @@
 import { Enum } from "../Common/index.js";
 import { System } from "../index.js";
 import { MapObject } from "./MapObject.js";
-import Orientation = Enum.Orientation;
 import { Vector3 } from "./index.js";
 /** @class
  *  The camera of the current map.
@@ -10,6 +9,7 @@ import { Vector3 } from "./index.js";
  *  @param {MapObject} target - The camera target
  */
 declare class Camera {
+    static readonly HIDDING_MOVE_TIME = 250;
     system: System.CameraProperties;
     perspectiveCamera: THREE.PerspectiveCamera;
     orthographicCamera: THREE.OrthographicCamera;
@@ -20,6 +20,13 @@ declare class Camera {
     distance: number;
     horizontalAngle: number;
     verticalAngle: number;
+    hidingDistance: number;
+    previousHidingDistance: number;
+    hidingTime: number;
+    hidingStart: number;
+    hidingEnd: number;
+    hidingCurrent: number;
+    forceNoHide: boolean;
     constructor(cameraProperties: System.CameraProperties, target: MapObject);
     /**
      *  Initialize the camera according to system camera properties.
@@ -30,10 +37,25 @@ declare class Camera {
      */
     resizeGL(): void;
     /**
+     *  Check if camera is currently hiding with walls / mountains.
+     *  @returns {boolean}
+     */
+    isHiding(): boolean;
+    /**
      *  Get the map orientation according to the camera.
      *  @returns {Orientation}
      */
-    getMapOrientation(): Orientation;
+    getMapOrientation(): Enum.Orientation;
+    /**
+     *  Get the time percentage progress.
+     *  @returns {number}
+     */
+    getHidingTimeProgress(): number;
+    /**
+     *  Get the distance according to hiding distance.
+     *  @returns {number}
+     */
+    getHidingDistance(): number;
     /**
      *  Get the distance according to vertical angle.
      *  @returns {number}
@@ -97,6 +119,10 @@ declare class Camera {
      * Update the three.js camera view.
      */
     updateView(): void;
+    /**
+     * Update timer for hidding camera smooth move.
+     */
+    updateTimer(): void;
     /**
      * Update all the parameters.
      */

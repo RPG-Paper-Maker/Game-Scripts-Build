@@ -10,7 +10,7 @@
 */
 import { THREE } from "../Globals.js";
 import { Base } from "./Base.js";
-import { Enum, Utils, Constants, IO, Paths, Inputs, Interpreter, Platform } from "../Common/index.js";
+import { Enum, Utils, Constants, IO, Paths, Inputs, Interpreter, Platform, ScreenResolution } from "../Common/index.js";
 var PictureKind = Enum.PictureKind;
 import { System, Datas, Scene, Manager } from "../index.js";
 import { Position, Portion, MapPortion, Camera, ReactionInterpreter, Vector3, Autotiles, Game, Frame, Vector2 } from "../Core/index.js";
@@ -125,6 +125,10 @@ class Map extends Base {
         this.mapProperties = new System.MapProperties();
         let json = await IO.parseFileJSON(Paths.FILE_MAPS + this.mapFilename + Paths
             .FILE_MAP_INFOS);
+        if (this.isBattleMap && json.tileset === undefined) {
+            Platform.showErrorMessage("The battle map " + this.id + " doesn't " +
+                "exists. Please check your battle maps.");
+        }
         this.mapProperties.read(json);
         if (!minimal) {
             this.mapProperties.updateBackground();
@@ -880,6 +884,23 @@ class Map extends Base {
             .camera.target.position.z);
     }
     /**
+     *  Update and move the camera position for hiding stuff.
+     *  @param {THREE.Vector2} pointer 2D position on screen to test if intersect
+     */
+    updateCameraHiding(pointer) {
+        Manager.GL.raycaster.setFromCamera(pointer, this.camera.getThreeCamera());
+        Manager.GL.raycaster.layers.set(1);
+        const intersects = Manager.GL.raycaster.intersectObjects(this.scene.children);
+        let distance;
+        for (let i = 0; i < intersects.length; i++) {
+            distance = Math.ceil(intersects[i].distance) + 5;
+            if (distance < this.camera.distance && (!this.camera.isHiding() ||
+                this.camera.distance - distance < this.camera.hidingDistance)) {
+                this.camera.hidingDistance = this.camera.distance - distance;
+            }
+        }
+    }
+    /**
      *  Update the scene.
      */
     update() {
@@ -899,8 +920,42 @@ class Map extends Base {
                 .COUNT_LIST * 2 * Datas.Systems.SQUARE_SIZE) / Constants
                 .MAX_PICTURE_SIZE);
         }
+        this.updateWeather(false);
+        this.updateWeather();
         // Update camera
+        this.camera.forceNoHide = true;
         this.camera.update();
+        // Update scene game (interpreters)
+        this.mapProperties.startupObject.update();
+        super.update();
+        // Update camera hiding
+        if (Datas.Systems.moveCameraOnBlockView.getValue()) {
+            this.camera.forceNoHide = false;
+            this.camera.hidingDistance = -1;
+            let pointer = Manager.GL.toScreenPosition(this.camera.target.position
+                .clone().add(new THREE.Vector3(0, this.camera.target.height * Datas
+                .Systems.SQUARE_SIZE, 0)), this.camera.getThreeCamera()).divide(new THREE.Vector2(ScreenResolution.CANVAS_WIDTH, ScreenResolution
+                .CANVAS_HEIGHT)).subScalar(0.5);
+            pointer.setY(-pointer.y);
+            this.updateCameraHiding(pointer);
+            if (this.camera.isHiding()) {
+                this.updateCameraHiding(new Vector2(0, 0));
+            }
+            this.camera.update();
+            let opacity = 1;
+            if (this.camera.isHiding()) {
+                if (this.camera.hidingDistance < 2 * Datas.Systems.SQUARE_SIZE) {
+                    if (this.camera.hidingDistance < Datas.Systems.SQUARE_SIZE) {
+                        opacity = 0;
+                    }
+                    else {
+                        opacity = 0.5;
+                    }
+                }
+            }
+            Game.current.hero.mesh.material.opacity = opacity;
+            this.camera.updateTimer();
+        }
         // Update skybox
         if (this.mapProperties.skyboxGeometry !== null && this.previousCameraPosition) {
             let posDif = this.camera.getThreeCamera().position.clone().sub(this
@@ -913,7 +968,6 @@ class Map extends Base {
         let vector = new Vector3();
         this.camera.getThreeCamera().getWorldDirection(vector);
         let angle = Math.atan2(vector.x, vector.z) + Math.PI;
-        this.mapProperties.startupObject.update();
         // Update the objects
         if (!this.isBattleMap) {
             Game.current.hero.update(angle);
@@ -935,10 +989,6 @@ class Map extends Base {
                 mapPortion.updateFaceSprites(angle);
             }
         });
-        this.updateWeather(false);
-        this.updateWeather();
-        // Update scene game (interpreters)
-        super.update();
         // Update portion
         if (Scene.Map.current.updateCurrentPortion()) {
             this.loadPortions(true);
@@ -1058,10 +1108,6 @@ class Map extends Base {
      */
     draw3D() {
         Manager.GL.renderer.clear();
-        if (this.mapProperties.sceneBackground !== null) {
-            Manager.GL.renderer.render(this.mapProperties.sceneBackground, this
-                .mapProperties.cameraBackground);
-        }
         Manager.GL.renderer.render(this.scene, this.camera.getThreeCamera());
     }
     /**

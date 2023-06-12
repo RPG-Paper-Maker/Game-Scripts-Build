@@ -45,9 +45,12 @@ class Skybox extends Base {
             const texture = Manager.GL.textureLoader.load(Datas.Pictures.get(PictureKind.Skyboxes, side).getPath());
             texture.wrapS = THREE.RepeatWrapping;
             texture.repeat.x = -1;
-            texture.magFilter = THREE.NearestFilter;
-            texture.minFilter = THREE.NearestFilter;
-            return new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide });
+            return Manager.GL.createMaterial({
+                texture: texture,
+                side: THREE.BackSide,
+                shadows: false,
+                flipY: true
+            });
         });
     }
 }

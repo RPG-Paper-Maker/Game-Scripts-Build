@@ -299,6 +299,11 @@ declare class Map extends Base {
      */
     updateWeather(current?: boolean): void;
     /**
+     *  Update and move the camera position for hiding stuff.
+     *  @param {THREE.Vector2} pointer 2D position on screen to test if intersect
+     */
+    updateCameraHiding(pointer: THREE.Vector2): void;
+    /**
      *  Update the scene.
      */
     update(): void;

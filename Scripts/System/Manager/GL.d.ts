@@ -11,6 +11,7 @@ declare class GL {
     static SHADER_FACE_FRAGMENT: string;
     static renderer: THREE.WebGLRenderer;
     static textureLoader: import("three").TextureLoader;
+    static raycaster: import("three").Raycaster;
     static screenTone: import("three").Vector4;
     constructor();
     /**
@@ -49,10 +50,11 @@ declare class GL {
         flipY?: boolean;
         uniforms?: Record<string, any>;
         side?: number;
-        isFaceSprite?: boolean;
         repeat?: number;
         opacity?: number;
+        shadows?: boolean;
     }): THREE.MeshPhongMaterial;
+    static cloneMaterial(material: THREE.MeshPhongMaterial): THREE.MeshPhongMaterial;
     /**
      *  Get material THREE.Texture (if exists).
      *  @param {THREE.MeshPhongMaterial}
