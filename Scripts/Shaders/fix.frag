@@ -6,6 +6,7 @@ uniform vec4 colorD;
 uniform bool reverseH;
 uniform vec2 offset;
 uniform float repeat;
+uniform bool enableShadows;
 varying vec3 vLightFront;
 varying vec3 vIndirectFront;
 #ifdef DOUBLE_SIDED
@@ -58,7 +59,7 @@ void main() {
 		sampledDiffuseColor = vec4( mix( pow( sampledDiffuseColor.rgb * 0.9478672986 + vec3( 0.0521327014 ), vec3( 2.4 ) ), sampledDiffuseColor.rgb * 0.0773993808, vec3( lessThanEqual( sampledDiffuseColor.rgb, vec3( 0.04045 ) ) ) ), sampledDiffuseColor.w );
 	#endif
 	diffuseColor *= sampledDiffuseColor;
-	if (sampledDiffuseColor.a >= 1.0) {
+	if (enableShadows && sampledDiffuseColor.a >= 1.0) {
 		#include <color_fragment>
 		#include <alphamap_fragment>
 		#include <alphatest_fragment>
