@@ -9,9 +9,9 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Common, Manager } from "../index.js";
-import { Paths } from "../Common/index.js";
-import { Game } from "../Core/index.js";
-import { Base } from "./Base.js";
+import { Paths } from '../Common/index.js';
+import { Game } from '../Core/index.js';
+import { Base } from './Base.js';
 /**
  *  Scene used for
  */
@@ -26,12 +26,14 @@ class ShowTextPreview extends Base {
     }
     async updateCommand() {
         this.isLoading = true;
-        let json = await Common.IO.parseFileJSON(Paths.FILE_TEST);
+        let json = await Common.Platform.parseFileJSON(Paths.FILE_TEST);
         let eventCommand = Manager.Events.getEventCommand(json);
-        if (eventCommand !== null && (this.eventCommand === null || this.eventCommand.windowInterlocutor.content.text !==
-            eventCommand.interlocutor.getValue() || this.eventCommand.message
-            !== eventCommand.message || this.eventCommand.facesetID !==
-            eventCommand.facesetID)) {
+        if (eventCommand !== null &&
+            (this.eventCommand === null ||
+                this.eventCommand.windowInterlocutor.content.text !==
+                    eventCommand.interlocutor.getValue() ||
+                this.eventCommand.message !== eventCommand.message ||
+                this.eventCommand.facesetID !== eventCommand.facesetID)) {
             this.needRedraw = false;
             this.eventCommand = eventCommand;
             this.currentState = this.eventCommand.initialize();

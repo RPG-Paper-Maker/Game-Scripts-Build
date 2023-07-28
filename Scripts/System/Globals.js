@@ -7,9 +7,9 @@
 /**
  * @module Three.js
  */
-export const THREE = require('./Content/Datas/Scripts/Libs/three.js');
+export const THREE = require('./Content/Scripts/Libs/three.js');
 /**
  * @module Howler.js
  */
-const { Howl } = require('./Content/Datas/Scripts/Libs/howler.js');
+const { Howl } = require('./Content/Scripts/Libs/howler.js');
 export { Howl };

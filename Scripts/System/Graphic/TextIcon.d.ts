@@ -1,8 +1,8 @@
-import { Base } from "./Base.js";
-import { Enum } from "../Common/index.js";
+import { Base } from './Base.js';
+import { Enum } from '../Common/index.js';
 import Align = Enum.Align;
-import { Picture2D } from "../Core/index.js";
-import { Graphic, System } from "../index.js";
+import { Picture2D } from '../Core/index.js';
+import { Graphic, System } from '../index.js';
 /** @class
  *  The graphic displaying a text and an icon.
  *  @extends Graphic.Base

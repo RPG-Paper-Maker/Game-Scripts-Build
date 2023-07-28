@@ -8,11 +8,11 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum, Interpreter, Utils, Platform, Mathf } from "../Common/index.js";
-import { Datas, System, Graphic } from "../index.js";
-import { Skill } from "./Skill.js";
-import { Item } from "./Item.js";
-import { Status } from "./Status.js";
+import { Enum, Interpreter, Utils, Platform, Mathf } from '../Common/index.js';
+import { Datas, System, Graphic } from '../index.js';
+import { Skill } from './Skill.js';
+import { Item } from './Item.js';
+import { Status } from './Status.js';
 /** @class
  *  A character in the team/hidden/reserve.
  *  @param {CharacterKind} [kind=undefined] - The kind of the character (hero or monster)

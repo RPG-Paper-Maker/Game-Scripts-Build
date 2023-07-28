@@ -8,12 +8,12 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { THREE } from "../Globals.js";
-import { Base } from "./Base.js";
-import { Enum, Utils, Constants, IO, Paths, Inputs, Interpreter, Platform, ScreenResolution } from "../Common/index.js";
+import { THREE } from '../Globals.js';
+import { Base } from './Base.js';
+import { Enum, Utils, Constants, Paths, Inputs, Interpreter, Platform, ScreenResolution } from '../Common/index.js';
 var PictureKind = Enum.PictureKind;
-import { System, Datas, Scene, Manager } from "../index.js";
-import { Position, Portion, MapPortion, Camera, ReactionInterpreter, Vector3, Autotiles, Game, Frame, Vector2 } from "../Core/index.js";
+import { System, Datas, Scene, Manager } from '../index.js';
+import { Position, Portion, MapPortion, Camera, ReactionInterpreter, Vector3, Autotiles, Game, Frame, Vector2, } from '../Core/index.js';
 /** @class
  *  A scene for a local map.
  *  @extends Scene.Base
@@ -21,7 +21,7 @@ import { Position, Portion, MapPortion, Camera, ReactionInterpreter, Vector3, Au
  *  @param {boolean} [isBattleMap=false] - Indicate if this map is a battle one
  *  @param {boolean} [minimal=false] - Indicate if the map should be partialy
  *  loaded (only for getting objects infos)
-*/
+ */
 class Map extends Base {
     constructor(id, isBattleMap = false, minimal = false, heroOrientation = null) {
         super(false);
@@ -45,14 +45,14 @@ class Map extends Base {
         Scene.Map.current = this;
         // Initialize autotile frame counter
         this.autotileFrame = new Frame(Datas.Systems.autotilesFrameDuration, {
-            frames: Datas.Systems.autotilesFrames
+            frames: Datas.Systems.autotilesFrames,
         });
         if (!this.isBattleMap) {
             Game.current.currentMapID = this.id;
         }
         this.scene = new THREE.Scene();
         // Adding meshes for collision
-        this.collisions = new Array;
+        this.collisions = new Array();
         if (Datas.Systems.showBB) {
             this.scene.add(Manager.Collisions.BB_BOX);
             this.scene.add(Manager.Collisions.BB_ORIENTED_BOX);
@@ -88,7 +88,7 @@ class Map extends Base {
                 }
             }
         }
-        this.collisions = new Array;
+        this.collisions = new Array();
         await this.readMapProperties();
         this.initializeCamera();
         await this.loadTextures();
@@ -98,10 +98,8 @@ class Map extends Base {
                 for (k = -limit; k <= limit; k++) {
                     let mapPortion = this.getMapPortion(i, j, k);
                     if (mapPortion) {
-                        let portion = new Portion(this.currentPortion.x + i, this
-                            .currentPortion.y + j, this.currentPortion.z + k);
-                        let json = await IO.parseFileJSON(Paths.FILE_MAPS + this
-                            .mapFilename + Constants.STRING_SLASH + portion.getFileName());
+                        let portion = new Portion(this.currentPortion.x + i, this.currentPortion.y + j, this.currentPortion.z + k);
+                        let json = await Platform.parseFileJSON(Paths.FILE_MAPS + this.mapFilename + Constants.STRING_SLASH + portion.getFileName());
                         mapPortion.readStatic(json);
                     }
                 }
@@ -116,18 +114,16 @@ class Map extends Base {
      *  @returns {string}
      */
     static generateMapName(id) {
-        return "MAP" + Utils.formatNumber(id, 4);
+        return 'MAP' + Utils.formatNumber(id, 4);
     }
     /**
      *  Read the map properties file.
      */
     async readMapProperties(minimal = false) {
         this.mapProperties = new System.MapProperties();
-        let json = await IO.parseFileJSON(Paths.FILE_MAPS + this.mapFilename + Paths
-            .FILE_MAP_INFOS);
+        let json = await Platform.parseFileJSON(Paths.FILE_MAPS + this.mapFilename + Paths.FILE_MAP_INFOS);
         if (this.isBattleMap && json.tileset === undefined) {
-            Platform.showErrorMessage("The battle map " + this.id + " doesn't " +
-                "exists. Please check your battle maps.");
+            Platform.showErrorMessage('The battle map ' + this.id + " doesn't " + 'exists. Please check your battle maps.');
         }
         this.mapProperties.read(json);
         if (!minimal) {
@@ -143,8 +139,7 @@ class Map extends Base {
         if (targetKind === Enum.TargetKind.User) {
             return this.user ? [this.user.player] : [];
         }
-        else if (targetKind === Enum.TargetKind.Ally || targetKind === Enum
-            .TargetKind.AllAllies) {
+        else if (targetKind === Enum.TargetKind.Ally || targetKind === Enum.TargetKind.AllAllies) {
             return Game.current.teamHeroes;
         }
         else {
@@ -155,8 +150,7 @@ class Map extends Base {
      *  Initialize sun light.
      */
     initializeSunLight() {
-        const ambient = new THREE.AmbientLight(0xffffff, this.mapProperties
-            .isSunLight ? 0.75 : 1);
+        const ambient = new THREE.AmbientLight(0xffffff, this.mapProperties.isSunLight ? 0.75 : 1);
         this.scene.add(ambient);
         if (this.mapProperties.isSunLight) {
             this.sunLight = new THREE.DirectionalLight(0xffffff, 0.5);
@@ -180,34 +174,27 @@ class Map extends Base {
      *  Initialize the map objects.
      */
     initializeCamera() {
-        this.camera = new Camera(this.mapProperties.cameraProperties, Game
-            .current.hero);
+        this.camera = new Camera(this.mapProperties.cameraProperties, Game.current.hero);
         this.camera.update();
-        this.currentPortion = Portion.createFromVector3(this.camera
-            .getThreeCamera().position);
+        this.currentPortion = Portion.createFromVector3(this.camera.getThreeCamera().position);
         this.previousCameraPosition = null;
         if (this.mapProperties.skyboxGeometry !== null) {
-            this.previousCameraPosition = this.camera.getThreeCamera().position
-                .clone();
-            this.mapProperties.skyboxGeometry.translate(this.camera
-                .getThreeCamera().position.x, this.camera.getThreeCamera()
-                .position.y, this.camera.getThreeCamera().position.z);
+            this.previousCameraPosition = this.camera.getThreeCamera().position.clone();
+            this.mapProperties.skyboxGeometry.translate(this.camera.getThreeCamera().position.x, this.camera.getThreeCamera().position.y, this.camera.getThreeCamera().position.z);
         }
     }
     /**
      *  Initialize the map objects.
      */
     async initializeObjects() {
-        let json = (await IO.parseFileJSON(Paths.FILE_MAPS + this.mapFilename +
-            Paths.FILE_MAP_OBJECTS)).objs;
+        let json = (await Platform.parseFileJSON(Paths.FILE_MAPS + this.mapFilename + Paths.FILE_MAP_OBJECTS)).objs;
         let l = json.length;
         this.allObjects = new Array(l + 1);
         let jsonObject;
         this.maxObjectsID = 1;
         for (let i = 0; i < l; i++) {
             jsonObject = json[i];
-            this.allObjects[jsonObject.id] = Position.createFromArray(jsonObject
-                .p);
+            this.allObjects[jsonObject.id] = Position.createFromArray(jsonObject.p);
             if (jsonObject.id > this.maxObjectsID) {
                 this.maxObjectsID = jsonObject.id;
             }
@@ -234,8 +221,10 @@ class Map extends Base {
                 jabs = Math.abs(j);
                 objectsPortions[i][jp][jabs] = new Array(w);
                 for (k = 0; k < w; k++) {
-                    datas = (mapsDatas && mapsDatas[i] && mapsDatas[i][jp] &&
-                        mapsDatas[i][jp][jabs]) ? mapsDatas[i][jp][jabs][k] : null;
+                    datas =
+                        mapsDatas && mapsDatas[i] && mapsDatas[i][jp] && mapsDatas[i][jp][jabs]
+                            ? mapsDatas[i][jp][jabs][k]
+                            : null;
                     objectsPortions[i][jp][jabs][k] = {
                         min: datas && datas.min ? datas.min : [],
                         // All the moved objects that are in this
@@ -273,12 +262,14 @@ class Map extends Base {
     async loadTextures() {
         let tileset = this.mapProperties.tileset;
         let path = tileset.getPath();
-        this.textureTileset = path ? (await Manager.GL.loadTexture(path)) :
-            Manager.GL.loadTextureEmpty();
+        this.textureTileset = path ? await Manager.GL.loadTexture(path) : Manager.GL.loadTextureEmpty();
         let t = this.textureTileset.map;
         if (t.image.width % Datas.Systems.SQUARE_SIZE !== 0 || t.image.height % Datas.Systems.SQUARE_SIZE !== 0) {
-            Platform.showErrorMessage("Tileset in " + path + " is not in a size multiple of " +
-                Datas.Systems.SQUARE_SIZE + ". Please edit this picture size.");
+            Platform.showErrorMessage('Tileset in ' +
+                path +
+                ' is not in a size multiple of ' +
+                Datas.Systems.SQUARE_SIZE +
+                '. Please edit this picture size.');
         }
         this.texturesAutotiles = await tileset.getTexturesAutotiles();
         this.texturesWalls = await tileset.getTexturesWalls();
@@ -294,8 +285,9 @@ class Map extends Base {
         for (let list of this.texturesAutotiles) {
             if (list) {
                 for (let texture of list) {
-                    texture.material.userData.uniforms.offset.value = texture
-                        .isAnimated ? this.autotilesOffset : new Vector2();
+                    texture.material.userData.uniforms.offset.value = texture.isAnimated
+                        ? this.autotilesOffset
+                        : new Vector2();
                 }
             }
         }
@@ -332,8 +324,7 @@ class Map extends Base {
         // Autotiles
         this.loadSpecialsCollision(this.mapProperties.tileset.autotiles, PictureKind.Autotiles, Datas.SpecialElements.autotiles);
         // Walls
-        this.loadSpecialsCollision(this.mapProperties.tileset.walls, PictureKind
-            .Walls, Datas.SpecialElements.walls);
+        this.loadSpecialsCollision(this.mapProperties.tileset.walls, PictureKind.Walls, Datas.SpecialElements.walls);
     }
     /**
      *  Initialize the map portions.
@@ -390,8 +381,7 @@ class Map extends Base {
             for (i = -limit; i <= limit; i++) {
                 for (j = -limit; j <= limit; j++) {
                     for (k = -limit; k <= limit; k++) {
-                        await this.loadPortion(this.currentPortion.x + i, this
-                            .currentPortion.y + j, this.currentPortion.z + k, i, j, k);
+                        await this.loadPortion(this.currentPortion.x + i, this.currentPortion.y + j, this.currentPortion.z + k, i, j, k);
                     }
                 }
             }
@@ -414,8 +404,7 @@ class Map extends Base {
                     oj = j - offsetY;
                     ok = k - offsetZ;
                     // If with negative offset, out of ray boundaries, remove
-                    if (oi < -limit || oi > limit || oj < -limit || oj > limit ||
-                        ok < -limit || ok > limit) {
+                    if (oi < -limit || oi > limit || oj < -limit || oj > limit || ok < -limit || ok > limit) {
                         this.removePortion(i, j, k);
                     }
                 }
@@ -432,8 +421,7 @@ class Map extends Base {
                     oj = j - offsetY;
                     ok = k - offsetZ;
                     // If with negative offset, in ray boundaries, move
-                    if (oi >= -limit && oi <= limit && oj >= -limit &&
-                        oj <= limit && ok >= -limit && ok <= limit) {
+                    if (oi >= -limit && oi <= limit && oj >= -limit && oj <= limit && ok >= -limit && ok <= limit) {
                         let previousIndex = this.getPortionIndex(i, j, k);
                         let newIndex = this.getPortionIndex(oi, oj, ok);
                         this.mapPortions[newIndex] = temp[previousIndex];
@@ -442,8 +430,7 @@ class Map extends Base {
                     oj = j + offsetY;
                     ok = k + offsetZ;
                     // If with positive offset, out of ray boundaries, load
-                    if (oi < -limit || oi > limit || oj < -limit || oj > limit ||
-                        ok < -limit || ok > limit) {
+                    if (oi < -limit || oi > limit || oj < -limit || oj > limit || ok < -limit || ok > limit) {
                         await this.loadPortion(x, y, z, i, j, k, true);
                     }
                 }
@@ -467,16 +454,13 @@ class Map extends Base {
         let lz = Math.ceil(this.mapProperties.width / Constants.PORTION_SIZE);
         let ld = Math.ceil(this.mapProperties.depth / Constants.PORTION_SIZE);
         let lh = Math.ceil(this.mapProperties.height / Constants.PORTION_SIZE);
-        if (realX >= 0 && realX < lx && realY >= -ld && realY < lh &&
-            realZ >= 0 && realZ < lz) {
+        if (realX >= 0 && realX < lx && realY >= -ld && realY < lh && realZ >= 0 && realZ < lz) {
             let portion = new Portion(realX, realY, realZ);
-            let json = await IO.parseFileJSON(Paths.FILE_MAPS + this.mapFilename +
-                Constants.STRING_SLASH + portion.getFileName());
-            if (json.hasOwnProperty("lands")) {
+            let json = await Platform.parseFileJSON(Paths.FILE_MAPS + this.mapFilename + Constants.STRING_SLASH + portion.getFileName());
+            if (json.hasOwnProperty('lands')) {
                 let mapPortion = new MapPortion(portion);
                 this.setMapPortion(x, y, z, mapPortion, move);
-                mapPortion.read(json, this.id === Datas.Systems
-                    .ID_MAP_START_HERO);
+                mapPortion.read(json, this.id === Datas.Systems.ID_MAP_START_HERO);
             }
             else {
                 this.setMapPortion(x, y, z, null, move);
@@ -494,7 +478,7 @@ class Map extends Base {
      *  @param {number} z - The local z portion
      *  @param {boolean} move - Indicate if the portion was moved or completely
      *  loaded
-    */
+     */
     async loadPortionFromPortion(portion, x, y, z, move) {
         await this.loadPortion(portion.x + x, portion.y + y, portion.z + z, x, y, z, move);
     }
@@ -503,7 +487,7 @@ class Map extends Base {
      *  @param {number} x - The local x portion
      *  @param {number} y - The local y portion
      *  @param {number} z - The local z portion
-    */
+     */
     removePortion(x, y, z) {
         const index = this.getPortionIndex(x, y, z);
         const mapPortion = this.mapPortions[index];
@@ -520,7 +504,7 @@ class Map extends Base {
      *  @param {number} m - The new x portion
      *  @param {number} n - The new y portion
      *  @param {number} o - The new z portion
-    */
+     */
     setPortion(i, j, k, m, n, o) {
         this.setMapPortion(i, j, k, this.getMapPortion(m, n, o), true);
     }
@@ -532,7 +516,7 @@ class Map extends Base {
      *  @param {MapPortion} mapPortion - The new map portion
      *  @param {boolean} move - Indicate if the portion was moved or completely
      *  loaded
-    */
+     */
     setMapPortion(x, y, z, mapPortion, move) {
         let index = this.getPortionIndex(x, y, z);
         let currentMapPortion = this.mapPortions[index];
@@ -555,7 +539,7 @@ class Map extends Base {
      *  @param {number} y - The local y portion
      *  @param {number} z - The local z portion
      *  @returns {MapPortion}
-    */
+     */
     getMapPortion(x, y, z) {
         return this.getBrutMapPortion(this.getPortionIndex(x, y, z));
     }
@@ -563,7 +547,7 @@ class Map extends Base {
      *  Get a map portion at local portion.
      *  @param {Portion} portion - The local portion
      *  @returns {MapPortion}
-    */
+     */
     getMapPortionFromPortion(portion) {
         return this.getMapPortion(portion.x, portion.y, portion.z);
     }
@@ -589,17 +573,17 @@ class Map extends Base {
      *  @param {number} y - The local y position of portion
      *  @param {number} z - The local z position of portion
      *  @returns {number}
-    */
+     */
     getPortionIndex(x, y, z) {
         const size = this.getMapPortionSize();
         const limit = Datas.Systems.PORTIONS_RAY;
-        return ((x + limit) * size * size) + ((y + limit) * size) + (z + limit);
+        return (x + limit) * size * size + (y + limit) * size + (z + limit);
     }
     /**
      *  Get portion index according to local portion.
      *  @param {Portion} portion - The local portion
      *  @returns {number}
-    */
+     */
     getPortionIndexFromPortion(portion) {
         return this.getPortionIndex(portion.x, portion.y, portion.z);
     }
@@ -616,7 +600,7 @@ class Map extends Base {
      *  @returns {number}
      */
     getMapPortionSize() {
-        return (Datas.Systems.PORTIONS_RAY * 2) + 1;
+        return Datas.Systems.PORTIONS_RAY * 2 + 1;
     }
     /**
      *  Get the map portion total size.
@@ -625,17 +609,21 @@ class Map extends Base {
     getMapPortionTotalSize() {
         const size = this.getMapPortionSize();
         const limit = Datas.Systems.PORTIONS_RAY;
-        return ((limit * 2) * size * size) + ((limit * 2) * size) + (limit * 2);
+        return limit * 2 * size * size + limit * 2 * size + limit * 2;
     }
     /**
      *  Check if a local portion if in the limit
      *  @param {Portion} portion - The local portion
      *  @returns {boolean}
-    */
+     */
     isInPortion(portion) {
         let limit = Datas.Systems.PORTIONS_RAY;
-        return (portion.x >= -limit && portion.x <= limit && portion.y >= -limit
-            && portion.y <= limit && portion.z >= -limit && portion.z <= limit);
+        return (portion.x >= -limit &&
+            portion.x <= limit &&
+            portion.y >= -limit &&
+            portion.y <= limit &&
+            portion.z >= -limit &&
+            portion.z <= limit);
     }
     /**
      *  Check if a position is in the map.
@@ -643,16 +631,17 @@ class Map extends Base {
      *  @returns {boolean}
      */
     isInMap(position) {
-        return (position.x >= 0 && position.x < this.mapProperties.length &&
-            position.z >= 0 && position.z < this.mapProperties.width);
+        return (position.x >= 0 &&
+            position.x < this.mapProperties.length &&
+            position.z >= 0 &&
+            position.z < this.mapProperties.width);
     }
     /**
      *  Get the hero position according to battle map.
      *  @returns {Vector3}
      */
     getHeroPosition() {
-        return this.isBattleMap ? Game.current.heroBattle.position :
-            Game.current.hero.position;
+        return this.isBattleMap ? Game.current.heroBattle.position : Game.current.hero.position;
     }
     /**
      *  Update the background color.
@@ -666,7 +655,7 @@ class Map extends Base {
      *  @param {number[]} list - The IDs list
      *  @param {PictureKind} kind - The picture kind
      *  @param {SpecialElement[]} specials - The specials list
-    */
+     */
     loadSpecialsCollision(list, kind, specials) {
         let special, picture;
         for (let i = 0, l = list.length; i < l; i++) {
@@ -695,8 +684,7 @@ class Map extends Base {
                     x = this.currentPortion.x + i;
                     y = this.currentPortion.y + j;
                     z = this.currentPortion.z + k;
-                    if (x >= 0 && x < lx && y >= -ld && y < lh && z >= 0 &&
-                        z < lz) {
+                    if (x >= 0 && x < lx && y >= -ld && y < lh && z >= 0 && z < lz) {
                         callback.call(base, x, y, z, i, j, k);
                     }
                 }
@@ -710,9 +698,8 @@ class Map extends Base {
      *  @returns {number}
      */
     getWeatherPosition(portionsRay, offset = true) {
-        return Math.random() * (Datas.Systems.SQUARE_SIZE * Datas.Systems
-            .SQUARE_SIZE * ((portionsRay * 2) + 1)) - (Datas.Systems.SQUARE_SIZE
-            * Datas.Systems.SQUARE_SIZE * (portionsRay + (offset ? 0.5 : 0)));
+        return (Math.random() * (Datas.Systems.SQUARE_SIZE * Datas.Systems.SQUARE_SIZE * (portionsRay * 2 + 1)) -
+            Datas.Systems.SQUARE_SIZE * Datas.Systems.SQUARE_SIZE * (portionsRay + (offset ? 0.5 : 0)));
     }
     /**
      *  Create the weather mesh system.
@@ -733,14 +720,18 @@ class Map extends Base {
         velocities = [];
         rotationsAngle = [];
         rotationsPoints = [];
-        Interpreter.evaluate("Scene.Map.current.add" + (current ? "" : "Previous")
-            + "WeatherYRotation=function(){return " + options.yRotationAddition +
-            ";}", { addReturn: false });
-        Interpreter.evaluate("Scene.Map.current.add" + (current ? "" : "Previous")
-            + "WeatherVelocityn=function(){return " + options.velocityAddition +
-            ";}", { addReturn: false });
+        Interpreter.evaluate('Scene.Map.current.add' +
+            (current ? '' : 'Previous') +
+            'WeatherYRotation=function(){return ' +
+            options.yRotationAddition +
+            ';}', { addReturn: false });
+        Interpreter.evaluate('Scene.Map.current.add' +
+            (current ? '' : 'Previous') +
+            'WeatherVelocityn=function(){return ' +
+            options.velocityAddition +
+            ';}', { addReturn: false });
         let initialVelocity = Interpreter.evaluate(options.initialVelocity);
-        initialVelocity *= (Datas.Systems.SQUARE_SIZE / Constants.BASIC_SQUARE_SIZE);
+        initialVelocity *= Datas.Systems.SQUARE_SIZE / Constants.BASIC_SQUARE_SIZE;
         const initialYRotation = Interpreter.evaluate(options.initialYRotation);
         const portionsRay = options.portionsRay;
         const particlesNumber = options.finalParticlesNumber;
@@ -756,23 +747,20 @@ class Map extends Base {
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
         let material = new THREE.PointsMaterial({
-            color: options.isColor ? Datas.Systems.getColor(options.colorID)
-                .getHex() : 0xFFFFFF,
+            color: options.isColor ? Datas.Systems.getColor(options.colorID).getHex() : 0xffffff,
             size: options.size,
             transparent: true,
             depthTest: options.depthTest,
-            depthWrite: options.depthWrite
+            depthWrite: options.depthWrite,
         });
         if (!options.isColor) {
-            const texture = (new THREE.TextureLoader).load(Datas.Pictures.get(Enum.PictureKind.Particles, options.imageID).getPath());
+            const texture = new THREE.TextureLoader().load(Datas.Pictures.get(Enum.PictureKind.Particles, options.imageID).getPath());
             texture.magFilter = THREE.NearestFilter;
             texture.minFilter = THREE.NearestFilter;
             material.map = texture;
         }
         points = new THREE.Points(geometry, material);
-        points.position.set(Scene.Map.current.camera.target.position.x, Scene
-            .Map.current.camera.target.position.y, Scene.Map.current.camera.target
-            .position.z);
+        points.position.set(Scene.Map.current.camera.target.position.x, Scene.Map.current.camera.target.position.y, Scene.Map.current.camera.target.position.z);
         points.renderOrder = 1000;
         this.scene.add(points);
         if (current) {
@@ -844,7 +832,7 @@ class Map extends Base {
             return;
         }
         let initialVelocity = Interpreter.evaluate(options.initialVelocity);
-        initialVelocity *= (Datas.Systems.SQUARE_SIZE / Constants.BASIC_SQUARE_SIZE);
+        initialVelocity *= Datas.Systems.SQUARE_SIZE / Constants.BASIC_SQUARE_SIZE;
         const initialYRotation = Interpreter.evaluate(options.initialYRotation);
         const portionsRay = options.portionsRay;
         const positionAttribute = points.geometry.getAttribute('position');
@@ -854,34 +842,30 @@ class Map extends Base {
         let y, v;
         for (let i = 0; i < particlesNumber; i++) {
             y = positionAttribute.getY(i);
-            if (y < points.material.size -
-                (Datas.Systems.SQUARE_SIZE * Datas.Systems.SQUARE_SIZE * portionsRay)) {
-                y += (Datas.Systems.SQUARE_SIZE * Datas.Systems.SQUARE_SIZE * (portionsRay + 1));
+            if (y <
+                points.material.size -
+                    Datas.Systems.SQUARE_SIZE * Datas.Systems.SQUARE_SIZE * portionsRay) {
+                y += Datas.Systems.SQUARE_SIZE * Datas.Systems.SQUARE_SIZE * (portionsRay + 1);
                 velocities[i] = initialVelocity;
                 rotationsAngle[i] = initialYRotation;
-                rotationsPoints[i] = Scene.Map.current.camera.target
-                    .position.clone();
+                rotationsPoints[i] = Scene.Map.current.camera.target.position.clone();
                 positionAttribute.setX(i, this.getWeatherPosition(portionsRay));
                 positionAttribute.setZ(i, this.getWeatherPosition(portionsRay));
             }
-            y -= (Scene.Map.current.camera.target.position.y - points.position.y);
-            v = new Vector3(positionAttribute.getX(i) - (Scene.Map.current
-                .camera.target.position.x - points.position.x), y, positionAttribute.getZ(i) - (Scene.Map.current.camera.target
-                .position.z - points.position.z));
-            rotationsAngle[i] += (current ? this.addWeatherYRotation() : this
-                .addPreviousWeatherYRotation()) * Math.PI / 180;
+            y -= Scene.Map.current.camera.target.position.y - points.position.y;
+            v = new Vector3(positionAttribute.getX(i) - (Scene.Map.current.camera.target.position.x - points.position.x), y, positionAttribute.getZ(i) - (Scene.Map.current.camera.target.position.z - points.position.z));
+            rotationsAngle[i] +=
+                ((current ? this.addWeatherYRotation() : this.addPreviousWeatherYRotation()) * Math.PI) / 180;
             v.applyAxisAngle(yAxis, rotationsAngle[i]);
             positionAttribute.setX(i, v.x);
             positionAttribute.setZ(i, v.z);
-            velocities[i] += (current ? this.addWeatherVelocity() : this
-                .addPreviousWeatherVelocity()) * (Datas.Systems.SQUARE_SIZE /
-                Constants.BASIC_SQUARE_SIZE);
+            velocities[i] +=
+                (current ? this.addWeatherVelocity() : this.addPreviousWeatherVelocity()) *
+                    (Datas.Systems.SQUARE_SIZE / Constants.BASIC_SQUARE_SIZE);
             positionAttribute.setY(i, v.y + velocities[i]);
         }
         positionAttribute.needsUpdate = true;
-        points.position.set(Scene.Map.current.camera.target.position
-            .x, Scene.Map.current.camera.target.position.y, Scene.Map.current
-            .camera.target.position.z);
+        points.position.set(Scene.Map.current.camera.target.position.x, Scene.Map.current.camera.target.position.y, Scene.Map.current.camera.target.position.z);
     }
     /**
      *  Update and move the camera position for hiding stuff.
@@ -894,8 +878,8 @@ class Map extends Base {
         let distance;
         for (let i = 0; i < intersects.length; i++) {
             distance = Math.ceil(intersects[i].distance) + 5;
-            if (distance < this.camera.distance && (!this.camera.isHiding() ||
-                this.camera.distance - distance < this.camera.hidingDistance)) {
+            if (distance < this.camera.distance &&
+                (!this.camera.isHiding() || this.camera.distance - distance < this.camera.hidingDistance)) {
                 this.camera.hidingDistance = this.camera.distance - distance;
             }
         }
@@ -907,29 +891,28 @@ class Map extends Base {
         // Mouse down repeat
         if (!this.loading) {
             if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
-                Manager.Events.sendEvent(null, 2, 0, true, 5, [null, System
-                        .DynamicValue.createNumber(Inputs.mouseX), System
-                        .DynamicValue.createNumber(Inputs.mouseY), System
-                        .DynamicValue.createSwitch(Inputs.mouseLeftPressed), System
-                        .DynamicValue.createSwitch(true)], true, false);
+                Manager.Events.sendEvent(null, 2, 0, true, 5, [
+                    null,
+                    System.DynamicValue.createNumber(Inputs.mouseX),
+                    System.DynamicValue.createNumber(Inputs.mouseY),
+                    System.DynamicValue.createSwitch(Inputs.mouseLeftPressed),
+                    System.DynamicValue.createSwitch(true),
+                ], true, false);
             }
         }
         // Update autotiles animated
         if (this.autotileFrame.update()) {
-            this.autotilesOffset.setY((this.autotileFrame.value * Autotiles
-                .COUNT_LIST * 2 * Datas.Systems.SQUARE_SIZE) / Constants
-                .MAX_PICTURE_SIZE);
+            this.autotilesOffset.setY((this.autotileFrame.value * Autotiles.COUNT_LIST * 2 * Datas.Systems.SQUARE_SIZE) /
+                Constants.MAX_PICTURE_SIZE);
         }
         // Update camera
         this.camera.forceNoHide = true;
         this.camera.update();
         // Update skybox
         if (this.mapProperties.skyboxGeometry !== null && this.previousCameraPosition) {
-            let posDif = this.camera.getThreeCamera().position.clone().sub(this
-                .previousCameraPosition);
+            let posDif = this.camera.getThreeCamera().position.clone().sub(this.previousCameraPosition);
             this.mapProperties.skyboxGeometry.translate(posDif.x, posDif.y, posDif.z);
-            this.previousCameraPosition = this.camera.getThreeCamera().position
-                .clone();
+            this.previousCameraPosition = this.camera.getThreeCamera().position.clone();
         }
         // Getting the Y angle of the camera
         let vector = new Vector3();
@@ -966,15 +949,16 @@ class Map extends Base {
             this.camera.forceNoHide = false;
             this.camera.hidingDistance = -1;
             let pointer = Manager.GL.toScreenPosition(this.camera.target.position
-                .clone().add(new THREE.Vector3(0, this.camera.target.height * Datas
-                .Systems.SQUARE_SIZE, 0)), this.camera.getThreeCamera()).divide(new THREE.Vector2(ScreenResolution.CANVAS_WIDTH, ScreenResolution
-                .CANVAS_HEIGHT)).subScalar(0.5);
+                .clone()
+                .add(new THREE.Vector3(0, this.camera.target.height * Datas.Systems.SQUARE_SIZE, 0)), this.camera.getThreeCamera())
+                .divide(new THREE.Vector2(ScreenResolution.CANVAS_WIDTH, ScreenResolution.CANVAS_HEIGHT))
+                .subScalar(0.5);
             pointer.setY(-pointer.y);
             this.updateCameraHiding(pointer);
             if (this.camera.isHiding()) {
                 this.updateCameraHiding(new Vector2(0, 0));
+                this.camera.update();
             }
-            this.camera.update();
             let opacity = 1;
             if (this.camera.isHiding()) {
                 if (this.camera.hidingDistance < 2 * Datas.Systems.SQUARE_SIZE) {
@@ -1005,9 +989,12 @@ class Map extends Base {
         if (!this.loading) {
             // Send keyPressEvent to all the objects
             if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
-                Manager.Events.sendEvent(null, 2, 0, true, 3, [null, System
-                        .DynamicValue.createNumber(key), System.DynamicValue
-                        .createSwitch(false), System.DynamicValue.createSwitch(false)], true, false);
+                Manager.Events.sendEvent(null, 2, 0, true, 3, [
+                    null,
+                    System.DynamicValue.createNumber(key),
+                    System.DynamicValue.createSwitch(false),
+                    System.DynamicValue.createSwitch(false),
+                ], true, false);
             }
             super.onKeyPressed(key);
         }
@@ -1020,8 +1007,7 @@ class Map extends Base {
         if (!this.loading) {
             // Send keyReleaseEvent to all the objects
             if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
-                Manager.Events.sendEvent(null, 2, 0, true, 4, [null, System
-                        .DynamicValue.createNumber(key)], true, false);
+                Manager.Events.sendEvent(null, 2, 0, true, 4, [null, System.DynamicValue.createNumber(key)], true, false);
             }
             super.onKeyReleased(key);
         }
@@ -1034,9 +1020,12 @@ class Map extends Base {
     onKeyPressedRepeat(key) {
         if (!this.loading) {
             if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
-                Manager.Events.sendEvent(null, 2, 0, true, 3, [null, System
-                        .DynamicValue.createNumber(key), System.DynamicValue
-                        .createSwitch(true), System.DynamicValue.createSwitch(true)], true, false);
+                Manager.Events.sendEvent(null, 2, 0, true, 3, [
+                    null,
+                    System.DynamicValue.createNumber(key),
+                    System.DynamicValue.createSwitch(true),
+                    System.DynamicValue.createSwitch(true),
+                ], true, false);
             }
             return super.onKeyPressedRepeat(key);
         }
@@ -1050,9 +1039,12 @@ class Map extends Base {
     onKeyPressedAndRepeat(key) {
         if (!this.loading) {
             if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
-                Manager.Events.sendEvent(null, 2, 0, true, 3, [null, System
-                        .DynamicValue.createNumber(key), System.DynamicValue
-                        .createSwitch(true), System.DynamicValue.createSwitch(false)], true, false);
+                Manager.Events.sendEvent(null, 2, 0, true, 3, [
+                    null,
+                    System.DynamicValue.createNumber(key),
+                    System.DynamicValue.createSwitch(true),
+                    System.DynamicValue.createSwitch(false),
+                ], true, false);
             }
             super.onKeyPressedAndRepeat(key);
         }
@@ -1066,10 +1058,13 @@ class Map extends Base {
     onMouseDown(x, y) {
         if (!this.loading) {
             if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
-                Manager.Events.sendEvent(null, 2, 0, true, 5, [null, System
-                        .DynamicValue.createNumber(x), System.DynamicValue
-                        .createNumber(y), System.DynamicValue.createSwitch(Inputs
-                        .mouseLeftPressed), System.DynamicValue.createSwitch(false)], true, false);
+                Manager.Events.sendEvent(null, 2, 0, true, 5, [
+                    null,
+                    System.DynamicValue.createNumber(x),
+                    System.DynamicValue.createNumber(y),
+                    System.DynamicValue.createSwitch(Inputs.mouseLeftPressed),
+                    System.DynamicValue.createSwitch(false),
+                ], true, false);
             }
             super.onMouseDown(x, y);
         }
@@ -1082,9 +1077,7 @@ class Map extends Base {
     onMouseMove(x, y) {
         if (!this.loading) {
             if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
-                Manager.Events.sendEvent(null, 2, 0, true, 7, [null, System
-                        .DynamicValue.createNumber(x), System.DynamicValue
-                        .createNumber(y)], true, false);
+                Manager.Events.sendEvent(null, 2, 0, true, 7, [null, System.DynamicValue.createNumber(x), System.DynamicValue.createNumber(y)], true, false);
             }
             super.onMouseMove(x, y);
         }
@@ -1097,10 +1090,12 @@ class Map extends Base {
     onMouseUp(x, y) {
         if (!this.loading) {
             if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
-                Manager.Events.sendEvent(null, 2, 0, true, 6, [null, System
-                        .DynamicValue.createNumber(x), System.DynamicValue
-                        .createNumber(y), System.DynamicValue.createSwitch(Inputs
-                        .mouseLeftPressed)], true, false);
+                Manager.Events.sendEvent(null, 2, 0, true, 6, [
+                    null,
+                    System.DynamicValue.createNumber(x),
+                    System.DynamicValue.createNumber(y),
+                    System.DynamicValue.createSwitch(Inputs.mouseLeftPressed),
+                ], true, false);
             }
             super.onMouseUp(x, y);
         }
@@ -1126,8 +1121,7 @@ class Map extends Base {
                 for (k = 0; k < w; k++) {
                     portion = Game.current.getPortionPosDatas(this.id, i, j, k);
                     for (x = portion.min.length - 1; x >= 0; x--) {
-                        if (!portion.min[x].currentState || !portion.min[x]
-                            .currentStateInstance.keepPosition) {
+                        if (!portion.min[x].currentState || !portion.min[x].currentStateInstance.keepPosition) {
                             portion.min.splice(x, 1);
                         }
                         else {
@@ -1135,8 +1129,7 @@ class Map extends Base {
                         }
                     }
                     for (x = portion.mout.length - 1; x >= 0; x--) {
-                        if (!portion.mout[x].currentState || !portion.mout[x]
-                            .currentStateInstance.keepPosition) {
+                        if (!portion.mout[x].currentState || !portion.mout[x].currentStateInstance.keepPosition) {
                             portion.mout.splice(x, 1);
                         }
                         else {
@@ -1144,8 +1137,7 @@ class Map extends Base {
                         }
                     }
                     for (x = portion.m.length - 1; x >= 0; x--) {
-                        if (!portion.m[x].currentState || !portion.m[x]
-                            .currentStateInstance.keepPosition) {
+                        if (!portion.m[x].currentState || !portion.m[x].currentStateInstance.keepPosition) {
                             portion.m.splice(x, 1);
                         }
                         else {
@@ -1162,8 +1154,7 @@ class Map extends Base {
         }
         // Clear bounding boxes
         Manager.Collisions.applyBoxSpriteTransforms(Manager.Collisions.BB_BOX, [0, 0, 0, 1, 1, 1, 0, 0, 0]);
-        Manager.Collisions.applyOrientedBoxTransforms(Manager.Collisions
-            .BB_ORIENTED_BOX, [0, 0, 0, 2, 1]);
+        Manager.Collisions.applyOrientedBoxTransforms(Manager.Collisions.BB_ORIENTED_BOX, [0, 0, 0, 2, 1]);
     }
 }
 Map.allowMainMenu = true;

@@ -9,9 +9,9 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Datas, Scene, System } from "../index.js";
-import { Enum, Mathf, Utils } from "../Common/index.js";
-import { Player } from "../Core/index.js";
-import { Base } from "./Base.js";
+import { Enum, Mathf, Utils } from '../Common/index.js';
+import { Player } from '../Core/index.js';
+import { Base } from './Base.js';
 /** @class
  *  A troop reaction conditions of the game.
  *  @extends System.Base

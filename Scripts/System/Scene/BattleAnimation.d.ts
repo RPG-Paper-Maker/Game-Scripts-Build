@@ -1,5 +1,5 @@
 import { Scene } from "../index.js";
-import { Enum } from "../Common/index.js";
+import { Enum } from '../Common/index.js';
 import AnimationEffectConditionKind = Enum.AnimationEffectConditionKind;
 declare class BattleAnimation {
     battle: Scene.Battle;

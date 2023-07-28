@@ -1,5 +1,5 @@
-import { Base } from "./Base.js";
-import { Vector3 } from "../Core/index.js";
+import { Base } from './Base.js';
+import { Vector3 } from '../Core/index.js';
 /** @class
  *  The system color class.
  *  @extends {System.Base}

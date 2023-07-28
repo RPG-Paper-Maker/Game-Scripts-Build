@@ -8,12 +8,12 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Camera, Game, Vector3, ReactionInterpreter } from "../Core/index.js";
+import { Camera, Game, Vector3, ReactionInterpreter } from '../Core/index.js';
 import { System, Scene, Manager, Datas } from "../index.js";
-import { Enum } from "../Common/index.js";
+import { Enum } from '../Common/index.js';
 var CharacterKind = Enum.CharacterKind;
 var BattleStep = Enum.BattleStep;
-import { Map } from "./Map.js";
+import { Map } from './Map.js';
 /** @class
  *  A scene for battling.
  *  @extends SceneGame

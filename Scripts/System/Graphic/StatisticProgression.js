@@ -9,8 +9,8 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Graphic, System, Datas } from "../index.js";
-import { Constants, ScreenResolution, Utils } from "../Common/index.js";
-import { Base } from "./Base.js";
+import { Constants, ScreenResolution, Utils } from '../Common/index.js';
+import { Base } from './Base.js';
 /** @class
  *  The graphic displaying all the stats in the player description state menu.
  *  @param {GamePlayer} gamePlayer - The current selected player

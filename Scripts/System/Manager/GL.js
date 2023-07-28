@@ -8,29 +8,27 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { THREE } from "../Globals.js";
-import { Datas } from "../index.js";
-import { ScreenResolution, Platform, Utils, IO, Paths } from "../Common/index.js";
-import { Stack } from "./Stack.js";
-import { Vector2 } from "../Core/index.js";
+import { THREE } from '../Globals.js';
+import { Datas } from '../index.js';
+import { ScreenResolution, Platform, Utils, Paths } from '../Common/index.js';
+import { Stack } from './Stack.js';
+import { Vector2 } from '../Core/index.js';
 /** @class
  *  The GL class handling some 3D stuff.
  *  @static
  */
 class GL {
     constructor() {
-        throw new Error("This is a static class");
+        throw new Error('This is a static class');
     }
     /**
      *  Initialize the openGL stuff.
      *  @static
      */
     static initialize() {
-        this.renderer = new THREE.WebGLRenderer({ antialias: Datas.Systems
-                .antialias, alpha: true });
+        this.renderer = new THREE.WebGLRenderer({ antialias: Datas.Systems.antialias, alpha: true });
         this.renderer.autoClear = false;
-        this.renderer.setSize(ScreenResolution.CANVAS_WIDTH, ScreenResolution
-            .CANVAS_HEIGHT, true);
+        this.renderer.setSize(ScreenResolution.CANVAS_WIDTH, ScreenResolution.CANVAS_HEIGHT, true);
         this.renderer.shadowMap.enabled = true;
         if (Datas.Systems.antialias) {
             this.renderer.setPixelRatio(2);
@@ -43,13 +41,13 @@ class GL {
      */
     static async load() {
         // Shaders
-        let json = await IO.openFile(Paths.SHADERS + "fix.vert");
+        let json = await Platform.loadFile(Paths.SHADERS + 'fix.vert', true);
         this.SHADER_FIX_VERTEX = json;
-        json = await IO.openFile(Paths.SHADERS + "fix.frag");
+        json = await Platform.loadFile(Paths.SHADERS + 'fix.frag', true);
         this.SHADER_FIX_FRAGMENT = json;
-        json = await IO.openFile(Paths.SHADERS + "face.vert");
+        json = await Platform.loadFile(Paths.SHADERS + 'face.vert', true);
         this.SHADER_FACE_VERTEX = json;
-        json = await IO.openFile(Paths.SHADERS + "face.frag");
+        json = await Platform.loadFile(Paths.SHADERS + 'face.frag', true);
         this.SHADER_FACE_FRAGMENT = json;
     }
     /**
@@ -58,8 +56,7 @@ class GL {
      */
     static resize() {
         if (this.renderer) {
-            this.renderer.setSize(ScreenResolution.CANVAS_WIDTH, ScreenResolution
-                .CANVAS_HEIGHT, true);
+            this.renderer.setSize(ScreenResolution.CANVAS_WIDTH, ScreenResolution.CANVAS_HEIGHT, true);
             let camera;
             for (let i = 0, l = Stack.content.length; i < l; i++) {
                 camera = Stack.content[i].camera;
@@ -75,11 +72,11 @@ class GL {
      *  @returns {Promise<THREE.Material>}
      */
     static async loadTexture(path) {
-        let texture = await (new Promise((resolve, reject) => {
+        let texture = await new Promise((resolve, reject) => {
             this.textureLoader.load(path, (t) => {
                 resolve(t);
             }, () => { }, () => {
-                let error = "Could not load " + path;
+                let error = 'Could not load ' + path;
                 if (Datas.Systems.ignoreAssetsLoadingErrors) {
                     let t = new THREE.Texture();
                     t.image = new Image();
@@ -90,7 +87,7 @@ class GL {
                     Platform.showErrorMessage(error);
                 }
             });
-        }));
+        });
         return this.createMaterial({ texture: texture });
     }
     /**
@@ -100,7 +97,7 @@ class GL {
     static loadTextureEmpty() {
         const material = new THREE.MeshPhongMaterial();
         material.userData.uniforms = {
-            t: { value: undefined }
+            t: { value: undefined },
         };
         return material;
     }
@@ -114,7 +111,7 @@ class GL {
         }
         opts.texture.magFilter = THREE.NearestFilter;
         opts.texture.minFilter = THREE.NearestFilter;
-        opts.texture.flipY = (opts.flipY) ? true : false;
+        opts.texture.flipY = opts.flipY ? true : false;
         opts.repeat = Utils.defaultValue(opts.repeat, 1.0);
         opts.opacity = Utils.defaultValue(opts.opacity, 1.0);
         opts.shadows = Utils.defaultValue(opts.shadows, true);
@@ -122,12 +119,14 @@ class GL {
         const fragment = this.SHADER_FIX_FRAGMENT;
         const vertex = this.SHADER_FIX_VERTEX;
         const screenTone = this.screenTone;
-        const uniforms = opts.uniforms ? opts.uniforms : {
-            offset: { value: new THREE.Vector2() },
-            colorD: { value: screenTone },
-            repeat: { value: opts.repeat },
-            enableShadows: { value: opts.shadows }
-        };
+        const uniforms = opts.uniforms
+            ? opts.uniforms
+            : {
+                offset: { value: new THREE.Vector2() },
+                colorD: { value: screenTone },
+                repeat: { value: opts.repeat },
+                enableShadows: { value: opts.shadows },
+            };
         // Program cache key for multiple shader programs
         const key = fragment === this.SHADER_FIX_FRAGMENT ? 0 : 1;
         // Create material
@@ -136,13 +135,13 @@ class GL {
             side: opts.side,
             transparent: true,
             alphaTest: 0.5,
-            opacity: opts.opacity
+            opacity: opts.opacity,
         });
         material.userData.uniforms = uniforms;
         material.userData.customDepthMaterial = new THREE.MeshDepthMaterial({
             depthPacking: THREE.RGBADepthPacking,
             map: opts.texture,
-            alphaTest: 0.5
+            alphaTest: 0.5,
         });
         // Edit shader information before compiling shader
         material.onBeforeCompile = (shader) => {
@@ -154,7 +153,7 @@ class GL {
             shader.uniforms.offset = uniforms.offset;
             shader.uniforms.enableShadows = { value: opts.shadows };
             material.userData.uniforms = shader.uniforms;
-            // Important to run a unique shader only once and be able to use 
+            // Important to run a unique shader only once and be able to use
             // multiple shader with before compile
             material.customProgramCacheKey = () => {
                 return '' + key;
@@ -169,7 +168,7 @@ class GL {
             side: material.side,
             repeat: material.userData.uniforms.repeat.value,
             opacity: material.opacity,
-            shadows: material.userData.uniforms.enableShadows.value
+            shadows: material.userData.uniforms.enableShadows.value,
         });
     }
     /**
@@ -201,7 +200,7 @@ class GL {
         let position = vector.clone();
         camera.updateMatrixWorld(true);
         position.project(camera);
-        return new Vector2((position.x * widthHalf) + widthHalf, -(position.y * heightHalf) + heightHalf);
+        return new Vector2(position.x * widthHalf + widthHalf, -(position.y * heightHalf) + heightHalf);
     }
 }
 GL.textureLoader = new THREE.TextureLoader();

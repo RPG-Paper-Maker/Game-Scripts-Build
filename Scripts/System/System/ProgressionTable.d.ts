@@ -1,6 +1,6 @@
-import { Base } from "./Base.js";
-import { DynamicValue } from "./DynamicValue.js";
-import { System } from "../index.js";
+import { Base } from './Base.js';
+import { DynamicValue } from './DynamicValue.js';
+import { System } from '../index.js';
 /** @class
  *  A progression table.
  *  @extends System.Base

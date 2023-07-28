@@ -9,9 +9,9 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Datas, Graphic, Manager } from "../index.js";
-import { Constants, Enum, Inputs, ScreenResolution } from "../Common/index.js";
-import { Picture2D, Rectangle, WindowBox, WindowChoices } from "../Core/index.js";
-import { Base } from "./Base.js";
+import { Constants, Enum, Inputs, ScreenResolution } from '../Common/index.js';
+import { Picture2D, Rectangle, WindowBox, WindowChoices } from '../Core/index.js';
+import { Base } from './Base.js';
 /** @class
  *  A scene for the language setting.
  *  @extends Scene.Base

@@ -1,7 +1,7 @@
 import { Scene } from "../index.js";
-import { Enum } from "../Common/index.js";
-import { Battler, ReactionInterpreter } from "../Core/index.js";
-import { Status } from "../Core/Status.js";
+import { Enum } from '../Common/index.js';
+import { Battler, ReactionInterpreter } from '../Core/index.js';
+import { Status } from '../Core/Status.js';
 declare class BattleStartTurn {
     battle: Scene.Battle;
     step: number;

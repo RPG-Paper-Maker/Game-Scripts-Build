@@ -9,9 +9,9 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { System } from "../index.js";
-import { Utils } from "../Common/index.js";
-import { Game } from "../Core/index.js";
-import { Base } from "./Base.js";
+import { Utils } from '../Common/index.js';
+import { Game } from '../Core/index.js';
+import { Base } from './Base.js';
 /** @class
  *  A random battle of the game.
  *  @extends System.Base

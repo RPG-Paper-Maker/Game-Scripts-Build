@@ -8,8 +8,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { IO, Paths, Enum } from "../Common/index.js";
-import { System, Datas, Manager } from "../index.js";
+import { Platform, Paths, Enum } from '../Common/index.js';
+import { System, Datas, Manager } from '../index.js';
 var PictureKind = Enum.PictureKind;
 /** @class
  *  All the tilesets datas.
@@ -17,13 +17,13 @@ var PictureKind = Enum.PictureKind;
  */
 class Tilesets {
     constructor() {
-        throw new Error("This is a static class!");
+        throw new Error('This is a static class!');
     }
     /**
      *  Read the JSON file associated to tilesets.
      */
     static async read() {
-        let json = (await IO.parseFileJSON(Paths.FILE_TILESETS)).list;
+        let json = (await Platform.parseFileJSON(Paths.FILE_TILESETS)).list;
         let l = json.length;
         this.list = new Array(l + 1);
         // Sorting all the tilesets according to the ID
@@ -33,10 +33,8 @@ class Tilesets {
             tileset = new System.Tileset(jsonTileset);
             this.list[jsonTileset.id] = tileset;
         }
-        await this.loadPictures(PictureKind.Characters, Datas.Tilesets
-            .PROPERTY_TEXTURES_CHARACTERS);
-        await this.loadPictures(PictureKind.Battlers, Datas.Tilesets
-            .PROPERTY_TEXTURES_BATTLERS);
+        await this.loadPictures(PictureKind.Characters, Datas.Tilesets.PROPERTY_TEXTURES_CHARACTERS);
+        await this.loadPictures(PictureKind.Battlers, Datas.Tilesets.PROPERTY_TEXTURES_BATTLERS);
     }
     /**
      *  Get the tileset by ID.
@@ -45,7 +43,7 @@ class Tilesets {
      *  @returns {System.Tileset}
      */
     static get(id) {
-        return Datas.Base.get(id, this.list, "tileset");
+        return Datas.Base.get(id, this.list, 'tileset');
     }
     /**
      *  Load pictures.
@@ -62,8 +60,7 @@ class Tilesets {
             picture = pictures[i];
             if (picture) {
                 path = picture.getPath();
-                textures[i] = path ? (await Manager.GL.loadTexture(path)) :
-                    Manager.GL.loadTextureEmpty();
+                textures[i] = path ? await Manager.GL.loadTexture(path) : Manager.GL.loadTextureEmpty();
             }
             else {
                 textures[i] = Manager.GL.loadTextureEmpty();
@@ -72,6 +69,6 @@ class Tilesets {
         this[texturesName] = textures;
     }
 }
-Tilesets.PROPERTY_TEXTURES_CHARACTERS = "texturesCharacters";
-Tilesets.PROPERTY_TEXTURES_BATTLERS = "texturesBattlers";
+Tilesets.PROPERTY_TEXTURES_CHARACTERS = 'texturesCharacters';
+Tilesets.PROPERTY_TEXTURES_BATTLERS = 'texturesBattlers';
 export { Tilesets };

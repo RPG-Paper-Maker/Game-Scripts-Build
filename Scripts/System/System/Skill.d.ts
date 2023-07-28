@@ -1,5 +1,5 @@
-import { Battler } from "../Core/index.js";
-import { CommonSkillItem } from "./CommonSkillItem.js";
+import { Battler } from '../Core/index.js';
+import { CommonSkillItem } from './CommonSkillItem.js';
 /** @class
  *  A skill of the game.
  *  @extends System.CommonSkillItem

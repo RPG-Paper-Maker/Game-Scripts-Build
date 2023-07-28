@@ -8,11 +8,11 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from "./Base.js";
-import { Frame } from "../Core/index.js";
-import { Graphic, Datas, System, Manager } from "../index.js";
-import { Enum, Constants, Utils, ScreenResolution } from "../Common/index.js";
-import { Status } from "../Core/Status.js";
+import { Base } from './Base.js';
+import { Frame } from '../Core/index.js';
+import { Graphic, Datas, System, Manager } from '../index.js';
+import { Enum, Constants, Utils, ScreenResolution } from '../Common/index.js';
+import { Status } from '../Core/Status.js';
 /** @class
  *  The graphic displaying all the stats in the player description state menu.
  *  @extends Graphic.Base

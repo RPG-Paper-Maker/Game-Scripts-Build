@@ -1,5 +1,5 @@
-import { Enum } from "../Common/index.js";
-import { Translatable } from "./Translatable.js";
+import { Enum } from '../Common/index.js';
+import { Translatable } from './Translatable.js';
 /** @class
  *  A game over command of the game.
  *  @extends System.Translatable

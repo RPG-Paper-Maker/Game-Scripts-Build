@@ -1,15 +1,15 @@
-import { Player } from "./Player.js";
-import { Enum } from "../Common/index.js";
-import { Frame } from "./Frame.js";
-import { ProgressionTable } from "../System/index.js";
-import { Graphic } from "../index.js";
-import { Camera } from "./Camera.js";
-import { Position } from "./Position.js";
-import { Vector3 } from "./Vector3.js";
-import { Vector2 } from "./Vector2.js";
-import { Status } from "./Status.js";
-import { Animation } from "./Animation.js";
-import { Rectangle } from "./Rectangle.js";
+import { Player } from './Player.js';
+import { Enum } from '../Common/index.js';
+import { Frame } from './Frame.js';
+import { ProgressionTable } from '../System/index.js';
+import { Graphic } from '../index.js';
+import { Camera } from './Camera.js';
+import { Position } from './Position.js';
+import { Vector3 } from './Vector3.js';
+import { Vector2 } from './Vector2.js';
+import { Status } from './Status.js';
+import { Animation } from './Animation.js';
+import { Rectangle } from './Rectangle.js';
 /** @class
  *  A battler in a battle (ally or ennemy).
  *  @param {Player} player - The character properties

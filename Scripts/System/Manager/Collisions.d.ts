@@ -1,5 +1,5 @@
-import { Enum } from "../Common/index.js";
-import { MapObject, Position, MapPortion, StructMapElementCollision, Vector3, CustomGeometry } from "../Core/index.js";
+import { Enum } from '../Common/index.js';
+import { MapObject, Position, MapPortion, StructMapElementCollision, Vector3, CustomGeometry } from '../Core/index.js';
 /** @class
  *  The collisions manager.
  *  @static

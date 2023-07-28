@@ -8,18 +8,18 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum, Interpreter, Utils } from "../Common/index.js";
+import { Enum, Interpreter, Utils } from '../Common/index.js';
 var TargetKind = Enum.TargetKind;
 var AvailableKind = Enum.AvailableKind;
 var SongKind = Enum.SongKind;
-import { Icon } from "./Icon.js";
-import { Translatable } from "./Translatable.js";
-import { DynamicValue } from "./DynamicValue.js";
-import { PlaySong } from "./PlaySong.js";
-import { Cost } from "./Cost.js";
-import { Characteristic } from "./Characteristic.js";
-import { Effect } from "./Effect.js";
-import { Datas, Scene, System } from "../index.js";
+import { Icon } from './Icon.js';
+import { Translatable } from './Translatable.js';
+import { DynamicValue } from './DynamicValue.js';
+import { PlaySong } from './PlaySong.js';
+import { Cost } from './Cost.js';
+import { Characteristic } from './Characteristic.js';
+import { Effect } from './Effect.js';
+import { Datas, Scene, System } from '../index.js';
 /** @class
  *  A common class for skills, items, weapons, armors.
  *  @extends System.Icon

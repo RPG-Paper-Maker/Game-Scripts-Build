@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from "./Base.js";
-import { WindowBox, WindowChoices, Game } from "../Core/index.js";
-import { ScreenResolution } from "../Common/index.js";
-import { Graphic, Datas, Manager, Scene } from "../index.js";
+import { Base } from './Base.js';
+import { WindowBox, WindowChoices, Game } from '../Core/index.js';
+import { ScreenResolution } from '../Common/index.js';
+import { Graphic, Datas, Manager, Scene } from '../index.js';
 /** @class
  *  Abstract class for the game save and loading menus.
  *  @extends Scene.Base

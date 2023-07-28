@@ -1,5 +1,5 @@
-import { Picture2D, WindowBox, WindowChoices } from "../Core/index.js";
-import { Base } from "./Base.js";
+import { Picture2D, WindowBox, WindowChoices } from '../Core/index.js';
+import { Base } from './Base.js';
 /** @class
  *  A scene for the language setting.
  *  @extends Scene.Base

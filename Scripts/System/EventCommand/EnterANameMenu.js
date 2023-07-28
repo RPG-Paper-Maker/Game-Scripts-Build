@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Manager, Scene, System } from "../index.js";
-import { Base } from "./Base.js";
+import { Base } from './Base.js';
 /** @class
  *  An event command for entering a name menu.
  *  @extends EventCommand.Base

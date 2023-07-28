@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Mathf } from "../Common/index.js";
+import { Mathf } from '../Common/index.js';
 /**
  * The data class who manage Sprite anchor in 2D
  */

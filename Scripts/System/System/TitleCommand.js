@@ -8,12 +8,12 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Translatable } from "./Translatable.js";
-import { Enum, Utils, Platform, Interpreter } from "../Common/index.js";
+import { Translatable } from './Translatable.js';
+import { Enum, Utils, Platform, Interpreter } from '../Common/index.js';
 var TitleCommandKind = Enum.TitleCommandKind;
-import { Datas, Manager } from "../index.js";
-import { Game } from "../Core/index.js";
-import { Scene } from "../index.js";
+import { Datas, Manager } from '../index.js';
+import { Game } from '../Core/index.js';
+import { Scene } from '../index.js';
 /** @class
  *  A title command of the game.
  *  @extends System.Translatable

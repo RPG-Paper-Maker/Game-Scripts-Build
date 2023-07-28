@@ -9,9 +9,9 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Datas, Manager, Scene, System } from "../index.js";
-import { Utils } from "../Common/index.js";
-import { Game } from "../Core/index.js";
-import { Base } from "./Base.js";
+import { Utils } from '../Common/index.js';
+import { Game } from '../Core/index.js';
+import { Base } from './Base.js';
 /** @class
  *  An event command for changing weather.
  *  @extends EventCommand.Base

@@ -1,5 +1,5 @@
-import { WindowBox, WindowChoices } from "../Core/index.js";
-import { Base } from "./Base.js";
+import { WindowBox, WindowChoices } from '../Core/index.js';
+import { Base } from './Base.js';
 /**
  * @class
  * A class for displaying a confirmation box and choice yes / no.

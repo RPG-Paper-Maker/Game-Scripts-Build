@@ -9,8 +9,8 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { System } from "../index.js";
-import { Enum, Utils } from "../Common/index.js";
-import { Reaction } from "./Reaction.js";
+import { Enum, Utils } from '../Common/index.js';
+import { Reaction } from './Reaction.js';
 /** @class
  *  A troop reaction conditions of the game.
  *  @extends System.Base

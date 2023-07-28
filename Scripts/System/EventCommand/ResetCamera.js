@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from "./Base.js";
+import { Base } from './Base.js';
 import { Scene } from "../index.js";
 /** @class
  *  An event command for reseting the camera.

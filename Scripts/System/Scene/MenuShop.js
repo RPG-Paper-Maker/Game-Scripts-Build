@@ -9,10 +9,10 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Datas, Graphic, Manager, Scene } from "../index.js";
-import { Constants, Enum, ScreenResolution } from "../Common/index.js";
-import { Game, Item, Rectangle, WindowBox, WindowChoices } from "../Core/index.js";
-import { SpinBox } from "../Core/SpinBox.js";
-import { MenuBase } from "./MenuBase.js";
+import { Constants, Enum, ScreenResolution } from '../Common/index.js';
+import { Game, Item, Rectangle, WindowBox, WindowChoices } from '../Core/index.js';
+import { SpinBox } from '../Core/SpinBox.js';
+import { MenuBase } from './MenuBase.js';
 /**
  * The scene handling and processing the shop system.
  * STEP 0 => Buy or sell?

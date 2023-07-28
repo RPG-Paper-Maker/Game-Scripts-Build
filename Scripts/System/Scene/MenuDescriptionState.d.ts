@@ -1,5 +1,5 @@
-import { MenuBase } from "./MenuBase.js";
-import { WindowBox, WindowChoices } from "../Core/index.js";
+import { MenuBase } from './MenuBase.js';
+import { WindowBox, WindowChoices } from '../Core/index.js';
 /**
  * The scene menu describing players statistics.
  *

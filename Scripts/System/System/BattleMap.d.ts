@@ -1,5 +1,5 @@
-import { Base } from "./Base.js";
-import { Position } from "../Core/index.js";
+import { Base } from './Base.js';
+import { Position } from '../Core/index.js';
 /** @class
  *  A battle map of the game.
  *  @extends System.Base

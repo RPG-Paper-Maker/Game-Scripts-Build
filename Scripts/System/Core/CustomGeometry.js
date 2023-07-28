@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { THREE } from "../Globals.js";
-import { Sprite } from "./Sprite.js";
-import { Vector3 } from "./Vector3.js";
+import { THREE } from '../Globals.js';
+import { Sprite } from './Sprite.js';
+import { Vector3 } from './Vector3.js';
 /**
  *  The geometry used to apply vertices + indices + uvs.
  *
@@ -72,6 +72,13 @@ export class CustomGeometry extends THREE.BufferGeometry {
         texB.set(x + w, y);
         texC.set(x + w, y + h);
         texD.set(x, y + h);
+    }
+    /**
+     *  Check if geometry is empty (no vertices).
+     *  @returns {boolean}
+     */
+    isEmpty() {
+        return this.b_vertices.length === 0;
     }
     /**
      *  Get the points vertices.

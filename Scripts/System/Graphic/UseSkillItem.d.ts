@@ -1,6 +1,6 @@
-import { Base } from "./Base.js";
-import { Graphic, System } from "../index.js";
-import { Item, Player } from "../Core/index.js";
+import { Base } from './Base.js';
+import { Graphic, System } from '../index.js';
+import { Item, Player } from '../Core/index.js';
 /** @class
  *  The graphic displaying a skill or an item use.
  *  @extends Graphic.Base

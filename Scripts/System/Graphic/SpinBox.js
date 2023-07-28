@@ -9,8 +9,8 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Graphic, Manager } from "../index.js";
-import { Enum, Utils } from "../Common/index.js";
-import { Base } from "./Base.js";
+import { Enum, Utils } from '../Common/index.js';
+import { Base } from './Base.js';
 /** @class
  *  The graphic displaying spinbox inside.
  *  @extends Graphic.Base

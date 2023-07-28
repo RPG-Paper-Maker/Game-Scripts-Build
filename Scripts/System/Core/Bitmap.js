@@ -9,8 +9,8 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Datas } from "../index.js";
-import { ScreenResolution } from "../Common/index.js";
-import { Stack } from "../Manager/index.js";
+import { ScreenResolution } from '../Common/index.js';
+import { Stack } from '../Manager/index.js';
 /** @class
  *  A bitmap is something that can be drawn on the HUD. It can be a window,
  *  a text, an image...

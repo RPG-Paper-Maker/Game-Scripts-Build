@@ -1,6 +1,6 @@
-import { THREE } from "../Globals.js";
-import { Vector2 } from "./Vector2.js";
-import { Vector3 } from "./Vector3.js";
+import { THREE } from '../Globals.js';
+import { Vector2 } from './Vector2.js';
+import { Vector3 } from './Vector3.js';
 /**
  *  The geometry used to apply vertices + indices + uvs.
  *
@@ -29,6 +29,11 @@ export declare class CustomGeometry extends THREE.BufferGeometry {
      *  @param {number} h
      */
     static uvsQuadToTex(texA: Vector2, texB: Vector2, texC: Vector2, texD: Vector2, x: number, y: number, w: number, h: number): void;
+    /**
+     *  Check if geometry is empty (no vertices).
+     *  @returns {boolean}
+     */
+    isEmpty(): boolean;
     /**
      *  Get the points vertices.
      *  @returns {ArrayLike<number>}

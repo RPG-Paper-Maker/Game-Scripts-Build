@@ -1,10 +1,10 @@
-import { Enum } from "../Common/index.js";
+import { Enum } from '../Common/index.js';
 import SongKind = Enum.SongKind;
-import { System } from "../index.js";
+import { System } from '../index.js';
 /** @class
-*   All the songs datas
-*   @static
-*/
+ *   All the songs datas
+ *   @static
+ */
 declare class Songs {
     private static list;
     constructor();

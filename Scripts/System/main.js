@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { THREE } from "./Globals.js";
-import { Datas, Manager } from "./index.js";
-import { Utils, Platform, Inputs } from "./Common/index.js";
+import { THREE } from './Globals.js';
+import { Datas, Manager } from './index.js';
+import { Utils, Platform, Inputs } from './Common/index.js';
 /**
  * The main class who boot and loop everything's
  *
@@ -19,7 +19,7 @@ import { Utils, Platform, Inputs } from "./Common/index.js";
  */
 export class Main {
     constructor() {
-        throw new Error("This is a static class");
+        throw new Error('This is a static class');
     }
     static async initialize() {
         await Datas.Settings.checkIsProtected();
@@ -89,14 +89,13 @@ export class Main {
         Main.loaded = true;
         Manager.Stack.requestPaintHUD = true;
     }
-    ;
     /**
      *  Main loop of the game.
      */
     static loop() {
         requestAnimationFrame(Main.loop);
         Main.delta += Main.clock.getDelta();
-        if (Main.delta > (1 / Main.maxFPS)) {
+        if (Main.delta > 1 / Main.maxFPS) {
             // Update if everything is loaded
             if (Main.loaded) {
                 if (!Manager.Stack.isLoading()) {
@@ -108,10 +107,8 @@ export class Main {
             }
             Manager.Stack.drawHUD();
             // Elapsed time
-            Manager.Stack.elapsedTime = new Date().getTime() - Manager.Stack
-                .lastUpdateTime;
-            Manager.Stack.averageElapsedTime = (Manager.Stack.averageElapsedTime +
-                Manager.Stack.elapsedTime) / 2;
+            Manager.Stack.elapsedTime = new Date().getTime() - Manager.Stack.lastUpdateTime;
+            Manager.Stack.averageElapsedTime = (Manager.Stack.averageElapsedTime + Manager.Stack.elapsedTime) / 2;
             Manager.Stack.lastUpdateTime = new Date().getTime();
             Main.frames++;
             Main.time += Main.clockFPS.getDelta();

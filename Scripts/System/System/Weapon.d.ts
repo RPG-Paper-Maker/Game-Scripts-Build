@@ -1,6 +1,6 @@
-import { Armor } from "./Armor.js";
-import { System } from "../index.js";
-import { Enum } from "../Common/index.js";
+import { Armor } from './Armor.js';
+import { System } from '../index.js';
+import { Enum } from '../Common/index.js';
 /** @class
  *  A weapon of the game.
  *  @extends System.Armor

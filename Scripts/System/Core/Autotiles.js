@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { THREE } from "../Globals.js";
-import { Manager } from "../index.js";
-import { CustomGeometry } from "./CustomGeometry.js";
+import { THREE } from '../Globals.js';
+import { Manager } from '../index.js';
+import { CustomGeometry } from './CustomGeometry.js';
 /** @class
  *  Autotiles grouped with the same textures.
  *  @param {TextureBundle} texture
@@ -39,10 +39,15 @@ class Autotiles {
     }
     /**
      *  Create a mesh with material and geometry.
+     *  @returns {boolean}
      */
     createMesh() {
+        if (this.geometry.isEmpty()) {
+            return false;
+        }
         this.geometry.updateAttributes();
         this.mesh = new THREE.Mesh(this.geometry, this.bundle.material);
+        return true;
     }
 }
 Autotiles.COUNT_LIST = 5;

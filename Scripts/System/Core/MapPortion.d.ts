@@ -1,11 +1,11 @@
-import { Portion } from "./Portion.js";
-import { MapObject } from "./MapObject.js";
-import { Position } from "./Position.js";
-import { StructMapElementCollision } from "./MapElement.js";
-import { Enum } from "../Common/index.js";
-import { Autotiles } from "./Autotiles.js";
+import { Portion } from './Portion.js';
+import { MapObject } from './MapObject.js';
+import { Position } from './Position.js';
+import { StructMapElementCollision } from './MapElement.js';
+import { Enum } from '../Common/index.js';
+import { Autotiles } from './Autotiles.js';
 import ElementMapKind = Enum.ElementMapKind;
-import { Mountains } from "./Mountains.js";
+import { Mountains } from './Mountains.js';
 /** @class
  *  A portion of the map.
  *  @param {Portion} portion

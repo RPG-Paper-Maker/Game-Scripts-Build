@@ -8,8 +8,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Utils } from "../Common/index.js";
-import { Translatable } from "./Translatable.js";
+import { Utils } from '../Common/index.js';
+import { Translatable } from './Translatable.js';
 /** @class
  *  A statistic of the game.
  *  @extends System.Base

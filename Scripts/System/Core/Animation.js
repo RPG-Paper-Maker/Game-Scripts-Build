@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Datas } from "../index.js";
-import { Enum } from "../Common/index.js";
+import { Enum } from '../Common/index.js';
 /** @class
  *  An animation instance.
  *  @param {number} id - The ID of the status

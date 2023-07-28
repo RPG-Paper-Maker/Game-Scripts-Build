@@ -8,14 +8,14 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Datas } from "../index.js";
-import { Sprite } from "./Sprite.js";
-import { Enum } from "../Common/index.js";
+import { Datas } from '../index.js';
+import { Sprite } from './Sprite.js';
+import { Enum } from '../Common/index.js';
 var ObjectCollisionKind = Enum.ObjectCollisionKind;
-import { Object3D } from "./Object3D.js";
-import { Vector3 } from "./Vector3.js";
-import { Vector2 } from "./Vector2.js";
-import { CustomGeometry } from "./CustomGeometry.js";
+import { Object3D } from './Object3D.js';
+import { Vector3 } from './Vector3.js';
+import { Vector2 } from './Vector2.js';
+import { CustomGeometry } from './CustomGeometry.js';
 /**
  * A 3D object box in the map.
  *

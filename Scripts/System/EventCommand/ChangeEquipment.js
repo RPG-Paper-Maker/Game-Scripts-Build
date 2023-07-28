@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from "./Base.js";
-import { System } from "../index.js";
-import { Utils, Enum } from "../Common/index.js";
-import { Item, Game } from "../Core/index.js";
+import { Base } from './Base.js';
+import { System } from '../index.js';
+import { Utils, Enum } from '../Common/index.js';
+import { Item, Game } from '../Core/index.js';
 var ItemKind = Enum.ItemKind;
 /** @class
  *  An event command for changing a property value.

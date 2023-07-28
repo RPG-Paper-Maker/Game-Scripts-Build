@@ -1,7 +1,7 @@
-import { Enum } from "../Common/index.js";
+import { Enum } from '../Common/index.js';
 import CustomShapeKind = Enum.CustomShapeKind;
-import { Base } from "./Base.js";
-import { CustomGeometry } from "../Core/index.js";
+import { Base } from './Base.js';
+import { CustomGeometry } from '../Core/index.js';
 /** @class
  *  A shape of the game.
  *  @extends System.Base

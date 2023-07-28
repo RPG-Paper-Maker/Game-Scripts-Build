@@ -1,6 +1,6 @@
-import { Base } from "./Base.js";
+import { Base } from './Base.js';
 import { Graphic } from "../index.js";
-import { Item } from "../Core/index.js";
+import { Item } from '../Core/index.js';
 /** @class
  *  The graphic displaying all the items dropped at the end of a battle.
  *  @extends Graphic.Base

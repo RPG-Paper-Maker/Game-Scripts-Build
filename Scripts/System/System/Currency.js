@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { System } from "../index.js";
-import { Icon } from "./Icon.js";
+import { Icon } from './Icon.js';
 /** @class
  *  A currency of the game.
  *  @extends {System.Icon}

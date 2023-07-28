@@ -1,8 +1,8 @@
-import { Class } from "./Class.js";
-import { System } from "../index.js";
-import { StatisticProgression } from "./StatisticProgression.js";
-import { Skill } from "../Core/index.js";
-import { Translatable } from "./Translatable.js";
+import { Class } from './Class.js';
+import { System } from '../index.js';
+import { StatisticProgression } from './StatisticProgression.js';
+import { Skill } from '../Core/index.js';
+import { Translatable } from './Translatable.js';
 /** @class
  *  An hero of the game.
  *  @extends System.Base

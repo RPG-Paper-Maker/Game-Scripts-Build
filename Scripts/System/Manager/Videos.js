@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Constants, Platform } from "../Common/index.js";
+import { Constants, Platform } from '../Common/index.js';
 /** @class
  *  The manager for songs.
  *  @static

@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from "./Base.js";
-import { Graphic, Manager, Datas, Scene } from "../index.js";
-import { Mathf, ScreenResolution } from "../Common/index.js";
-import { Battler, Game } from "../Core/index.js";
+import { Base } from './Base.js';
+import { Graphic, Manager, Datas, Scene } from '../index.js';
+import { Mathf, ScreenResolution } from '../Common/index.js';
+import { Battler, Game } from '../Core/index.js';
 /** @class
  *  The graphic displaying a skill or an item use.
  *  @extends Graphic.Base

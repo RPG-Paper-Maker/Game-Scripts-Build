@@ -9,9 +9,9 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Manager, System } from "../index.js";
-import { Enum, Interpreter, Platform, Utils } from "../Common/index.js";
-import { Game } from "../Core/index.js";
-import { Translatable } from "./Translatable.js";
+import { Enum, Interpreter, Platform, Utils } from '../Common/index.js';
+import { Game } from '../Core/index.js';
+import { Translatable } from './Translatable.js';
 /** @class
  *  A game over command of the game.
  *  @extends System.Translatable

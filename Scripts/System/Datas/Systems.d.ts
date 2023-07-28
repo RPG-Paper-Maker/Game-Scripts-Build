@@ -1,9 +1,9 @@
-import { EventCommand, System } from "../index.js";
-import { MapObject } from "../Core/index.js";
+import { EventCommand, System } from '../index.js';
+import { MapObject } from '../Core/index.js';
 /** @class
-*   All the System datas.
-*   @static
-*/
+ *   All the System datas.
+ *   @static
+ */
 declare class Systems {
     static SQUARE_SIZE: number;
     static PORTIONS_RAY: number;

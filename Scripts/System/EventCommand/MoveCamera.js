@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from "./Base.js";
-import { Utils, Mathf } from "../Common/index.js";
-import { System, Manager, Datas, Scene } from "../index.js";
-import { MapObject, Vector3 } from "../Core/index.js";
+import { Base } from './Base.js';
+import { Utils, Mathf } from '../Common/index.js';
+import { System, Manager, Datas, Scene } from '../index.js';
+import { MapObject, Vector3 } from '../Core/index.js';
 /** @class
  *  An event command for displaying text.
  *  @extends EventCommand.Base

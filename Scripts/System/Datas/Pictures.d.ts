@@ -1,11 +1,11 @@
-import { System } from "../index.js";
-import { Enum } from "../Common/index.js";
+import { System } from '../index.js';
+import { Enum } from '../Common/index.js';
 import PictureKind = Enum.PictureKind;
-import { Picture2D } from "../Core/index.js";
+import { Picture2D } from '../Core/index.js';
 /** @class
-*   All the pictures datas.
-*   @static
-*/
+ *   All the pictures datas.
+ *   @static
+ */
 declare class Pictures {
     private static list;
     constructor();
@@ -29,10 +29,10 @@ declare class Pictures {
      */
     static getListByKind(kind: PictureKind): System.Picture[];
     /** Get a copy of the picture 2D.
-    *   @param {PictureKind} kind - The picture kind
-    *   @param {number} id - The picture id
-    *   @returns {Picture2D}
-    */
+     *   @param {PictureKind} kind - The picture kind
+     *   @param {number} id - The picture id
+     *   @returns {Picture2D}
+     */
     static getPictureCopy(kind: PictureKind, id: number): Picture2D;
 }
 export { Pictures };

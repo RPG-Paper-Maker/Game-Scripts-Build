@@ -1,7 +1,7 @@
-import { Enum } from "../Common/index.js";
-import { System } from "../index.js";
-import { MapObject } from "./MapObject.js";
-import { Vector3 } from "./index.js";
+import { Enum } from '../Common/index.js';
+import { System } from '../index.js';
+import { MapObject } from './MapObject.js';
+import { Vector3 } from './index.js';
 /** @class
  *  The camera of the current map.
  *  @param {System.CameraProperties} cameraProperties - The System camera

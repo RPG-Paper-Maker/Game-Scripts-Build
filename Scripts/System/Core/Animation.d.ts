@@ -1,7 +1,7 @@
 import { Battler } from "./index.js";
 import { System } from "../index.js";
-import { Enum } from "../Common/index.js";
-import { Picture2D } from "./Picture2D.js";
+import { Enum } from '../Common/index.js';
+import { Picture2D } from './Picture2D.js';
 /** @class
  *  An animation instance.
  *  @param {number} id - The ID of the status

@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Datas } from "../index.js";
-import { Platform } from "./Platform.js";
+import { Platform } from './Platform.js';
 /**
  * The Input and Output class who handles loading and saving.
  *
@@ -17,7 +17,7 @@ import { Platform } from "./Platform.js";
  */
 class IO {
     constructor() {
-        throw new Error("This is a static class");
+        throw new Error('This is a static class');
     }
 }
 /**
@@ -27,7 +27,7 @@ class IO {
  *  @returns {Promise<boolean>}
  */
 IO.fileExists = async function (url) {
-    return (await new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
         let xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
@@ -36,7 +36,7 @@ IO.fileExists = async function (url) {
         };
         xhr.open('HEAD', url, true);
         xhr.send();
-    }));
+    });
 };
 /**
  *  Open an existing file.
@@ -45,7 +45,7 @@ IO.fileExists = async function (url) {
  *  @returns {string}
  */
 IO.openFile = async function (url) {
-    return (await new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
         let xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
@@ -54,9 +54,9 @@ IO.openFile = async function (url) {
                 }
             }
         };
-        xhr.open("GET", url, true);
+        xhr.open('GET', url, true);
         xhr.send(null);
-    }));
+    });
 };
 /**
  *  Open and parse an existing file.
@@ -65,7 +65,7 @@ IO.openFile = async function (url) {
  *  @returns {Promise<Record<string, any>>}
  */
 IO.parseFileJSON = async function (url) {
-    let content = await IO.openFile(url);
+    let content = await Platform.loadFile(url);
     if (Datas.Settings.isProtected) {
         content = atob(content);
     }
@@ -83,7 +83,8 @@ IO.parseFileJSON = async function (url) {
  *  @param {Object} obj - An object that can be stringified by JSON
  */
 IO.saveFile = async function (url, obj) {
-    if (Platform.DESKTOP) { // Cannot be used in browser, need local storage
+    if (Platform.DESKTOP) {
+        // Cannot be used in browser, need local storage
         const fs = require('fs').promises;
         let content = JSON.stringify(obj);
         if (Datas.Settings.isProtected) {

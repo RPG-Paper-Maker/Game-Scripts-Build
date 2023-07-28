@@ -8,15 +8,15 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { IO, Paths } from "../Common/index.js";
-import { Datas } from "../index.js";
+import { Platform, Paths } from '../Common/index.js';
+import { Datas } from '../index.js';
 /** @class
  *  All the variables datas.
  *  @static
  */
 class Variables {
     constructor() {
-        throw new Error("This is a static class!");
+        throw new Error('This is a static class!');
     }
     /**
      *  Read the JSON file associated to variables.
@@ -24,7 +24,7 @@ class Variables {
      *  @async
      */
     static async read() {
-        let json = (await IO.parseFileJSON(Paths.FILE_VARIABLES)).variables;
+        let json = (await Platform.parseFileJSON(Paths.FILE_VARIABLES)).variables;
         this.variablesNumbers = json.length * this.VARIABLES_PER_PAGE + 1;
         this.variablesNames = new Array(this.variablesNumbers);
         let i, j, l, m, variable;
@@ -41,7 +41,7 @@ class Variables {
      *  @returns {string}
      */
     static get(id) {
-        return Datas.Base.get(id, this.variablesNames, "variable name");
+        return Datas.Base.get(id, this.variablesNames, 'variable name');
     }
 }
 Variables.VARIABLES_PER_PAGE = 25;

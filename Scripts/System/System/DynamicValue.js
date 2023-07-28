@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum, Platform, Utils } from "../Common/index.js";
+import { Enum, Platform, Utils } from '../Common/index.js';
 var DynamicValueKind = Enum.DynamicValueKind;
-import { System, Datas } from "../index.js";
-import { ReactionInterpreter, Game, Vector2, Vector3 } from "../Core/index.js";
+import { System, Datas } from '../index.js';
+import { ReactionInterpreter, Game, Vector2, Vector3 } from '../Core/index.js';
 /** @class
  *  The class who handle dynamic value.
  *  @extends {System.Base}

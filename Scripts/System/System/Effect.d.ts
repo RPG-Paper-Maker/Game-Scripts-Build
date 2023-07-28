@@ -1,9 +1,9 @@
-import { Base } from "./Base.js";
-import { Enum } from "../Common/index.js";
+import { Base } from './Base.js';
+import { Enum } from '../Common/index.js';
 import EffectKind = Enum.EffectKind;
 import DamagesKind = Enum.DamagesKind;
 import EffectSpecialActionKind = Enum.EffectSpecialActionKind;
-import { System, EventCommand } from "../index.js";
+import { System, EventCommand } from '../index.js';
 /** @class
  *  An effect of a common skill item.
  *  @extends System.Base

@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { ReactionInterpreter } from "../Core/index.js";
-import { Scene, Manager, Graphic, Datas } from "../index.js";
-import { Enum, Utils } from "../Common/index.js";
-import { Main } from "../main.js";
+import { ReactionInterpreter } from '../Core/index.js';
+import { Scene, Manager, Graphic, Datas } from '../index.js';
+import { Enum, Utils } from '../Common/index.js';
+import { Main } from '../main.js';
 /**
  *  The superclass who shape the structure of a scene.
  *  @abstract

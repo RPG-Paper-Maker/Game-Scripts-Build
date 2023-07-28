@@ -8,8 +8,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Utils } from "../Common/index.js";
-import { SpecialElement } from "./SpecialElement.js";
+import { Utils } from '../Common/index.js';
+import { SpecialElement } from './SpecialElement.js';
 /** @class
  *  Abn autotile of the game.
  *  @extends System.SpecialElement

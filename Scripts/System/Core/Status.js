@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Datas } from "../index.js";
-import { Constants, Enum, ScreenResolution } from "../Common/index.js";
+import { Constants, Enum, ScreenResolution } from '../Common/index.js';
 /** @class
  *  A status affected to a player.
  *  @param {number} id - The ID of the status

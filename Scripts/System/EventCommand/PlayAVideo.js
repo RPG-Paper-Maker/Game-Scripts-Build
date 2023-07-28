@@ -9,8 +9,8 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Datas, Manager, System } from "../index.js";
-import { Utils } from "../Common/index.js";
-import { Base } from "./Base.js";
+import { Utils } from '../Common/index.js';
+import { Base } from './Base.js';
 /** @class
  *  An event command for playing a video.
  *  @extends EventCommand.Base

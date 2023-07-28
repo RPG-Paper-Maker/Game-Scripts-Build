@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from "./Base.js";
+import { Base } from './Base.js';
 import { Graphic } from "../index.js";
-import { Game } from "../Core/index.js";
-import { ScreenResolution } from "../Common/index.js";
+import { Game } from '../Core/index.js';
+import { ScreenResolution } from '../Common/index.js';
 /** @class
  *  The graphic displaying all the progression for each character.
  *  @extends Graphic.Base

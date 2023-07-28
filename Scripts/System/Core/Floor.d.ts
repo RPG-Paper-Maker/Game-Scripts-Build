@@ -1,7 +1,7 @@
-import { Land } from "./Land.js";
-import { Position } from "./Position.js";
-import { StructMapElementCollision } from "./MapElement.js";
-import { CustomGeometry } from "./CustomGeometry.js";
+import { Land } from './Land.js';
+import { Position } from './Position.js';
+import { StructMapElementCollision } from './MapElement.js';
+import { CustomGeometry } from './CustomGeometry.js';
 /**
  *  A floor in the map.
  *

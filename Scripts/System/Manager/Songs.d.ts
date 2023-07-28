@@ -1,6 +1,6 @@
-import { Enum } from "../Common/index.js";
+import { Enum } from '../Common/index.js';
 import SongKind = Enum.SongKind;
-import { Howl } from "../Globals.js";
+import { Howl } from '../Globals.js';
 /** @class
  *  The manager for songs.
  *  @static

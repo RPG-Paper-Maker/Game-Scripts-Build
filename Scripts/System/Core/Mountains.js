@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { THREE } from "../Globals.js";
-import { Manager } from "../index.js";
-import { CustomGeometry } from "./CustomGeometry.js";
+import { THREE } from '../Globals.js';
+import { Manager } from '../index.js';
+import { CustomGeometry } from './CustomGeometry.js';
 /** @class
  *  The wrapper class for handle mountains sharing the same texture.
  *  @param {TextureBundle} texture
@@ -37,10 +37,15 @@ class Mountains {
     }
     /**
      *  Create a mesh with material and geometry.
+     *  @returns {boolean}
      */
     createMesh() {
+        if (this.geometry.isEmpty()) {
+            return false;
+        }
         this.geometry.updateAttributes();
         this.mesh = new THREE.Mesh(this.geometry, this.bundle.material);
+        return true;
     }
 }
 export { Mountains };

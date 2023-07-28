@@ -9,13 +9,13 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Scene, Datas, Manager } from "../index.js";
-import { Enum } from "../Common/index.js";
+import { Enum } from '../Common/index.js';
 var EffectSpecialActionKind = Enum.EffectSpecialActionKind;
 var CharacterKind = Enum.CharacterKind;
 var ItemKind = Enum.ItemKind;
 var AnimationEffectConditionKind = Enum.AnimationEffectConditionKind;
 var AnimationPositionKind = Enum.AnimationPositionKind;
-import { Game, Animation } from "../Core/index.js";
+import { Game, Animation } from '../Core/index.js';
 // -------------------------------------------------------
 //
 //  CLASS SceneBattle

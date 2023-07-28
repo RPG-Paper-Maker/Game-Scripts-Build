@@ -8,8 +8,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { IO, Paths, Enum } from "../Common/index.js";
-import { System, Datas } from "../index.js";
+import { Platform, Paths, Enum } from '../Common/index.js';
+import { System, Datas } from '../index.js';
 var CustomShapeKind = Enum.CustomShapeKind;
 /** @class
  *  All the shapes datas.
@@ -17,13 +17,13 @@ var CustomShapeKind = Enum.CustomShapeKind;
  */
 class Shapes {
     constructor() {
-        throw new Error("This is a static class!");
+        throw new Error('This is a static class!');
     }
     /**
      *  Read the JSON file associated to shapes.
      */
     static async read() {
-        let json = (await IO.parseFileJSON(Paths.FILE_SHAPES)).list;
+        let json = (await Platform.parseFileJSON(Paths.FILE_SHAPES)).list;
         let l = json.length;
         this.list = new Array(l);
         let j, m, n, jsonHash, k, jsonList, jsonShape, id, list, shape;
@@ -69,9 +69,9 @@ class Shapes {
      *  @returns {System.Shape}
      */
     static get(kind, id) {
-        return kind === CustomShapeKind.None || id === -1 ? new System.Shape() :
-            Datas.Base.get(id, this.list[kind], "shape " + System.Shape
-                .customShapeKindToString(kind));
+        return kind === CustomShapeKind.None || id === -1
+            ? new System.Shape()
+            : Datas.Base.get(id, this.list[kind], 'shape ' + System.Shape.customShapeKindToString(kind));
     }
 }
 export { Shapes };

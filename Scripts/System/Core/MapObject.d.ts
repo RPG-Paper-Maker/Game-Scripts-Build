@@ -1,9 +1,9 @@
-import { System, EventCommand } from "../index.js";
-import { Frame } from "./Frame.js";
-import { Enum } from "../Common/index.js";
+import { System, EventCommand } from '../index.js';
+import { Frame } from './Frame.js';
+import { Enum } from '../Common/index.js';
 import Orientation = Enum.Orientation;
-import { Vector3 } from "./Vector3.js";
-import { CustomGeometry } from "./CustomGeometry.js";
+import { Vector3 } from './Vector3.js';
+import { CustomGeometry } from './CustomGeometry.js';
 interface StructSearchResult {
     object: MapObject;
     id: number;
@@ -115,16 +115,12 @@ declare class MapObject {
      *  @param {number} angle - The angle
      *  @returns {Vector3}
      */
-    getFuturPosition(orientation: Orientation, distance: number, angle: number): [
-        Vector3,
-        boolean,
-        Enum.Orientation
-    ];
+    getFuturPosition(orientation: Orientation, distance: number, angle: number): [Vector3, boolean, Enum.Orientation];
     /**
      *  Check collision with another object.
      *  @param {MapObject} object - The other map object
      *  @returns {boolean}
-    */
+     */
     checkCollisionObject(object: MapObject): boolean;
     /**
      *  Check the collision detection.
@@ -154,7 +150,7 @@ declare class MapObject {
      *  @param {boolean} isCameraOrientation - Indicate if this should take
      *  account of camera orientation
      *  @returns {number[]}
-    */
+     */
     move(orientation: Orientation, limit: number, angle: number, isCameraOrientation: boolean): number[];
     /**
      *  Teleport the object.
@@ -209,11 +205,8 @@ declare class MapObject {
      *  @param {number[]} states - List of all the current states of the object
      *  @param {number[]} events - The time events list
      *  @returns {boolean}
-    */
-    receiveEvent(sender: MapObject, isSystem: boolean, eventID: number, parameters: System.DynamicValue[], states: number[], events?: [
-        System.Event,
-        number
-    ]): boolean;
+     */
+    receiveEvent(sender: MapObject, isSystem: boolean, eventID: number, parameters: System.DynamicValue[], states: number[], events?: [System.Event, number]): boolean;
     /**
      *  Update according to camera angle.
      *  @param {number} angle - The camera angle

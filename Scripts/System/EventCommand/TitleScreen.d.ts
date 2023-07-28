@@ -1,5 +1,5 @@
-import { Base } from "./Base.js";
-import { MapObject } from "../Core/index.js";
+import { Base } from './Base.js';
+import { MapObject } from '../Core/index.js';
 /** @class
  *  An event command for going to title screen.
  *  @extends EventCommand.Base

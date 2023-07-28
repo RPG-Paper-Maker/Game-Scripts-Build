@@ -9,14 +9,14 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Scene, Graphic, System, Manager, Datas } from "../index.js";
-import { Enum, Interpreter } from "../Common/index.js";
+import { Enum, Interpreter } from '../Common/index.js';
 var BattleStep = Enum.BattleStep;
 var EffectSpecialActionKind = Enum.EffectSpecialActionKind;
 var CharacterKind = Enum.CharacterKind;
 var ItemKind = Enum.ItemKind;
 var AvailableKind = Enum.AvailableKind;
 var TargetKind = Enum.TargetKind;
-import { Game } from "../Core/index.js";
+import { Game } from '../Core/index.js';
 // -------------------------------------------------------
 //
 //  CLASS BattleSelection

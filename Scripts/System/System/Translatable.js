@@ -8,8 +8,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Datas } from "../index.js";
-import { Base } from "./Base.js";
+import { Datas } from '../index.js';
+import { Base } from './Base.js';
 /** @class
  *  A name that can have several translations.
  *  @extends {System.Base}

@@ -1,5 +1,5 @@
-import { Base } from "./Base.js";
-import { Graphic } from "../index.js";
+import { Base } from './Base.js';
+import { Graphic } from '../index.js';
 /** @class
  *  The graphic displaying all currencies when in shop menu.
  *  @extends Graphic.Base

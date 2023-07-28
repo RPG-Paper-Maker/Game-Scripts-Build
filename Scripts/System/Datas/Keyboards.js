@@ -8,15 +8,15 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { System, Datas, Graphic, Scene } from "../index.js";
-import { IO, Paths } from "../Common/index.js";
+import { System, Datas, Graphic, Scene } from '../index.js';
+import { Platform, Paths } from '../Common/index.js';
 /** @class
  *  All the keyBoards datas.
  *  @static
  */
 class Keyboards {
     constructor() {
-        throw new Error("This is a static class!");
+        throw new Error('This is a static class!');
     }
     /**
      *  Test if a key id can be equal to a keyboard System object.
@@ -49,7 +49,7 @@ class Keyboards {
      *  @async
      */
     static async read() {
-        let json = await IO.parseFileJSON(Paths.FILE_KEYBOARD);
+        let json = await Platform.parseFileJSON(Paths.FILE_KEYBOARD);
         // Shortcuts
         let jsonList = json.list;
         let l = jsonList.length;
@@ -70,12 +70,12 @@ class Keyboards {
             this.controls[abbreviation] = key;
         }
         // Menu controls
-        this.menuControls["Action"] = this.list[json["a"]];
-        this.menuControls["Cancel"] = this.list[json["c"]];
-        this.menuControls["Up"] = this.list[json["u"]];
-        this.menuControls["Down"] = this.list[json["d"]];
-        this.menuControls["Left"] = this.list[json["l"]];
-        this.menuControls["Right"] = this.list[json["r"]];
+        this.menuControls['Action'] = this.list[json['a']];
+        this.menuControls['Cancel'] = this.list[json['c']];
+        this.menuControls['Up'] = this.list[json['u']];
+        this.menuControls['Down'] = this.list[json['d']];
+        this.menuControls['Left'] = this.list[json['l']];
+        this.menuControls['Right'] = this.list[json['r']];
     }
     /**
      *  Get the keyboard by ID.
@@ -84,7 +84,7 @@ class Keyboards {
      *  @returns {System.Keyboard}
      */
     static get(id) {
-        return Datas.Base.get(id, this.list, "keyboard");
+        return Datas.Base.get(id, this.list, 'keyboard');
     }
     /**
      *  Get the graphics commands.
@@ -118,9 +118,8 @@ class Keyboards {
      *  @returns {boolean}
      */
     static checkCancelMenu(key) {
-        return Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls
-            .Cancel) || Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.controls
-            .MainMenu);
+        return (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls.Cancel) ||
+            Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.controls.MainMenu));
     }
     /**
      *  Check if key is cancelling.
@@ -128,8 +127,7 @@ class Keyboards {
      *  @returns {boolean}
      */
     static checkCancel(key) {
-        return Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls
-            .Cancel);
+        return Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls.Cancel);
     }
     /**
      *  Check if key is action menu.

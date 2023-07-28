@@ -1,10 +1,10 @@
-import { Base } from "./Base.js";
-import { Enum } from "../Common/index.js";
+import { Base } from './Base.js';
+import { Enum } from '../Common/index.js';
 import Orientation = Enum.Orientation;
 import EffectSpecialActionKind = Enum.EffectSpecialActionKind;
 import PictureKind = Enum.PictureKind;
-import { System, Scene } from "../index.js";
-import { Position, Portion, MapPortion, TextureBundle, Vector3, Battler, Frame, Vector2, Player } from "../Core/index.js";
+import { System, Scene } from '../index.js';
+import { Position, Portion, MapPortion, TextureBundle, Vector3, Battler, Frame, Vector2, Player } from '../Core/index.js';
 /** @class
  *  A scene for a local map.
  *  @extends Scene.Base
@@ -12,7 +12,7 @@ import { Position, Portion, MapPortion, TextureBundle, Vector3, Battler, Frame, 
  *  @param {boolean} [isBattleMap=false] - Indicate if this map is a battle one
  *  @param {boolean} [minimal=false] - Indicate if the map should be partialy
  *  loaded (only for getting objects infos)
-*/
+ */
 declare class Map extends Base {
     static current: Scene.Map;
     static allowMainMenu: boolean;
@@ -143,14 +143,14 @@ declare class Map extends Base {
      *  @param {number} z - The local z portion
      *  @param {boolean} move - Indicate if the portion was moved or completely
      *  loaded
-    */
+     */
     loadPortionFromPortion(portion: Portion, x: number, y: number, z: number, move: boolean): Promise<void>;
     /**
      *  Remove a portion.
      *  @param {number} x - The local x portion
      *  @param {number} y - The local y portion
      *  @param {number} z - The local z portion
-    */
+     */
     removePortion(x: number, y: number, z: number): void;
     /**
      *  Set a portion.
@@ -160,7 +160,7 @@ declare class Map extends Base {
      *  @param {number} m - The new x portion
      *  @param {number} n - The new y portion
      *  @param {number} o - The new z portion
-    */
+     */
     setPortion(i: number, j: number, k: number, m: number, n: number, o: number): void;
     /**
      *  Set a portion.
@@ -170,7 +170,7 @@ declare class Map extends Base {
      *  @param {MapPortion} mapPortion - The new map portion
      *  @param {boolean} move - Indicate if the portion was moved or completely
      *  loaded
-    */
+     */
     setMapPortion(x: number, y: number, z: number, mapPortion: MapPortion, move: boolean): void;
     /**
      *  Get the objects at a specific portion.
@@ -184,13 +184,13 @@ declare class Map extends Base {
      *  @param {number} y - The local y portion
      *  @param {number} z - The local z portion
      *  @returns {MapPortion}
-    */
+     */
     getMapPortion(x: number, y: number, z: number): MapPortion;
     /**
      *  Get a map portion at local portion.
      *  @param {Portion} portion - The local portion
      *  @returns {MapPortion}
-    */
+     */
     getMapPortionFromPortion(portion: Portion): MapPortion;
     /**
      *  Get a map portion at json position.
@@ -210,13 +210,13 @@ declare class Map extends Base {
      *  @param {number} y - The local y position of portion
      *  @param {number} z - The local z position of portion
      *  @returns {number}
-    */
+     */
     getPortionIndex(x: number, y: number, z: number): number;
     /**
      *  Get portion index according to local portion.
      *  @param {Portion} portion - The local portion
      *  @returns {number}
-    */
+     */
     getPortionIndexFromPortion(portion: Portion): number;
     /**
      *  Set a local portion with a global portion.
@@ -238,7 +238,7 @@ declare class Map extends Base {
      *  Check if a local portion if in the limit
      *  @param {Portion} portion - The local portion
      *  @returns {boolean}
-    */
+     */
     isInPortion(portion: Portion): boolean;
     /**
      *  Check if a position is in the map.
@@ -260,7 +260,7 @@ declare class Map extends Base {
      *  @param {number[]} list - The IDs list
      *  @param {PictureKind} kind - The picture kind
      *  @param {SpecialElement[]} specials - The specials list
-    */
+     */
     loadSpecialsCollision(list: number[], kind: PictureKind, specials: System.SpecialElement[]): void;
     /**
      *  Update portions according to a callback.

@@ -9,10 +9,10 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Scene, Graphic, Manager, Datas, System } from "../index.js";
-import { Enum, ScreenResolution, Platform } from "../Common/index.js";
+import { Enum, ScreenResolution, Platform } from '../Common/index.js';
 var CharacterKind = Enum.CharacterKind;
 var LootKind = Enum.LootKind;
-import { WindowBox, Item, Game } from "../Core/index.js";
+import { WindowBox, Item, Game } from '../Core/index.js';
 // -------------------------------------------------------
 //
 //  CLASS BattleVictory

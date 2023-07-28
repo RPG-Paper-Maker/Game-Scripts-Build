@@ -1,7 +1,7 @@
-import { Base } from "./Base.js";
-import { Enum } from "../Common/index.js";
+import { Base } from './Base.js';
+import { Enum } from '../Common/index.js';
 import SongKind = Enum.SongKind;
-import { MapObject } from "../Core/index.js";
+import { MapObject } from '../Core/index.js';
 /** @class
  *  An event command for stopping the music.
  *  @extends EventCommand.Base

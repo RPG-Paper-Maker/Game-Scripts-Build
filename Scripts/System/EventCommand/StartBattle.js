@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from "./Base.js";
-import { System, Datas, Manager, Scene } from "../index.js";
-import { Utils } from "../Common/index.js";
-import { MapObject, Position, Game } from "../Core/index.js";
+import { Base } from './Base.js';
+import { System, Datas, Manager, Scene } from '../index.js';
+import { Utils } from '../Common/index.js';
+import { MapObject, Position, Game } from '../Core/index.js';
 /** @class
  *  An event command for battle processing.
  *  @extends EventCommand.Base

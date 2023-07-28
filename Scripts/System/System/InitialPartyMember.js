@@ -9,8 +9,8 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { System } from "../index.js";
-import { Enum, Utils } from "../Common/index.js";
-import { Base } from "./Base.js";
+import { Enum, Utils } from '../Common/index.js';
+import { Base } from './Base.js';
 /** @class
  *  An initial party member of the game.
  *  @extends System.Base

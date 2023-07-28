@@ -1,5 +1,5 @@
-import { Bitmap } from "./Bitmap.js";
-import { Graphic } from "../index.js";
+import { Bitmap } from './Bitmap.js';
+import { Graphic } from '../index.js';
 /**
  * the window box options
  *

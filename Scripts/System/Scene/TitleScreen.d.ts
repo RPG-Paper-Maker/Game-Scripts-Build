@@ -1,5 +1,5 @@
-import { Base } from "./Base.js";
-import { Picture2D, WindowChoices } from "../Core/index.js";
+import { Base } from './Base.js';
+import { Picture2D, WindowChoices } from '../Core/index.js';
 /**
  *  The Scene displaying the game title screen.
  *  @class TitleScreen

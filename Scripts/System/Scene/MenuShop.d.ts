@@ -1,7 +1,7 @@
-import { Item, Player, WindowBox, WindowChoices } from "../Core/index.js";
-import { SpinBox } from "../Core/SpinBox.js";
-import { StructPositionChoice } from "./Menu.js";
-import { MenuBase } from "./MenuBase.js";
+import { Item, Player, WindowBox, WindowChoices } from '../Core/index.js';
+import { SpinBox } from '../Core/SpinBox.js';
+import { StructPositionChoice } from './Menu.js';
+import { MenuBase } from './MenuBase.js';
 /**
  * The scene handling and processing the shop system.
  * STEP 0 => Buy or sell?

@@ -1,9 +1,9 @@
-import { MapElement } from "./index.js";
-import { System, Core } from "../index.js";
-import { Position } from "./Position.js";
-import { TextureBundle } from "./TextureBundle.js";
-import { Vector3 } from "./Vector3.js";
-import { CustomGeometry } from "./CustomGeometry.js";
+import { MapElement } from './index.js';
+import { System, Core } from '../index.js';
+import { Position } from './Position.js';
+import { TextureBundle } from './TextureBundle.js';
+import { Vector3 } from './Vector3.js';
+import { CustomGeometry } from './CustomGeometry.js';
 /**
  * A mountain in the map.
  *

@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { THREE } from "../Globals.js";
-import { Base } from "./Base.js";
-import { Utils, Enum } from "../Common/index.js";
-import { Manager, Datas } from "../index.js";
+import { THREE } from '../Globals.js';
+import { Base } from './Base.js';
+import { Utils, Enum } from '../Common/index.js';
+import { Manager, Datas } from '../index.js';
 var PictureKind = Enum.PictureKind;
 /** @class
  *  A skybox of the game.

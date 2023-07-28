@@ -1,4 +1,4 @@
-import { Base } from "./Base.js";
+import { Base } from './Base.js';
 import { Graphic } from "../index.js";
 /** @class
  *  The graphic displaying all the progression for each character.

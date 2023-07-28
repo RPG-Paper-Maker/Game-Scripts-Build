@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Constants, IO } from "./index.js";
+import { Constants, IO } from './index.js';
 const electron = require('electron');
 const remote = electron.remote;
 const ipc = electron.ipcRenderer;
@@ -26,7 +26,21 @@ class Platform {
      * @memberof Platform
      */
     constructor() {
-        throw new Error("This class is static.");
+        throw new Error('This class is static.');
+    }
+    /**
+     *  Load a file.
+     *  @static
+     */
+    static async loadFile(path, forcePath = false) {
+        return await IO.openFile(path);
+    }
+    /**
+     *  Parse a JSON file
+     *  @static
+     */
+    static async parseFileJSON(path) {
+        return await IO.parseFileJSON(path);
     }
     /**
      *  Load a save.
@@ -34,7 +48,7 @@ class Platform {
      */
     static async loadSave(slot, path) {
         if (await IO.fileExists(path)) {
-            return await IO.parseFileJSON(path);
+            return await Platform.parseFileJSON(path);
         }
         return null;
     }
@@ -51,8 +65,7 @@ class Platform {
      *  @param {Error} e - The error message
      */
     static showError(e) {
-        Platform.showErrorMessage(e.message + Constants.STRING_NEW_LINE + e
-            .stack, false);
+        Platform.showErrorMessage(e.message + Constants.STRING_NEW_LINE + e.stack, false);
     }
     /**
      *  Show an error message.
@@ -77,24 +90,25 @@ class Platform {
      *  @returns {boolean}
      */
     static isModeTestNormal() {
-        return Platform.MODE_TEST !== Platform.MODE_TEST_BATTLE_TROOP && Platform
-            .MODE_TEST !== Platform.MODE_TEST_SHOW_TEXT_PREVIEW;
+        return (Platform.MODE_TEST !== Platform.MODE_TEST_BATTLE_TROOP &&
+            Platform.MODE_TEST !== Platform.MODE_TEST_SHOW_TEXT_PREVIEW);
     }
 }
-Platform.ROOT_DIRECTORY = app.getAppPath();
+Platform.ROOT_DIRECTORY = `${app.getAppPath()}/Content/`;
 Platform.screen = ElectronScreen.getPrimaryDisplay();
 Platform.screenWidth = Platform.screen.bounds.width;
 Platform.screenHeight = Platform.screen.bounds.height;
 Platform.DESKTOP = true;
+Platform.WEB_DEV = false;
 Platform.MODE_TEST = remote.getGlobal('modeTest');
-Platform.MODE_TEST_BATTLE_TROOP = "battleTroop";
-Platform.MODE_TEST_SHOW_TEXT_PREVIEW = "showTextPreview";
+Platform.MODE_TEST_BATTLE_TROOP = 'battleTroop';
+Platform.MODE_TEST_SHOW_TEXT_PREVIEW = 'showTextPreview';
 Platform.canvas3D = document.getElementById('three-d');
 Platform.canvasHUD = document.getElementById('hud');
 Platform.canvasVideos = document.getElementById('video-container');
 Platform.canvasRendering = document.getElementById('rendering');
 Platform.ctx = Platform.canvasHUD.getContext('2d');
-Platform.ctxr = Platform.canvasRendering.getContext("2d");
+Platform.ctxr = Platform.canvasRendering.getContext('2d');
 /**
  *  Set window title.
  *  @static
@@ -120,12 +134,20 @@ Platform.setWindowSize = function (w, h, f) {
 Platform.quit = function () {
     window.close();
 };
+/**
+ *  Check if a file exists.
+ *  @static
+ *  @param {string} path - The path of the file
+ *  @returns {Promise<boolean>}
+ */
+Platform.fileExists = async function (path) {
+    return await IO.fileExists(path);
+};
 // Display error to main process
 window.onerror = function (msg, url, line, column, err) {
     if (firstError) {
         firstError = false;
-        let str = url ? url + Constants.STRING_COLON + " " + line + Constants
-            .STRING_NEW_LINE : "";
+        let str = url ? url + Constants.STRING_COLON + ' ' + line + Constants.STRING_NEW_LINE : '';
         if (err.stack != null) {
             str += err.stack;
         }
@@ -133,8 +155,7 @@ window.onerror = function (msg, url, line, column, err) {
             str += err.message;
         }
         const fs = require('fs');
-        fs.writeFile("log.txt", "ERROR LOG" + Constants.STRING_COLON + Constants
-            .STRING_NEW_LINE + Constants.STRING_NEW_LINE + str, (e) => {
+        fs.writeFile('log.txt', 'ERROR LOG' + Constants.STRING_COLON + Constants.STRING_NEW_LINE + Constants.STRING_NEW_LINE + str, (e) => {
             if (e) {
                 Platform.showError(e);
             }

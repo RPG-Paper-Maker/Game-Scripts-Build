@@ -8,12 +8,12 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Bitmap } from "./Bitmap.js";
-import { Enum, Inputs, ScreenResolution, Utils } from "../Common/index.js";
+import { Bitmap } from './Bitmap.js';
+import { Enum, Inputs, ScreenResolution, Utils } from '../Common/index.js';
 var OrientationWindow = Enum.OrientationWindow;
-import { Manager, Datas } from "../index.js";
-import { WindowBox } from "./WindowBox.js";
-import { Rectangle } from "./Rectangle.js";
+import { Manager, Datas } from '../index.js';
+import { WindowBox } from './WindowBox.js';
+import { Rectangle } from './Rectangle.js';
 /**
  * The window class who handle choices.
  *

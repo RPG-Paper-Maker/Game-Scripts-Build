@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { System } from "../index.js";
-import { Enum, Interpreter, Utils } from "../Common/index.js";
-import { Translatable } from "./Translatable.js";
+import { System } from '../index.js';
+import { Enum, Interpreter, Utils } from '../Common/index.js';
+import { Translatable } from './Translatable.js';
 /** @class
  *  An inventory filter used to filter inventory or shops items.
  *  @extends Translatable

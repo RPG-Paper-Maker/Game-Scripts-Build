@@ -1,8 +1,8 @@
-import { TextureBundle } from "./TextureBundle.js";
-import { Autotile } from "./Autotile.js";
-import { Position } from "./Position.js";
-import { StructMapElementCollision } from "./MapElement.js";
-import { CustomGeometry } from "./CustomGeometry.js";
+import { TextureBundle } from './TextureBundle.js';
+import { Autotile } from './Autotile.js';
+import { Position } from './Position.js';
+import { StructMapElementCollision } from './MapElement.js';
+import { CustomGeometry } from './CustomGeometry.js';
 /** @class
  *  Autotiles grouped with the same textures.
  *  @param {TextureBundle} texture
@@ -52,7 +52,8 @@ declare class Autotiles {
     updateGeometry(position: Position, autotile: Autotile): StructMapElementCollision;
     /**
      *  Create a mesh with material and geometry.
+     *  @returns {boolean}
      */
-    createMesh(): void;
+    createMesh(): boolean;
 }
 export { Autotiles };

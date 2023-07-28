@@ -8,8 +8,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { System, Graphic, Datas, Manager, Scene } from "../index.js";
-import { IO, Paths, Utils, Enum } from "../Common/index.js";
+import { System, Graphic, Datas, Manager, Scene } from '../index.js';
+import { Platform, Paths, Utils, Enum } from '../Common/index.js';
 var SongKind = Enum.SongKind;
 var Align = Enum.Align;
 var TitleSettingKind = Enum.TitleSettingKind;
@@ -19,7 +19,7 @@ var TitleSettingKind = Enum.TitleSettingKind;
  */
 class TitlescreenGameover {
     constructor() {
-        throw new Error("This is a static class!");
+        throw new Error('This is a static class!');
     }
     /**
      *  Read the JSON file associated to title screen and game over.
@@ -27,15 +27,18 @@ class TitlescreenGameover {
      *  @async
      */
     static async read() {
-        let json = await IO.parseFileJSON(Paths.FILE_TITLE_SCREEN_GAME_OVER);
+        let json = await Platform.parseFileJSON(Paths.FILE_TITLE_SCREEN_GAME_OVER);
         // Title screen
         this.isTitleBackgroundImage = Utils.defaultValue(json.itbi, true);
         this.titleBackgroundImageID = Utils.defaultValue(json.tb, 1);
         this.titleBackgroundVideoID = Utils.defaultValue(json.tbv, 1);
         this.titleMusic = new System.PlaySong(SongKind.Music, json.tm);
         this.titleCommands = [];
-        Utils.readJSONSystemList({ list: Utils.defaultValue(json.tc, []),
-            listIndexes: this.titleCommands, cons: System.TitleCommand });
+        Utils.readJSONSystemList({
+            list: Utils.defaultValue(json.tc, []),
+            listIndexes: this.titleCommands,
+            cons: System.TitleCommand,
+        });
         let jsonList = json.ts;
         let l = jsonList.length;
         this.titleSettings = [];
@@ -48,15 +51,16 @@ class TitlescreenGameover {
             }
         }
         // Game over
-        this.isGameOverBackgroundImage = Utils.defaultValue(json
-            .isGameOverBackgroundImage, true);
-        this.gameOverBackgroundImageID = Utils.defaultValue(json
-            .gameOverBackgroundImage, 1);
-        this.gameOverBackgroundVideoID = Utils.defaultValue(json
-            .gameOverBackgroundVideo, 1);
+        this.isGameOverBackgroundImage = Utils.defaultValue(json.isGameOverBackgroundImage, true);
+        this.gameOverBackgroundImageID = Utils.defaultValue(json.gameOverBackgroundImage, 1);
+        this.gameOverBackgroundVideoID = Utils.defaultValue(json.gameOverBackgroundVideo, 1);
         this.gameOverMusic = new System.PlaySong(SongKind.Music, json.gameOverMusic);
         this.gameOverCommands = [];
-        Utils.readJSONSystemList({ list: Utils.defaultValue(json.gameOverCommands, []), listIndexes: this.gameOverCommands, cons: System.GameOverCommand });
+        Utils.readJSONSystemList({
+            list: Utils.defaultValue(json.gameOverCommands, []),
+            listIndexes: this.gameOverCommands,
+            cons: System.GameOverCommand,
+        });
     }
     /**
      *  Get the title screen commands graphic names.

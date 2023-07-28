@@ -1,5 +1,5 @@
-import { Scene } from "../index.js";
-import { Picture2D } from "../Core/index.js";
+import { Scene } from '../index.js';
+import { Picture2D } from '../Core/index.js';
 /** @class
  *  The game stack that is organizing the game scenes.
  *  @static

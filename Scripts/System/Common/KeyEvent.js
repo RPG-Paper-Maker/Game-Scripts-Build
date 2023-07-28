@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Inputs } from "./Inputs.js";
+import { Inputs } from './Inputs.js';
 /**
  * The key event class used to convert Qt keys to web keys.
  *

@@ -9,6 +9,7 @@ declare class Platform {
     static readonly screenWidth: number;
     static readonly screenHeight: number;
     static readonly DESKTOP: boolean;
+    static readonly WEB_DEV: boolean;
     static readonly MODE_TEST: any;
     static readonly MODE_TEST_BATTLE_TROOP = "battleTroop";
     static readonly MODE_TEST_SHOW_TEXT_PREVIEW = "showTextPreview";
@@ -42,6 +43,23 @@ declare class Platform {
      *  @static
      */
     static quit: () => void;
+    /**
+     *  Check if a file exists.
+     *  @static
+     *  @param {string} path - The path of the file
+     *  @returns {Promise<boolean>}
+     */
+    static fileExists: (path: string) => Promise<boolean>;
+    /**
+     *  Load a file.
+     *  @static
+     */
+    static loadFile(path: string, forcePath?: boolean): Promise<string>;
+    /**
+     *  Parse a JSON file
+     *  @static
+     */
+    static parseFileJSON(path: string): Promise<Record<string, any>>;
     /**
      *  Load a save.
      *  @static

@@ -1,5 +1,5 @@
-import { Camera, ReactionInterpreter, MapObject } from "../Core/index.js";
-import { System, Graphic } from "../index.js";
+import { Camera, ReactionInterpreter, MapObject } from '../Core/index.js';
+import { System, Graphic } from '../index.js';
 /**
  *  The superclass who shape the structure of a scene.
  *  @abstract

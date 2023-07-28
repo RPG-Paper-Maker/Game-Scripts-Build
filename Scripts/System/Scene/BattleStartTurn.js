@@ -9,8 +9,8 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Datas, Scene } from "../index.js";
-import { Enum, Mathf } from "../Common/index.js";
-import { Animation, ReactionInterpreter } from "../Core/index.js";
+import { Enum, Mathf } from '../Common/index.js';
+import { Animation, ReactionInterpreter } from '../Core/index.js';
 // -------------------------------------------------------
 //
 //  CLASS BattleStartTurn

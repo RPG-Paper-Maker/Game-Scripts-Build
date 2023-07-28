@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from "./Base.js";
-import { System, Graphic, Datas } from "../index.js";
-import { Utils, Enum, Constants, Mathf, ScreenResolution } from "../Common/index.js";
+import { Base } from './Base.js';
+import { System, Graphic, Datas } from '../index.js';
+import { Utils, Enum, Constants, Mathf, ScreenResolution } from '../Common/index.js';
 var Align = Enum.Align;
 /** @class
  *  The graphic displaying all the items information in the inventory menu.

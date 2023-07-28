@@ -1,5 +1,5 @@
-import { Icon } from "./Icon.js";
-import { DynamicValue } from "./DynamicValue.js";
+import { Icon } from './Icon.js';
+import { DynamicValue } from './DynamicValue.js';
 /** @class
  *  An element of the game.
  *  @extends System.Base

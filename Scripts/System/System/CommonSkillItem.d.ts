@@ -1,13 +1,13 @@
-import { Enum } from "../Common/index.js";
-import { Icon } from "./Icon.js";
-import { Translatable } from "./Translatable.js";
-import { DynamicValue } from "./DynamicValue.js";
-import { PlaySong } from "./PlaySong.js";
-import { Cost } from "./Cost.js";
-import { Characteristic } from "./Characteristic.js";
-import { Effect } from "./Effect.js";
-import { System } from "../index.js";
-import { Battler, Player } from "../Core/index.js";
+import { Enum } from '../Common/index.js';
+import { Icon } from './Icon.js';
+import { Translatable } from './Translatable.js';
+import { DynamicValue } from './DynamicValue.js';
+import { PlaySong } from './PlaySong.js';
+import { Cost } from './Cost.js';
+import { Characteristic } from './Characteristic.js';
+import { Effect } from './Effect.js';
+import { System } from '../index.js';
+import { Battler, Player } from '../Core/index.js';
 /** @class
  *  A common class for skills, items, weapons, armors.
  *  @extends System.Icon

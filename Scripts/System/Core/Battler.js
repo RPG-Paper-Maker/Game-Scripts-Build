@@ -8,18 +8,18 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { THREE } from "../Globals.js";
-import { Enum, Interpreter } from "../Common/index.js";
-import { Frame } from "./Frame.js";
-import { ProgressionTable } from "../System/index.js";
-import { Manager, Datas, Scene, Graphic } from "../index.js";
-import { Sprite } from "./Sprite.js";
-import { Vector3 } from "./Vector3.js";
-import { Vector2 } from "./Vector2.js";
-import { Status } from "./Status.js";
-import { Animation } from "./Animation.js";
-import { CustomGeometry } from "./CustomGeometry.js";
-import { Rectangle } from "./Rectangle.js";
+import { THREE } from '../Globals.js';
+import { Enum, Interpreter } from '../Common/index.js';
+import { Frame } from './Frame.js';
+import { ProgressionTable } from '../System/index.js';
+import { Manager, Datas, Scene, Graphic } from '../index.js';
+import { Sprite } from './Sprite.js';
+import { Vector3 } from './Vector3.js';
+import { Vector2 } from './Vector2.js';
+import { Status } from './Status.js';
+import { Animation } from './Animation.js';
+import { CustomGeometry } from './CustomGeometry.js';
+import { Rectangle } from './Rectangle.js';
 /** @class
  *  A battler in a battle (ally or ennemy).
  *  @param {Player} player - The character properties

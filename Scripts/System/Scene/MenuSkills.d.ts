@@ -1,6 +1,6 @@
-import { Base } from "./Base.js";
-import { StructPositionChoice } from "./Menu.js";
-import { WindowBox, WindowChoices } from "../Core/index.js";
+import { Base } from './Base.js';
+import { StructPositionChoice } from './Menu.js';
+import { WindowBox, WindowChoices } from '../Core/index.js';
 /** @class
  *  A scene in the menu for describing players skills.
  *  @extends Scene.Base

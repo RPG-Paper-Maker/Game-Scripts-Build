@@ -1,5 +1,5 @@
-import { Enum } from "../Common/index.js";
-import { Player } from "./Player.js";
+import { Enum } from '../Common/index.js';
+import { Player } from './Player.js';
 /**
  * The class who handles the heroes party.
  *

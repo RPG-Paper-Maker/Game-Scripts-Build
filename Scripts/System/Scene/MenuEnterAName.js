@@ -9,9 +9,9 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Datas, Graphic, Manager, Scene } from "../index.js";
-import { Enum, ScreenResolution } from "../Common/index.js";
-import { Frame, Game, Rectangle, WindowBox, WindowChoices } from "../Core/index.js";
-import { MenuBase } from "./MenuBase.js";
+import { Enum, ScreenResolution } from '../Common/index.js';
+import { Frame, Game, Rectangle, WindowBox, WindowChoices } from '../Core/index.js';
+import { MenuBase } from './MenuBase.js';
 /**
  * The scene handling and processing the enter a name menu
  * @class

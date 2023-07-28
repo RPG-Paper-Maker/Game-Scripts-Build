@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum, Interpreter, Utils } from "../Common/index.js";
-import { Translatable } from "./Translatable.js";
+import { Enum, Interpreter, Utils } from '../Common/index.js';
+import { Translatable } from './Translatable.js';
 import { Manager, Scene } from "../index.js";
-import { Game } from "../Core/index.js";
+import { Game } from '../Core/index.js';
 /** @class
  *  A main menu command in scene main menu.
  *  @extends Translatable

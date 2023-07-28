@@ -1,7 +1,7 @@
-import { Enum } from "../Common/index.js";
+import { Enum } from '../Common/index.js';
 import AnimationEffectConditionKind = Enum.AnimationEffectConditionKind;
-import { Base } from "./Base.js";
-import { PlaySong } from "./PlaySong.js";
+import { Base } from './Base.js';
+import { PlaySong } from './PlaySong.js';
 /** @class
  *  An animation frame effect.
  *  @extends System.Base

@@ -1,5 +1,5 @@
-import { Base } from "./Base.js";
-import { MapObject } from "../Core/index.js";
+import { Base } from './Base.js';
+import { MapObject } from '../Core/index.js';
 import { EventCommand, System } from "../index.js";
 /** @class
  *  An event command for entering a number inside a variable.

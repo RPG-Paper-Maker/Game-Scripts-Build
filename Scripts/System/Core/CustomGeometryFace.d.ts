@@ -1,5 +1,5 @@
-import { CustomGeometry } from "./CustomGeometry.js";
-import { Vector3 } from "./Vector3.js";
+import { CustomGeometry } from './CustomGeometry.js';
+import { Vector3 } from './Vector3.js';
 /**
  *  The geometry used to apply vertices + indices + uvs.
  *

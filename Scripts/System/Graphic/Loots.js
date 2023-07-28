@@ -8,8 +8,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from "./Base.js";
-import { Enum, ScreenResolution } from "../Common/index.js";
+import { Base } from './Base.js';
+import { Enum, ScreenResolution } from '../Common/index.js';
 var LootKind = Enum.LootKind;
 import { Graphic } from "../index.js";
 /** @class

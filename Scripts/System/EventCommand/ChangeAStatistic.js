@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from "./Base.js";
-import { System, Datas } from "../index.js";
-import { Utils, Mathf, Interpreter, Platform } from "../Common/index.js";
-import { Game } from "../Core/index.js";
+import { Base } from './Base.js';
+import { System, Datas } from '../index.js';
+import { Utils, Mathf, Interpreter, Platform } from '../Common/index.js';
+import { Game } from '../Core/index.js';
 /** @class
  *  An event command for changing a statistic.
  *  @extends EventCommand.Base

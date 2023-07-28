@@ -1,8 +1,8 @@
-import { System } from "../index.js";
-import { CustomGeometry } from "./CustomGeometry.js";
-import { StructMapElementCollision, MapElement } from "./MapElement.js";
-import { Position } from "./Position.js";
-import { Vector3 } from "./Vector3.js";
+import { System } from '../index.js';
+import { CustomGeometry } from './CustomGeometry.js';
+import { StructMapElementCollision, MapElement } from './MapElement.js';
+import { Position } from './Position.js';
+import { Vector3 } from './Vector3.js';
 /** @class
  *  The abstract class who model the Structure of RPM datas.
  *  @extends MapElement

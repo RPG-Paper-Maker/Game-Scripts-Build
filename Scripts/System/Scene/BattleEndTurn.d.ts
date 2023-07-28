@@ -1,5 +1,5 @@
 import { Scene } from "../index.js";
-import { ReactionInterpreter } from "../Core/index.js";
+import { ReactionInterpreter } from '../Core/index.js';
 declare class BattleEndTurn {
     battle: Scene.Battle;
     step: number;

@@ -6,8 +6,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { IO, Paths, Constants, Utils } from "../Common/index.js";
-import { System } from "../index.js";
+import { Paths, Constants, Utils, Platform } from '../Common/index.js';
+import { System } from '../index.js';
 /** @class
  *  The class who handles plugins of RPG Paper Maker.
  *  @static
@@ -15,7 +15,7 @@ import { System } from "../index.js";
  */
 class Plugins {
     constructor() {
-        throw new Error("This is a static class");
+        throw new Error('This is a static class');
     }
     /**
      *  Load all the game plugins.
@@ -23,8 +23,7 @@ class Plugins {
      *  @async
      */
     static async load() {
-        let plugins = Utils.defaultValue((await IO.parseFileJSON(Paths
-            .FILE_SCRIPTS)).plugins, []);
+        let plugins = Utils.defaultValue((await Platform.parseFileJSON(Paths.FILE_SCRIPTS)).plugins, []);
         for (let i = 0, l = plugins.length; i < l; i++) {
             await this.loadPlugin(plugins[i]);
         }
@@ -37,21 +36,21 @@ class Plugins {
      *  @returns {Promise<boolean>}
      */
     static async loadPlugin(pluginJSON) {
-        let json = await IO.parseFileJSON(Paths.PLUGINS + pluginJSON.name +
-            Constants.STRING_SLASH + Paths.FILE_PLUGIN_DETAILS);
+        let json = await Platform.parseFileJSON(Paths.PLUGINS + pluginJSON.name + Constants.STRING_SLASH + Paths.FILE_PLUGIN_DETAILS);
         let plugin = new System.Plugin(pluginJSON.id, json);
         // FIX 01 : plugin wasn't unloaded if not enabled.
         if (plugin.isOn) {
             this.register(plugin);
-            return (await new Promise((resolve, reject) => {
-                let url = Paths.PLUGINS + pluginJSON.name + Constants.STRING_SLASH +
-                    Paths.FILE_PLUGIN_CODE;
-                let script = document.createElement("script");
-                script.type = "module";
+            return await new Promise((resolve, reject) => {
+                let url = Paths.PLUGINS + pluginJSON.name + Constants.STRING_SLASH + Paths.FILE_PLUGIN_CODE;
+                let script = document.createElement('script');
+                script.type = 'module';
                 script.src = url;
                 document.body.appendChild(script);
-                script.onload = () => { resolve(true); };
-            }));
+                script.onload = () => {
+                    resolve(true);
+                };
+            });
         }
     }
     /**
@@ -61,8 +60,7 @@ class Plugins {
      */
     static register(plugin) {
         if (this.plugins.hasOwnProperty(plugin.name)) {
-            throw new Error("Duplicate error: " + plugin + " is an duplicate of "
-                + plugin.name);
+            throw new Error('Duplicate error: ' + plugin + ' is an duplicate of ' + plugin.name);
         }
         else {
             this.plugins[plugin.name] = plugin;
@@ -98,7 +96,7 @@ class Plugins {
      */
     static fetch(pluginName) {
         if (!this.plugins.hasOwnProperty(pluginName)) {
-            throw new Error("Unindenfied plugin error: " + pluginName + " doesn't exist in the current workspace!");
+            throw new Error('Unindenfied plugin error: ' + pluginName + " doesn't exist in the current workspace!");
         }
         else {
             return this.plugins[pluginName];
@@ -183,21 +181,27 @@ class Plugins {
             if (classPrototype instanceof Function) {
                 if (overwrite) {
                     classObject.prototype[prototypeName] = function (...args) {
-                        this.super = (...arggs) => { classPrototype.call(this, ...arggs); };
+                        this.super = (...arggs) => {
+                            classPrototype.call(this, ...arggs);
+                        };
                         return TheAnyPrototype.call(this, ...args);
                     };
                 }
                 else if (loadOriginalBefore) {
                     classObject.prototype[prototypeName] = function (...args) {
                         let result = classPrototype.call(this, ...args);
-                        this.super = (...arggs) => { classPrototype.call(this, ...arggs); };
+                        this.super = (...arggs) => {
+                            classPrototype.call(this, ...arggs);
+                        };
                         this.callResult = result;
                         return TheAnyPrototype.call(this, ...args);
                     };
                 }
                 else {
                     classObject.prototype[prototypeName] = function (...args) {
-                        this.super = (...arggs) => { classPrototype.call(this, ...arggs); };
+                        this.super = (...arggs) => {
+                            classPrototype.call(this, ...arggs);
+                        };
                         TheAnyPrototype.call(this, ...args);
                         return classPrototype.call(this, ...args);
                     };
@@ -213,21 +217,27 @@ class Plugins {
             if (classMethod instanceof Function) {
                 if (overwrite) {
                     classAnyObject[prototypeName] = function (...args) {
-                        this.super = (...arggs) => { classMethod.call(this, ...arggs); };
+                        this.super = (...arggs) => {
+                            classMethod.call(this, ...arggs);
+                        };
                         return TheAnyPrototype.call(this, ...args);
                     };
                 }
                 else if (loadOriginalBefore) {
                     classAnyObject[prototypeName] = function (...args) {
                         let result = classMethod.call(this, ...args);
-                        this.super = (...arggs) => { classMethod.call(this, ...arggs); };
+                        this.super = (...arggs) => {
+                            classMethod.call(this, ...arggs);
+                        };
                         this.callResult = result;
                         return TheAnyPrototype.call(this, ...args);
                     };
                 }
                 else {
                     classAnyObject[prototypeName] = function (...args) {
-                        this.super = (...arggs) => { classMethod.call(this, ...arggs); };
+                        this.super = (...arggs) => {
+                            classMethod.call(this, ...arggs);
+                        };
                         TheAnyPrototype.call(this, ...args);
                         return classMethod.call(this, ...args);
                     };

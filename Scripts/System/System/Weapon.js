@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Armor } from "./Armor.js";
-import { Datas } from "../index.js";
-import { Enum } from "../Common/index.js";
+import { Armor } from './Armor.js';
+import { Datas } from '../index.js';
+import { Enum } from '../Common/index.js';
 /** @class
  *  A weapon of the game.
  *  @extends System.Armor

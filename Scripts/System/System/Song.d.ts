@@ -1,7 +1,7 @@
-import { Base } from "./Base.js";
-import { Enum } from "../Common/index.js";
+import { Base } from './Base.js';
+import { Enum } from '../Common/index.js';
 import SongKind = Enum.SongKind;
-import { Howl } from "../Globals.js";
+import { Howl } from '../Globals.js';
 /** @class
  *  A song of the game.
  *  @extends System.Base

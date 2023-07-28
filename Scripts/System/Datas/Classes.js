@@ -8,15 +8,15 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { System, Datas } from "../index.js";
-import { IO, Paths, Utils } from "../Common/index.js";
+import { System, Datas } from '../index.js';
+import { Platform, Paths, Utils } from '../Common/index.js';
 /** @class
  *  All the classes datas.
  *  @static
  */
 class Classes {
     constructor() {
-        throw new Error("This is a static class!");
+        throw new Error('This is a static class!');
     }
     /**
      *  Read the JSON file associated to classes
@@ -24,10 +24,9 @@ class Classes {
      *  @async
      */
     static async read() {
-        let json = (await IO.parseFileJSON(Paths.FILE_CLASSES)).classes;
+        let json = (await Platform.parseFileJSON(Paths.FILE_CLASSES)).classes;
         this.list = [];
-        Utils.readJSONSystemList({ list: json, listIDs: this.list, cons: System
-                .Class });
+        Utils.readJSONSystemList({ list: json, listIDs: this.list, cons: System.Class });
     }
     /**
      *  Get the class by ID.
@@ -36,8 +35,8 @@ class Classes {
      *  @param {string} errorMessage
      *  @returns {System.Class}
      */
-    static get(id, errorMessage = "") {
-        return Datas.Base.get(id, this.list, "class", true, errorMessage);
+    static get(id, errorMessage = '') {
+        return Datas.Base.get(id, this.list, 'class', true, errorMessage);
     }
 }
 export { Classes };

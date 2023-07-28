@@ -9,9 +9,9 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Manager, Scene, System } from "../index.js";
-import { Enum, Utils } from "../Common/index.js";
-import { Game, Item } from "../Core/index.js";
-import { Base } from "./Base.js";
+import { Enum, Utils } from '../Common/index.js';
+import { Game, Item } from '../Core/index.js';
+import { Base } from './Base.js';
 /** @class
  *  An event command for sarting shop menu.
  *  @extends EventCommand.Base

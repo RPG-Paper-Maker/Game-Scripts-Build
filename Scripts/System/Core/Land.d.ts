@@ -1,8 +1,8 @@
-import { MapElement } from "./MapElement.js";
-import { CollisionSquare } from "./CollisionSquare.js";
-import { Position } from "./Position.js";
-import { StructMapElementCollision } from "./MapElement.js";
-import { CustomGeometry } from "./CustomGeometry.js";
+import { MapElement } from './MapElement.js';
+import { CollisionSquare } from './CollisionSquare.js';
+import { Position } from './Position.js';
+import { StructMapElementCollision } from './MapElement.js';
+import { CustomGeometry } from './CustomGeometry.js';
 /** @class
  *  A land in the map.
  *  @extends MapElement

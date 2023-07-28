@@ -8,8 +8,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Land } from "./Land.js";
-import { Datas, Scene } from "../index.js";
+import { Land } from './Land.js';
+import { Datas, Scene } from '../index.js';
 /**
  *  A floor in the map.
  *

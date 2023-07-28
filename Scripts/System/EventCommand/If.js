@@ -8,12 +8,12 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from "./Base.js";
-import { System, Datas, Scene } from "../index.js";
-import { Utils, Enum, Mathf, Interpreter, Inputs } from "../Common/index.js";
+import { Base } from './Base.js';
+import { System, Datas, Scene } from '../index.js';
+import { Utils, Enum, Mathf, Interpreter, Inputs } from '../Common/index.js';
 var ConditionHeroesKind = Enum.ConditionHeroesKind;
 var ItemKind = Enum.ItemKind;
-import { Player, MapObject, Game } from "../Core/index.js";
+import { Player, MapObject, Game } from '../Core/index.js';
 /** @class
  *  An event command for condition event command block.
  *  @extends EventCommand.Base

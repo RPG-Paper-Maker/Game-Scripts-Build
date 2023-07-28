@@ -1,5 +1,5 @@
-import { Picture2D, WindowChoices } from "../Core/index.js";
-import { Base } from "./Base.js";
+import { Picture2D, WindowChoices } from '../Core/index.js';
+import { Base } from './Base.js';
 /**
  *  The scene displaying the game over screen.
  *  @class GameOver

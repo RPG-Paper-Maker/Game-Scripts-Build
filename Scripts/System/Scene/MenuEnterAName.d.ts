@@ -1,5 +1,5 @@
-import { Frame, Picture2D, Player, WindowBox, WindowChoices } from "../Core/index.js";
-import { MenuBase } from "./MenuBase.js";
+import { Frame, Picture2D, Player, WindowBox, WindowChoices } from '../Core/index.js';
+import { MenuBase } from './MenuBase.js';
 /**
  * The scene handling and processing the enter a name menu
  * @class

@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Graphic, Datas } from "../index.js";
-import { Base } from "./Base.js";
-import { Utils, Constants, Enum, ScreenResolution } from "../Common/index.js";
+import { Graphic, Datas } from '../index.js';
+import { Base } from './Base.js';
+import { Utils, Constants, Enum, ScreenResolution } from '../Common/index.js';
 /** @class
  *  The graphic displaying the player minimal stats informations.
  *  @extends Graphic.Base

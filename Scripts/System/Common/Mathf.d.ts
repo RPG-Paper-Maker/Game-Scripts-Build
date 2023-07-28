@@ -1,4 +1,4 @@
-import { Vector2, Vector3 } from "../Core/index.js";
+import { Vector2, Vector3 } from '../Core/index.js';
 /**
  * The static class for Math related function.
  *

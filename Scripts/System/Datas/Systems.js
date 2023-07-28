@@ -8,23 +8,23 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { IO, Paths, Platform, ScreenResolution, Utils, Constants, Enum } from "../Common/index.js";
-import { Manager, Datas, Scene, System } from "../index.js";
-import { Position, MapPortion } from "../Core/index.js";
+import { Paths, Platform, ScreenResolution, Utils, Constants, Enum } from '../Common/index.js';
+import { Manager, Datas, Scene, System } from '../index.js';
+import { Position, MapPortion } from '../Core/index.js';
 /** @class
-*   All the System datas.
-*   @static
-*/
+ *   All the System datas.
+ *   @static
+ */
 class Systems {
     constructor() {
-        throw new Error("This is a static class!");
+        throw new Error('This is a static class!');
     }
     /**
      *  Read the JSON file associated to System.
      *  @static
      */
     static async read() {
-        let json = await IO.parseFileJSON(Paths.FILE_SYSTEM);
+        let json = await Platform.parseFileJSON(Paths.FILE_SYSTEM);
         // Project name
         this.projectName = new System.Translatable(json.pn);
         Platform.setWindowTitle(this.projectName.name());
@@ -53,19 +53,17 @@ class Systems {
         this.moveCameraOnBlockView = System.DynamicValue.readOrDefaultSwitch(json.mcobv, true);
         this.mapFrameDuration = System.DynamicValue.readOrDefaultNumber(json.mfd, 150);
         this.battlersFrames = Utils.defaultValue(json.battlersFrames, 4);
-        this.battlersFrameDuration = Utils.defaultValue(json.bfd, "Common.Mathf.random(250, 300)");
-        this.battlersFrameAttackingDuration = Utils.defaultValue(json.bfad, "200");
+        this.battlersFrameDuration = Utils.defaultValue(json.bfd, 'Common.Mathf.random(250, 300)');
+        this.battlersFrameAttackingDuration = Utils.defaultValue(json.bfad, '200');
         this.battlersColumns = Utils.defaultValue(json.battlersColumns, 9);
         this.autotilesFrames = Utils.defaultValue(json.battlersColumns, 4);
         this.autotilesFrameDuration = Utils.defaultValue(json.battlersColumns, 150);
         this.saveSlots = Utils.defaultValue(json.saveSlots, 4);
-        this.priceSoldItem = System.DynamicValue.readOrDefaultNumberDouble(json
-            .priceSoldItem, 50);
+        this.priceSoldItem = System.DynamicValue.readOrDefaultNumberDouble(json.priceSoldItem, 50);
         // Path BR
-        this.PATH_BR = Paths.FILES + json.pathBR;
+        this.PATH_BR = Platform.WEB_DEV ? '/BR' : Paths.FILES + json.pathBR;
         // Path DLC
-        this.PATH_DLCS = Paths.FILES + (await IO.parseFileJSON(Paths.FILE_DLCS))
-            .p;
+        this.PATH_DLCS = Paths.FILES + (await Platform.parseFileJSON(Paths.FILE_DLCS)).p;
         // Hero beginning
         this.ID_MAP_START_HERO = json.idMapHero;
         this.ID_OBJECT_START_HERO = json.idObjHero;
@@ -97,46 +95,64 @@ class Systems {
         this.speeds = [];
         this.frequencies = [];
         this.initialPartyMembers = [];
-        Utils.readJSONSystemList({ list: json.itemsTypes, listIDs: this
-                .itemsTypes, cons: System.Translatable });
-        Utils.readJSONSystemList({ list: json.inventoryFilters, listIndexes: this
-                .inventoryFilters, cons: System.InventoryFilter });
-        Utils.readJSONSystemList({ list: json.mainMenuCommands, listIndexes: this
-                .mainMenuCommands, cons: System.MainMenuCommand });
-        Utils.readJSONSystemList({ list: json.heroesStatistics, listIndexes: this
-                .heroesStatistics, func: (element) => {
+        Utils.readJSONSystemList({ list: json.itemsTypes, listIDs: this.itemsTypes, cons: System.Translatable });
+        Utils.readJSONSystemList({
+            list: json.inventoryFilters,
+            listIndexes: this.inventoryFilters,
+            cons: System.InventoryFilter,
+        });
+        Utils.readJSONSystemList({
+            list: json.mainMenuCommands,
+            listIndexes: this.mainMenuCommands,
+            cons: System.MainMenuCommand,
+        });
+        Utils.readJSONSystemList({
+            list: json.heroesStatistics,
+            listIndexes: this.heroesStatistics,
+            func: (element) => {
                 return System.DynamicValue.readOrDefaultDatabase(element.statisticID);
-            } });
+            },
+        });
         Utils.readJSONSystemList({ list: json.colors, listIDs: this.colors, cons: System.Color });
-        Utils.readJSONSystemList({ list: json.currencies, listIDs: this
-                .currencies, cons: System.Currency });
-        Utils.readJSONSystemList({ list: json.wskins, listIDs: this.windowSkins,
-            cons: System.WindowSkin });
-        Utils.readJSONSystemList({ list: json.cp, listIDs: this.cameraProperties,
-            cons: System.CameraProperties });
+        Utils.readJSONSystemList({ list: json.currencies, listIDs: this.currencies, cons: System.Currency });
+        Utils.readJSONSystemList({ list: json.wskins, listIDs: this.windowSkins, cons: System.WindowSkin });
+        Utils.readJSONSystemList({ list: json.cp, listIDs: this.cameraProperties, cons: System.CameraProperties });
         Utils.readJSONSystemList({ list: json.d, listIDs: this.detections, cons: System.Detection });
         Utils.readJSONSystemList({ list: json.sb, listIDs: this.skyboxes, cons: System.Skybox });
-        Utils.readJSONSystemList({ list: json.fs, listIDs: this.fontSizes, func: (element) => {
+        Utils.readJSONSystemList({
+            list: json.fs,
+            listIDs: this.fontSizes,
+            func: (element) => {
                 return System.DynamicValue.readOrDefaultNumber(element.s, 0);
-            } });
+            },
+        });
         Utils.readJSONSystemList({ list: json.fn, listIDs: this.fontNames, cons: System.FontName });
-        Utils.readJSONSystemList({ list: json.sf, listIDs: this.speeds, func: (element) => {
+        Utils.readJSONSystemList({
+            list: json.sf,
+            listIDs: this.speeds,
+            func: (element) => {
                 return System.DynamicValue.readOrDefaultNumberDouble(element.v, 1);
-            } });
-        Utils.readJSONSystemList({ list: json.f, listIDs: this.frequencies, func: (element) => {
+            },
+        });
+        Utils.readJSONSystemList({
+            list: json.f,
+            listIDs: this.frequencies,
+            func: (element) => {
                 return System.DynamicValue.readOrDefaultNumberDouble(element.v, 1);
-            } });
-        Utils.readJSONSystemList({ list: Utils.defaultValue(json
-                .initialPartyMembers, []), listIndexes: this.initialPartyMembers,
-            cons: System.InitialPartyMember });
+            },
+        });
+        Utils.readJSONSystemList({
+            list: Utils.defaultValue(json.initialPartyMembers, []),
+            listIndexes: this.initialPartyMembers,
+            cons: System.InitialPartyMember,
+        });
         // Sounds
         this.soundCursor = new System.PlaySong(Enum.SongKind.Sound, json.scu);
         this.soundConfirmation = new System.PlaySong(Enum.SongKind.Sound, json.sco);
         this.soundCancel = new System.PlaySong(Enum.SongKind.Sound, json.sca);
         this.soundImpossible = new System.PlaySong(Enum.SongKind.Sound, json.si);
         // Window skin options
-        this.dbOptions = Manager.Events
-            .getEventCommand(json.dbo);
+        this.dbOptions = Manager.Events.getEventCommand(json.dbo);
         this.dbOptions.update();
         // Faceset options
         this.facesetsSize = Utils.defaultValue(json.facesetsSize, 128);
@@ -157,7 +173,7 @@ class Systems {
      *  @returns {string}
      */
     static getItemType(id) {
-        return Datas.Base.get(id, this.itemsTypes, "item type");
+        return Datas.Base.get(id, this.itemsTypes, 'item type');
     }
     /**
      *  Get the color by ID safely.
@@ -166,7 +182,7 @@ class Systems {
      *  @returns {System.Color}
      */
     static getColor(id) {
-        return Datas.Base.get(id, this.colors, "color");
+        return Datas.Base.get(id, this.colors, 'color');
     }
     /**
      *  Get the currency by ID safely.
@@ -175,7 +191,7 @@ class Systems {
      *  @returns {string}
      */
     static getCurrency(id) {
-        return Datas.Base.get(id, this.currencies, "currency");
+        return Datas.Base.get(id, this.currencies, 'currency');
     }
     /**
      *  Get the window skin by ID safely.
@@ -184,7 +200,7 @@ class Systems {
      *  @returns {string}
      */
     static getWindowSkin(id) {
-        return Datas.Base.get(id, this.windowSkins, "window skin");
+        return Datas.Base.get(id, this.windowSkins, 'window skin');
     }
     /**
      *  Get the camera properties by ID safely.
@@ -193,7 +209,7 @@ class Systems {
      *  @returns {string}
      */
     static getCameraProperties(id) {
-        return Datas.Base.get(id, this.cameraProperties, "camera properties");
+        return Datas.Base.get(id, this.cameraProperties, 'camera properties');
     }
     /**
      *  Get the detection by ID safely.
@@ -202,7 +218,7 @@ class Systems {
      *  @returns {string}
      */
     static getDetection(id) {
-        return Datas.Base.get(id, this.detections, "detections");
+        return Datas.Base.get(id, this.detections, 'detections');
     }
     /**
      *  Get the skybox by ID safely.
@@ -211,7 +227,7 @@ class Systems {
      *  @returns {string}
      */
     static getSkybox(id) {
-        return Datas.Base.get(id, this.skyboxes, "skybox");
+        return Datas.Base.get(id, this.skyboxes, 'skybox');
     }
     /**
      *  Get the font size by ID safely.
@@ -220,7 +236,7 @@ class Systems {
      *  @returns {string}
      */
     static getFontSize(id) {
-        return Datas.Base.get(id, this.fontSizes, "font size");
+        return Datas.Base.get(id, this.fontSizes, 'font size');
     }
     /**
      *  Get the font name by ID safely.
@@ -229,7 +245,7 @@ class Systems {
      *  @returns {string}
      */
     static getFontName(id) {
-        return Datas.Base.get(id, this.fontNames, "font name");
+        return Datas.Base.get(id, this.fontNames, 'font name');
     }
     /**
      *  Get the speed by ID safely.
@@ -238,7 +254,7 @@ class Systems {
      *  @returns {string}
      */
     static getSpeed(id) {
-        return Datas.Base.get(id, this.speeds, "speed");
+        return Datas.Base.get(id, this.speeds, 'speed');
     }
     /**
      *  Get the frequency by ID safely.
@@ -247,7 +263,7 @@ class Systems {
      *  @returns {string}
      */
     static getFrequency(id) {
-        return Datas.Base.get(id, this.frequencies, "frequency");
+        return Datas.Base.get(id, this.frequencies, 'frequency');
     }
     /**
      *  Get the system object of hero.
@@ -256,8 +272,7 @@ class Systems {
      */
     static async getModelHero() {
         let mapName = Scene.Map.generateMapName(this.ID_MAP_START_HERO);
-        let json = (await IO.parseFileJSON(Paths.FILE_MAPS + mapName + Paths
-            .FILE_MAP_OBJECTS)).objs;
+        let json = (await Platform.parseFileJSON(Paths.FILE_MAPS + mapName + Paths.FILE_MAP_OBJECTS)).objs;
         let jsonObject, position;
         for (let i = 0, l = json.length; i < l; i++) {
             jsonObject = json[i];
@@ -267,14 +282,14 @@ class Systems {
             }
         }
         if (Utils.isUndefined(position)) {
-            Platform.showErrorMessage("Object linking issue. Please go to map " +
-                mapName + " and use Options > Debug Options in map > Synchronize map objects. Please report it to dev.");
+            Platform.showErrorMessage('Object linking issue. Please go to map ' +
+                mapName +
+                ' and use Options > Debug Options in map > Synchronize map objects. Please report it to dev.');
         }
         let globalPortion = position.getGlobalPortion();
         let fileName = globalPortion.getFileName();
-        json = await IO.parseFileJSON(Paths.FILE_MAPS + mapName + Constants
-            .STRING_SLASH + fileName);
-        this.modelHero = (new MapPortion(globalPortion)).getHeroModel(json);
+        json = await Platform.parseFileJSON(Paths.FILE_MAPS + mapName + Constants.STRING_SLASH + fileName);
+        this.modelHero = new MapPortion(globalPortion).getHeroModel(json);
     }
     /**
      *  Load the window skins pictures
@@ -325,10 +340,8 @@ class Systems {
         Platform.canvasVideos.height = h;
         ScreenResolution.CANVAS_WIDTH = w;
         ScreenResolution.CANVAS_HEIGHT = h;
-        ScreenResolution.WINDOW_X = ScreenResolution.CANVAS_WIDTH /
-            ScreenResolution.SCREEN_X;
-        ScreenResolution.WINDOW_Y = ScreenResolution.CANVAS_HEIGHT /
-            ScreenResolution.SCREEN_Y;
+        ScreenResolution.WINDOW_X = ScreenResolution.CANVAS_WIDTH / ScreenResolution.SCREEN_X;
+        ScreenResolution.WINDOW_Y = ScreenResolution.CANVAS_HEIGHT / ScreenResolution.SCREEN_Y;
         Manager.GL.resize();
         Manager.Stack.requestPaintHUD = true;
         for (let scene of Manager.Stack.content) {

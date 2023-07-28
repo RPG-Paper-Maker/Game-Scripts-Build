@@ -1,4 +1,4 @@
-import { Translatable } from "./Translatable.js";
+import { Translatable } from './Translatable.js';
 /** @class
  *  A statistic of the game.
  *  @extends System.Base

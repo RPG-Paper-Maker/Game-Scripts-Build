@@ -8,12 +8,12 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum, Constants, Paths, Utils, Platform } from "../Common/index.js";
+import { Enum, Constants, Paths, Utils, Platform } from '../Common/index.js';
 var CustomShapeKind = Enum.CustomShapeKind;
-import { Base } from "./Base.js";
-import { Datas, Manager } from "../index.js";
-import { THREE } from "../Globals.js";
-import { Vector3, Vector2, CustomGeometry } from "../Core/index.js";
+import { Base } from './Base.js';
+import { Datas, Manager } from '../index.js';
+import { THREE } from '../Globals.js';
+import { Vector3, Vector2, CustomGeometry } from '../Core/index.js';
 /** @class
  *  A shape of the game.
  *  @extends System.Base

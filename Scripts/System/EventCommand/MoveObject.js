@@ -8,12 +8,12 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from "./Base.js";
-import { System, Datas, EventCommand, Scene, Manager } from "../index.js";
-import { Enum, Utils, Mathf, Platform } from "../Common/index.js";
+import { Base } from './Base.js';
+import { System, Datas, EventCommand, Scene, Manager } from '../index.js';
+import { Enum, Utils, Mathf, Platform } from '../Common/index.js';
 var CommandMoveKind = Enum.CommandMoveKind;
 var Orientation = Enum.Orientation;
-import { MapObject, Game, Vector3 } from "../Core/index.js";
+import { MapObject, Game, Vector3 } from '../Core/index.js';
 /** @class
  *  An event command for moving object.
  *  @extends EventCommand.Base
@@ -348,10 +348,10 @@ class MoveObject extends Base {
         if (!square || (square && currentState.normalDistance >= Datas.Systems
             .SQUARE_SIZE) || (square && currentState.distance >= Datas.Systems
             .SQUARE_SIZE || (distances[0] === 0))) {
-            if (!this.isIgnore && distances[0] === 0) {
+            if (distances[0] === 0) {
                 currentState.position = null;
                 object.moving = true;
-                return true;
+                return this.isIgnore;
             }
             if (square && currentState.distance === currentState.normalDistance) {
                 object.position = currentState.position;

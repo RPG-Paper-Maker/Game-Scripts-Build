@@ -1,8 +1,8 @@
-import { System } from "../index.js";
+import { System } from '../index.js';
 /** @class
-*   All the skills datas
-*   @static
-*/
+ *   All the skills datas
+ *   @static
+ */
 declare class Skills {
     private static list;
     constructor();

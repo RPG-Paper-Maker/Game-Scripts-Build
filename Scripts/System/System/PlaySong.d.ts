@@ -1,8 +1,8 @@
-import { Base } from "./Base.js";
-import { Enum } from "../Common/index.js";
+import { Base } from './Base.js';
+import { Enum } from '../Common/index.js';
 import SongKind = Enum.SongKind;
-import { System } from "../index.js";
-import { StructIterator } from "../EventCommand/index.js";
+import { System } from '../index.js';
+import { StructIterator } from '../EventCommand/index.js';
 /** @class
  *  A way to play a song.
  *  @extends System.Base

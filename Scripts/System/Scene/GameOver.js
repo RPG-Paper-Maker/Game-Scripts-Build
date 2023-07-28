@@ -9,9 +9,9 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Datas, Manager, Scene } from "../index.js";
-import { Constants, Enum, ScreenResolution } from "../Common/index.js";
-import { Game, Picture2D, WindowBox, WindowChoices } from "../Core/index.js";
-import { Base } from "./Base.js";
+import { Constants, Enum, ScreenResolution } from '../Common/index.js';
+import { Game, Picture2D, WindowBox, WindowChoices } from '../Core/index.js';
+import { Base } from './Base.js';
 /**
  *  The scene displaying the game over screen.
  *  @class GameOver

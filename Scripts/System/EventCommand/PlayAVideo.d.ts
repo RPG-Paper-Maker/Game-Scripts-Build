@@ -1,6 +1,6 @@
 import { System } from "../index.js";
-import { MapObject } from "../Core/index.js";
-import { Base } from "./Base.js";
+import { MapObject } from '../Core/index.js';
+import { Base } from './Base.js';
 /** @class
  *  An event command for playing a video.
  *  @extends EventCommand.Base

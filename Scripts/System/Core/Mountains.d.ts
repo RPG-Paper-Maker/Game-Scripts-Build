@@ -1,8 +1,8 @@
-import { TextureBundle } from "./TextureBundle.js";
-import { Mountain } from "./Mountain.js";
-import { StructMapElementCollision } from "./MapElement.js";
-import { Position } from "./Position.js";
-import { CustomGeometry } from "./CustomGeometry.js";
+import { TextureBundle } from './TextureBundle.js';
+import { Mountain } from './Mountain.js';
+import { StructMapElementCollision } from './MapElement.js';
+import { Position } from './Position.js';
+import { CustomGeometry } from './CustomGeometry.js';
 /** @class
  *  The wrapper class for handle mountains sharing the same texture.
  *  @param {TextureBundle} texture
@@ -23,7 +23,8 @@ declare class Mountains {
     updateGeometry(position: Position, mountain: Mountain): StructMapElementCollision[];
     /**
      *  Create a mesh with material and geometry.
+     *  @returns {boolean}
      */
-    createMesh(): void;
+    createMesh(): boolean;
 }
 export { Mountains };

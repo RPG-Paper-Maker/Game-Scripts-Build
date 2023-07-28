@@ -8,16 +8,16 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from "./Base.js";
-import { THREE } from "../Globals.js";
-import { Datas, System, Manager, Scene } from "../index.js";
-import { PlaySong } from "./PlaySong.js";
-import { DynamicValue } from "./DynamicValue.js";
-import { MapObject } from "../Core/MapObject.js";
-import { Enum, Constants, Utils, Mathf } from "../Common/index.js";
+import { Base } from './Base.js';
+import { THREE } from '../Globals.js';
+import { Datas, System, Manager, Scene } from '../index.js';
+import { PlaySong } from './PlaySong.js';
+import { DynamicValue } from './DynamicValue.js';
+import { MapObject } from '../Core/MapObject.js';
+import { Enum, Constants, Utils, Mathf } from '../Common/index.js';
 var SongKind = Enum.SongKind;
 var PictureKind = Enum.PictureKind;
-import { Game } from "../Core/index.js";
+import { Game } from '../Core/index.js';
 /** @class
  *  The properties of a map.
  *  @extends System.Base

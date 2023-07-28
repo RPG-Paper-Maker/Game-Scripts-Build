@@ -8,26 +8,25 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Constants, Enum, IO, Paths, Platform, Utils } from "../Common/index.js";
-import { Autotiles, Game, Picture2D, TextureBundle } from "../Core/index.js";
-import { System, Datas, Manager } from "../index.js";
-import { THREE } from "../Globals.js";
+import { Constants, Enum, Paths, Platform, Utils } from '../Common/index.js';
+import { Autotiles, Game, Picture2D, TextureBundle } from '../Core/index.js';
+import { System, Datas, Manager } from '../index.js';
+import { THREE } from '../Globals.js';
 /** @class
  *  All the special elements datas.
  *  @static
  */
 class SpecialElements {
     constructor() {
-        throw new Error("This is a static class!");
+        throw new Error('This is a static class!');
     }
     /**
      *  Read the JSON file associated to special elements.
      */
     static async read() {
-        let json = (await IO.parseFileJSON(Paths.FILE_SPECIAL_ELEMENTS));
+        let json = await Platform.parseFileJSON(Paths.FILE_SPECIAL_ELEMENTS);
         this.autotiles = [];
-        Utils.readJSONSystemList({ list: json.autotiles, listIDs: this.autotiles,
-            cons: System.Autotile });
+        Utils.readJSONSystemList({ list: json.autotiles, listIDs: this.autotiles, cons: System.Autotile });
         this.walls = [];
         Utils.readJSONSystemList({ list: json.walls, listIDs: this.walls, cons: System.SpecialElement });
         this.mountains = [];
@@ -41,7 +40,7 @@ class SpecialElements {
      *  @returns {System.Autotile}
      */
     static getAutotile(id) {
-        return Datas.Base.get(id, this.autotiles, "autotile");
+        return Datas.Base.get(id, this.autotiles, 'autotile');
     }
     /**
      *  Get the wall by ID.
@@ -49,7 +48,7 @@ class SpecialElements {
      *  @returns {System.SpecialElement}
      */
     static getWall(id) {
-        return Datas.Base.get(id, this.walls, "wall");
+        return Datas.Base.get(id, this.walls, 'wall');
     }
     /**
      *  Get the mountain by ID.
@@ -57,7 +56,7 @@ class SpecialElements {
      *  @returns {System.Mountain}
      */
     static getMountain(id) {
-        return Datas.Base.get(id, this.mountains, "mountain");
+        return Datas.Base.get(id, this.mountains, 'mountain');
     }
     /**
      *  Get the object 3D by ID.
@@ -65,15 +64,14 @@ class SpecialElements {
      *  @returns {System.Object3D}
      */
     static getObject3D(id) {
-        return Datas.Base.get(id, this.objects, "object 3D");
+        return Datas.Base.get(id, this.objects, 'object 3D');
     }
     /**
      *  Get the max possible offset of an autotile texture.
      *  @returns {number}
      */
     static getMaxAutotilesOffsetTexture() {
-        return Math.floor(Constants.MAX_PICTURE_SIZE / (9 * Datas.Systems
-            .SQUARE_SIZE));
+        return Math.floor(Constants.MAX_PICTURE_SIZE / (9 * Datas.Systems.SQUARE_SIZE));
     }
     /**
      *  Get the autotile texture.
@@ -92,10 +90,9 @@ class SpecialElements {
             let result = null;
             let textureAutotile = null;
             let texture = new THREE.Texture();
-            texturesAutotile = new Array;
+            texturesAutotile = new Array();
             this.texturesAutotiles[pictureID] = texturesAutotile;
-            Platform.ctxr.clearRect(0, 0, Platform.canvasRendering.width, Platform
-                .canvasRendering.height);
+            Platform.ctxr.clearRect(0, 0, Platform.canvasRendering.width, Platform.canvasRendering.height);
             Platform.canvasRendering.width = 64 * Datas.Systems.SQUARE_SIZE;
             Platform.canvasRendering.height = Constants.MAX_PICTURE_SIZE;
             if (autotile) {
@@ -134,13 +131,10 @@ class SpecialElements {
         let frames = isAnimated ? Datas.Systems.autotilesFrames : 1;
         let picture2D = await Picture2D.create(picture);
         // Check if correct format size
-        this.checkPictureSize("autotile", picture.name, picture2D.image.width, picture2D.image.height, 2 * Datas.Systems.SQUARE_SIZE * frames, 3 *
-            Datas.Systems.SQUARE_SIZE, false, false);
+        this.checkPictureSize('autotile', picture.name, picture2D.image.width, picture2D.image.height, 2 * Datas.Systems.SQUARE_SIZE * frames, 3 * Datas.Systems.SQUARE_SIZE, false, false);
         // Get width and height
-        let width = Math.floor((picture2D.image.width / 2) / Datas.Systems
-            .SQUARE_SIZE) / frames;
-        let height = Math.floor((picture2D.image.height / 3) / Datas.Systems
-            .SQUARE_SIZE);
+        let width = Math.floor(picture2D.image.width / 2 / Datas.Systems.SQUARE_SIZE) / frames;
+        let height = Math.floor(picture2D.image.height / 3 / Datas.Systems.SQUARE_SIZE);
         let size = width * height;
         // Update picture width and height for collisions settings
         picture.width = width;
@@ -163,7 +157,7 @@ class SpecialElements {
                 textureAutotile.isAnimated = isAnimated;
             }
             for (j = 0; j < frames; j++) {
-                p = [(point[0] * frames) + j, point[1]];
+                p = [point[0] * frames + j, point[1]];
                 this.paintPictureAutotile(picture2D.image, offset, p);
                 offset++;
             }
@@ -204,17 +198,10 @@ class SpecialElements {
                     for (d = 0; d < Autotiles.COUNT_LIST; d++) {
                         lD = Autotiles.AUTOTILE_BORDER[Autotiles.LIST_D[d]];
                         // Draw
-                        Platform.ctxr.drawImage(img, (lA % 4 * sDiv) +
-                            offsetX, (Math.floor(lA / 4) * sDiv) + offsetY, sDiv, sDiv, count * Datas.Systems.SQUARE_SIZE, (row + y) * Datas.Systems.SQUARE_SIZE, sDiv, sDiv);
-                        Platform.ctxr.drawImage(img, (lB % 4 * sDiv) +
-                            offsetX, (Math.floor(lB / 4) * sDiv) + offsetY, sDiv, sDiv, count * Datas.Systems.SQUARE_SIZE +
-                            sDiv, (row + y) * Datas.Systems.SQUARE_SIZE, sDiv, sDiv);
-                        Platform.ctxr.drawImage(img, (lC % 4 * sDiv) +
-                            offsetX, (Math.floor(lC / 4) * sDiv) + offsetY, sDiv, sDiv, count * Datas.Systems.SQUARE_SIZE, (row + y) * Datas.Systems.SQUARE_SIZE + sDiv, sDiv, sDiv);
-                        Platform.ctxr.drawImage(img, (lD % 4 * sDiv) +
-                            offsetX, (Math.floor(lD / 4) * sDiv) + offsetY, sDiv, sDiv, count * Datas.Systems.SQUARE_SIZE +
-                            sDiv, (row + y) * Datas.Systems.SQUARE_SIZE +
-                            sDiv, sDiv, sDiv);
+                        Platform.ctxr.drawImage(img, (lA % 4) * sDiv + offsetX, Math.floor(lA / 4) * sDiv + offsetY, sDiv, sDiv, count * Datas.Systems.SQUARE_SIZE, (row + y) * Datas.Systems.SQUARE_SIZE, sDiv, sDiv);
+                        Platform.ctxr.drawImage(img, (lB % 4) * sDiv + offsetX, Math.floor(lB / 4) * sDiv + offsetY, sDiv, sDiv, count * Datas.Systems.SQUARE_SIZE + sDiv, (row + y) * Datas.Systems.SQUARE_SIZE, sDiv, sDiv);
+                        Platform.ctxr.drawImage(img, (lC % 4) * sDiv + offsetX, Math.floor(lC / 4) * sDiv + offsetY, sDiv, sDiv, count * Datas.Systems.SQUARE_SIZE, (row + y) * Datas.Systems.SQUARE_SIZE + sDiv, sDiv, sDiv);
+                        Platform.ctxr.drawImage(img, (lD % 4) * sDiv + offsetX, Math.floor(lD / 4) * sDiv + offsetY, sDiv, sDiv, count * Datas.Systems.SQUARE_SIZE + sDiv, (row + y) * Datas.Systems.SQUARE_SIZE + sDiv, sDiv, sDiv);
                         count++;
                         if (count === 64) {
                             count = 0;
@@ -232,8 +219,7 @@ class SpecialElements {
      *  @param {number} id - The autotile picture ID
      */
     static async updateTextureAutotile(textureAutotile, texture, id) {
-        texture.image = await Picture2D.loadImage(Platform.canvasRendering
-            .toDataURL());
+        texture.image = await Picture2D.loadImage(Platform.canvasRendering.toDataURL());
         texture.needsUpdate = true;
         textureAutotile.material = Manager.GL.createMaterial({ texture: texture });
         this.texturesAutotiles[id].push(textureAutotile);
@@ -282,31 +268,24 @@ class SpecialElements {
             return Manager.GL.loadTextureEmpty();
         }
         // Check if correct format size
-        this.checkPictureSize("wall", picture.name, picture2D.image.width, picture2D.image.height, 3 * Datas.Systems.SQUARE_SIZE, Datas.Systems
-            .SQUARE_SIZE, true, false);
+        this.checkPictureSize('wall', picture.name, picture2D.image.width, picture2D.image.height, 3 * Datas.Systems.SQUARE_SIZE, Datas.Systems.SQUARE_SIZE, true, false);
         // Update picture infos for collisions
         picture.width = Math.floor(w / Datas.Systems.SQUARE_SIZE);
         picture.height = Math.floor(h / Datas.Systems.SQUARE_SIZE);
-        Platform.ctxr.clearRect(0, 0, Platform.canvasRendering.width, Platform
-            .canvasRendering.height);
+        Platform.ctxr.clearRect(0, 0, Platform.canvasRendering.width, Platform.canvasRendering.height);
         Platform.canvasRendering.width = w + Datas.Systems.SQUARE_SIZE;
         Platform.canvasRendering.height = h;
         Platform.ctxr.drawImage(picture2D.image, 0, 0);
-        let left = Platform.ctxr.getImageData(0, 0, Math.floor(Datas.Systems
-            .SQUARE_SIZE / 2), h);
-        let right = Platform.ctxr.getImageData(w - Math.floor(Datas.Systems
-            .SQUARE_SIZE / 2), 0, Math.floor(Datas.Systems.SQUARE_SIZE / 2), picture2D.image.height);
+        let left = Platform.ctxr.getImageData(0, 0, Math.floor(Datas.Systems.SQUARE_SIZE / 2), h);
+        let right = Platform.ctxr.getImageData(w - Math.floor(Datas.Systems.SQUARE_SIZE / 2), 0, Math.floor(Datas.Systems.SQUARE_SIZE / 2), picture2D.image.height);
         try {
             Platform.ctxr.putImageData(left, w, 0);
-            Platform.ctxr.putImageData(right, w + Math.floor(Datas.Systems
-                .SQUARE_SIZE / 2), 0);
+            Platform.ctxr.putImageData(right, w + Math.floor(Datas.Systems.SQUARE_SIZE / 2), 0);
         }
         catch (e) {
-            Platform.showErrorMessage("Error: Wrong wall (with ID:" + id +
-                ") parsing. Please verify that you have a 3 x 3 picture.");
+            Platform.showErrorMessage('Error: Wrong wall (with ID:' + id + ') parsing. Please verify that you have a 3 x 3 picture.');
         }
-        texture.image = await Picture2D.loadImage(Platform.canvasRendering
-            .toDataURL());
+        texture.image = await Picture2D.loadImage(Platform.canvasRendering.toDataURL());
         texture.needsUpdate = true;
         return Manager.GL.createMaterial({ texture: texture });
     }
@@ -315,8 +294,7 @@ class SpecialElements {
      *  @returns {number}
      */
     static getMaxMountainOffsetTexture() {
-        return Math.floor(Constants.MAX_PICTURE_SIZE / (4 * Datas.Systems
-            .SQUARE_SIZE));
+        return Math.floor(Constants.MAX_PICTURE_SIZE / (4 * Datas.Systems.SQUARE_SIZE));
     }
     /**
      *  Get the mountain texture.
@@ -335,13 +313,11 @@ class SpecialElements {
             let offset = 0;
             let result = null;
             let texture = new THREE.Texture();
-            Platform.ctxr.clearRect(0, 0, Platform.canvasRendering.width, Platform
-                .canvasRendering.height);
+            Platform.ctxr.clearRect(0, 0, Platform.canvasRendering.width, Platform.canvasRendering.height);
             Platform.canvasRendering.width = 4 * Datas.Systems.SQUARE_SIZE;
             Platform.canvasRendering.height = Constants.MAX_PICTURE_SIZE;
-            this.texturesMountains = new Array;
-            let picture = mountain ? Datas.Pictures.get(Enum.PictureKind
-                .Mountains, pictureID) : null;
+            this.texturesMountains = new Array();
+            let picture = mountain ? Datas.Pictures.get(Enum.PictureKind.Mountains, pictureID) : null;
             result = await this.loadTextureMountain(textureMountain, texture, picture, offset, id);
             if (result !== null) {
                 textureMountain = result[0];
@@ -369,8 +345,7 @@ class SpecialElements {
         let height = 3;
         let size = 9;
         // Check if correct format size
-        this.checkPictureSize("mountain", picture.name, picture2D.image.width, picture2D.image.height, 3 * Datas.Systems.SQUARE_SIZE, 3 * Datas
-            .Systems.SQUARE_SIZE, true, true);
+        this.checkPictureSize('mountain', picture.name, picture2D.image.width, picture2D.image.height, 3 * Datas.Systems.SQUARE_SIZE, 3 * Datas.Systems.SQUARE_SIZE, true, true);
         // Update picture width and height for collisions settings
         if (picture) {
             picture.width = width;
@@ -415,29 +390,22 @@ class SpecialElements {
         try {
             let i, l;
             for (i = 0, l = 3; i < l; i++) {
-                Platform.ctxr.drawImage(img, 0, (i * Datas.Systems.SQUARE_SIZE), sDiv, Datas.Systems.SQUARE_SIZE, sourceSize, y + (i * Datas
-                    .Systems.SQUARE_SIZE), sDiv, Datas.Systems.SQUARE_SIZE);
-                Platform.ctxr.drawImage(img, sourceSize - sDiv, (i * Datas
-                    .Systems.SQUARE_SIZE), sDiv, Datas.Systems.SQUARE_SIZE, sourceSize + sDiv, y + (i * Datas.Systems.SQUARE_SIZE), sDiv, Datas.Systems.SQUARE_SIZE);
+                Platform.ctxr.drawImage(img, 0, i * Datas.Systems.SQUARE_SIZE, sDiv, Datas.Systems.SQUARE_SIZE, sourceSize, y + i * Datas.Systems.SQUARE_SIZE, sDiv, Datas.Systems.SQUARE_SIZE);
+                Platform.ctxr.drawImage(img, sourceSize - sDiv, i * Datas.Systems.SQUARE_SIZE, sDiv, Datas.Systems.SQUARE_SIZE, sourceSize + sDiv, y + i * Datas.Systems.SQUARE_SIZE, sDiv, Datas.Systems.SQUARE_SIZE);
             }
             // Add top/bot autos
             for (i = 0, l = 3; i < l; i++) {
-                Platform.ctxr.drawImage(img, i * Datas.Systems.SQUARE_SIZE, 0, Datas.Systems.SQUARE_SIZE, sDiv, i * Datas.Systems
-                    .SQUARE_SIZE, y + sourceSize, Datas.Systems.SQUARE_SIZE, sDiv);
-                Platform.ctxr.drawImage(img, i * Datas.Systems.SQUARE_SIZE, sourceSize - sDiv, Datas.Systems.SQUARE_SIZE, sDiv, i *
-                    Datas.Systems.SQUARE_SIZE, y + sourceSize + sDiv, Datas
-                    .Systems.SQUARE_SIZE, sDiv);
+                Platform.ctxr.drawImage(img, i * Datas.Systems.SQUARE_SIZE, 0, Datas.Systems.SQUARE_SIZE, sDiv, i * Datas.Systems.SQUARE_SIZE, y + sourceSize, Datas.Systems.SQUARE_SIZE, sDiv);
+                Platform.ctxr.drawImage(img, i * Datas.Systems.SQUARE_SIZE, sourceSize - sDiv, Datas.Systems.SQUARE_SIZE, sDiv, i * Datas.Systems.SQUARE_SIZE, y + sourceSize + sDiv, Datas.Systems.SQUARE_SIZE, sDiv);
             }
             // Add all sides autos
-            Platform.ctxr.drawImage(img, 0, 0, sDiv, sDiv, sourceSize, y +
-                sourceSize, sDiv, sDiv);
+            Platform.ctxr.drawImage(img, 0, 0, sDiv, sDiv, sourceSize, y + sourceSize, sDiv, sDiv);
             Platform.ctxr.drawImage(img, sourceSize - sDiv, 0, sDiv, sDiv, sourceSize + sDiv, y + sourceSize, sDiv, sDiv);
             Platform.ctxr.drawImage(img, 0, sourceSize - sDiv, sDiv, sDiv, sourceSize, y + sourceSize + sDiv, sDiv, sDiv);
             Platform.ctxr.drawImage(img, sourceSize - sDiv, sourceSize - sDiv, sDiv, sDiv, sourceSize + sDiv, y + sourceSize + sDiv, sDiv, sDiv);
         }
         catch (e) {
-            Platform.showErrorMessage("Error: Wrong mountain (with ID:" + id +
-                ") parsing. Please verify that you have a 3 x 3 picture.");
+            Platform.showErrorMessage('Error: Wrong mountain (with ID:' + id + ') parsing. Please verify that you have a 3 x 3 picture.');
         }
     }
     /**
@@ -449,7 +417,7 @@ class SpecialElements {
     static async updateTextureMountain(textureMountain, texture, id) {
         texture.image = await Picture2D.loadImage(Platform.canvasRendering.toDataURL());
         texture.needsUpdate = true;
-        textureMountain.material = Manager.GL.createMaterial({ texture: texture });
+        textureMountain.material = Manager.GL.createMaterial({ texture: texture, side: THREE.BackSide });
         this.texturesMountains[id] = textureMountain;
     }
     /**
@@ -468,8 +436,7 @@ class SpecialElements {
             let picture = Datas.Pictures.get(Enum.PictureKind.Objects3D, pictureID);
             if (picture) {
                 let path = picture.getPath();
-                textureObject3D = path ? (await Manager.GL.loadTexture(path)) :
-                    Manager.GL.loadTextureEmpty();
+                textureObject3D = path ? await Manager.GL.loadTexture(path) : Manager.GL.loadTextureEmpty();
             }
             else {
                 textureObject3D = Manager.GL.loadTextureEmpty();
@@ -490,14 +457,12 @@ class SpecialElements {
     static checkPictureSize(type, name, w, h, cw, ch, strictw, stricth) {
         let isOKW = strictw ? w === cw : w % cw === 0;
         let isOKH = stricth ? h === ch : h % ch === 0;
-        let error = "Wrong " + type + " size for " + name + ". ";
+        let error = 'Wrong ' + type + ' size for ' + name + '. ';
         if (!isOKW) {
-            error += "Width should be " + (strictw ? "" : "a multiple of ") + cw
-                + " but it's currently " + w + ".";
+            error += 'Width should be ' + (strictw ? '' : 'a multiple of ') + cw + " but it's currently " + w + '.';
         }
         if (!isOKH) {
-            error += "Height should be " + (stricth ? "" : "a multiple of ") + ch
-                + " but it's currently " + h + ".";
+            error += 'Height should be ' + (stricth ? '' : 'a multiple of ') + ch + " but it's currently " + h + '.';
         }
         if (!isOKW || !isOKH) {
             Platform.showErrorMessage(error);

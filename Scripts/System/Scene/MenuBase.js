@@ -10,8 +10,8 @@
 */
 import { Base } from "./index.js";
 import { Datas, Graphic, Scene } from "../index.js";
-import { Game } from "../Core/index.js";
-import { Inputs } from "../Common/index.js";
+import { Game } from '../Core/index.js';
+import { Inputs } from '../Common/index.js';
 /**
  * The superclass who handle menu related scenes
  *

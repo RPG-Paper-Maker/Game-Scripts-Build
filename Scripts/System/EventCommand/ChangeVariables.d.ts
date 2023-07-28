@@ -1,7 +1,7 @@
-import { Base } from "./Base.js";
-import { System } from "../index.js";
-import { MapObject } from "../Core/index.js";
-import { Enum } from "../Common/index.js";
+import { Base } from './Base.js';
+import { System } from '../index.js';
+import { MapObject } from '../Core/index.js';
+import { Enum } from '../Common/index.js';
 /** @class
  *  An event command for changing variables values.
  *  @extends EventCommand.Base

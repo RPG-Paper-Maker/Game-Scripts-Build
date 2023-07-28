@@ -1,4 +1,4 @@
-import { Player, MapObject } from "../Core/index.js";
+import { Player, MapObject } from '../Core/index.js';
 /**
  *  The interpreter to evaluate formulas or simple scripts without having to import.
  * @class Interpreter

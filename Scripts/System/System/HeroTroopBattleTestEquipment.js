@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum, Utils } from "../Common/index.js";
-import { Item } from "../Core/index.js";
-import { Base } from "./Base.js";
+import { Enum, Utils } from '../Common/index.js';
+import { Item } from '../Core/index.js';
+import { Base } from './Base.js';
 /** @class
  *  An hero equipment troop battle test.
  *  @extends System.Base

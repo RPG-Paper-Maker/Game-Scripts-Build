@@ -1,9 +1,9 @@
-import { Enum } from "../Common/index.js";
+import { Enum } from '../Common/index.js';
 import DamagesKind = Enum.DamagesKind;
-import { Base } from "./Base.js";
-import { System } from "../index.js";
-import { Player } from "../Core/index.js";
-import { StructIterator } from "../EventCommand/index.js";
+import { Base } from './Base.js';
+import { System } from '../index.js';
+import { Player } from '../Core/index.js';
+import { StructIterator } from '../EventCommand/index.js';
 /** @class
  *  A cost of a common skill item.
  *  @extends System.Base

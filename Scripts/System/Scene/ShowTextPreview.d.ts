@@ -1,5 +1,5 @@
 import { EventCommand } from "../index.js";
-import { Base } from "./Base.js";
+import { Base } from './Base.js';
 /**
  *  Scene used for
  */

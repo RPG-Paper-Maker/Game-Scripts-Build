@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from "./Base.js";
-import { Graphic, Datas, System } from "../index.js";
-import { Constants, ScreenResolution } from "../Common/index.js";
+import { Base } from './Base.js';
+import { Graphic, Datas, System } from '../index.js';
+import { Constants, ScreenResolution } from '../Common/index.js';
 /** @class
  *  The graphic displaying all the equipment information in the equip menu.
  *  @extends Graphic.Base

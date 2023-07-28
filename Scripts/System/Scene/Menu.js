@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Scene, Manager, Graphic, Datas } from "../index.js";
-import { Enum, ScreenResolution } from "../Common/index.js";
-import { WindowChoices, WindowBox, Rectangle } from "../Core/index.js";
-import { MenuBase } from "./MenuBase.js";
+import { Scene, Manager, Graphic, Datas } from '../index.js';
+import { Enum, ScreenResolution } from '../Common/index.js';
+import { WindowChoices, WindowBox, Rectangle } from '../Core/index.js';
+import { MenuBase } from './MenuBase.js';
 ;
 /**
  * The class who handle the scene menu in game.

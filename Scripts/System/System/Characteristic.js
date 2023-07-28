@@ -8,11 +8,11 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum, Utils, Interpreter } from "../Common/index.js";
-import { Base } from "./Base.js";
-import { DynamicValue } from "./DynamicValue.js";
-import { Player } from "../Core/index.js";
-import { Datas, Scene, System } from "../index.js";
+import { Enum, Utils, Interpreter } from '../Common/index.js';
+import { Base } from './Base.js';
+import { DynamicValue } from './DynamicValue.js';
+import { Player } from '../Core/index.js';
+import { Datas, Scene, System } from '../index.js';
 /** @class
  *  A characteristic of a common skill item.
  *  @extends System.Base

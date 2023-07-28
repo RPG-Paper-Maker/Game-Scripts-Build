@@ -8,15 +8,15 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Player } from "./Player.js";
-import { Datas, Manager, Scene, System } from "../index.js";
-import { Item } from "./Item.js";
-import { Chrono } from "./Chrono.js";
-import { MapObject } from "./MapObject.js";
-import { Paths, Constants, Utils, Enum, Platform } from "../Common/index.js";
+import { Player } from './Player.js';
+import { Datas, Manager, Scene, System } from '../index.js';
+import { Item } from './Item.js';
+import { Chrono } from './Chrono.js';
+import { MapObject } from './MapObject.js';
+import { Paths, Constants, Utils, Enum, Platform } from '../Common/index.js';
 var GroupKind = Enum.GroupKind;
 var CharacterKind = Enum.CharacterKind;
-import { Vector3 } from "./Vector3.js";
+import { Vector3 } from './Vector3.js';
 /** @class
  *  All the global informations of a particular game.
  *  @param {number} slot - The number of the slot to load

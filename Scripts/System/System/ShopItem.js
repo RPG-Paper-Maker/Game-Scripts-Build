@@ -9,9 +9,9 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Datas, Scene, System } from "../index.js";
-import { Enum, Utils } from "../Common/index.js";
-import { Game, Player } from "../Core/index.js";
-import { Base } from "./Base.js";
+import { Enum, Utils } from '../Common/index.js';
+import { Game, Player } from '../Core/index.js';
+import { Base } from './Base.js';
 /** @class
  *  A skill learned by a player.
  *  @param {number} id - The ID of the skill

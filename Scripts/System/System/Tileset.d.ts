@@ -1,6 +1,6 @@
-import { Base } from "./Base.js";
-import { CollisionSquare, TextureBundle } from "../Core/index.js";
-import { System } from "../index.js";
+import { Base } from './Base.js';
+import { CollisionSquare, TextureBundle } from '../Core/index.js';
+import { System } from '../index.js';
 /** @class
  *  A tileset of the game.
  *  @extends System.Base

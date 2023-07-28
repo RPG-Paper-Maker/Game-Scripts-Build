@@ -8,12 +8,12 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Hero } from "./Hero.js";
-import { ProgressionTable } from "./ProgressionTable.js";
-import { Loot } from "./Loot.js";
-import { MonsterAction } from "./MonsterAction.js";
-import { Class } from "./Class.js";
-import { Utils, Enum } from "../Common/index.js";
+import { Hero } from './Hero.js';
+import { ProgressionTable } from './ProgressionTable.js';
+import { Loot } from './Loot.js';
+import { MonsterAction } from './MonsterAction.js';
+import { Class } from './Class.js';
+import { Utils, Enum } from '../Common/index.js';
 var LootKind = Enum.LootKind;
 /** @class
  *  A monster of the game.

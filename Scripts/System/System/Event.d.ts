@@ -1,5 +1,5 @@
-import { Base } from "./Base.js";
-import { System } from "../index.js";
+import { Base } from './Base.js';
+import { System } from '../index.js';
 /** @class
  *  An event that an object can react on.
  *  @extends System.Base

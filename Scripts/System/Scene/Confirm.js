@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Datas, Graphic, Manager, Scene } from "../index.js";
-import { Enum, ScreenResolution } from "../Common/index.js";
-import { Rectangle, WindowBox, WindowChoices } from "../Core/index.js";
-import { Base } from "./Base.js";
+import { Datas, Graphic, Manager, Scene } from '../index.js';
+import { Enum, ScreenResolution } from '../Common/index.js';
+import { Rectangle, WindowBox, WindowChoices } from '../Core/index.js';
+import { Base } from './Base.js';
 /**
  * @class
  * A class for displaying a confirmation box and choice yes / no.

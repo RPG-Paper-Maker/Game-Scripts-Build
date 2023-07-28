@@ -1,9 +1,9 @@
-import { Enum } from "../Common/index.js";
-import { System } from "../index.js";
-import { Skill } from "./Skill.js";
-import { Item } from "./Item.js";
-import { Battler } from "./Battler.js";
-import { Status } from "./Status.js";
+import { Enum } from '../Common/index.js';
+import { System } from '../index.js';
+import { Skill } from './Skill.js';
+import { Item } from './Item.js';
+import { Battler } from './Battler.js';
+import { Status } from './Status.js';
 /** @class
  *  A character in the team/hidden/reserve.
  *  @param {CharacterKind} [kind=undefined] - The kind of the character (hero or monster)

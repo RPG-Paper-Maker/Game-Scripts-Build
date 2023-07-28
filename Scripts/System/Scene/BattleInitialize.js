@@ -9,13 +9,13 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Scene, Graphic, Manager, Datas, System, Core } from "../index.js";
-import { Enum, Constants, ScreenResolution, Platform, Interpreter } from "../Common/index.js";
+import { Enum, Constants, ScreenResolution, Platform, Interpreter } from '../Common/index.js';
 var CharacterKind = Enum.CharacterKind;
 var EffectSpecialActionKind = Enum.EffectSpecialActionKind;
 var SongKind = Enum.SongKind;
 var MapTransitionKind = Enum.MapTransitionKind;
 var BattleStep = Enum.BattleStep;
-import { Vector3, Player, Battler, Position, WindowBox, WindowChoices, Game } from "../Core/index.js";
+import { Vector3, Player, Battler, Position, WindowBox, WindowChoices, Game } from '../Core/index.js';
 // -------------------------------------------------------
 //
 //  CLASS Battle

@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Datas } from "../index.js";
-import { IO, Paths, Utils, Enum } from "../Common/index.js";
+import { IO, Platform, Paths, Utils, Enum } from '../Common/index.js';
 var TitleSettingKind = Enum.TitleSettingKind;
 /** @class
  *  All the settings datas.
@@ -17,7 +17,7 @@ var TitleSettingKind = Enum.TitleSettingKind;
  */
 class Settings {
     constructor() {
-        throw new Error("This is a static class!");
+        throw new Error('This is a static class!');
     }
     /**
      *  Read the settings file.
@@ -25,7 +25,7 @@ class Settings {
      */
     static async read() {
         // Settings
-        let json = await IO.parseFileJSON(Paths.FILE_SETTINGS);
+        let json = await Platform.parseFileJSON(Paths.FILE_SETTINGS);
         this.kb = [];
         let jsonObjs = json[Utils.numToString(TitleSettingKind.KeyboardAssigment)];
         for (let id in jsonObjs) {
@@ -52,7 +52,7 @@ class Settings {
      *  @static
      */
     static async checkIsProtected() {
-        this.isProtected = await (IO.fileExists(Paths.FILE_PROTECT));
+        this.isProtected = await Platform.fileExists(Paths.FILE_PROTECT);
     }
     /**
      *  Update Keyboard settings.

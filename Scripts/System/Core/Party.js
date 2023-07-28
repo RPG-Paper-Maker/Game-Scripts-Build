@@ -1,5 +1,5 @@
 import { Scene } from "../index.js";
-import { Enum } from "../Common/index.js";
+import { Enum } from '../Common/index.js';
 /**
  * The class who handles the heroes party.
  *

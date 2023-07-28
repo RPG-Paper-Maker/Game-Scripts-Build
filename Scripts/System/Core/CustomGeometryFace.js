@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { THREE } from "../Globals.js";
-import { CustomGeometry } from "./CustomGeometry.js";
-import { Sprite } from "./Sprite.js";
+import { THREE } from '../Globals.js';
+import { CustomGeometry } from './CustomGeometry.js';
+import { Sprite } from './Sprite.js';
 /**
  *  The geometry used to apply vertices + indices + uvs.
  *

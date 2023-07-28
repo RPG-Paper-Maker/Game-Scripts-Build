@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from "./Base.js";
-import { System, Manager, Scene } from "../index.js";
-import { Utils, Enum } from "../Common/index.js";
-import { Animation, MapObject } from "../Core/index.js";
+import { Base } from './Base.js';
+import { System, Manager, Scene } from '../index.js';
+import { Utils, Enum } from '../Common/index.js';
+import { Animation, MapObject } from '../Core/index.js';
 var AnimationEffectConditionKind = Enum.AnimationEffectConditionKind;
 /** @class
  *  An event command for displaying an animation.

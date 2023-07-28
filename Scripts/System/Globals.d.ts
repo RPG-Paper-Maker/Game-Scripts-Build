@@ -1,4 +1,4 @@
-import { THREE_TYPE } from "./Definitions.js";
+import { THREE_TYPE } from './Definitions.js';
 /**
  * @module Three.js
  */

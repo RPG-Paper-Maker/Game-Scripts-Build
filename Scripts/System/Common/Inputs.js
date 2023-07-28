@@ -9,9 +9,9 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Datas, Manager } from "../index.js";
-import { Main } from "../main.js";
-import { KeyEvent } from "./KeyEvent.js";
-import { Platform } from "./Platform.js";
+import { Main } from '../main.js';
+import { KeyEvent } from './KeyEvent.js';
+import { Platform } from './Platform.js';
 /**
  *  @class
  *  Handles inputs for keyboard and mouse.

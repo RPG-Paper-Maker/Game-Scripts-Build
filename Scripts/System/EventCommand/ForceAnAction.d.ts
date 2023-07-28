@@ -1,6 +1,6 @@
-import { Base } from "./Base.js";
-import { System } from "../index.js";
-import { MapObject } from "../Core/index.js";
+import { Base } from './Base.js';
+import { System } from '../index.js';
+import { MapObject } from '../Core/index.js';
 /** @class
  *  An event command for forcing an action in a battler.
  *  @extends EventCommand.Base

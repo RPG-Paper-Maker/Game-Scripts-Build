@@ -8,22 +8,22 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { IO, Paths, Enum } from "../Common/index.js";
+import { Platform, Paths, Enum } from '../Common/index.js';
 var SongKind = Enum.SongKind;
-import { System, Datas } from "../index.js";
+import { System, Datas } from '../index.js';
 /** @class
-*   All the songs datas
-*   @static
-*/
+ *   All the songs datas
+ *   @static
+ */
 class Songs {
     constructor() {
-        throw new Error("This is a static class!");
+        throw new Error('This is a static class!');
     }
     /**
      *  Read the JSON file associated to songs
      */
     static async read() {
-        let json = (await IO.parseFileJSON(Paths.FILE_SONGS)).list;
+        let json = (await Platform.parseFileJSON(Paths.FILE_SONGS)).list;
         let l = json.length;
         this.list = new Array(l);
         let i, j, m, n, jsonHash, k, jsonList, jsonSong, id, list, song;
@@ -67,9 +67,9 @@ class Songs {
      *  @returns {System.Song}
      */
     static get(kind, id) {
-        return kind === SongKind.None || id === -1 ? new System.Song() : Datas
-            .Base.get(id, this.list[kind], "song " + System.Song
-            .songKindToString(kind));
+        return kind === SongKind.None || id === -1
+            ? new System.Song()
+            : Datas.Base.get(id, this.list[kind], 'song ' + System.Song.songKindToString(kind));
     }
 }
 export { Songs };

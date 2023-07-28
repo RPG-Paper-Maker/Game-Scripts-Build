@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { MenuBase } from "./MenuBase.js";
-import { Manager, Graphic, Scene, Datas } from "../index.js";
-import { WindowBox, WindowChoices, Rectangle } from "../Core/index.js";
-import { Enum } from "../Common/index.js";
+import { MenuBase } from './MenuBase.js';
+import { Manager, Graphic, Scene, Datas } from '../index.js';
+import { WindowBox, WindowChoices, Rectangle } from '../Core/index.js';
+import { Enum } from '../Common/index.js';
 var Align = Enum.Align;
 var OrientationWindow = Enum.OrientationWindow;
 /**

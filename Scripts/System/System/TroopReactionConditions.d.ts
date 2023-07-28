@@ -1,6 +1,6 @@
 import { System } from "../index.js";
-import { Enum } from "../Common/index.js";
-import { Base } from "./Base.js";
+import { Enum } from '../Common/index.js';
+import { Base } from './Base.js';
 /** @class
  *  A troop reaction conditions of the game.
  *  @extends System.Base

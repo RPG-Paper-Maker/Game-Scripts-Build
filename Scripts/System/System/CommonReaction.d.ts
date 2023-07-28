@@ -1,5 +1,5 @@
-import { Reaction } from "./Reaction.js";
-import { System } from "../index.js";
+import { Reaction } from './Reaction.js';
+import { System } from '../index.js';
 /** @class
  *  A common reaction.
  *  @extends System.Reaction

@@ -1,9 +1,9 @@
-import { StructMapElementCollision } from "./MapElement.js";
-import { System } from "../index.js";
-import { Position } from "./Position.js";
-import { Object3D } from "./Object3D.js";
-import { Vector3 } from "./Vector3.js";
-import { CustomGeometry } from "./CustomGeometry.js";
+import { StructMapElementCollision } from './MapElement.js';
+import { System } from '../index.js';
+import { Position } from './Position.js';
+import { Object3D } from './Object3D.js';
+import { Vector3 } from './Vector3.js';
+import { CustomGeometry } from './CustomGeometry.js';
 /** @class
  *  A 3D object custom in the map.
  *  @extends Object3D

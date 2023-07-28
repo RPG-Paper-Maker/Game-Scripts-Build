@@ -1,6 +1,6 @@
-import { Base } from "./Base.js";
-import { Tree, Node } from "../Core/index.js";
-import { System } from "../index.js";
+import { Base } from './Base.js';
+import { Tree, Node } from '../Core/index.js';
+import { System } from '../index.js';
 /** @class
  *  A reaction to an event.
  *  @extends System.Base

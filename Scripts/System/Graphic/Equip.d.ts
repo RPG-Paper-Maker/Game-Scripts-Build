@@ -1,6 +1,6 @@
-import { Base } from "./Base.js";
-import { Player } from "../Core/index.js";
-import { Graphic } from "../index.js";
+import { Base } from './Base.js';
+import { Player } from '../Core/index.js';
+import { Graphic } from '../index.js';
 /** @class
  *  The graphic displaying all the equipment information in the equip menu.
  *  @extends Graphic.Base

@@ -1,6 +1,6 @@
-import { Base } from "./Base.js";
-import { Player, Picture2D, Frame } from "../Core/index.js";
-import { Graphic } from "../index.js";
+import { Base } from './Base.js';
+import { Player, Picture2D, Frame } from '../Core/index.js';
+import { Graphic } from '../index.js';
 /** @class
  *  The graphic displaying all the stats in the player description state menu.
  *  @extends Graphic.Base

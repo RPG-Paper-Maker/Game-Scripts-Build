@@ -8,17 +8,17 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { System, Datas } from "../index.js";
-import { Paths, IO, Enum } from "../Common/index.js";
+import { System, Datas } from '../index.js';
+import { Paths, Platform, Enum } from '../Common/index.js';
 var PictureKind = Enum.PictureKind;
-import { Picture2D } from "../Core/index.js";
+import { Picture2D } from '../Core/index.js';
 /** @class
-*   All the pictures datas.
-*   @static
-*/
+ *   All the pictures datas.
+ *   @static
+ */
 class Pictures {
     constructor() {
-        throw new Error("This is a static class!");
+        throw new Error('This is a static class!');
     }
     /**
      *  Read the JSON file associated to pictures.
@@ -26,7 +26,7 @@ class Pictures {
      *  @async
      */
     static async read() {
-        let json = (await IO.parseFileJSON(Paths.FILE_PICTURES)).list;
+        let json = (await Platform.parseFileJSON(Paths.FILE_PICTURES)).list;
         let l = json.length;
         this.list = new Array(l);
         let k, j, m, n, id, jsonHash, jsonList, jsonPicture, list, picture;
@@ -51,9 +51,12 @@ class Pictures {
                 if (jsonPicture) {
                     id = jsonPicture.id;
                     picture = new System.Picture(jsonPicture, k);
-                    if (k === PictureKind.Icons || k === PictureKind.Pictures ||
-                        k === PictureKind.Facesets || k === PictureKind
-                        .Animations || k === PictureKind.Battlers || k === PictureKind.Bars) {
+                    if (k === PictureKind.Icons ||
+                        k === PictureKind.Pictures ||
+                        k === PictureKind.Facesets ||
+                        k === PictureKind.Animations ||
+                        k === PictureKind.Battlers ||
+                        k === PictureKind.Bars) {
                         await picture.load();
                         if (k === PictureKind.Bars) {
                             picture.checkBarBorder();
@@ -77,9 +80,9 @@ class Pictures {
      *  @returns {Picture}
      */
     static get(kind, id) {
-        return (kind === PictureKind.None || id === -1) ? new System.Picture()
-            : Datas.Base.get(id, this.list[kind], "picture " + System.Picture
-                .pictureKindToString(kind));
+        return kind === PictureKind.None || id === -1
+            ? new System.Picture()
+            : Datas.Base.get(id, this.list[kind], 'picture ' + System.Picture.pictureKindToString(kind));
     }
     /**
      *  Get the corresponding picture list by kind.
@@ -90,13 +93,13 @@ class Pictures {
         return this.list[kind];
     }
     /** Get a copy of the picture 2D.
-    *   @param {PictureKind} kind - The picture kind
-    *   @param {number} id - The picture id
-    *   @returns {Picture2D}
-    */
+     *   @param {PictureKind} kind - The picture kind
+     *   @param {number} id - The picture id
+     *   @returns {Picture2D}
+     */
     static getPictureCopy(kind, id) {
         let picture = this.get(kind, id);
-        return picture && picture.picture ? picture.picture.createCopy() : new Picture2D;
+        return picture && picture.picture ? picture.picture.createCopy() : new Picture2D();
     }
 }
 export { Pictures };

@@ -9,14 +9,14 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Datas } from "../index.js";
-import { Enum, Mathf, Interpreter, Utils } from "../Common/index.js";
+import { Enum, Mathf, Interpreter, Utils } from '../Common/index.js';
 var CharacterKind = Enum.CharacterKind;
 var EffectSpecialActionKind = Enum.EffectSpecialActionKind;
 var EffectKind = Enum.EffectKind;
 var MonsterActionKind = Enum.MonsterActionKind;
 var TargetKind = Enum.TargetKind;
 var MonsterActionTargetKind = Enum.MonsterActionTargetKind;
-import { Game } from "../Core/index.js";
+import { Game } from '../Core/index.js';
 // -------------------------------------------------------
 //
 //  CLASS SceneBattle

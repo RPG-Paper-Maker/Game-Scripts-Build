@@ -6,7 +6,6 @@
 declare class Paths {
     static readonly ROOT_DIRECTORY_LOCAL = ".";
     static readonly FILES = "file:///";
-    static readonly DATAS: string;
     static readonly TEST: string;
     static readonly FILE_MAPS: string;
     static readonly FILE_MAP_INFOS = "/infos.json";
@@ -42,9 +41,9 @@ declare class Paths {
     static readonly FILE_TEST: string;
     static readonly FILE_PLUGIN_CODE = "code.js";
     static readonly FILE_PLUGIN_DETAILS = "details.json";
-    static readonly PICTURES = "/Content/Images";
-    static readonly VIDEOS = "/Content/Videos";
-    static readonly FONTS = "/Content/Fonts";
+    static readonly PICTURES = "/Images";
+    static readonly VIDEOS = "/Videos";
+    static readonly FONTS = "/Fonts";
     static readonly HUD: string;
     static readonly TEXTURES2D: string;
     static readonly BARS: string;
@@ -64,12 +63,12 @@ declare class Paths {
     static readonly MOUNTAINS: string;
     static readonly SKYBOXES: string;
     static readonly PARTICLES: string;
-    static readonly SONGS = "/Content/Songs/";
+    static readonly SONGS = "/Songs/";
     static readonly MUSICS: string;
     static readonly BACKGROUND_SOUNDS: string;
     static readonly SOUNDS: string;
     static readonly MUSIC_EFFECTS: string;
-    static readonly SHAPES = "/Content/Shapes/";
+    static readonly SHAPES = "/Shapes/";
     static readonly OBJ: string;
     static readonly MTL: string;
     static readonly OBJ_COLLISIONS: string;

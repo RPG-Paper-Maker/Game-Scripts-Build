@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Datas, Graphic, System } from "../index.js";
-import { IO, Paths, Utils } from "../Common/index.js";
+import { Platform, Paths, Utils } from '../Common/index.js';
 /**
  *  @class
  *  All the languages datas.
@@ -17,7 +17,7 @@ import { IO, Paths, Utils } from "../Common/index.js";
  */
 class Languages {
     constructor() {
-        throw new Error("This is a static class!");
+        throw new Error('This is a static class!');
     }
     /**
      *  Read the JSON file associated to languages.
@@ -25,12 +25,18 @@ class Languages {
      *  @async
      */
     static async read() {
-        let json = (await IO.parseFileJSON(Paths.FILE_LANGS));
+        let json = await Platform.parseFileJSON(Paths.FILE_LANGS);
         this.list = [];
         this.listOrder = [];
-        Utils.readJSONSystemList({ list: json.langs, listIDs: this.list, listIndexes: this.listOrder, indexesIDs: true, func: (element) => {
+        Utils.readJSONSystemList({
+            list: json.langs,
+            listIDs: this.list,
+            listIndexes: this.listOrder,
+            indexesIDs: true,
+            func: (element) => {
                 return element.name;
-            } });
+            },
+        });
         this.extras = {
             loadAGame: new System.Translatable(json.lag),
             loadAGameDescription: new System.Translatable(json.lagd),
@@ -67,7 +73,7 @@ class Languages {
             loading: new System.Translatable(json.lo),
             equipQuestion: new System.Translatable(json.eq),
             pressAnyKeys: new System.Translatable(json.pak),
-            target: new System.Translatable(json.ta)
+            target: new System.Translatable(json.ta),
         };
     }
     /**
@@ -85,7 +91,7 @@ class Languages {
      *  @returns {System.Monster}
      */
     static get(id) {
-        return Datas.Base.get(id, this.list, "language");
+        return Datas.Base.get(id, this.list, 'language');
     }
     /**
      *  Get the index according to language ID.
@@ -102,7 +108,7 @@ class Languages {
      *  @returns {Graphic.Text[]}
      */
     static getCommandsGraphics() {
-        return this.listOrder.map(id => new Graphic.Text(this.get(id)));
+        return this.listOrder.map((id) => new Graphic.Text(this.get(id)));
     }
     /**
      *  Get the language callbacks.
@@ -110,7 +116,9 @@ class Languages {
      *  @returns {(() => boolean)[]}
      */
     static getCommandsCallbacks() {
-        return this.listOrder.map(id => (() => { return true; }));
+        return this.listOrder.map((id) => () => {
+            return true;
+        });
     }
 }
 export { Languages };
