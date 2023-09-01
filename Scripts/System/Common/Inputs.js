@@ -18,7 +18,7 @@ import { Platform } from './Platform.js';
  */
 class Inputs {
     constructor() {
-        throw new Error("This is a static class");
+        throw new Error('This is a static class');
     }
     /**
      *  Initialize all keyboard and mouse events.
@@ -86,14 +86,13 @@ class Inputs {
      */
     static initializeMouse() {
         // Prevent context menu on mouse right click (for browser)
-        document.addEventListener("contextmenu", function (event) {
+        document.addEventListener('contextmenu', function (event) {
             event.preventDefault();
             return false;
         }, false);
         // Mouse down
-        document.addEventListener('mousedown', function (event) {
-            if (Main.loaded && !Manager.Stack.isLoading() && Datas.Systems
-                .isMouseControls) {
+        document.addEventListener('pointerdown', function (event) {
+            if (Main.loaded && !Manager.Stack.isLoading() && Datas.Systems.isMouseControls) {
                 switch (event.button) {
                     case 0:
                         Inputs.mouseLeftPressed = true;
@@ -111,8 +110,7 @@ class Inputs {
         }, false);
         // Mouse move
         document.addEventListener('mousemove', function (event) {
-            if (Main.loaded && !Manager.Stack.isLoading() && Datas.Systems
-                .isMouseControls) {
+            if (Main.loaded && !Manager.Stack.isLoading() && Datas.Systems.isMouseControls) {
                 Manager.Stack.onMouseMove(event.clientX, event.clientY);
                 Inputs.mouseX = event.clientX;
                 Inputs.mouseY = event.clientY;
@@ -120,8 +118,7 @@ class Inputs {
         }, false);
         // Mouse up
         document.addEventListener('mouseup', function (event) {
-            if (Main.loaded && !Manager.Stack.isLoading() && Datas.Systems
-                .isMouseControls) {
+            if (Main.loaded && !Manager.Stack.isLoading() && Datas.Systems.isMouseControls) {
                 Manager.Stack.onMouseUp(event.clientX, event.clientY);
                 switch (event.button) {
                     case 0:
