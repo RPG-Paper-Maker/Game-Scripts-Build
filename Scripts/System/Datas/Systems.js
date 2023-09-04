@@ -61,7 +61,7 @@ class Systems {
         this.saveSlots = Utils.defaultValue(json.saveSlots, 4);
         this.priceSoldItem = System.DynamicValue.readOrDefaultNumberDouble(json.priceSoldItem, 50);
         // Path BR
-        this.PATH_BR = Platform.WEB_DEV ? '/BR' : Paths.FILES + json.pathBR;
+        this.PATH_BR = Platform.WEB_DEV ? './BR' : Paths.FILES + json.pathBR;
         // Path DLC
         this.PATH_DLCS = Paths.FILES + (await Platform.parseFileJSON(Paths.FILE_DLCS)).p;
         // Hero beginning
