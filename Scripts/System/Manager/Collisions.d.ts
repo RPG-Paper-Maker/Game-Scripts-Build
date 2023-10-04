@@ -75,9 +75,10 @@ declare class Collisions {
      *  @static
      *  @param {Core.CustomGeometry} shapeA - First shape
      *  @param {Core.CustomGeometry} shapeB - Second shape
+     *  @param {boolean} deepCheck - if false, only check bounding box
      *  @returns {boolean}
      */
-    static obbVSobb(shapeA: CustomGeometry, shapeB: CustomGeometry): boolean;
+    static obbVSobb(shapeA: CustomGeometry, shapeB: CustomGeometry, deepCheck?: boolean): boolean;
     /**
      *  Check the fnormals for OBB collision.
      *  @static

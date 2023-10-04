@@ -30,6 +30,11 @@ export declare class CustomGeometry extends THREE.BufferGeometry {
      */
     static uvsQuadToTex(texA: Vector2, texB: Vector2, texC: Vector2, texD: Vector2, x: number, y: number, w: number, h: number): void;
     /**
+     *  Check if geometry is empty (no vertices).
+     *  @returns {boolean}
+     */
+    isEmpty(): boolean;
+    /**
      *  Get the points vertices.
      *  @returns {ArrayLike<number>}
      */

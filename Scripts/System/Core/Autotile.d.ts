@@ -31,6 +31,6 @@ declare class Autotile extends Land {
      *  @param {number} count - The faces count
      *  @returns {StructMapElementCollision}
      */
-    updateGeometryAutotile(geometry: CustomGeometry, texture: TextureBundle, position: Position, width: number, height: number, count: number): StructMapElementCollision;
+    updateGeometryAutotile(geometry: CustomGeometry, texture: TextureBundle, position: Position, width: number, height: number, pictureID: number, count: number): StructMapElementCollision;
 }
 export { Autotile };

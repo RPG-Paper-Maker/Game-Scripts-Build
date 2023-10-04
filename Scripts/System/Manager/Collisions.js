@@ -216,10 +216,15 @@ class Collisions {
      *  @static
      *  @param {Core.CustomGeometry} shapeA - First shape
      *  @param {Core.CustomGeometry} shapeB - Second shape
+     *  @param {boolean} deepCheck - if false, only check bounding box
      *  @returns {boolean}
      */
-    static obbVSobb(shapeA, shapeB) {
-        if (!shapeA.boundingBox.intersectsBox(shapeB.boundingBox)) {
+    static obbVSobb(shapeA, shapeB, deepCheck = true) {
+        const bbIntersect = shapeA.boundingBox.intersectsBox(shapeB.boundingBox);
+        if (!deepCheck && bbIntersect) {
+            return true;
+        }
+        if (!bbIntersect) {
             return false;
         }
         let facesA = shapeA.getNormals();

@@ -93,8 +93,8 @@ Platform.canvas3D = document.getElementById('three-d');
 Platform.canvasHUD = document.getElementById('hud');
 Platform.canvasVideos = document.getElementById('video-container');
 Platform.canvasRendering = document.getElementById('rendering');
-Platform.ctx = Platform.canvasHUD.getContext('2d');
-Platform.ctxr = Platform.canvasRendering.getContext("2d");
+Platform.ctx = Platform.canvasHUD.getContext('2d', { willReadFrequently: true });
+Platform.ctxr = Platform.canvasRendering.getContext("2d", { willReadFrequently: true });
 /**
  *  Set window title.
  *  @static

@@ -305,13 +305,14 @@ class Mountain extends MapElement {
      *  @param {Core.CustomGeometry} geometry - The geometry of mountains
      *  @param {TextureBundle} texture - The texture mountain
      *  @param {Position} position - The position
+     *  @param {number} pictureID - The current mountain picture ID
      *  @param {number} count - The faces count
      *  @return {any[]}
      */
-    updateGeometry(geometry, texture, position, count) {
+    updateGeometry(geometry, texture, position, pictureID, count) {
         // General configurations
-        let yOffset = texture.getOffset(Datas.SpecialElements.getMountain(this
-            .mountainID).pictureID, null) * 4 * Datas.Systems.SQUARE_SIZE;
+        let yOffset = texture.getOffset(pictureID, null) * 4 * Datas.Systems
+            .SQUARE_SIZE;
         let wp = this.getWidthTotalPixels();
         let hp = this.getHeightTotalPixels();
         let width = 4 * Datas.Systems.SQUARE_SIZE;

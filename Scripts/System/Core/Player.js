@@ -835,10 +835,13 @@ class Player {
     getFirstStatus() {
         let statusList = [];
         let status;
-        for (let i = 0; i < Player.MAX_STATUS_DISPLAY_TOP; i++) {
+        for (let c = 0, i = 0; i < Player.MAX_STATUS_DISPLAY_TOP; i++) {
             status = this.status[i];
             if (status) {
-                statusList.push(status);
+                if (status.system.pictureID !== -1) {
+                    c++;
+                    statusList.push(status);
+                }
             }
             else {
                 break;

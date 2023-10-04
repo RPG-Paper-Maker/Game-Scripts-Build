@@ -25,6 +25,7 @@ import { Player, ReactionInterpreter, Game } from "../Core/index.js";
 class Effect extends Base {
     constructor(json) {
         super(json);
+        this.canSkip = false;
     }
     /**
      *  Read the JSON associated to the effect.
@@ -157,7 +158,6 @@ class Effect extends Base {
                     battler = targets[i];
                     target = battler.player;
                     miss = false;
-                    crit = false;
                     precision = Interpreter.evaluate(this.statusPrecisionFormula
                         .getValue(), { user: user, target: battler.player });
                     id = this.statusID.getValue();
@@ -172,15 +172,22 @@ class Effect extends Base {
                     battler.tempIsDamagesMiss = miss;
                 }
             }
+            default: {
+                for (const battler of targets) {
+                    battler.tempIsDamagesMiss = null;
+                    battler.tempIsDamagesCritical = null;
+                }
+            }
         }
     }
     /**
      *  Execute the effect.
      *  @returns {boolean}
      */
-    execute() {
+    execute(forceReaction = false) {
         let user = Scene.Map.current.user ? Scene.Map.current.user.player :
             Player.getTemporaryPlayer();
+        this.canSkip = false;
         Scene.Map.current.tempTargets = Scene.Map.current.targets;
         if (this.isTemporarilyChangeTarget) {
             Scene.Map.current.targets = Interpreter.evaluate(this
@@ -232,9 +239,9 @@ class Effect extends Base {
                                 efficiency = systemElement.efficiency[targetElement.getValue()];
                                 damage *= efficiency ? efficiency.getValue() : 1;
                             }
-                            fixRes = target[Datas.BattleSystems.getStatistic(Datas.BattleSystems.statisticsElements[element])
+                            fixRes = target[Datas.BattleSystems.getStatistic(Datas.BattleSystems.getStatisticElement(element))
                                 .abbreviation];
-                            percentRes = target[Datas.BattleSystems.getStatistic(Datas.BattleSystems.statisticsElementsPercent[element]).abbreviation];
+                            percentRes = target[Datas.BattleSystems.getStatistic(Datas.BattleSystems.getStatisticElementPercent(element)).abbreviation];
                             damage -= (damage * percentRes / 100);
                             damage -= fixRes;
                         }
@@ -335,12 +342,26 @@ class Effect extends Base {
             }
             case EffectKind.Status: {
                 let precision, miss, id, previousFirst;
+                this.canSkip = true;
                 for (let i = 0, l = targets.length; i < l; i++) {
                     battler = targets[i];
                     target = battler.player;
+                    id = this.statusID.getValue();
+                    if (!this.isAddStatus && !target.hasStatus(id)) {
+                        battler.damages = null;
+                        battler.isDamagesMiss = false;
+                        battler.isDamagesCritical = false;
+                        battler.lastStatus = null;
+                        battler.lastStatusHealed = null;
+                        battler.tempIsDamagesMiss = null;
+                        battler.tempIsDamagesCritical = null;
+                        continue;
+                    }
+                    else {
+                        this.canSkip = false;
+                    }
                     precision = Interpreter.evaluate(this.statusPrecisionFormula
                         .getValue(), { user: user, target: battler.player });
-                    id = this.statusID.getValue();
                     // Handle resistance
                     if (target.statusRes[id]) {
                         precision /= target.statusRes[id].multiplication;
@@ -371,9 +392,9 @@ class Effect extends Base {
                         battler.isDamagesMiss = miss;
                         battler.isDamagesCritical = false;
                     }
+                    battler.tempIsDamagesMiss = null;
+                    battler.tempIsDamagesCritical = null;
                 }
-                battler.tempIsDamagesMiss = null;
-                battler.tempIsDamagesCritical = null;
                 result = true;
                 break;
             }
@@ -397,6 +418,12 @@ class Effect extends Base {
                     .commonReactionID), null, null, this.commonReaction.parameters);
                 Manager.Stack.top.reactionInterpretersEffects.push(reactionInterpreter);
                 Manager.Stack.top.reactionInterpreters.push(reactionInterpreter);
+                if (forceReaction) {
+                    Manager.Stack.top.updateInterpreters();
+                    if (Manager.Stack.top.reactionInterpretersEffects.length === 0) {
+                        this.canSkip = true;
+                    }
+                }
                 result = true;
                 break;
             case EffectKind.SpecialActions:
@@ -438,6 +465,7 @@ class Effect extends Base {
         switch (this.kind) {
             case EffectKind.Damages:
                 let damage = Interpreter.evaluate(this.damageFormula.getValue(), { user: user, target: target });
+                damage = Math.round(damage);
                 if (damage === 0) {
                     return "";
                 }

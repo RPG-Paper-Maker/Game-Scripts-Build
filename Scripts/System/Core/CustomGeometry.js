@@ -74,6 +74,13 @@ export class CustomGeometry extends THREE.BufferGeometry {
         texD.set(x, y + h);
     }
     /**
+     *  Check if geometry is empty (no vertices).
+     *  @returns {boolean}
+     */
+    isEmpty() {
+        return this.b_vertices.length === 0;
+    }
+    /**
      *  Get the points vertices.
      *  @returns {ArrayLike<number>}
      */

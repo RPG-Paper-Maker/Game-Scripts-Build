@@ -670,9 +670,28 @@ class Map extends Base {
     loadSpecialsCollision(list, kind, specials) {
         let special, picture;
         for (let i = 0, l = list.length; i < l; i++) {
-            special = specials[list[i]];
+            const id = list[i];
+            special = specials[id];
             if (special) {
-                picture = Datas.Pictures.get(kind, special.pictureID);
+                let pictureID = undefined;
+                switch (kind) {
+                    case Enum.PictureKind.Autotiles:
+                        pictureID = Game.current.textures.autotiles[id];
+                        break;
+                    case Enum.PictureKind.Mountains:
+                        pictureID = Game.current.textures.mountains[id];
+                        break;
+                    case Enum.PictureKind.Walls:
+                        pictureID = Game.current.textures.walls[id];
+                        break;
+                    case Enum.PictureKind.Objects3D:
+                        pictureID = Game.current.textures.objects3D[id];
+                        break;
+                }
+                if (pictureID === undefined) {
+                    pictureID = special.pictureID;
+                }
+                picture = Datas.Pictures.get(kind, pictureID);
                 if (picture) {
                     picture.readCollisions();
                 }
@@ -973,8 +992,8 @@ class Map extends Base {
             this.updateCameraHiding(pointer);
             if (this.camera.isHiding()) {
                 this.updateCameraHiding(new Vector2(0, 0));
+                this.camera.update();
             }
-            this.camera.update();
             let opacity = 1;
             if (this.camera.isHiding()) {
                 if (this.camera.hidingDistance < 2 * Datas.Systems.SQUARE_SIZE) {

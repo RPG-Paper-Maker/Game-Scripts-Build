@@ -128,6 +128,22 @@ class BattleSystems {
         return Datas.Base.get(id, this.statistics, "statistic");
     }
     /**
+     *  Get the statistic element by ID.
+     *  @param {number} id
+     *  @returns {number}
+     */
+    static getStatisticElement(id) {
+        return Datas.Base.get(id, this.statisticsElements, "statistic element");
+    }
+    /**
+     *  Get the statistic element percent by ID.
+     *  @param {number} id
+     *  @returns {System.Statistic}
+     */
+    static getStatisticElementPercent(id) {
+        return Datas.Base.get(id, this.statisticsElementsPercent, "statistic element percent");
+    }
+    /**
      *  Get the equipment by ID.
      *  @param {number} id
      *  @returns {System.Translatable}

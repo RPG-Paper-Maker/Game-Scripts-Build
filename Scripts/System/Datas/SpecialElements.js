@@ -83,7 +83,7 @@ class SpecialElements {
     static async loadAutotileTexture(id) {
         let autotile = this.getAutotile(id);
         let pictureID = Game.current.textures.autotiles[id];
-        if (Utils.isUndefined(pictureID)) {
+        if (pictureID === undefined) {
             pictureID = autotile.pictureID;
         }
         let texturesAutotile = this.texturesAutotiles[pictureID];
@@ -246,7 +246,7 @@ class SpecialElements {
     static async loadWallTexture(id) {
         let wall = this.getWall(id);
         let pictureID = Game.current.textures.walls[id];
-        if (Utils.isUndefined(pictureID)) {
+        if (pictureID === undefined) {
             pictureID = wall.pictureID;
         }
         let textureWall = this.texturesWalls[pictureID];
@@ -326,7 +326,7 @@ class SpecialElements {
     static async loadMountainTexture(id) {
         let mountain = this.getMountain(id);
         let pictureID = Game.current.textures.mountains[id];
-        if (Utils.isUndefined(pictureID)) {
+        if (pictureID === undefined) {
             pictureID = mountain.pictureID;
         }
         let textureMountain = this.texturesMountains[pictureID];
@@ -449,7 +449,7 @@ class SpecialElements {
     static async updateTextureMountain(textureMountain, texture, id) {
         texture.image = await Picture2D.loadImage(Platform.canvasRendering.toDataURL());
         texture.needsUpdate = true;
-        textureMountain.material = Manager.GL.createMaterial({ texture: texture });
+        textureMountain.material = Manager.GL.createMaterial({ texture: texture, side: THREE.BackSide });
         this.texturesMountains[id] = textureMountain;
     }
     /**
@@ -460,7 +460,7 @@ class SpecialElements {
     static async loadObject3DTexture(id) {
         let object3D = this.getObject3D(id);
         let pictureID = Game.current.textures.objects3D[id];
-        if (Utils.isUndefined(pictureID)) {
+        if (pictureID === undefined) {
             pictureID = object3D.pictureID;
         }
         let textureObject3D = this.texturesObjects3D[pictureID];

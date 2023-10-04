@@ -262,8 +262,8 @@ class BattleAnimation {
                         for (l = this.battle.effects.length; this.battle
                             .currentEffectIndex < l; this.battle.currentEffectIndex++) {
                             let effect = this.battle.effects[this.battle.currentEffectIndex];
-                            effect.execute();
-                            if (effect.isAnimated()) {
+                            effect.execute(true);
+                            if (!effect.canSkip && effect.isAnimated()) {
                                 if (effect.kind === Enum.EffectKind.Status) {
                                     this.battle.currentTargetIndex = -1;
                                 }
@@ -275,30 +275,27 @@ class BattleAnimation {
                     if (this.battle.currentTargetIndex !== null) {
                         let target;
                         this.battle.currentTargetIndex++;
+                        const messages = [];
                         for (l = this.battle.targets.length; this.battle
                             .currentTargetIndex < l; this.battle.currentTargetIndex++) {
                             target = this.battle.targets[this.battle.currentTargetIndex];
                             if (!target.isDamagesMiss) {
                                 if (target.lastStatus !== null) {
-                                    this.battle.windowTopInformations
-                                        .content.setText(target.player.kind ===
+                                    messages.push(target.player.kind ===
                                         CharacterKind.Hero ? target.lastStatus
                                         .getMessageAllyAffected(target) : target
                                         .lastStatus
                                         .getMessageEnemyAffected(target));
-                                    break;
                                 }
                                 if (target.lastStatusHealed !== null) {
-                                    this.battle.windowTopInformations
-                                        .content.setText(target.lastStatusHealed
+                                    messages.push(target.lastStatusHealed
                                         .getMessageHealed(target));
-                                    break;
                                 }
                             }
                         }
-                        if (this.battle.currentTargetIndex === l) {
-                            this.battle.currentTargetIndex = null;
-                        }
+                        this.battle.windowTopInformations
+                            .content.setText(messages.join(' '));
+                        this.battle.currentTargetIndex = null;
                     }
                     // Target attacked
                     this.updateTargetsAttacked();

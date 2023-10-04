@@ -32,17 +32,22 @@ class Autotiles {
      *  @param {Autotile} autotile - The autotile to add to geometry
      *  @returns {StructMapElementCollision}
      */
-    updateGeometry(position, autotile) {
+    updateGeometry(position, autotile, pictureID) {
         return this.width === null || this.height === 0 ? null : autotile
             .updateGeometryAutotile(this.geometry, this.bundle, position, this
-            .width, this.height, this.index++);
+            .width, this.height, pictureID, this.index++);
     }
     /**
      *  Create a mesh with material and geometry.
+     *  @returns {boolean}
      */
     createMesh() {
+        if (this.geometry.isEmpty()) {
+            return false;
+        }
         this.geometry.updateAttributes();
         this.mesh = new THREE.Mesh(this.geometry, this.bundle.material);
+        return true;
     }
 }
 Autotiles.COUNT_LIST = 5;

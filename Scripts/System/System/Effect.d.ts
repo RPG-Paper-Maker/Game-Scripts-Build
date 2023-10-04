@@ -44,6 +44,7 @@ declare class Effect extends Base {
     isTemporarilyChangeTarget: boolean;
     temporarilyChangeTargetFormula: System.DynamicValue;
     skillItem: System.CommonSkillItem;
+    canSkip: boolean;
     constructor(json?: Record<string, any>);
     /**
      *  Read the JSON associated to the effect.
@@ -58,7 +59,7 @@ declare class Effect extends Base {
      *  Execute the effect.
      *  @returns {boolean}
      */
-    execute(): boolean;
+    execute(forceReaction?: boolean): boolean;
     /**
      *  Check if the effect is animated.
      *  @returns {boolean}

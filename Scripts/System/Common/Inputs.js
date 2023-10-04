@@ -11,7 +11,6 @@
 import { Datas, Manager } from "../index.js";
 import { Main } from "../main.js";
 import { KeyEvent } from "./KeyEvent.js";
-import { Platform } from "./Platform.js";
 /**
  *  @class
  *  Handles inputs for keyboard and mouse.
@@ -39,9 +38,6 @@ class Inputs {
                 let key = event.keyCode;
                 // On pressing F12, quit game
                 switch (key) {
-                    case KeyEvent.DOM_VK_F12:
-                        Platform.quit();
-                        break;
                     case KeyEvent.DOM_VK_F4:
                         Datas.Systems.switchFullscreen();
                         break;
@@ -109,6 +105,15 @@ class Inputs {
                 Manager.Stack.onMouseDown(event.clientX, event.clientY);
             }
         }, false);
+        // Touch start
+        document.addEventListener('touchstart', function (event) {
+            if (Main.loaded && !Manager.Stack.isLoading() && Datas.Systems.isMouseControls) {
+                Inputs.mouseLeftPressed = true;
+                Inputs.mouseFirstPressX = event.touches[0].pageX;
+                Inputs.mouseFirstPressY = event.touches[0].pageY;
+                Manager.Stack.onMouseDown(Inputs.mouseFirstPressX, Inputs.mouseFirstPressY);
+            }
+        }, false);
         // Mouse move
         document.addEventListener('mousemove', function (event) {
             if (Main.loaded && !Manager.Stack.isLoading() && Datas.Systems
@@ -116,6 +121,14 @@ class Inputs {
                 Manager.Stack.onMouseMove(event.clientX, event.clientY);
                 Inputs.mouseX = event.clientX;
                 Inputs.mouseY = event.clientY;
+            }
+        }, false);
+        // Touch move
+        document.addEventListener('touchmove', function (event) {
+            if (Main.loaded && !Manager.Stack.isLoading() && Datas.Systems.isMouseControls) {
+                Manager.Stack.onMouseMove(event.touches[0].pageX, event.touches[0].pageY);
+                Inputs.mouseX = event.touches[0].pageX;
+                Inputs.mouseY = event.touches[0].pageY;
             }
         }, false);
         // Mouse up
@@ -133,6 +146,13 @@ class Inputs {
                     default:
                         break;
                 }
+            }
+        }, false);
+        // Touch end
+        document.addEventListener('touchend', function (event) {
+            if (Main.loaded && !Manager.Stack.isLoading() && Datas.Systems.isMouseControls) {
+                Manager.Stack.onMouseUp(Inputs.mouseX, Inputs.mouseY);
+                Inputs.mouseLeftPressed = false;
             }
         }, false);
     }
