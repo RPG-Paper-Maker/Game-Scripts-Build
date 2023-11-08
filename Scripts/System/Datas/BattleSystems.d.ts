@@ -8,8 +8,8 @@ declare class BattleSystems {
     private static elementsOrder;
     private static statistics;
     static statisticsOrder: number[];
-    static statisticsElements: number[];
-    static statisticsElementsPercent: number[];
+    private static statisticsElements;
+    private static statisticsElementsPercent;
     static maxStatisticID: number;
     private static equipments;
     static equipmentsOrder: number[];
@@ -60,6 +60,18 @@ declare class BattleSystems {
      *  @returns {System.Statistic}
      */
     static getStatistic(id: number): System.Statistic;
+    /**
+     *  Get the statistic element by ID.
+     *  @param {number} id
+     *  @returns {number}
+     */
+    static getStatisticElement(id: number): number;
+    /**
+     *  Get the statistic element percent by ID.
+     *  @param {number} id
+     *  @returns {System.Statistic}
+     */
+    static getStatisticElementPercent(id: number): number;
     /**
      *  Get the equipment by ID.
      *  @param {number} id

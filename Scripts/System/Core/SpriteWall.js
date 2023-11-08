@@ -47,7 +47,7 @@ class SpriteWall extends MapElement {
      *  @param {number} count - The faces count
      *  @return {any[]}
      */
-    updateGeometry(geometry, position, width, height, count) {
+    updateGeometry(geometry, position, width, height, pictureID, count) {
         let vecA = new Vector3(-0.5, 1.0, 0.0);
         let vecB = new Vector3(0.5, 1.0, 0.0);
         let vecC = new Vector3(0.5, 0.0, 0.0);
@@ -90,7 +90,7 @@ class SpriteWall extends MapElement {
         let collisions = [];
         let wall = Datas.SpecialElements.getWall(this.id);
         if (wall) {
-            let picture = Datas.Pictures.get(PictureKind.Walls, wall.pictureID);
+            let picture = Datas.Pictures.get(PictureKind.Walls, pictureID);
             if (picture) {
                 collisions = picture.getSquaresForWall(textureRect);
             }

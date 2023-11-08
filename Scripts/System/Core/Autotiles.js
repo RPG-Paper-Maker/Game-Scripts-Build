@@ -32,10 +32,10 @@ class Autotiles {
      *  @param {Autotile} autotile - The autotile to add to geometry
      *  @returns {StructMapElementCollision}
      */
-    updateGeometry(position, autotile) {
+    updateGeometry(position, autotile, pictureID) {
         return this.width === null || this.height === 0 ? null : autotile
             .updateGeometryAutotile(this.geometry, this.bundle, position, this
-            .width, this.height, this.index++);
+            .width, this.height, pictureID, this.index++);
     }
     /**
      *  Create a mesh with material and geometry.

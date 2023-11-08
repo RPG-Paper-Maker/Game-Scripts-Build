@@ -25,7 +25,7 @@ declare class SpriteWall extends MapElement {
      *  @param {number} count - The faces count
      *  @return {any[]}
      */
-    updateGeometry(geometry: CustomGeometry, position: Position, width: number, height: number, count: number): [
+    updateGeometry(geometry: CustomGeometry, position: Position, width: number, height: number, pictureID: number, count: number): [
         number,
         StructMapElementCollision[]
     ];

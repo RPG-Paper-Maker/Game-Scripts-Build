@@ -11,7 +11,6 @@
 import { Datas, Manager } from "../index.js";
 import { Main } from '../main.js';
 import { KeyEvent } from './KeyEvent.js';
-import { Platform } from './Platform.js';
 /**
  *  @class
  *  Handles inputs for keyboard and mouse.
@@ -39,9 +38,6 @@ class Inputs {
                 let key = event.keyCode;
                 // On pressing F12, quit game
                 switch (key) {
-                    case KeyEvent.DOM_VK_F12:
-                        Platform.quit();
-                        break;
                     case KeyEvent.DOM_VK_F4:
                         Datas.Systems.switchFullscreen();
                         break;

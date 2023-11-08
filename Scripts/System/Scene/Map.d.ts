@@ -4,7 +4,7 @@ import Orientation = Enum.Orientation;
 import EffectSpecialActionKind = Enum.EffectSpecialActionKind;
 import PictureKind = Enum.PictureKind;
 import { System, Scene } from '../index.js';
-import { Position, Portion, MapPortion, TextureBundle, Vector3, Battler, Frame, Vector2, Player } from '../Core/index.js';
+import { Position, Portion, MapPortion, Vector3, Battler, Frame, Vector2, Player } from '../Core/index.js';
 /** @class
  *  A scene for a local map.
  *  @extends Scene.Base
@@ -17,6 +17,8 @@ declare class Map extends Base {
     static current: Scene.Map;
     static allowMainMenu: boolean;
     static allowSaves: boolean;
+    static autotileFrame: Frame;
+    static autotilesOffset: Vector2;
     id: number;
     mapFilename: string;
     orientation: Orientation;
@@ -33,16 +35,10 @@ declare class Map extends Base {
     mapPortions: MapPortion[];
     textureTileset: THREE.MeshPhongMaterial;
     texturesCharacters: THREE.MeshPhongMaterial[];
-    texturesAutotiles: TextureBundle[][];
-    texturesWalls: THREE.MeshPhongMaterial[];
-    texturesMountains: TextureBundle[];
-    texturesObjects3D: THREE.MeshPhongMaterial[];
     collisions: number[][][][];
     previousCameraPosition: Vector3;
     portionsObjectsUpdated: boolean;
     maxObjectsID: number;
-    autotileFrame: Frame;
-    autotilesOffset: Vector2;
     heroOrientation: Enum.Orientation;
     previousWeatherPoints: THREE.Points;
     previousWeatherVelocities: number[];
@@ -99,10 +95,6 @@ declare class Map extends Base {
      *  Load all the textures of the map.
      */
     loadTextures(): Promise<void>;
-    /**
-     *  Update shaders for autotiles.
-     */
-    updateTexturesShaders(): void;
     /**
      *  Load the collisions settings.
      */

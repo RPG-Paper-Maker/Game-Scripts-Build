@@ -72,7 +72,7 @@ class BattleVictory {
             xp = this.battle.xp;
             if (battler.player.experienceGain[0]) {
                 xp *= battler.player.experienceGain[0].multiplication;
-                xp += this.battle.xp * battler.player.experienceGain[0].addition / 100;
+                xp += (this.battle.xp * battler.player.experienceGain[0].addition) / 100;
             }
             battler.player.totalRemainingXP = xp;
         }
@@ -87,12 +87,10 @@ class BattleVictory {
         }
         // Windows
         let w = 200 + WindowBox.SMALL_PADDING_BOX[0] + WindowBox.SMALL_PADDING_BOX[2];
-        let h = this.battle.lootsNumber * 30 + WindowBox.SMALL_PADDING_BOX[1] +
-            WindowBox.SMALL_PADDING_BOX[3];
-        this.battle.windowLoots = new WindowBox(ScreenResolution.SCREEN_X - 20 -
-            w, ScreenResolution.SCREEN_Y - 20 - h, w, h, {
+        let h = this.battle.lootsNumber * 30 + WindowBox.SMALL_PADDING_BOX[1] + WindowBox.SMALL_PADDING_BOX[3];
+        this.battle.windowLoots = new WindowBox(ScreenResolution.SCREEN_X - 20 - w, ScreenResolution.SCREEN_Y - 20 - h, w, h, {
             content: new Graphic.Loots(this.battle.loots, this.battle.lootsNumber),
-            padding: WindowBox.SMALL_PADDING_BOX
+            padding: WindowBox.SMALL_PADDING_BOX,
         });
     }
     /**
@@ -125,8 +123,7 @@ class BattleVictory {
                 }
                 for (hero of this.battle.battlers[CharacterKind.Hero]) {
                     if (hero.player.currencyGain[id]) {
-                        currency += baseCurrency * hero.player.currencyGain[id]
-                            .addition / 100;
+                        currency += (baseCurrency * hero.player.currencyGain[id].addition) / 100;
                     }
                 }
                 if (this.battle.currencies.hasOwnProperty(id)) {
@@ -152,8 +149,7 @@ class BattleVictory {
         }
         for (i = 0, l = this.battle.loots.length; i < l; i++) {
             for (id in this.battle.loots[i]) {
-                this.battle.loots[i][id] = new Item(i, parseInt(id), this.battle
-                    .loots[i][id].nb);
+                this.battle.loots[i][id] = new Item(i, parseInt(id), this.battle.loots[i][id].nb);
             }
         }
         // Prepare graphics
@@ -169,26 +165,21 @@ class BattleVictory {
             battler = this.battle.battlers[CharacterKind.Hero][i];
             player = battler.player;
             if (!player.isExperienceUpdated()) {
-                if (player.updateExperience()) { // Level up
+                if (player.updateExperience()) {
+                    // Level up
                     this.battle.user = battler;
                     player.levelingUp = true;
                     this.battle.finishedXP = false;
-                    this.battle.windowExperienceProgression
-                        .content.updateExperience();
-                    this.battle.priorityIndex = i + 1 % Game.current
-                        .teamHeroes.length;
+                    this.battle.windowExperienceProgression.content.updateExperience();
+                    this.battle.priorityIndex = i + (1 % Game.current.teamHeroes.length);
                     this.pauseTeamXP();
                     this.battle.finishedXP = false;
                     player.stepLevelUp = 0;
                     this.battle.windowStatisticProgression.content = new Graphic.StatisticProgression(this.battle.user.player);
-                    y = 90 + (i * 90);
-                    h = this.battle
-                        .windowStatisticProgression.content.getHeight() +
-                        WindowBox.HUGE_PADDING_BOX[0] + WindowBox.HUGE_PADDING_BOX[2];
-                    if (y + h > ScreenResolution.CANVAS_HEIGHT - 10) {
-                        y = ScreenResolution.CANVAS_HEIGHT - h - 10;
-                    }
-                    this.battle.windowStatisticProgression.setY(y);
+                    h =
+                        this.battle.windowStatisticProgression.content.getHeight() +
+                            WindowBox.HUGE_PADDING_BOX[0] +
+                            WindowBox.HUGE_PADDING_BOX[2];
                     this.battle.windowStatisticProgression.setH(h);
                     Datas.BattleSystems.battleLevelUp.playSound();
                     this.battle.subStep = 2;
@@ -197,8 +188,7 @@ class BattleVictory {
                 this.battle.finishedXP = false;
             }
         }
-        this.battle.windowExperienceProgression.content
-            .updateExperience();
+        this.battle.windowExperienceProgression.content.updateExperience();
         this.battle.priorityIndex = 0;
     }
     /**
@@ -223,17 +213,14 @@ class BattleVictory {
      */
     playMapMusic() {
         this.battle.musicMap.playMusic(this.battle.musicMapTime, 0);
-        Manager.Songs.initializeProgressionMusic(0, this.battle.musicMap.volume
-            .getValue(), 0, Scene.Battle.TIME_LINEAR_MUSIC_START);
+        Manager.Songs.initializeProgressionMusic(0, this.battle.musicMap.volume.getValue(), 0, Scene.Battle.TIME_LINEAR_MUSIC_START);
     }
     /**
      *  Prepare the end transition.
      */
     prepareEndTransition() {
         this.battle.transitionEnded = false;
-        Manager.Songs.initializeProgressionMusic(System.PlaySong
-            .currentPlayingMusic.volume.getValue(), 0, 0, Scene.Battle
-            .TIME_LINEAR_MUSIC_END);
+        Manager.Songs.initializeProgressionMusic(System.PlaySong.currentPlayingMusic.volume.getValue(), 0, 0, Scene.Battle.TIME_LINEAR_MUSIC_END);
         this.battle.subStep = 3;
         this.battle.time = new Date().getTime();
     }
@@ -249,7 +236,8 @@ class BattleVictory {
                     if (this.battle.finishedXP) {
                         this.prepareEndTransition();
                     }
-                    else { // Pass xp
+                    else {
+                        // Pass xp
                         for (let battler of this.battle.battlers[CharacterKind.Hero]) {
                             battler.player.passExperience();
                             battler.player.updateObtainedExperience();
@@ -261,9 +249,7 @@ class BattleVictory {
                 if (Scene.MenuBase.checkActionMenu(isKey, options)) {
                     if (this.battle.user.player.stepLevelUp === 0) {
                         this.battle.user.player.stepLevelUp = 1;
-                        this.battle
-                            .windowStatisticProgression.content
-                            .updateStatisticProgression();
+                        (this.battle.windowStatisticProgression.content).updateStatisticProgression();
                     }
                     else {
                         this.battle.user.player.levelingUp = false;
@@ -287,11 +273,9 @@ class BattleVictory {
     update() {
         switch (this.battle.subStep) {
             case 0:
-                if (new Date().getTime() - this.battle.time >= Scene.Battle
-                    .TIME_END_WAIT) {
+                if (new Date().getTime() - this.battle.time >= Scene.Battle.TIME_END_WAIT) {
                     this.battle.time = new Date().getTime();
-                    this.battle.windowTopInformations.content = this.battle
-                        .graphicRewardTop;
+                    this.battle.windowTopInformations.content = this.battle.graphicRewardTop;
                     for (let battler of this.battle.battlers[CharacterKind.Hero]) {
                         battler.player.updateRemainingXP(Scene.Battle.TIME_PROGRESSION_XP);
                     }
@@ -307,8 +291,7 @@ class BattleVictory {
                 break;
             case 3:
                 Manager.Stack.requestPaintHUD = true;
-                if (Manager.Songs.isProgressionMusicEnd && this.battle
-                    .transitionEnded) {
+                if (Manager.Songs.isProgressionMusicEnd && this.battle.transitionEnded) {
                     if (this.battle.winning) {
                         this.battle.win();
                     }
@@ -322,45 +305,39 @@ class BattleVictory {
                 // Transition None
                 if (this.battle.transitionEnd === 0) {
                     this.battle.sceneMap.updateBackgroundColor();
-                    this.battle.sceneMap.updateTexturesShaders();
                 }
                 // Transition zoom
                 if (this.battle.transitionEnd === 2) {
                     let offset;
                     if (!this.battle.transitionZoom) {
-                        offset = Scene.Battle.START_CAMERA_DISTANCE / this
-                            .battle.cameraDistance * Scene.Battle
-                            .TRANSITION_ZOOM_TIME;
-                        this.battle.camera.distance = (1 - (((new Date()
-                            .getTime() - this.battle.time) - offset) / (Scene
-                            .Battle.TRANSITION_ZOOM_TIME - offset))) * this
-                            .battle.cameraDistance;
-                        if (this.battle.camera.distance <= Scene.Battle
-                            .START_CAMERA_DISTANCE) {
-                            this.battle.camera.distance = Scene.Battle
-                                .START_CAMERA_DISTANCE;
+                        offset =
+                            (Scene.Battle.START_CAMERA_DISTANCE / this.battle.cameraDistance) *
+                                Scene.Battle.TRANSITION_ZOOM_TIME;
+                        this.battle.camera.distance =
+                            (1 -
+                                (new Date().getTime() - this.battle.time - offset) /
+                                    (Scene.Battle.TRANSITION_ZOOM_TIME - offset)) *
+                                this.battle.cameraDistance;
+                        if (this.battle.camera.distance <= Scene.Battle.START_CAMERA_DISTANCE) {
+                            this.battle.camera.distance = Scene.Battle.START_CAMERA_DISTANCE;
                             this.battle.transitionZoom = true;
                             this.battle.sceneMap.updateBackgroundColor();
-                            this.battle.sceneMap.updateTexturesShaders();
                             this.playMapMusic();
                             this.battle.time = new Date().getTime();
                         }
                         this.battle.camera.update();
                         return;
                     }
-                    if (this.battle.sceneMap.camera.distance < this.battle
-                        .mapCameraDistance) {
-                        offset = Scene.Battle.START_CAMERA_DISTANCE / this
-                            .battle.mapCameraDistance * Scene.Battle
-                            .TRANSITION_ZOOM_TIME;
-                        this.battle.sceneMap.camera.distance = (((new Date()
-                            .getTime() - this.battle.time) - offset) / (Scene
-                            .Battle.TRANSITION_ZOOM_TIME - offset)) * this
-                            .battle.mapCameraDistance;
-                        if (this.battle.sceneMap.camera.distance >= this.battle
-                            .mapCameraDistance) {
-                            this.battle.sceneMap.camera.distance = this.battle
-                                .mapCameraDistance;
+                    if (this.battle.sceneMap.camera.distance < this.battle.mapCameraDistance) {
+                        offset =
+                            (Scene.Battle.START_CAMERA_DISTANCE / this.battle.mapCameraDistance) *
+                                Scene.Battle.TRANSITION_ZOOM_TIME;
+                        this.battle.sceneMap.camera.distance =
+                            ((new Date().getTime() - this.battle.time - offset) /
+                                (Scene.Battle.TRANSITION_ZOOM_TIME - offset)) *
+                                this.battle.mapCameraDistance;
+                        if (this.battle.sceneMap.camera.distance >= this.battle.mapCameraDistance) {
+                            this.battle.sceneMap.camera.distance = this.battle.mapCameraDistance;
                         }
                         else {
                             this.battle.sceneMap.camera.update();
@@ -372,19 +349,16 @@ class BattleVictory {
                 // Transition fade
                 if (this.battle.transitionEnd === 1) {
                     if (!this.battle.transitionColor) {
-                        this.battle.transitionColorAlpha += Scene.Battle
-                            .TRANSITION_COLOR_VALUE;
+                        this.battle.transitionColorAlpha += Scene.Battle.TRANSITION_COLOR_VALUE;
                         if (this.battle.transitionColorAlpha >= 1) {
                             this.battle.transitionColorAlpha = 1;
                             this.battle.transitionColor = true;
                             this.battle.timeTransition = new Date().getTime();
                             this.battle.sceneMap.updateBackgroundColor();
-                            this.battle.sceneMap.updateTexturesShaders();
                         }
                         return;
                     }
-                    if (new Date().getTime() - this.battle.timeTransition <
-                        Scene.Battle.TRANSITION_COLOR_END_WAIT) {
+                    if (new Date().getTime() - this.battle.timeTransition < Scene.Battle.TRANSITION_COLOR_END_WAIT) {
                         return;
                     }
                     else {
@@ -394,8 +368,7 @@ class BattleVictory {
                         }
                     }
                     if (this.battle.transitionColorAlpha > 0) {
-                        this.battle.transitionColorAlpha -= Scene.Battle
-                            .TRANSITION_COLOR_VALUE;
+                        this.battle.transitionColorAlpha -= Scene.Battle.TRANSITION_COLOR_VALUE;
                         if (this.battle.transitionColorAlpha <= 0) {
                             this.battle.transitionColorAlpha = 0;
                         }
@@ -417,8 +390,7 @@ class BattleVictory {
      *  Handle key released.
      *  @param {number} key - The key ID
      */
-    onKeyReleasedStep(key) {
-    }
+    onKeyReleasedStep(key) { }
     /**
      *  Handle key repeat pressed.
      *  @param {number} key - The key ID
@@ -460,11 +432,16 @@ class BattleVictory {
             case 3:
                 // Transition fade
                 if (this.battle.transitionEnd === 1) {
-                    Platform.ctx.fillStyle = "rgba(" + this.battle
-                        .transitionEndColor.red + "," + this.battle
-                        .transitionEndColor.green + "," + this.battle
-                        .transitionEndColor.blue + "," + this.battle
-                        .transitionColorAlpha + ")";
+                    Platform.ctx.fillStyle =
+                        'rgba(' +
+                            this.battle.transitionEndColor.red +
+                            ',' +
+                            this.battle.transitionEndColor.green +
+                            ',' +
+                            this.battle.transitionEndColor.blue +
+                            ',' +
+                            this.battle.transitionColorAlpha +
+                            ')';
                     Platform.ctx.fillRect(0, 0, ScreenResolution.CANVAS_WIDTH, ScreenResolution.CANVAS_HEIGHT);
                 }
                 break;

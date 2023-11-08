@@ -10,7 +10,7 @@
 */
 import { Constants, Enum, Paths, Platform, Utils } from '../Common/index.js';
 import { Autotiles, Game, Picture2D, TextureBundle } from '../Core/index.js';
-import { System, Datas, Manager } from '../index.js';
+import { System, Datas, Manager, Scene } from '../index.js';
 import { THREE } from '../Globals.js';
 /** @class
  *  All the special elements datas.
@@ -81,7 +81,7 @@ class SpecialElements {
     static async loadAutotileTexture(id) {
         let autotile = this.getAutotile(id);
         let pictureID = Game.current.textures.autotiles[id];
-        if (Utils.isUndefined(pictureID)) {
+        if (pictureID === undefined) {
             pictureID = autotile.pictureID;
         }
         let texturesAutotile = this.texturesAutotiles[pictureID];
@@ -99,6 +99,7 @@ class SpecialElements {
                 let picture = Datas.Pictures.get(Enum.PictureKind.Autotiles, pictureID);
                 if (picture) {
                     result = await this.loadTextureAutotile(textureAutotile, texture, picture, offset, autotile.isAnimated);
+                    picture.readCollisions();
                 }
                 else {
                     result = null;
@@ -222,6 +223,9 @@ class SpecialElements {
         texture.image = await Picture2D.loadImage(Platform.canvasRendering.toDataURL());
         texture.needsUpdate = true;
         textureAutotile.material = Manager.GL.createMaterial({ texture: texture });
+        textureAutotile.material.userData.uniforms.offset.value = textureAutotile.isAnimated
+            ? Scene.Map.autotilesOffset
+            : new THREE.Vector2();
         this.texturesAutotiles[id].push(textureAutotile);
     }
     /**
@@ -232,7 +236,7 @@ class SpecialElements {
     static async loadWallTexture(id) {
         let wall = this.getWall(id);
         let pictureID = Game.current.textures.walls[id];
-        if (Utils.isUndefined(pictureID)) {
+        if (pictureID === undefined) {
             pictureID = wall.pictureID;
         }
         let textureWall = this.texturesWalls[pictureID];
@@ -245,6 +249,7 @@ class SpecialElements {
                 else {
                     textureWall = Manager.GL.loadTextureEmpty();
                 }
+                picture.readCollisions();
             }
             else {
                 textureWall = Manager.GL.loadTextureEmpty();
@@ -304,7 +309,7 @@ class SpecialElements {
     static async loadMountainTexture(id) {
         let mountain = this.getMountain(id);
         let pictureID = Game.current.textures.mountains[id];
-        if (Utils.isUndefined(pictureID)) {
+        if (pictureID === undefined) {
             pictureID = mountain.pictureID;
         }
         let textureMountain = this.texturesMountains[pictureID];
@@ -428,7 +433,7 @@ class SpecialElements {
     static async loadObject3DTexture(id) {
         let object3D = this.getObject3D(id);
         let pictureID = Game.current.textures.objects3D[id];
-        if (Utils.isUndefined(pictureID)) {
+        if (pictureID === undefined) {
             pictureID = object3D.pictureID;
         }
         let textureObject3D = this.texturesObjects3D[pictureID];

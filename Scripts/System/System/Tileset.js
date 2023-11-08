@@ -114,8 +114,7 @@ class Tileset extends Base {
     async getTexturesObjects3D() {
         let list = [];
         for (let id of this.objects) {
-            list[Datas.SpecialElements.getObject3D(id).pictureID] = await Datas
-                .SpecialElements.loadObject3DTexture(id);
+            list[id] = await Datas.SpecialElements.loadObject3DTexture(id);
         }
         return list;
     }

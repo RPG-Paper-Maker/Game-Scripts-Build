@@ -30,40 +30,38 @@ import { CustomGeometryFace } from './CustomGeometryFace.js';
 /** @class
  *  A portion of the map.
  *  @param {Portion} portion
-*/
+ */
 class MapPortion {
     constructor(portion) {
         this.portion = portion;
         this.staticFloorsMesh = null;
         this.staticSpritesMesh = null;
         this.faceSpritesMesh = null;
-        this.squareNonEmpty = new Array(Constants.PORTION_SIZE * Constants
-            .PORTION_SIZE);
+        this.squareNonEmpty = new Array(Constants.PORTION_SIZE * Constants.PORTION_SIZE);
         let i, j;
         for (i = 0; i < Constants.PORTION_SIZE; i++) {
             this.squareNonEmpty[i] = new Array(Constants.PORTION_SIZE);
             for (j = 0; j < Constants.PORTION_SIZE; j++) {
-                this.squareNonEmpty[i][j] = new Array;
+                this.squareNonEmpty[i][j] = new Array();
             }
         }
-        let l = Constants.PORTION_SIZE * Constants.PORTION_SIZE * Constants
-            .PORTION_SIZE;
+        let l = Constants.PORTION_SIZE * Constants.PORTION_SIZE * Constants.PORTION_SIZE;
         this.boundingBoxesLands = new Array(l);
         this.boundingBoxesSprites = new Array(l);
         this.boundingBoxesMountains = new Array(l);
         this.boundingBoxesObjects3D = new Array(l);
         for (i = 0; i < l; i++) {
-            this.boundingBoxesLands[i] = new Array;
-            this.boundingBoxesSprites[i] = new Array;
-            this.boundingBoxesMountains[i] = new Array;
-            this.boundingBoxesObjects3D[i] = new Array;
+            this.boundingBoxesLands[i] = new Array();
+            this.boundingBoxesSprites[i] = new Array();
+            this.boundingBoxesMountains[i] = new Array();
+            this.boundingBoxesObjects3D[i] = new Array();
         }
-        this.staticAutotilesList = new Array;
-        this.staticMountainsList = new Array;
-        this.objectsList = new Array;
-        this.staticWallsList = new Array;
-        this.staticObjects3DList = new Array;
-        this.overflowMountains = new Array;
+        this.staticAutotilesList = new Array();
+        this.staticMountainsList = new Map();
+        this.objectsList = new Array();
+        this.staticWallsList = new Array();
+        this.staticObjects3DList = new Array();
+        this.overflowMountains = new Array();
         this.heroID = -1;
     }
     /**
@@ -72,37 +70,32 @@ class MapPortion {
      *  @param {boolean} isMapHero - Indicates if this map is where the hero is
      *  at the beginning of the game.
      */
-    read(json, isMapHero) {
-        this.readStatic(json);
-        this.readObjects(json.objs.list, isMapHero);
+    async read(json, isMapHero) {
+        await this.readStatic(json);
+        await this.readObjects(json.objs, isMapHero);
     }
     /**
      *  Read the JSON associated to the map portion, but only the static part.
      *  @param {Record<string, any>} json - object describing the map portion
      */
-    readStatic(json) {
-        this.readLands(json.lands);
-        this.readSprites(json.sprites);
+    async readStatic(json) {
+        await this.readLands(json.lands);
+        await this.readSprites(json);
         if (json.moun) {
-            this.readMountains(json.moun);
+            await this.readMountains(json.moun);
         }
         if (json.objs3d) {
-            this.readObjects3D(json.objs3d);
+            await this.readObjects3D(json.objs3d);
         }
     }
     /**
      *  Read the JSON associated to the lands in the portion.
      *  @param {Record<string, any>} json - object describing the lands
      */
-    readLands(json) {
-        this.readFloors(json.floors);
-        this.readAutotiles(json.autotiles);
-    }
-    /**
-     *  Read the JSON associated to the floors in the portion.
-     *  @param {Record<string, any>} json - Json object describing the floors
-     */
-    readFloors(json) {
+    async readLands(json) {
+        if (!json) {
+            return;
+        }
         const material = Scene.Map.current.textureTileset;
         let texture = Manager.GL.getMaterialTexture(material);
         let width = texture ? texture.image.width : 0;
@@ -110,37 +103,74 @@ class MapPortion {
         let geometry = new CustomGeometry();
         let layers = [];
         let count = 0;
-        let i, j, l, m, jsonFloor, position, layer, floor, objCollision, index;
-        for (i = 0, l = json.length; i < l; i++) {
-            jsonFloor = json[i];
-            position = Position.createFromArray(jsonFloor.k);
-            layer = position.layer;
-            floor = new Floor(jsonFloor.v);
-            if (layer > 0) {
-                for (j = 0, m = layers.length; j < m; j++) {
-                    if (layer <= layers[j][0].layer) {
-                        layers.splice(j, 0, [position, floor]);
-                        break;
+        for (const { k, v } of json) {
+            const position = Position.createFromArray(k);
+            const layer = position.layer;
+            switch (v.k) {
+                case Enum.ElementMapKind.Floors:
+                    const floor = new Floor(v);
+                    if (layer > 0) {
+                        let j = 0;
+                        let m = layers.length;
+                        for (; j < m; j++) {
+                            if (layer <= layers[j][0].layer) {
+                                layers.splice(j, 0, [position, floor]);
+                                break;
+                            }
+                        }
+                        if (j === m) {
+                            layers.push([position, floor]);
+                        }
                     }
-                }
-                if (j === m) {
-                    layers.push([position, floor]);
-                }
-            }
-            else {
-                objCollision = floor.updateGeometry(geometry, position, width, height, count);
-                index = position.toIndex();
-                this.boundingBoxesLands[index].push(objCollision);
-                this.addToNonEmpty(position);
-                count++;
+                    else {
+                        const objCollision = floor.updateGeometry(geometry, position, width, height, count);
+                        this.boundingBoxesLands[position.toIndex()].push(objCollision);
+                        this.addToNonEmpty(position);
+                        count++;
+                    }
+                    break;
+                case Enum.ElementMapKind.Autotiles:
+                    const autotile = new Autotile(v);
+                    let pictureID = Game.current.textures.autotiles[autotile.autotileID];
+                    if (pictureID === undefined) {
+                        pictureID = Datas.SpecialElements.getAutotile(autotile.autotileID).pictureID;
+                    }
+                    const indexPos = position.toIndex();
+                    let texture = null;
+                    const texturesAutotile = await Datas.SpecialElements.loadAutotileTexture(autotile.autotileID);
+                    let autotiles;
+                    if (texturesAutotile) {
+                        for (let j = 0, m = texturesAutotile.length; j < m; j++) {
+                            const textureAutotile = texturesAutotile[j];
+                            if (textureAutotile.isInTexture(pictureID, autotile.texture)) {
+                                texture = textureAutotile;
+                                if (!this.staticAutotilesList[autotile.autotileID]) {
+                                    this.staticAutotilesList[autotile.autotileID] = [];
+                                }
+                                if (!this.staticAutotilesList[autotile.autotileID][j]) {
+                                    this.staticAutotilesList[autotile.autotileID][j] = new Autotiles(textureAutotile);
+                                }
+                                autotiles = this.staticAutotilesList[autotile.autotileID][j];
+                                break;
+                            }
+                        }
+                    }
+                    if (texture !== null && texture.material !== null) {
+                        const objCollision = autotiles.updateGeometry(position, autotile, pictureID);
+                        if (objCollision !== null) {
+                            this.boundingBoxesLands[indexPos].push(objCollision);
+                        }
+                    }
+                    this.addToNonEmpty(position);
+                    break;
             }
         }
         // Draw layers separatly
-        for (i = 0, l = layers.length; i < l; i++) {
-            position = layers[i][0];
-            floor = layers[i][1];
-            objCollision = floor.updateGeometry(geometry, position, width, height, count);
-            index = position.toIndex();
+        for (let i = 0, l = layers.length; i < l; i++) {
+            const position = layers[i][0];
+            const floor = layers[i][1];
+            const objCollision = floor.updateGeometry(geometry, position, width, height, count);
+            const index = position.toIndex();
             if (objCollision !== null) {
                 this.boundingBoxesLands[index].push(objCollision);
             }
@@ -159,67 +189,14 @@ class MapPortion {
             }
             Scene.Map.current.scene.add(this.staticFloorsMesh);
         }
-    }
-    /**
-     *  Read the JSON associated to the autotiles in the portion.
-     *  @param {Record<string, any>} json - Json object describing the autotiles
-     */
-    readAutotiles(json) {
-        if (!json) {
-            return;
-        }
-        let texture = null;
-        // Create autotiles according to the textures
-        let i, l, texturesAutotile;
-        for (i = 0, l = Scene.Map.current.texturesAutotiles.length; i < l; i++) {
-            texturesAutotile = Scene.Map.current.texturesAutotiles[i];
-            if (texturesAutotile) {
-                for (let textureAutotile of texturesAutotile) {
-                    if (!this.staticAutotilesList[i]) {
-                        this.staticAutotilesList[i] = new Array;
-                    }
-                    this.staticAutotilesList[i].push(new Autotiles(textureAutotile));
-                }
-            }
-        }
-        // Read and update geometry
-        let j, m, jsonAutotile, position, autotile, indexPos, textureAutotile, autotiles, objCollision;
-        for (i = 0, l = json.length; i < l; i++) {
-            jsonAutotile = json[i];
-            position = Position.createFromArray(jsonAutotile.k);
-            autotile = new Autotile(jsonAutotile.v);
-            indexPos = position.toIndex();
-            texture = null;
-            texturesAutotile = Scene.Map.current.texturesAutotiles[autotile.autotileID];
-            if (texturesAutotile) {
-                for (j = 0, m = texturesAutotile.length; j < m; j++) {
-                    textureAutotile = texturesAutotile[j];
-                    if (textureAutotile.isInTexture(Datas.SpecialElements
-                        .getAutotile(autotile.autotileID).pictureID, autotile.texture)) {
-                        texture = textureAutotile;
-                        autotiles = this.staticAutotilesList[autotile.autotileID][j];
-                        break;
-                    }
-                }
-            }
-            if (texture !== null && texture.material !== null) {
-                objCollision = autotiles.updateGeometry(position, autotile);
-                if (objCollision !== null) {
-                    this.boundingBoxesLands[indexPos].push(objCollision);
-                }
-            }
-            this.addToNonEmpty(position);
-        }
-        // Update all the geometry uvs and put it in the scene
         for (let list of this.staticAutotilesList) {
             if (list) {
-                for (autotiles of list) {
-                    if (autotiles.createMesh()) {
+                for (const autotiles of list) {
+                    if (autotiles && autotiles.createMesh()) {
                         if (Scene.Map.current.mapProperties.isSunLight) {
                             autotiles.mesh.receiveShadow = true;
                             autotiles.mesh.castShadow = true;
-                            autotiles.mesh.customDepthMaterial = autotiles.bundle
-                                .material.userData.customDepthMaterial;
+                            autotiles.mesh.customDepthMaterial = autotiles.bundle.material.userData.customDepthMaterial;
                         }
                         Scene.Map.current.scene.add(autotiles.mesh);
                     }
@@ -231,13 +208,13 @@ class MapPortion {
      *  Read the JSON associated to the sprites in the portion.
      *  @param {Record<string, any>} json - Json object describing the sprites
      */
-    readSprites(json) {
-        this.readSpritesWalls(json.walls);
-        this.readSpritesGlobals(json.list);
+    async readSprites(json) {
+        await this.readSpritesWalls(json.walls);
+        this.readSpritesGlobals(json.sprites);
     }
     /** Read the JSON associated to the sprites globals in the portion.
      *  @param {Record<string, any>} json - Json object describing the sprites globals
-    */
+     */
     readSpritesGlobals(json) {
         const material = Scene.Map.current.textureTileset;
         let staticGeometry = new CustomGeometry();
@@ -252,14 +229,12 @@ class MapPortion {
                 sprite = new Sprite(s.v);
                 localPosition = position.toVector3();
                 if (sprite.kind === ElementMapKind.SpritesFace) {
-                    resultUpdate = sprite.updateGeometry(faceGeometry, texture.image
-                        .width, texture.image.height, position, faceCount, true, localPosition);
+                    resultUpdate = sprite.updateGeometry(faceGeometry, texture.image.width, texture.image.height, position, faceCount, true, localPosition);
                     faceCount = resultUpdate[0];
                     collisions = resultUpdate[1];
                 }
                 else {
-                    resultUpdate = sprite.updateGeometry(staticGeometry, texture
-                        .image.width, texture.image.height, position, staticCount, true, localPosition);
+                    resultUpdate = sprite.updateGeometry(staticGeometry, texture.image.width, texture.image.height, position, staticCount, true, localPosition);
                     staticCount = resultUpdate[0];
                     collisions = resultUpdate[1];
                 }
@@ -297,33 +272,31 @@ class MapPortion {
      *  @param {Record<string, any>} json - Json object describing the sprites
      *  walls
      */
-    readSpritesWalls(json) {
-        let wallsIds = Scene.Map.current.texturesWalls.length;
-        let hash = new Array(wallsIds);
-        // Initialize all walls to null
-        let i;
-        for (i = 0; i < wallsIds; i++) {
-            hash[i] = null;
-        }
-        let l, s, position, sprite, obj, geometry, material, count, result;
-        for (i = 0, l = json.length; i < l; i++) {
-            // Getting sprite
-            s = json[i];
-            position = Position.createFromArray(s.k);
-            sprite = new SpriteWall(s.v);
+    async readSpritesWalls(json) {
+        let hash = new Map();
+        for (const { k, v } of json) {
+            const position = Position.createFromArray(k);
+            const sprite = new SpriteWall(v);
+            let pictureID = Game.current.textures.walls[sprite.id];
+            if (pictureID === undefined) {
+                pictureID = Datas.SpecialElements.getWall(sprite.id).pictureID;
+            }
             // Constructing the geometry
-            obj = hash[sprite.id];
+            let obj = hash[sprite.id];
             // If ID exists in this tileset
-            if (!Utils.isUndefined(obj)) {
+            if (obj !== undefined) {
+                let material;
+                let geometry;
+                let count;
                 if (obj === null) {
-                    material = Scene.Map.current.texturesWalls[sprite.id];
+                    material = await Datas.SpecialElements.loadWallTexture(sprite.id);
                     if (material) {
                         geometry = new CustomGeometry();
                         count = 0;
                         obj = {
                             geometry: geometry,
                             material: material,
-                            c: count
+                            c: count,
                         };
                         hash[sprite.id] = obj;
                     }
@@ -333,24 +306,21 @@ class MapPortion {
                     material = obj.material;
                     count = obj.c;
                 }
-                let texture = Manager.GL.getMaterialTexture(material);
+                const texture = Manager.GL.getMaterialTexture(material);
                 if (texture) {
-                    result = sprite.updateGeometry(geometry, position, texture
-                        .image.width, texture.image.height, count);
+                    const result = sprite.updateGeometry(geometry, position, texture.image.width, texture.image.height, pictureID, count);
                     obj.c = result[0];
                     this.updateCollisionSprite(result[1], position);
                 }
             }
         }
         // Add to scene
-        let mesh;
-        for (i = 0; i < wallsIds; i++) {
-            obj = hash[i];
+        for (const [, obj] of hash) {
             if (obj !== null) {
-                geometry = obj.geometry;
+                const geometry = obj.geometry;
                 if (!geometry.isEmpty()) {
                     geometry.updateAttributes();
-                    mesh = new THREE.Mesh(geometry, obj.material);
+                    const mesh = new THREE.Mesh(geometry, obj.material);
                     if (Scene.Map.current.mapProperties.isSunLight) {
                         mesh.receiveShadow = true;
                         mesh.castShadow = true;
@@ -367,84 +337,64 @@ class MapPortion {
      *  Read the JSON associated to the mountains in the portion.
      *  @param {Record<string, any>} json - Json object describing the mountains
      */
-    readMountains(json) {
+    async readMountains(json) {
         if (!json) {
             return;
         }
-        let texture = null;
-        let mountainsLength = Scene.Map.current.texturesMountains.length;
-        // Create mountains according to the textures
-        let i;
-        for (i = 0; i < mountainsLength; i++) {
-            this.staticMountainsList.push(new Mountains(Scene.Map.current
-                .texturesMountains[i]));
-        }
-        // Read and update geometry
-        let jsonAll = json.a;
-        let l, jsonMountain, position, mountain, indexPos, index, textureMountain, mountains, objCollision;
-        for (i = 0, l = jsonAll.length; i < l; i++) {
-            jsonMountain = jsonAll[i];
-            position = Position.createFromArray(jsonMountain.k);
-            mountain = new Mountain;
-            mountain.read(jsonMountain.v);
-            indexPos = position.toIndex();
-            for (index = 0; index < mountainsLength; index++) {
-                textureMountain = Scene.Map.current.texturesMountains[index];
-                if (textureMountain.isInTexture(Datas.SpecialElements
-                    .getMountain(mountain.mountainID).pictureID)) {
+        for (const { k, v } of json) {
+            const position = Position.createFromArray(k);
+            const mountain = new Mountain();
+            mountain.read(v);
+            let pictureID = Game.current.textures.mountains[mountain.mountainID];
+            if (pictureID === undefined) {
+                pictureID = Datas.SpecialElements.getMountain(mountain.mountainID).pictureID;
+            }
+            const textureMountain = await Datas.SpecialElements.loadMountainTexture(mountain.mountainID);
+            let mountains;
+            let texture = null;
+            if (textureMountain) {
+                if (textureMountain.isInTexture(pictureID)) {
                     texture = textureMountain;
-                    mountains = this.staticMountainsList[index];
+                    if (!this.staticMountainsList[mountain.mountainID]) {
+                        this.staticMountainsList[mountain.mountainID] = new Mountains(textureMountain);
+                    }
+                    mountains = this.staticMountainsList[mountain.mountainID];
                     break;
                 }
             }
             if (texture !== null && texture.material !== null) {
-                objCollision = mountains.updateGeometry(position, mountain);
+                const objCollision = mountains.updateGeometry(position, mountain, pictureID);
                 this.updateCollision(this.boundingBoxesMountains, objCollision, position, true);
             }
         }
         // Update all the geometry uvs and put it in the scene
-        for (i = 0, l = this.staticMountainsList.length; i < l; i++) {
-            mountains = this.staticMountainsList[i];
+        for (const [, mountains] of this.staticMountainsList) {
             if (mountains.createMesh()) {
                 if (Scene.Map.current.mapProperties.isSunLight) {
                     mountains.mesh.receiveShadow = true;
                     mountains.mesh.castShadow = true;
-                    mountains.mesh.customDepthMaterial = mountains.bundle.material
-                        .userData.customDepthMaterial;
+                    mountains.mesh.customDepthMaterial = mountains.bundle.material.userData.customDepthMaterial;
                 }
                 mountains.mesh.layers.enable(1);
                 Scene.Map.current.scene.add(mountains.mesh);
             }
         }
-        // Handle overflow
-        jsonMountain = json.o;
-        for (i = 0, l = jsonMountain.length; i < l; i++) {
-            this.overflowMountains.push(Position.createFromArray(jsonMountain[i]));
-        }
     }
     /**
      *  Read the JSON associated to the objects 3D in the portion.
      *  @param {Record<string, any>} json - Json object describing the objects 3D
-    */
-    readObjects3D(json) {
-        // Initialize
-        let nbTextures = Scene.Map.current.texturesObjects3D.length;
-        let hash = new Array(nbTextures);
-        let i;
-        for (i = 1; i <= nbTextures; i++) {
-            hash[i] = null;
-        }
-        // Read all
-        let jsonAll = json.a;
-        let l = jsonAll.length;
-        let o, position, v, datas, obj3D, obj, geometry, material, count, result;
-        for (i = 0; i < l; i++) {
-            // Getting object 3D
-            o = jsonAll[i];
-            position = Position.createFromArray(o.k);
-            v = o.v;
-            datas = Datas.SpecialElements.getObject3D(v.did);
+     */
+    async readObjects3D(json) {
+        const hash = new Map();
+        for (const { k, v } of json) {
+            const position = Position.createFromArray(k);
+            const datas = Datas.SpecialElements.getObject3D(v.did);
+            let pictureID = Game.current.textures.objects3D[datas.id];
+            if (pictureID === undefined) {
+                pictureID = Datas.SpecialElements.getObject3D(datas.id).pictureID;
+            }
             if (datas) {
+                let obj3D;
                 switch (datas.shapeKind) {
                     case ShapeKind.Box:
                         obj3D = new Object3DBox(v, datas);
@@ -462,19 +412,22 @@ class MapPortion {
                         break;
                 }
                 // Constructing the geometry
-                obj = hash[obj3D.datas.pictureID];
+                let obj = hash[datas.id];
                 if (!Utils.isUndefined(obj)) {
+                    let material;
+                    let geometry;
+                    let count;
                     if (obj === null) {
-                        material = Scene.Map.current.texturesObjects3D[obj3D.datas.pictureID];
+                        material = await Datas.SpecialElements.loadObject3DTexture(datas.id);
                         if (material) {
                             geometry = new CustomGeometry();
                             count = 0;
                             obj = {
                                 geometry: geometry,
                                 material: material,
-                                c: count
+                                c: count,
                             };
-                            hash[obj3D.datas.pictureID] = obj;
+                            hash[datas.id] = obj;
                         }
                     }
                     else {
@@ -483,7 +436,7 @@ class MapPortion {
                         count = obj.c;
                     }
                     if (Manager.GL.getMaterialTexture(material)) {
-                        result = obj3D.updateGeometry(geometry, position, count);
+                        const result = obj3D.updateGeometry(geometry, position, count);
                         obj.c = result[0];
                         this.updateCollision(this.boundingBoxesObjects3D, result[1], position, datas.shapeKind === ShapeKind.Custom);
                     }
@@ -491,14 +444,12 @@ class MapPortion {
             }
         }
         // Add meshes
-        let mesh;
-        for (i = 1; i <= nbTextures; i++) {
-            obj = hash[i];
+        for (const [, obj] of hash) {
             if (obj !== null) {
-                geometry = obj.geometry;
+                const geometry = obj.geometry;
                 if (!geometry.isEmpty()) {
                     geometry.updateAttributes();
-                    mesh = new THREE.Mesh(geometry, obj.material);
+                    const mesh = new THREE.Mesh(geometry, obj.material);
                     this.staticObjects3DList.push(mesh);
                     mesh.renderOrder = 999;
                     if (Scene.Map.current.mapProperties.isSunLight) {
@@ -517,8 +468,8 @@ class MapPortion {
      *  @param {Record<string, any>} json - Json object describing the objects
      *  @param {boolean} isMapHero - Indicates if this map is where the hero is
      *  at the beginning of the game
-    */
-    readObjects(json, isMapHero) {
+     */
+    async readObjects(json, isMapHero) {
         let datas = Scene.Map.current.getObjectsAtPortion(this.portion);
         let objectsM = datas.m;
         let objectsR = datas.r;
@@ -547,11 +498,10 @@ class MapPortion {
             }
             /* If it is the hero, you should not add it to the list of
             objects to display */
-            if ((!isMapHero || Datas.Systems.ID_OBJECT_START_HERO !== object.id)
-                && index === -1) {
+            if ((!isMapHero || Datas.Systems.ID_OBJECT_START_HERO !== object.id) && index === -1) {
                 localPosition = position.toVector3();
                 mapObject = new MapObject(object, localPosition);
-                mapObject.changeState();
+                await mapObject.changeState();
                 this.objectsList.push(mapObject);
             }
             else {
@@ -559,15 +509,16 @@ class MapPortion {
             }
         }
         // Add moved objects to the scene
-        if (!Scene.Map.current.isBattleMap) { // Not in battle to avoid issues if same map as current map
+        if (!Scene.Map.current.isBattleMap) {
+            // Not in battle to avoid issues if same map as current map
             let objects = datas.min;
             for (i = 0, l = objects.length; i < l; i++) {
-                objects[i].changeState();
+                await objects[i].changeState();
                 objects[i].addToScene();
             }
             objects = datas.mout;
             for (i = 0, l = objects.length; i < l; i++) {
-                objects[i].changeState();
+                await objects[i].changeState();
                 objects[i].addToScene();
             }
         }
@@ -598,11 +549,10 @@ class MapPortion {
             }
         }
         this.staticAutotilesList = [];
-        for (i = 0, l = this.staticMountainsList.length; i < l; i++) {
-            Scene.Map.current.scene.remove(this.staticMountainsList[i]
-                .mesh);
+        for (const [, mountains] of this.staticMountainsList) {
+            Scene.Map.current.scene.remove(mountains.mesh);
         }
-        this.staticMountainsList = [];
+        this.staticMountainsList.clear();
         for (i = 0, l = this.staticObjects3DList.length; i < l; i++) {
             Scene.Map.current.scene.remove(this.staticObjects3DList[i]);
         }
@@ -635,10 +585,10 @@ class MapPortion {
      *  @param {Record<string, any>} json - Json object describing the objects
      *  @param {number} id - The ID of the object
      *  @returns {MapObject}
-    */
+     */
     getObjFromID(json, id) {
-        if (json.objs && json.objs.list) {
-            json = json.objs.list;
+        if (json.objs) {
+            json = json.objs;
         }
         else {
             return null;
@@ -648,7 +598,7 @@ class MapPortion {
             jsonObject = json[i];
             position = Position.createFromArray(jsonObject.k);
             jsonObjectValue = jsonObject.v;
-            object = new System.MapObject;
+            object = new System.MapObject();
             if (jsonObjectValue.id === id) {
                 object.read(jsonObjectValue);
                 localPosition = position.toVector3();
@@ -665,11 +615,10 @@ class MapPortion {
      *  @returns {MapObject}
      */
     getHeroModel(json) {
-        let obj = json.objs;
-        if (!obj) {
-            Platform.showErrorMessage("Your hero object seems to be in a non existing map. Please use define as hero in a map to correct it.");
+        json = json.objs;
+        if (!json) {
+            Platform.showErrorMessage('Your hero object seems to be in a non existing map. Please use define as hero in a map to correct it.');
         }
-        json = json.objs.list;
         let jsonObject, position, jsonObjectValue, object;
         for (let i = 0, l = json.length; i < l; i++) {
             jsonObject = json[i];
@@ -680,7 +629,7 @@ class MapPortion {
                 return new MapObject(object, position.toVector3(), true);
             }
         }
-        throw "Impossible to get the hero. Please delete your hero from the map and define it again.";
+        throw 'Impossible to get the hero. Please delete your hero from the map and define it again.';
     }
     /**
      *  Update the face sprites orientation.
@@ -707,12 +656,9 @@ class MapPortion {
                 for (b = -objCollision.h; b <= objCollision.h; b++) {
                     z = objCollision.k ? 0 : objCollision.w;
                     for (c = -z; c <= z; c++) {
-                        positionPlus = new Position(position.x + a, position.y +
-                            b, position.z + c);
-                        if (Scene.Map.current.isInMap(positionPlus) && this
-                            .isPositionIn(positionPlus)) {
-                            this.boundingBoxesSprites[positionPlus.toIndex()]
-                                .push(objCollision);
+                        positionPlus = new Position(position.x + a, position.y + b, position.z + c);
+                        if (Scene.Map.current.isInMap(positionPlus) && this.isPositionIn(positionPlus)) {
+                            this.boundingBoxesSprites[positionPlus.toIndex()].push(objCollision);
                         }
                     }
                 }
@@ -724,15 +670,14 @@ class MapPortion {
      *  @param {StructMapElementCollision[]} collisions - The collisions objects
      *  @param {Position} position - The json position of the sprite
      *  @param {boolean} side - Indicate if collision side
-    */
+     */
     updateCollision(boundingBoxes, collisions, position, side) {
         let i, l, objCollision, centeredPosition, minW, maxW, minH, maxH, minD, maxD, a, b, c, positionPlus, objCollisionPlus;
         for (i = 0, l = collisions.length; i < l; i++) {
             objCollision = collisions[i];
-            centeredPosition = objCollision.c ? new Position(position.x + Math
-                .ceil(objCollision.c.x / Datas.Systems.SQUARE_SIZE), position.y
-                + Math.ceil(objCollision.c.y / Datas.Systems.SQUARE_SIZE), position.z + Math.ceil(objCollision.c.z / Datas.Systems
-                .SQUARE_SIZE)) : new Position(position.x, position.y, position.z);
+            centeredPosition = objCollision.c
+                ? new Position(position.x + Math.ceil(objCollision.c.x / Datas.Systems.SQUARE_SIZE), position.y + Math.ceil(objCollision.c.y / Datas.Systems.SQUARE_SIZE), position.z + Math.ceil(objCollision.c.z / Datas.Systems.SQUARE_SIZE))
+                : new Position(position.x, position.y, position.z);
             minW = -objCollision.m;
             maxW = objCollision.m;
             minH = -objCollision.m;
@@ -743,8 +688,7 @@ class MapPortion {
                 for (b = minH; b <= maxH; b++) {
                     for (c = minD; c <= maxD; c++) {
                         positionPlus = new Position(centeredPosition.x + a, centeredPosition.y + b, centeredPosition.z + c);
-                        if (Scene.Map.current.isInMap(positionPlus) &&
-                            this.isPositionIn(positionPlus)) {
+                        if (Scene.Map.current.isInMap(positionPlus) && this.isPositionIn(positionPlus)) {
                             if (side) {
                                 objCollisionPlus = {};
                                 objCollisionPlus = Object.assign(objCollisionPlus, objCollision);
@@ -771,13 +715,12 @@ class MapPortion {
      *  @returns {StructMapElementCollision[]}
      */
     getObjectCollisionAt(positionSource, positionTarget, kind) {
-        let result = new Array;
+        let result = new Array();
         switch (kind) {
             case ElementMapKind.Mountains:
                 let a = positionTarget.x - positionSource.x;
                 let c = positionTarget.z - positionSource.z;
-                let collisions = this.boundingBoxesMountains[positionSource
-                    .toIndex()];
+                let collisions = this.boundingBoxesMountains[positionSource.toIndex()];
                 let w, objCollision;
                 for (let i = 0, l = collisions.length; i < l; i++) {
                     w = collisions[i].w;
@@ -803,18 +746,17 @@ class MapPortion {
      *  @param {Position} position - The position to add
      */
     addToNonEmpty(position) {
-        this.squareNonEmpty[position.x % Constants.PORTION_SIZE][position.z %
-            Constants.PORTION_SIZE].push(position.getTotalY());
+        this.squareNonEmpty[position.x % Constants.PORTION_SIZE][position.z % Constants.PORTION_SIZE].push(position.getTotalY());
     }
     /**
      *  Check if position if in this map portion.
      *  @param {Position} position - The position to check
      *  @returns {boolean}
-    */
+     */
     isPositionIn(position) {
-        return this.portion.x === Math.floor(position.x / Constants.PORTION_SIZE) && this.portion.y === Math.floor(position.y / Constants
-            .PORTION_SIZE) && this.portion.z === Math.floor(position.z /
-            Constants.PORTION_SIZE);
+        return (this.portion.x === Math.floor(position.x / Constants.PORTION_SIZE) &&
+            this.portion.y === Math.floor(position.y / Constants.PORTION_SIZE) &&
+            this.portion.z === Math.floor(position.z / Constants.PORTION_SIZE));
     }
 }
 export { MapPortion };

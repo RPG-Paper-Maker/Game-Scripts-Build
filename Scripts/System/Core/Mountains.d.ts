@@ -19,8 +19,9 @@ declare class Mountains {
      *  Update the geometry of the mountains according to a mountain.
      *  @param {Position} position - The position
      *  @param {Mountain} mountain - The moutain to update
+     *  @param {number} pictureID - The current mountain picture ID
      */
-    updateGeometry(position: Position, mountain: Mountain): StructMapElementCollision[];
+    updateGeometry(position: Position, mountain: Mountain, pictureID: number): StructMapElementCollision[];
     /**
      *  Create a mesh with material and geometry.
      *  @returns {boolean}

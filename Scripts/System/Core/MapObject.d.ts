@@ -107,7 +107,7 @@ declare class MapObject {
     /**
      *  Update the current state (graphics to display), also update the mesh.
      */
-    changeState(): void;
+    changeState(): Promise<void>;
     /**
      *  Simulate moving object position.
      *  @param {Orientation} orientation - The orientation to move

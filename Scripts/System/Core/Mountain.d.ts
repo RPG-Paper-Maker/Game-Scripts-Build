@@ -164,9 +164,10 @@ declare class Mountain extends MapElement {
      *  @param {Core.CustomGeometry} geometry - The geometry of mountains
      *  @param {TextureBundle} texture - The texture mountain
      *  @param {Position} position - The position
+     *  @param {number} pictureID - The current mountain picture ID
      *  @param {number} count - The faces count
      *  @return {any[]}
      */
-    updateGeometry(geometry: CustomGeometry, texture: TextureBundle, position: Position, count: number): any[];
+    updateGeometry(geometry: CustomGeometry, texture: TextureBundle, position: Position, pictureID: number, count: number): any[];
 }
 export { Mountain };

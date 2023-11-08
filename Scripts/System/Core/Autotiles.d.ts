@@ -49,7 +49,7 @@ declare class Autotiles {
      *  @param {Autotile} autotile - The autotile to add to geometry
      *  @returns {StructMapElementCollision}
      */
-    updateGeometry(position: Position, autotile: Autotile): StructMapElementCollision;
+    updateGeometry(position: Position, autotile: Autotile, pictureID: number): StructMapElementCollision;
     /**
      *  Create a mesh with material and geometry.
      *  @returns {boolean}
