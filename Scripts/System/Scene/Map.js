@@ -10,7 +10,7 @@
 */
 import { THREE } from '../Globals.js';
 import { Base } from './Base.js';
-import { Enum, Utils, Constants, IO, Paths, Inputs, Interpreter, Platform, ScreenResolution } from '../Common/index.js';
+import { Enum, Utils, Constants, Paths, Inputs, Interpreter, Platform, ScreenResolution } from '../Common/index.js';
 var PictureKind = Enum.PictureKind;
 import { System, Datas, Scene, Manager } from '../index.js';
 import { Position, Portion, MapPortion, Camera, ReactionInterpreter, Vector3, Autotiles, Game, Frame, Vector2, } from '../Core/index.js';
@@ -94,7 +94,7 @@ class Map extends Base {
                     let mapPortion = this.getMapPortion(i, j, k);
                     if (mapPortion) {
                         let portion = new Portion(this.currentPortion.x + i, this.currentPortion.y + j, this.currentPortion.z + k);
-                        let json = await IO.parseFileJSON(Paths.FILE_MAPS + this.mapFilename + Constants.STRING_SLASH + portion.getFileName());
+                        let json = await Platform.parseFileJSON(Paths.FILE_MAPS + this.mapFilename + Constants.STRING_SLASH + portion.getFileName());
                         mapPortion.readStatic(json);
                     }
                 }
@@ -116,7 +116,7 @@ class Map extends Base {
      */
     async readMapProperties(minimal = false) {
         this.mapProperties = new System.MapProperties();
-        let json = await IO.parseFileJSON(Paths.FILE_MAPS + this.mapFilename + Paths.FILE_MAP_INFOS);
+        let json = await Platform.parseFileJSON(Paths.FILE_MAPS + this.mapFilename + Paths.FILE_MAP_INFOS);
         if (this.isBattleMap && json.tileset === undefined) {
             Platform.showErrorMessage('The battle map ' + this.id + " doesn't " + 'exists. Please check your battle maps.');
         }
@@ -145,10 +145,10 @@ class Map extends Base {
      *  Initialize sun light.
      */
     initializeSunLight() {
-        const ambient = new THREE.AmbientLight(0xffffff, this.mapProperties.isSunLight ? 0.75 : 1);
+        const ambient = new THREE.AmbientLight(0xffffff, this.mapProperties.isSunLight ? 1.2 : 2);
         this.scene.add(ambient);
         if (this.mapProperties.isSunLight) {
-            this.sunLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            this.sunLight = new THREE.DirectionalLight(0xffffff, 2);
             this.sunLight.position.set(-1, 1.75, 1);
             this.sunLight.position.multiplyScalar(Datas.Systems.SQUARE_SIZE * 10);
             this.sunLight.target.position.set(0, 0, 0);
@@ -182,7 +182,7 @@ class Map extends Base {
      *  Initialize the map objects.
      */
     async initializeObjects() {
-        let json = (await IO.parseFileJSON(Paths.FILE_MAPS + this.mapFilename + Paths.FILE_MAP_OBJECTS)).objs;
+        let json = (await Platform.parseFileJSON(Paths.FILE_MAPS + this.mapFilename + Paths.FILE_MAP_OBJECTS)).objs;
         let l = json.length;
         this.allObjects = new Array(l + 1);
         let jsonObject;
@@ -428,7 +428,7 @@ class Map extends Base {
         let lh = Math.ceil(this.mapProperties.height / Constants.PORTION_SIZE);
         if (realX >= 0 && realX < lx && realY >= -ld && realY < lh && realZ >= 0 && realZ < lz) {
             let portion = new Portion(realX, realY, realZ);
-            let json = await IO.parseFileJSON(Paths.FILE_MAPS + this.mapFilename + Constants.STRING_SLASH + portion.getFileName());
+            let json = await Platform.parseFileJSON(Paths.FILE_MAPS + this.mapFilename + Constants.STRING_SLASH + portion.getFileName());
             if (json.hasOwnProperty('lands')) {
                 const mapPortion = new MapPortion(portion);
                 this.setMapPortion(x, y, z, mapPortion, move);
