@@ -12,7 +12,7 @@ import { THREE } from '../Globals.js';
 import { MapObject } from './MapObject.js';
 import { Position } from './Position.js';
 import { System, Datas, Manager, Scene } from '../index.js';
-import { Constants, Enum, Platform, Utils } from '../Common/index.js';
+import { Constants, Enum, Platform } from '../Common/index.js';
 import { Floor } from './Floor.js';
 import { Autotiles } from './Autotiles.js';
 import { Autotile } from './Autotile.js';
@@ -350,11 +350,10 @@ class MapPortion {
             if (textureMountain) {
                 if (textureMountain.isInTexture(pictureID)) {
                     texture = textureMountain;
-                    if (!this.staticMountainsList[mountain.mountainID]) {
-                        this.staticMountainsList[mountain.mountainID] = new Mountains(textureMountain);
+                    if (!this.staticMountainsList.get(mountain.mountainID)) {
+                        this.staticMountainsList.set(mountain.mountainID, new Mountains(textureMountain));
                     }
-                    mountains = this.staticMountainsList[mountain.mountainID];
-                    break;
+                    mountains = this.staticMountainsList.get(mountain.mountainID);
                 }
             }
             if (texture !== null && texture.material !== null) {
@@ -407,54 +406,50 @@ class MapPortion {
                         break;
                 }
                 // Constructing the geometry
-                let obj = hash[datas.id];
-                if (!Utils.isUndefined(obj)) {
-                    let material;
-                    let geometry;
-                    let count;
-                    if (obj === null) {
-                        material = await Datas.SpecialElements.loadObject3DTexture(datas.id);
-                        if (material) {
-                            geometry = new CustomGeometry();
-                            count = 0;
-                            obj = {
-                                geometry: geometry,
-                                material: material,
-                                c: count,
-                            };
-                            hash[datas.id] = obj;
-                        }
+                let obj = hash.get(pictureID);
+                let material;
+                let geometry;
+                let count;
+                if (obj) {
+                    geometry = obj.geometry;
+                    material = obj.material;
+                    count = obj.c;
+                }
+                else {
+                    material = await Datas.SpecialElements.loadObject3DTexture(datas.id);
+                    if (material) {
+                        geometry = new CustomGeometry();
+                        count = 0;
+                        obj = {
+                            geometry: geometry,
+                            material: material,
+                            c: count,
+                        };
+                        hash.set(pictureID, obj);
                     }
-                    else {
-                        geometry = obj.geometry;
-                        material = obj.material;
-                        count = obj.c;
-                    }
-                    if (Manager.GL.getMaterialTexture(material)) {
-                        const result = obj3D.updateGeometry(geometry, position, count);
-                        obj.c = result[0];
-                        this.updateCollision(this.boundingBoxesObjects3D, result[1], position, datas.shapeKind === ShapeKind.Custom);
-                    }
+                }
+                if (Manager.GL.getMaterialTexture(material)) {
+                    const result = obj3D.updateGeometry(geometry, position, count);
+                    obj.c = result[0];
+                    this.updateCollision(this.boundingBoxesObjects3D, result[1], position, datas.shapeKind === ShapeKind.Custom);
                 }
             }
         }
         // Add meshes
         for (const [, obj] of hash) {
-            if (obj !== null) {
-                const geometry = obj.geometry;
-                if (!geometry.isEmpty()) {
-                    geometry.updateAttributes();
-                    const mesh = new THREE.Mesh(geometry, obj.material);
-                    this.staticObjects3DList.push(mesh);
-                    mesh.renderOrder = 999;
-                    if (Scene.Map.current.mapProperties.isSunLight) {
-                        mesh.receiveShadow = true;
-                        mesh.castShadow = true;
-                        mesh.customDepthMaterial = obj.material.userData.customDepthMaterial;
-                    }
-                    mesh.layers.enable(1);
-                    Scene.Map.current.scene.add(mesh);
+            const geometry = obj.geometry;
+            if (!geometry.isEmpty()) {
+                geometry.updateAttributes();
+                const mesh = new THREE.Mesh(geometry, obj.material);
+                this.staticObjects3DList.push(mesh);
+                mesh.renderOrder = 999;
+                if (Scene.Map.current.mapProperties.isSunLight) {
+                    mesh.receiveShadow = true;
+                    mesh.castShadow = true;
+                    mesh.customDepthMaterial = obj.material.userData.customDepthMaterial;
                 }
+                mesh.layers.enable(1);
+                Scene.Map.current.scene.add(mesh);
             }
         }
     }
