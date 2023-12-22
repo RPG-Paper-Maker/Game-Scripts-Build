@@ -10,6 +10,7 @@ uniform bool reverseH;
 uniform vec2 offset;
 uniform float repeat;
 uniform bool enableShadows;
+uniform bool hovered;
 #include <common>
 #include <packing>
 #include <dithering_pars_fragment>
@@ -85,6 +86,10 @@ void main() {
     gl_FragColor = vec4(mix(intensity, rgb, colorD.w), gl_FragColor.a);
     if (opacity < 1.0)
     	gl_FragColor = vec4(gl_FragColor.x, gl_FragColor.y, gl_FragColor.z, opacity);
+	if (hovered) {
+		float colorHover = 0.1f;
+    	gl_FragColor = vec4(gl_FragColor.x + colorHover, gl_FragColor.y + colorHover, gl_FragColor.z + colorHover, gl_FragColor.w);
+	}
 	#include <fog_fragment>
 	#include <premultiplied_alpha_fragment>
 	#include <dithering_fragment>
