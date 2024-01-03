@@ -134,8 +134,24 @@ export class CustomGeometry extends THREE.BufferGeometry {
             Sprite.rotateVertex(vertex, center, angle, axis);
             this.b_vertices.push(vertex.x, vertex.y, vertex.z);
         }
-        this.setAttribute('position', new THREE.Float32BufferAttribute(this
-            .b_vertices, 3));
+        this.setAttribute('position', new THREE.Float32BufferAttribute(this.b_vertices, 3));
+        this.b_vertices = [];
+    }
+    /**
+     *  Rotate all the vertices around a specified center Y.
+     *  @param {number} angle
+     *  @param {THREE.Vector3} axis
+     *  @param {THREE.Vector3} center
+     */
+    rotateFromEuler(euler, center) {
+        const vertices = this.getVertices();
+        let vertex = new THREE.Vector3();
+        for (let i = 0, l = vertices.length; i < l; i += 3) {
+            vertex.set(vertices[i], vertices[i + 1], vertices[i + 2]);
+            Sprite.rotateVertexEuler(vertex, center, euler);
+            this.b_vertices.push(vertex.x, vertex.y, vertex.z);
+        }
+        this.setAttribute('position', new THREE.Float32BufferAttribute(this.b_vertices, 3));
         this.b_vertices = [];
     }
     /**
@@ -213,8 +229,7 @@ export class CustomGeometry extends THREE.BufferGeometry {
      *  Update vertices, indices, and uvs buffer geometry attributes.
      */
     updateAttributes() {
-        this.setAttribute('position', new THREE.Float32BufferAttribute(this
-            .b_vertices, 3));
+        this.setAttribute('position', new THREE.Float32BufferAttribute(this.b_vertices, 3));
         this.b_vertices = [];
         this.setIndex(this.b_indices);
         this.b_indices = [];

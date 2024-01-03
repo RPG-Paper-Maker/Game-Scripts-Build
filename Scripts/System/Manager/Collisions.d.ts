@@ -44,14 +44,14 @@ declare class Collisions {
      *  @param {THREE.Mesh} box - The mesh bounding box
      *  @param {number[]} boundingBox - The bounding box list parameters
      */
-    static applyBoxSpriteTransforms(box: THREE.Mesh, boundingBox: number[], isFixSprite?: boolean, center?: number): void;
+    static applyBoxSpriteTransforms(box: THREE.Mesh, boundingBox: number[], isFixSprite?: boolean, center?: number[]): void;
     /**
      *  Apply transform for oriented bounding box.
      *  @static
      *  @param {THREE.Mesh} box - The mesh bounding box
      *  @param {number[]} boundingBox - The bounding box list parameters
      */
-    static applyOrientedBoxTransforms(box: THREE.Mesh, boundingBox: number[]): void;
+    static applyOrientedBoxTransforms(box: THREE.Mesh, boundingBox: number[], center?: number[]): void;
     /**
      *  Get a bounding box mesh for detection. Keep the same existing one or
      *  force creating a new one for cases you need several.
@@ -110,11 +110,7 @@ declare class Collisions {
      *  @returns {boolean}
      */
     static checkRay(positionBefore: Vector3, positionAfter: Vector3, object: MapObject, bbSettings: number[], reverseTestObjects?: boolean): [boolean, number, Enum.Orientation];
-    static checkObjectsRay(positionAfter: Vector3, object: MapObject): [
-        boolean,
-        number,
-        Enum.Orientation
-    ];
+    static checkObjectsRay(positionAfter: Vector3, object: MapObject): [boolean, number, Enum.Orientation];
     /**
      *  Check if there is a collision at this position.
      *  @static
@@ -150,7 +146,7 @@ declare class Collisions {
      *  @param {Position} jpositionAfter - The json position after collision
      *  @param {Vector3} direction - The direction collision
      *  @returns {boolean}
-    */
+     */
     static checkLandsInside(mapPortion: MapPortion, jpositionBefore: Position, jpositionAfter: Position, direction: Vector3): boolean;
     /**
      *  Check intersection between ray and an object.
@@ -159,7 +155,7 @@ declare class Collisions {
      *  @param {number[]} boundingBox - The bounding box values
      *  @param {MapObject} object - The map object to check
      *  @returns {boolean}
-    */
+     */
     static checkIntersectionLand(collision: StructMapElementCollision, boundingBox: number[], object: MapObject): boolean;
     /**
      *  Check directions
@@ -171,7 +167,7 @@ declare class Collisions {
      *  @param {Vector3} direction - The direction collision
      *  @param {MapObject} object - The map object collision test
      *  @returns {boolean}
-    */
+     */
     static checkDirections(jpositionBefore: Position, jpositionAfter: Position, collision: StructMapElementCollision, boundingBox: number[], direction: Vector3, object: MapObject): boolean;
     /**
      *  Check directions inside.
@@ -181,7 +177,7 @@ declare class Collisions {
      *  @param {StructMapElementCollision} collision - The collision object
      *  @param {Vector3} direction - The direction collision
      *  @returns {boolean}
-    */
+     */
     static checkDirectionsInside(jpositionBefore: Position, jpositionAfter: Position, collision: StructMapElementCollision, direction: THREE.Vector3): boolean;
     /**
      *  Check if there is a collision with sprites at this position.
@@ -192,7 +188,7 @@ declare class Collisions {
      *  collisions that were already tested
      *  @param {MapObject} object - The map object collision test
      *  @returns {boolean}
-    */
+     */
     static checkSprites(mapPortion: MapPortion, jpositionAfter: Position, testedCollisions: StructMapElementCollision[], object: MapObject): [boolean, number, Enum.Orientation];
     /**
      *  Check intersection between ray and an object.
@@ -201,8 +197,8 @@ declare class Collisions {
      *  @param {boolean} fix - Indicate if the sprite is fix or not
      *  @param {MapObject} object - The map object collision test
      *  @returns {boolean}
-    */
-    static checkIntersectionSprite(boundingBox: number[], fix: boolean, object: MapObject): boolean;
+     */
+    static checkIntersectionSprite(boundingBox: number[], fix: boolean, object: MapObject, center?: [number, number, number]): boolean;
     /**
      *  Check if there is a collision with sprites at this position.
      *  @static
@@ -213,7 +209,7 @@ declare class Collisions {
      *  collisions that were already tested
      *  @param {MapObject} object - The map object collision test
      *  @returns {boolean}
-    */
+     */
     static checkObjects3D(mapPortion: MapPortion, jpositionAfter: Position, positionAfter: THREE.Vector3, testedCollisions: StructMapElementCollision[], object: MapObject): boolean;
     /**
      *  Check if there is a collision with custom object 3D collision.
@@ -223,7 +219,7 @@ declare class Collisions {
      *  @param {MapObject} object - The map object collision test
      *  @param {THREE.Vector3} positionAfter - The position after collision
      *  @returns {boolean}
-    */
+     */
     static checkCustomObject3D(objCollision: StructMapElementCollision, object: MapObject, positionAfter: THREE.Vector3): boolean;
     /**
      *  Check intersection between two complex meshes.
@@ -232,7 +228,7 @@ declare class Collisions {
      *  @param {THREE.Mesh<CustomGeometry, THREE.Material | THREE.Material[]>} meshB - The second mesh
      *  @param {THREE.Vector3} direction - The meshA direction to mesh B
      *  @returns {boolean}
-    */
+     */
     static checkIntersectionMeshes(meshA: THREE.Mesh<CustomGeometry, THREE.Material | THREE.Material[]>, meshB: THREE.Mesh<CustomGeometry, THREE.Material | THREE.Material[]>, direction: THREE.Vector3): boolean;
     /**
      *  Check if there is a collision with mountains at this position.
@@ -244,7 +240,7 @@ declare class Collisions {
      *  already tested
      *  @param {MapObject} object - The map object collision test
      *  @returns {boolean}
-    */
+     */
     static checkMountains(mapPortion: MapPortion, jpositionAfter: Position, positionAfter: Vector3, testedCollisions: StructMapElementCollision[], object: MapObject): [boolean, number];
     /**
      *  Check if there is a collision with mountains at this position.
@@ -259,12 +255,8 @@ declare class Collisions {
      *  @param {number} yMountain - The y mountain collision
      *  @param {boolean} block - The block mountain collision
      *  @returns {[boolean, boolean, number]}
-    */
-    static checkMountain(mapPortion: MapPortion, jpositionAfter: Position, positionAfter: Vector3, testedCollisions: StructMapElementCollision[], object: MapObject, objCollision: StructMapElementCollision, yMountain: number, block: boolean): [
-        boolean,
-        boolean,
-        number
-    ];
+     */
+    static checkMountain(mapPortion: MapPortion, jpositionAfter: Position, positionAfter: Vector3, testedCollisions: StructMapElementCollision[], object: MapObject, objCollision: StructMapElementCollision, yMountain: number, block: boolean): [boolean, boolean, number];
     /**
      *  Check intersection with a mountain.
      *  @static
@@ -274,7 +266,7 @@ declare class Collisions {
      *  @param {StructMapElementCollision} objCollision - The object collision
      *  @param {MapObject} object - The map object collision test
      *  @returns {[boolean, number]}
-    */
+     */
     static checkIntersectionMountain(mapPortion: MapPortion, jpositionAfter: Position, positionAfter: Vector3, objCollision: StructMapElementCollision, object: MapObject): [boolean, number];
     /**
      *  Check collision with objects.
@@ -290,7 +282,7 @@ declare class Collisions {
      *  @param {MapObject[]} list - The map objects list to test
      *  @param {MapObject} object - The map object collision test
      *  @returns {boolean}
-    */
+     */
     static checkObjectsList(list: MapObject[], object: MapObject): boolean;
 }
 export { Collisions };

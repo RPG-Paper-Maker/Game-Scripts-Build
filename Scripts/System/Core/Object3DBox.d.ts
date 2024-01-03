@@ -31,7 +31,7 @@ declare class Object3DBox extends Object3D {
      *  Read the JSON associated to the object 3D box.
      *  @param {Record<string, any>} json - Json object describing the object 3D
      *  box
-    */
+     */
     read(json: Record<string, any>): void;
     /**
      *  Get the center vector.
@@ -44,19 +44,13 @@ declare class Object3DBox extends Object3D {
      *  @param {Position} position - The position of object 3D
      *  @param {number} count - The faces count
      *  @return {number[]}
-    */
+     */
     updateGeometry(geometry: CustomGeometry, position: Position, count: number): [number, StructMapElementCollision[]];
     /**
      *  Create a new geometry.
      *  @param {Position} position - The position of object 3D
      *  @return {[Core.CustomGeometry, [number, StructMapElementCollision[]]]}
-    */
-    createGeometry(position: Position): [
-        CustomGeometry,
-        [
-            number,
-            StructMapElementCollision[]
-        ]
-    ];
+     */
+    createGeometry(position: Position): [CustomGeometry, [number, StructMapElementCollision[]]];
 }
 export { Object3DBox };

@@ -73,6 +73,7 @@ declare class Position extends Portion {
      *  @returns {Vector3}
      */
     toVector3(center?: boolean): Vector3;
+    toRotationEuler(): THREE.Euler;
     /**
      *  Transform a position to a scaling Vector3.
      *  @returns {Vector3}

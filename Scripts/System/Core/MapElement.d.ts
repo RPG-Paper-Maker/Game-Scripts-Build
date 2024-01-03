@@ -24,6 +24,7 @@ interface StructMapElementCollision {
     a?: number;
     id?: number;
     cl?: boolean;
+    cr?: [number, number, number];
 }
 /** @class
  *  An element in the map.

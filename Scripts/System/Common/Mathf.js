@@ -15,7 +15,7 @@
  */
 class Mathf {
     constructor() {
-        throw new Error("This is a static class!");
+        throw new Error('This is a static class!');
     }
     /*
      * Potential Hotspot/Nullipotent
@@ -57,8 +57,7 @@ class Mathf {
      */
     static isProperSubsetOf(array1, array2) {
         return this.isSubsetOf(array1, array2) && !this.isSubsetOf(array2, array1);
-    }
-    ; // isProperSubsetOf
+    } // isProperSubsetOf
     /**
      * Potential Hotspot/Nullipotent
      * @author DoubleX @interface
@@ -68,8 +67,7 @@ class Mathf {
      */
     static isProperSupersetOf(array1, array2) {
         return this.isSupersetOf(array1, array2) && !this.isSupersetOf(array2, array1);
-    }
-    ; // isProperSupersetOf
+    } // isProperSupersetOf
     /**
      * Potential Hotspot/Nullipotent
      * @author DoubleX @interface
@@ -79,8 +77,7 @@ class Mathf {
      */
     static isSupersetOf(array1, array2) {
         return this.isSubsetOf(array2, array1);
-    }
-    ; // isSupersetOf
+    } // isSupersetOf
     /**
      * Potential Hotspot/Nullipotent
      *
@@ -93,8 +90,7 @@ class Mathf {
      */
     static isSubsetOf(array1, array2) {
         return this.isEmpty(this.difference(array1, array2));
-    }
-    ; // isSubsetOf
+    } // isSubsetOf
     /**
      * Potential Hotspot/Nullipotent
      * @author DoubleX @interface
@@ -104,8 +100,7 @@ class Mathf {
      */
     static symmetricDifference(array1, array2) {
         return this.union(this.difference(array1, array2), this.difference(array2, array1));
-    }
-    ; // symmetricDifference
+    } // symmetricDifference
     /**
      * This method changes the original array
      * Potential Hotspot/Nullipotent
@@ -116,8 +111,7 @@ class Mathf {
      */
     static symmetricDifferenceInPlace(array1, array2) {
         return this.unionInPlace(this.differenceInPlace(array1, array2), this.difference(array2, array1));
-    }
-    ; // symmetricDifferenceInPlace
+    } // symmetricDifferenceInPlace
     /**
      * Potential Hotspot/Nullipotent
      * @author DoubleX @interface
@@ -127,8 +121,7 @@ class Mathf {
      */
     static union(array1, array2) {
         return array1.concat(this.difference(array2, array1));
-    }
-    ; // union
+    } // union
     /**
      * This method changes the original array
      * Potential Hotspot/Nullipotent
@@ -140,8 +133,7 @@ class Mathf {
     static unionInPlace(array1, array2) {
         array1.push(...this.difference(array2, array1));
         return array1;
-    }
-    ; // unionInPlace
+    } // unionInPlace
     /**
      * Potential Hotspot/Nullipotent
      * @author DoubleX @interface
@@ -151,8 +143,7 @@ class Mathf {
      */
     static difference(array1, array2) {
         return array1.filter((elem) => this.excludes(array2, elem, 0));
-    }
-    ; // difference
+    } // difference
     /**
      * This method changes the original array
      * Potential Hotspot/Nullipotent
@@ -168,8 +159,7 @@ class Mathf {
             if (!array1[i])
                 return array1;
         }
-    }
-    ; // differenceInPlace
+    } // differenceInPlace
     /**
      * Potential Hotspot/Nullipotent
      * @author DoubleX @interface
@@ -181,8 +171,7 @@ class Mathf {
         // The 2nd argument of includes doesn't match with that of filter
         return array1.filter((elem) => array2.includes(elem));
         //
-    }
-    ; // intersection
+    } // intersection
     /**
      * This method changes the original array
      * Potential Hotspot/Nullipotent
@@ -199,8 +188,7 @@ class Mathf {
             if (!array1[i])
                 return array1;
         }
-    }
-    ; // intersectionInPlace
+    } // intersectionInPlace
     /**
      * Potential Hotspot/Nullipotent
      * @author DoubleX @interface
@@ -211,15 +199,15 @@ class Mathf {
      */
     static excludes(array, elem, fromI) {
         return !array.includes(elem, fromI);
-    }
-    ; // excludes
+    } // excludes
     /**
      * Potential Hotspot/Idempotent
      * @author DoubleX @interface
      * @param {T[]} array - The array to be cleared
      */
-    static clear(array) { array.length = 0; }
-    ;
+    static clear(array) {
+        array.length = 0;
+    }
     /** Check if an array is empty.
      *   @static
      *   @param {any[]} array - The array to test
@@ -294,7 +282,7 @@ class Mathf {
      *   @returns {number}
      */
     static variance(value, variance) {
-        let v = Math.round(value * variance / 100);
+        let v = Math.round((value * variance) / 100);
         return this.random(value - v, value + v);
     }
     /**
@@ -320,14 +308,11 @@ class Mathf {
      *  @returns {boolean}
      */
     static isPointOnTriangle(p, p0, p1, p2) {
-        let a = 1 / 2 * (-p1.y * p2.x + p0.y * (-p1.x + p2.x) + p0.x * (p1.y - p2
-            .y) + p1.x * p2.y);
+        let a = (1 / 2) * (-p1.y * p2.x + p0.y * (-p1.x + p2.x) + p0.x * (p1.y - p2.y) + p1.x * p2.y);
         let sign = a < 0 ? -1 : 1;
-        let s = (p0.y * p2.x - p0.x * p2.y + (p2.y - p0.y) * p.x + (p0.x - p2.x)
-            * p.y) * sign;
-        let t = (p0.x * p1.y - p0.y * p1.x + (p0.y - p1.y) * p.x + (p1.x - p0.x)
-            * p.y) * sign;
-        return s > 0 && t > 0 && (s + t) < 2 * a * sign;
+        let s = (p0.y * p2.x - p0.x * p2.y + (p2.y - p0.y) * p.x + (p0.x - p2.x) * p.y) * sign;
+        let t = (p0.x * p1.y - p0.y * p1.x + (p0.y - p1.y) * p.x + (p1.x - p0.x) * p.y) * sign;
+        return s > 0 && t > 0 && s + t < 2 * a * sign;
     }
     /**
      *  Get the orthogonal projection between two vectors.
@@ -343,15 +328,15 @@ class Mathf {
         return (dot / (lu * lv)) * lu;
     }
     /**
- * Convert a value to a percent.
- *
- * @export
- * @param {number} a
- * @param {number} b
- * @return {number}
- */
+     * Convert a value to a percent.
+     *
+     * @export
+     * @param {number} a
+     * @param {number} b
+     * @return {number}
+     */
     static percentOf(a, b, large = false) {
-        return a / b * (large ? 100 : 1);
+        return (a / b) * (large ? 100 : 1);
     }
     /**
      * Convert a value to a rounded percent.
@@ -375,10 +360,10 @@ class Mathf {
      * @return {number}  {number}
      */
     static numberOf(a, b, large = true) {
-        if (a > 1 && !large || b > 1 && !large) {
-            throw new Error("value out of range! (0~1) please enable large mode if you want to use integer!");
+        if ((a > 1 && !large) || (b > 1 && !large)) {
+            throw new Error('value out of range! (0~1) please enable large mode if you want to use integer!');
         }
-        return a * b / (large ? 100 : 1);
+        return (a * b) / (large ? 100 : 1);
     }
     /**
      * Convert a percent to a rounded number
@@ -390,8 +375,8 @@ class Mathf {
      * @return {number}  {number}
      */
     static roundedNumberOf(a, b, large = true) {
-        if (a > 1 && !large || b > 1 && !large) {
-            throw new Error("value out of range! (0~1) please enable large mode if you want to use integer!");
+        if ((a > 1 && !large) || (b > 1 && !large)) {
+            throw new Error('value out of range! (0~1) please enable large mode if you want to use integer!');
         }
         return Math.round(this.numberOf(a, b));
     }
@@ -410,23 +395,53 @@ class Mathf {
      *  @return {string}
      */
     static numberWithCommas(x) {
-        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+    static radiansToDegrees(radians) {
+        return radians * (180 / Math.PI);
+    }
+    static degreesToRadians(degrees) {
+        return degrees * (Math.PI / 180);
     }
 }
 Mathf.OPERATORS_COMPARE = [
-    function (a, b) { return a === b; },
-    function (a, b) { return a !== b; },
-    function (a, b) { return a >= b; },
-    function (a, b) { return a <= b; },
-    function (a, b) { return a > b; },
-    function (a, b) { return a < b; }
+    function (a, b) {
+        return a === b;
+    },
+    function (a, b) {
+        return a !== b;
+    },
+    function (a, b) {
+        return a >= b;
+    },
+    function (a, b) {
+        return a <= b;
+    },
+    function (a, b) {
+        return a > b;
+    },
+    function (a, b) {
+        return a < b;
+    },
 ];
 Mathf.OPERATORS_NUMBERS = [
-    function (a, b) { return b; },
-    function (a, b) { return a + b; },
-    function (a, b) { return a - b; },
-    function (a, b) { return a * b; },
-    function (a, b) { return a / b; },
-    function (a, b) { return a % b; }
+    function (a, b) {
+        return b;
+    },
+    function (a, b) {
+        return a + b;
+    },
+    function (a, b) {
+        return a - b;
+    },
+    function (a, b) {
+        return a * b;
+    },
+    function (a, b) {
+        return a / b;
+    },
+    function (a, b) {
+        return a % b;
+    },
 ];
 export { Mathf };

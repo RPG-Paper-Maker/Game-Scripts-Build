@@ -48,6 +48,8 @@ declare class Sprite extends MapElement {
      *   @param {Vector3} axis - The vector axis
      */
     static rotateSprite(vecA: Vector3, vecB: Vector3, vecC: Vector3, vecD: Vector3, center: Vector3, angle: number, axis: Vector3): void;
+    static rotateVertexEuler(vec: THREE.Vector3, center: THREE.Vector3, euler: THREE.Euler): void;
+    static rotateQuadEuler(vecA: THREE.Vector3, vecB: THREE.Vector3, vecC: THREE.Vector3, vecD: THREE.Vector3, center: THREE.Vector3, euler: THREE.Euler): void;
     /**
      *  Add a static sprite to the geometry.
      *  @static

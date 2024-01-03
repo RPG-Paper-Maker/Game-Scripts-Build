@@ -212,13 +212,13 @@ declare class Mathf {
      */
     static orthogonalProjection(u: Vector3, v: Vector3): number;
     /**
- * Convert a value to a percent.
- *
- * @export
- * @param {number} a
- * @param {number} b
- * @return {number}
- */
+     * Convert a value to a percent.
+     *
+     * @export
+     * @param {number} a
+     * @param {number} b
+     * @return {number}
+     */
     static percentOf(a: number, b: number, large?: boolean): number;
     /**
      * Convert a value to a rounded percent.
@@ -263,5 +263,7 @@ declare class Mathf {
      *  @return {string}
      */
     static numberWithCommas(x: number): string;
+    static radiansToDegrees(radians: number): number;
+    static degreesToRadians(degrees: number): number;
 }
 export { Mathf };

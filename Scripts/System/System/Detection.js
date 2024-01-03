@@ -34,9 +34,15 @@ class Detection extends Base {
         let jsonElement;
         for (let i = 0; i < l; i++) {
             jsonElement = jsonList[i];
-            this.boxes[i] = [Position.createFromArray(jsonElement.k), Utils
-                    .defaultValue(jsonElement.v.bls, 1), Utils.defaultValue(jsonElement.v.blp, 0), Utils.defaultValue(jsonElement.v.bhs, 1),
-                Utils.defaultValue(jsonElement.v.bhp, 0), Utils.defaultValue(jsonElement.v.bws, 1), Utils.defaultValue(jsonElement.v.bwp, 0)];
+            this.boxes[i] = [
+                Position.createFromArray(jsonElement.k),
+                Utils.defaultValue(jsonElement.v.bls, 1),
+                Utils.defaultValue(jsonElement.v.blp, 0),
+                Utils.defaultValue(jsonElement.v.bhs, 1),
+                Utils.defaultValue(jsonElement.v.bhp, 0),
+                Utils.defaultValue(jsonElement.v.bws, 1),
+                Utils.defaultValue(jsonElement.v.bwp, 0),
+            ];
         }
     }
     /**
@@ -48,8 +54,7 @@ class Detection extends Base {
     checkCollision(sender, object) {
         let boundingBoxes = this.getBoundingBoxes(sender);
         for (let i = 0, l = boundingBoxes.length; i < l; i++) {
-            Manager.Collisions.applyBoxSpriteTransforms(Manager.Collisions
-                .getBBBoxDetection(), boundingBoxes[i]);
+            Manager.Collisions.applyBoxSpriteTransforms(Manager.Collisions.getBBBoxDetection(), boundingBoxes[i]);
             if (object.checkCollisionDetection()) {
                 return true;
             }
@@ -70,17 +75,12 @@ class Detection extends Base {
         for (let i = 0; i < l; i++) {
             box = this.boxes[i];
             p = box[0];
-            length = (box[1] * Datas.Systems.SQUARE_SIZE) + (box[2] / 100 * Datas
-                .Systems.SQUARE_SIZE);
-            height = (box[3] * Datas.Systems.SQUARE_SIZE) + (box[4] / 100 * Datas
-                .Systems.SQUARE_SIZE);
-            width = (box[5] * Datas.Systems.SQUARE_SIZE) + (box[6] / 100 * Datas
-                .Systems.SQUARE_SIZE);
+            length = box[1] * Datas.Systems.SQUARE_SIZE + (box[2] / 100) * Datas.Systems.SQUARE_SIZE;
+            height = box[3] * Datas.Systems.SQUARE_SIZE + (box[4] / 100) * Datas.Systems.SQUARE_SIZE;
+            width = box[5] * Datas.Systems.SQUARE_SIZE + (box[6] / 100) * Datas.Systems.SQUARE_SIZE;
             // Update position according to sender orientation
-            px = (p.x - 1) * Datas.Systems.SQUARE_SIZE + p.getPixelsCenterX() +
-                (length / 2);
-            pz = (p.z - 1) * Datas.Systems.SQUARE_SIZE + p.getPixelsCenterZ() +
-                (width / 2);
+            px = (p.x - 1) * Datas.Systems.SQUARE_SIZE + p.getPixelsCenterX() + length / 2;
+            pz = (p.z - 1) * Datas.Systems.SQUARE_SIZE + p.getPixelsCenterZ() + width / 2;
             switch (orientation) {
                 case Orientation.South:
                     x = px;
@@ -105,14 +105,14 @@ class Detection extends Base {
             }
             list[i] = [
                 localPosition.x + x,
-                localPosition.y + p.getTotalY() + (height / 2),
+                localPosition.y + p.getTotalY() + height / 2,
                 localPosition.z + z,
                 length,
                 height,
                 width,
                 0,
                 0,
-                0
+                0,
             ];
         }
         return list;

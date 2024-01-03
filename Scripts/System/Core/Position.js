@@ -8,6 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { THREE } from '../Globals.js';
 import { Portion } from './Portion.js';
 import { Constants, Mathf } from '../Common/index.js';
 import { Datas } from '../index.js';
@@ -66,34 +67,38 @@ class Position extends Portion {
      *  @returns {boolean}
      */
     equals(position) {
-        return super.equals(position) && this.yPixels === position.yPixels &&
-            this.layer === position.layer && this.centerX === position.centerX
-            && this.centerZ === position.centerZ && this.angleY === position
-            .angleY && this.angleX === position.angleX && this.angleZ ===
-            position.angleZ && this.scaleX === position.scaleX && this.scaleY ===
-            position.scaleY && this.scaleZ === position.scaleZ;
+        return (super.equals(position) &&
+            this.yPixels === position.yPixels &&
+            this.layer === position.layer &&
+            this.centerX === position.centerX &&
+            this.centerZ === position.centerZ &&
+            this.angleY === position.angleY &&
+            this.angleX === position.angleX &&
+            this.angleZ === position.angleZ &&
+            this.scaleX === position.scaleX &&
+            this.scaleY === position.scaleY &&
+            this.scaleZ === position.scaleZ);
     }
     /**
      *  Get the complete number of Y of a position.
      *   @returns {number}
      */
     getTotalY() {
-        return (this.y * Datas.Systems.SQUARE_SIZE) + (this.yPixels * Datas
-            .Systems.SQUARE_SIZE / 100);
+        return this.y * Datas.Systems.SQUARE_SIZE + (this.yPixels * Datas.Systems.SQUARE_SIZE) / 100;
     }
     /**
      *  Get the complete number of pixels for x center.
      *  @returns {number}
      */
     getPixelsCenterX() {
-        return Math.floor(this.centerX * Datas.Systems.SQUARE_SIZE / 100);
+        return Math.floor((this.centerX * Datas.Systems.SQUARE_SIZE) / 100);
     }
     /**
      *  Get the complete number of pixels for z center.
      *  @returns {number}
      */
     getPixelsCenterZ() {
-        return Math.floor(this.centerZ * Datas.Systems.SQUARE_SIZE / 100);
+        return Math.floor((this.centerZ * Datas.Systems.SQUARE_SIZE) / 100);
     }
     /**
      *  Get the global portion of a json position.
@@ -107,10 +112,10 @@ class Position extends Portion {
      *  @returns {Vector3}
      */
     toVector3(center = true) {
-        return new Vector3((this.x * Datas.Systems.SQUARE_SIZE) + (center ? (this.centerX / 100
-            * Datas.Systems.SQUARE_SIZE) : 0), (this.y * Datas.Systems.SQUARE_SIZE) + (this.yPixels * Datas.Systems
-            .SQUARE_SIZE / 100), (this.z * Datas.Systems.SQUARE_SIZE) + (center ? (this.centerZ / 100
-            * Datas.Systems.SQUARE_SIZE) : 0));
+        return new Vector3(this.x * Datas.Systems.SQUARE_SIZE + (center ? (this.centerX / 100) * Datas.Systems.SQUARE_SIZE : 0), this.y * Datas.Systems.SQUARE_SIZE + (this.yPixels * Datas.Systems.SQUARE_SIZE) / 100, this.z * Datas.Systems.SQUARE_SIZE + (center ? (this.centerZ / 100) * Datas.Systems.SQUARE_SIZE : 0));
+    }
+    toRotationEuler() {
+        return new THREE.Euler(Mathf.degreesToRadians(this.angleX), Mathf.degreesToRadians(this.angleY), Mathf.degreesToRadians(this.angleZ));
     }
     /**
      *  Transform a position to a scaling Vector3.
@@ -125,9 +130,9 @@ class Position extends Portion {
      *  @returns {number}
      */
     toIndex() {
-        return (this.x % Constants.PORTION_SIZE) + (Mathf.mod(this.y, Constants
-            .PORTION_SIZE) * Constants.PORTION_SIZE) + ((this.z % Constants
-            .PORTION_SIZE) * Constants.PORTION_SIZE * Constants.PORTION_SIZE);
+        return ((this.x % Constants.PORTION_SIZE) +
+            Mathf.mod(this.y, Constants.PORTION_SIZE) * Constants.PORTION_SIZE +
+            (this.z % Constants.PORTION_SIZE) * Constants.PORTION_SIZE * Constants.PORTION_SIZE);
     }
 }
 export { Position };

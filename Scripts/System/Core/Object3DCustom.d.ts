@@ -39,19 +39,13 @@ declare class Object3DCustom extends Object3D {
      *  @param {Position} position - The position of the object 3D custom
      *  @param {number} count - The faces count
      *  @return {any[]}
-    */
+     */
     updateGeometry(geometry: CustomGeometry, position: Position, count: number): [number, StructMapElementCollision[]];
     /**
      *  Create a new geometry.
      *  @param {Position} position - The position of object 3D
      *  @return {[Core.CustomGeometry, [number, StructMapElementCollision[]]]}
      */
-    createGeometry(position: Position): [
-        CustomGeometry,
-        [
-            number,
-            StructMapElementCollision[]
-        ]
-    ];
+    createGeometry(position: Position): [CustomGeometry, [number, StructMapElementCollision[]]];
 }
 export { Object3DCustom };

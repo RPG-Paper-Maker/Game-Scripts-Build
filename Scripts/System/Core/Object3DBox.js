@@ -45,7 +45,7 @@ class Object3DBox extends Object3D {
      *  Read the JSON associated to the object 3D box.
      *  @param {Record<string, any>} json - Json object describing the object 3D
      *  box
-    */
+     */
     read(json) {
         super.read(json);
         this.id = this.datas.id;
@@ -55,8 +55,7 @@ class Object3DBox extends Object3D {
      *  @returns {Vector3}
      */
     getCenterVector() {
-        return new Vector3(this.datas.widthPixels() / 2, this.datas
-            .heightPixels() / 2, this.datas.depthPixels() / 2);
+        return new Vector3(this.datas.widthPixels() / 2, this.datas.heightPixels() / 2, this.datas.depthPixels() / 2);
     }
     /**
      *  Update the geometry of a group of object 3D with the same material.
@@ -64,55 +63,41 @@ class Object3DBox extends Object3D {
      *  @param {Position} position - The position of object 3D
      *  @param {number} count - The faces count
      *  @return {number[]}
-    */
+     */
     updateGeometry(geometry, position, count) {
         let coef = 0.01;
         let localPosition = position.toVector3(false);
         if (this.datas.isTopLeft) {
-            localPosition.setX(localPosition.x - Math.floor(Datas.Systems
-                .SQUARE_SIZE / 2) + position.getPixelsCenterX() + coef);
-            localPosition.setZ(localPosition.z - Math.floor(Datas.Systems
-                .SQUARE_SIZE / 2) + position.getPixelsCenterZ() + coef);
+            localPosition.setX(localPosition.x - Math.floor(Datas.Systems.SQUARE_SIZE / 2) + position.getPixelsCenterX() + coef);
+            localPosition.setZ(localPosition.z - Math.floor(Datas.Systems.SQUARE_SIZE / 2) + position.getPixelsCenterZ() + coef);
         }
         else {
             localPosition.setX(localPosition.x + position.getPixelsCenterX() + coef);
             localPosition.setZ(localPosition.z + position.getPixelsCenterZ() + coef);
         }
         localPosition.setY(localPosition.y + coef);
-        let angleY = position.angleY;
-        let angleX = position.angleX;
-        let angleZ = position.angleZ;
         let size = this.datas.getSizeVector().multiply(position.toScaleVector());
-        let center = this.datas.isTopLeft ? new Vector3(localPosition.x + Math
-            .floor(Datas.Systems.SQUARE_SIZE / 2), localPosition.y + (size.y / 2), localPosition.z + Math.floor(Datas.Systems.SQUARE_SIZE / 2)) : new Vector3(localPosition.x, localPosition.y + (size.y / 2), localPosition.z);
-        let centerReal = this.datas.isTopLeft ? new Vector3(localPosition.x +
-            Math.floor(size.x / 2), localPosition.y + (size.y / 2), localPosition
-            .z + Math.floor(size.z / 2)) : new Vector3(localPosition.x, localPosition.y + (size.y / 2), localPosition.z);
-        Sprite.rotateVertex(centerReal, center, angleY, Sprite.Y_AXIS);
-        Sprite.rotateVertex(centerReal, center, angleX, Sprite.X_AXIS);
-        Sprite.rotateVertex(centerReal, center, angleZ, Sprite.Z_AXIS);
-        size.setX(size.x - (2 * coef));
-        size.setY(size.y - (2 * coef));
-        size.setZ(size.z - (2 * coef));
+        size.setX(size.x - 2 * coef);
+        size.setY(size.y - 2 * coef);
+        size.setZ(size.z - 2 * coef);
         let w = this.datas.widthPixels();
         let h = this.datas.heightPixels();
         let d = this.datas.depthPixels();
         // Textures
         let textures = Object3DBox.TEXTURES_VALUES.slice(0);
         if (!this.datas.stretch) {
-            let totalX = (d * 2) + (w * 2);
-            let totalY = (d * 2) + h;
+            let totalX = d * 2 + w * 2;
+            let totalY = d * 2 + h;
             textures[1] = d / totalX;
             textures[2] = (d + w) / totalX;
-            textures[3] = ((2 * d) + w) / totalX;
+            textures[3] = (2 * d + w) / totalX;
             textures[5] = d / totalY;
             textures[6] = (d + h) / totalY;
         }
         // Vertices + faces / indexes
         let vecA, vecB, vecC, vecD, tA, tB, tC, tD, texA, texB, texC, texD;
         for (let i = 0; i < Object3DBox.NB_VERTICES; i += 4) {
-            let vertices = this.datas.isTopLeft ? Object3DBox.VERTICES : Object3DBox
-                .VERTICES_CENTER;
+            let vertices = this.datas.isTopLeft ? Object3DBox.VERTICES : Object3DBox.VERTICES_CENTER;
             vecA = vertices[i].clone();
             vecB = vertices[i + 1].clone();
             vecC = vertices[i + 2].clone();
@@ -133,19 +118,11 @@ class Object3DBox extends Object3D {
             texB = new Vector2(textures[tB[0]], textures[tB[1]]);
             texC = new Vector2(textures[tC[0]], textures[tC[1]]);
             texD = new Vector2(textures[tD[0]], textures[tD[1]]);
-            if (angleY !== 0.0) {
-                Sprite.rotateSprite(vecA, vecB, vecC, vecD, center, angleY, Sprite.Y_AXIS);
-            }
-            if (angleX !== 0.0) {
-                Sprite.rotateSprite(vecA, vecB, vecC, vecD, center, angleX, Sprite.X_AXIS);
-            }
-            if (angleZ !== 0.0) {
-                Sprite.rotateSprite(vecA, vecB, vecC, vecD, center, angleZ, Sprite.Z_AXIS);
-            }
+            Sprite.rotateQuadEuler(vecA, vecB, vecC, vecD, localPosition, position.toRotationEuler());
             count = Sprite.addStaticSpriteToGeometry(geometry, vecA, vecB, vecC, vecD, texA, texB, texC, texD, count);
         }
         // Collisions
-        let objCollision = new Array;
+        let objCollision = new Array();
         if (this.datas.collisionKind === ObjectCollisionKind.Perfect) {
             let ws = Math.floor(this.datas.width() * position.scaleX);
             let hs = Math.floor(this.datas.height() * position.scaleY);
@@ -154,21 +131,26 @@ class Object3DBox extends Object3D {
                 p: position,
                 l: localPosition,
                 b: [
-                    centerReal.x,
-                    centerReal.y,
-                    centerReal.z,
+                    localPosition.x,
+                    localPosition.y,
+                    localPosition.z,
                     Math.floor(w * position.scaleX),
                     Math.floor(h * position.scaleY),
                     Math.floor(d * position.scaleZ),
-                    angleY,
-                    angleX,
-                    angleZ
+                    position.angleY,
+                    position.angleX,
+                    position.angleZ,
                 ],
                 w: ws,
                 h: hs,
+                cr: [
+                    this.datas.isTopLeft ? (-w / 2) * position.scaleX : 0,
+                    (-h / 2) * position.scaleY,
+                    this.datas.isTopLeft ? (-d / 2) * position.scaleZ : 0,
+                ],
                 d: ds,
                 m: Math.max(Math.max(ws, hs), ds),
-                k: true
+                k: true,
             });
         }
         return [count, objCollision];
@@ -177,7 +159,7 @@ class Object3DBox extends Object3D {
      *  Create a new geometry.
      *  @param {Position} position - The position of object 3D
      *  @return {[Core.CustomGeometry, [number, StructMapElementCollision[]]]}
-    */
+     */
     createGeometry(position) {
         let geometry = new CustomGeometry();
         let collisions = this.updateGeometry(geometry, position, 0);
@@ -215,7 +197,7 @@ Object3DBox.VERTICES = [
     new Vector3(0.0, 1.0, 0.0),
     new Vector3(1.0, 1.0, 0.0),
     new Vector3(1.0, 1.0, 1.0),
-    new Vector3(0.0, 1.0, 1.0)
+    new Vector3(0.0, 1.0, 1.0),
 ];
 Object3DBox.VERTICES_CENTER = [
     // Front
@@ -247,7 +229,7 @@ Object3DBox.VERTICES_CENTER = [
     new Vector3(-0.5, 1.0, -0.5),
     new Vector3(0.5, 1.0, -0.5),
     new Vector3(0.5, 1.0, 0.5),
-    new Vector3(-0.5, 1.0, 0.5)
+    new Vector3(-0.5, 1.0, 0.5),
 ];
 Object3DBox.NB_VERTICES = 24;
 Object3DBox.TEXTURES = [
@@ -280,17 +262,11 @@ Object3DBox.TEXTURES = [
     [1, 0],
     [2, 0],
     [2, 5],
-    [1, 5]
+    [1, 5],
 ];
-Object3DBox.TEXTURES_VALUES = [
-    0.0, 0.25, 0.5, 0.75, 1.0, 0.333333333333333, 0.666666666666666, 1.0
-];
+Object3DBox.TEXTURES_VALUES = [0.0, 0.25, 0.5, 0.75, 1.0, 0.333333333333333, 0.666666666666666, 1.0];
 Object3DBox.INDEXES = [
-    0, 1, 2, 0, 2, 3,
-    4, 5, 6, 4, 6, 7,
-    8, 9, 10, 8, 10, 11,
-    12, 13, 14, 12, 14, 15,
-    16, 17, 18, 16, 18, 19,
-    20, 21, 22, 20, 22, 23
+    0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21,
+    22, 20, 22, 23,
 ];
 export { Object3DBox };
