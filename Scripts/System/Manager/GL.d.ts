@@ -1,3 +1,4 @@
+import { THREE } from '../Globals.js';
 import { System } from '../index.js';
 import { Vector3, Vector2 } from '../Core/index.js';
 /** @class
@@ -10,9 +11,9 @@ declare class GL {
     static SHADER_FACE_VERTEX: string;
     static SHADER_FACE_FRAGMENT: string;
     static renderer: THREE.WebGLRenderer;
-    static textureLoader: import("three").TextureLoader;
-    static raycaster: import("three").Raycaster;
-    static screenTone: import("three").Vector4;
+    static textureLoader: THREE.TextureLoader;
+    static raycaster: THREE.Raycaster;
+    static screenTone: THREE.Vector4;
     constructor();
     /**
      *  Initialize the openGL stuff.
@@ -49,7 +50,7 @@ declare class GL {
         flipX?: boolean;
         flipY?: boolean;
         uniforms?: Record<string, any>;
-        side?: number;
+        side?: THREE.Side;
         repeat?: number;
         opacity?: number;
         shadows?: boolean;

@@ -1,6 +1,7 @@
 import { Enum } from '../Common/index.js';
 import ElementMapKind = Enum.ElementMapKind;
 import { MapElement, StructMapElementCollision } from './MapElement.js';
+import { THREE } from '../Globals.js';
 import { Position } from './Position.js';
 import { Core } from '../index.js';
 import { Vector3 } from './Vector3.js';

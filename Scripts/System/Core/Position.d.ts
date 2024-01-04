@@ -1,3 +1,4 @@
+import { THREE } from '../Globals.js';
 import { Portion } from './Portion.js';
 import { Vector3 } from './Vector3.js';
 /** @class

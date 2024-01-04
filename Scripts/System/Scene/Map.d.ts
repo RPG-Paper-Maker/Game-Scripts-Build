@@ -1,3 +1,4 @@
+import { THREE } from '../Globals.js';
 import { Base } from './Base.js';
 import { Enum } from '../Common/index.js';
 import Orientation = Enum.Orientation;

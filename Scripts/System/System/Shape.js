@@ -40,13 +40,13 @@ class Shape extends Base {
     static customShapeKindToString(kind) {
         switch (kind) {
             case CustomShapeKind.OBJ:
-                return ".obj";
+                return '.obj';
             case CustomShapeKind.MTL:
-                return ".mtl";
+                return '.mtl';
             case CustomShapeKind.Collisions:
-                return ".obj collisions";
+                return '.obj collisions';
         }
-        return "";
+        return '';
     }
     /**
      *  Parse the .obj text.
@@ -77,10 +77,7 @@ class Shape extends Base {
             }
             else if ((result = vertex_pattern.exec(line)) !== null) {
                 // ["v 1.0 2.0 3.0", "1.0", "2.0", "3.0"]
-                temp3D = new Vector3(parseFloat(result[1]) * Datas.Systems
-                    .SQUARE_SIZE, parseFloat(result[2]) * Datas.Systems
-                    .SQUARE_SIZE, parseFloat(result[3]) * Datas.Systems
-                    .SQUARE_SIZE);
+                temp3D = new Vector3(parseFloat(result[1]) * Datas.Systems.SQUARE_SIZE, parseFloat(result[2]) * Datas.Systems.SQUARE_SIZE, parseFloat(result[3]) * Datas.Systems.SQUARE_SIZE);
                 v.push(temp3D);
                 if (firstVertex) {
                     minVertex = temp3D.clone();
@@ -118,12 +115,12 @@ class Shape extends Base {
             }
             else if ((result = face_pattern.exec(line)) !== null) {
                 // ["f 1/1/1 2/2/2 3/3/3", " 1/1/1", "1", "1", "1", " 2/2/2", "2", "2", "2", " 3/3/3", "3", "3", "3", undefined, undefined, undefined, undefined]
-                lineList = line.split(" ");
+                lineList = line.split(' ');
                 n = lineList.length - 1;
-                arg1 = lineList[1].split("/");
+                arg1 = lineList[1].split('/');
                 for (j = 1; j < n - 1; j++) {
-                    arg2 = lineList[1 + j].split("/");
-                    arg3 = lineList[2 + j].split("/");
+                    arg2 = lineList[1 + j].split('/');
+                    arg3 = lineList[2 + j].split('/');
                     vertices.push(v[parseInt(arg1[0]) - 1]);
                     uvs.push(t[parseInt(arg1[1]) - 1]);
                     vertices.push(v[parseInt(arg2[0]) - 1]);
@@ -137,8 +134,7 @@ class Shape extends Base {
         object.uvs = uvs;
         object.minVertex = minVertex;
         object.maxVertex = maxVertex;
-        object.center = new Vector3(((maxVertex.x - minVertex.x) / 2) +
-            minVertex.x, ((maxVertex.y - minVertex.y) / 2) + minVertex.y, ((maxVertex.z - minVertex.z) / 2) + minVertex.z);
+        object.center = new Vector3((maxVertex.x - minVertex.x) / 2 + minVertex.x, (maxVertex.y - minVertex.y) / 2 + minVertex.y, (maxVertex.z - minVertex.z) / 2 + minVertex.z);
         object.w = maxVertex.x - minVertex.x;
         object.h = maxVertex.y - minVertex.y;
         object.d = maxVertex.z - minVertex.z;
@@ -153,9 +149,11 @@ class Shape extends Base {
      *  @returns {string}
      */
     static getFolder(kind, isBR, dlc) {
-        return (isBR ? Datas.Systems.PATH_BR : (dlc ? Datas.Systems.PATH_DLCS +
-            Constants.STRING_SLASH + dlc : Paths.ROOT_DIRECTORY_LOCAL)) + this
-            .getLocalFolder(kind);
+        return ((isBR
+            ? Datas.Systems.PATH_BR
+            : dlc
+                ? Datas.Systems.PATH_DLCS + Constants.STRING_SLASH + dlc
+                : Paths.ROOT_DIRECTORY_LOCAL) + this.getLocalFolder(kind));
     }
     /**
      *  Get the local folder associated to a kind of custom shape.
@@ -171,7 +169,7 @@ class Shape extends Base {
             case CustomShapeKind.Collisions:
                 return Paths.OBJ_COLLISIONS;
         }
-        return "";
+        return '';
     }
     /**
      *  Read the JSON associated to the shape
@@ -181,7 +179,7 @@ class Shape extends Base {
         this.id = json.id;
         this.name = json.name;
         this.isBR = json.br;
-        this.dlc = Utils.defaultValue(json.d, "");
+        this.dlc = Utils.defaultValue(json.d, '');
         this.base64 = json.base64;
     }
     /**
@@ -191,7 +189,7 @@ class Shape extends Base {
         if (this.id !== -1 && !this.geometry) {
             if (this.base64) {
                 this.geometry = Shape.parse(atob(this.base64));
-                this.base64 = "";
+                this.base64 = '';
             }
             else {
                 let url = this.getPath();
@@ -199,7 +197,7 @@ class Shape extends Base {
                     Shape.loader.load(url, (text) => {
                         resolve(Shape.parse(text));
                     }, () => { }, () => {
-                        let error = "Could not load " + url;
+                        let error = 'Could not load ' + url;
                         if (Datas.Systems.ignoreAssetsLoadingErrors) {
                             console.log(error);
                             resolve({});
@@ -233,8 +231,9 @@ class Shape extends Base {
      *  @returns {string}
      */
     getPath() {
-        return this.id === -1 ? "" : Shape.getFolder(this.kind, this.isBR, this
-            .dlc) + Constants.STRING_SLASH + this.name;
+        return this.id === -1
+            ? ''
+            : Shape.getFolder(this.kind, this.isBR, this.dlc) + Constants.STRING_SLASH + this.name;
     }
 }
 Shape.loader = new THREE.FileLoader();

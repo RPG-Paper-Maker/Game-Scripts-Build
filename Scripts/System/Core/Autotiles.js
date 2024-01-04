@@ -33,9 +33,9 @@ class Autotiles {
      *  @returns {StructMapElementCollision}
      */
     updateGeometry(position, autotile, pictureID) {
-        return this.width === null || this.height === 0 ? null : autotile
-            .updateGeometryAutotile(this.geometry, this.bundle, position, this
-            .width, this.height, pictureID, this.index++);
+        return this.width === null || this.height === 0
+            ? null
+            : autotile.updateGeometryAutotile(this.geometry, this.bundle, position, this.width, this.height, pictureID, this.index++);
     }
     /**
      *  Create a mesh with material and geometry.
@@ -51,30 +51,30 @@ class Autotiles {
     }
 }
 Autotiles.COUNT_LIST = 5;
-Autotiles.LIST_A = ["A1", "A2", "A3", "A4", "A5"];
-Autotiles.LIST_B = ["B1", "B2", "B3", "B4", "B5"];
-Autotiles.LIST_C = ["C1", "C2", "C3", "C4", "C5"];
-Autotiles.LIST_D = ["D1", "D2", "D3", "D4", "D5"];
+Autotiles.LIST_A = ['A1', 'A2', 'A3', 'A4', 'A5'];
+Autotiles.LIST_B = ['B1', 'B2', 'B3', 'B4', 'B5'];
+Autotiles.LIST_C = ['C1', 'C2', 'C3', 'C4', 'C5'];
+Autotiles.LIST_D = ['D1', 'D2', 'D3', 'D4', 'D5'];
 Autotiles.AUTOTILE_BORDER = {
-    "A1": 2,
-    "B1": 3,
-    "C1": 6,
-    "D1": 7,
-    "A2": 8,
-    "B4": 9,
-    "A4": 10,
-    "B2": 11,
-    "C5": 12,
-    "D3": 13,
-    "C3": 14,
-    "D5": 15,
-    "A5": 16,
-    "B3": 17,
-    "A3": 18,
-    "B5": 19,
-    "C2": 20,
-    "D4": 21,
-    "C4": 22,
-    "D2": 23,
+    A1: 2,
+    B1: 3,
+    C1: 6,
+    D1: 7,
+    A2: 8,
+    B4: 9,
+    A4: 10,
+    B2: 11,
+    C5: 12,
+    D3: 13,
+    C3: 14,
+    D5: 15,
+    A5: 16,
+    B3: 17,
+    A3: 18,
+    B5: 19,
+    C2: 20,
+    D4: 21,
+    C4: 22,
+    D2: 23,
 };
 export { Autotiles };

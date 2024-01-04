@@ -1,3 +1,4 @@
+import { THREE } from '../Globals.js';
 import { TextureBundle } from './TextureBundle.js';
 import { Mountain } from './Mountain.js';
 import { StructMapElementCollision } from './MapElement.js';

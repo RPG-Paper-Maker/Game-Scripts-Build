@@ -30,7 +30,7 @@ class Battler {
     constructor(player, isEnemy = false, position, vect, camera) {
         this.itemsNumbers = [];
         this.rect = new Rectangle();
-        this.graphicDamageName = new Graphic.Text("", { verticalAlign: Enum.AlignVertical.Bot });
+        this.graphicDamageName = new Graphic.Text('', { verticalAlign: Enum.AlignVertical.Bot });
         this.tempIsDamagesMiss = null;
         this.tempIsDamagesCritical = null;
         this.currentStatusAnimation = null;
@@ -43,19 +43,18 @@ class Battler {
             return;
         }
         this.position = vect;
-        this.arrowPosition = Manager.GL.toScreenPosition(this.position, camera
-            .getThreeCamera());
-        this.damagePosition = Manager.GL.toScreenPosition(this.position, camera
-            .getThreeCamera());
-        this.topPosition = Manager.GL.toScreenPosition(this.position, camera
-            .getThreeCamera());
-        this.midPosition = Manager.GL.toScreenPosition(this.position, camera
-            .getThreeCamera());
-        this.botPosition = Manager.GL.toScreenPosition(this.position, camera
-            .getThreeCamera());
+        this.arrowPosition = Manager.GL.toScreenPosition(this.position, camera.getThreeCamera());
+        this.damagePosition = Manager.GL.toScreenPosition(this.position, camera.getThreeCamera());
+        this.topPosition = Manager.GL.toScreenPosition(this.position, camera.getThreeCamera());
+        this.midPosition = Manager.GL.toScreenPosition(this.position, camera.getThreeCamera());
+        this.botPosition = Manager.GL.toScreenPosition(this.position, camera.getThreeCamera());
         this.active = true;
-        this.frame = new Frame(Interpreter.evaluate(Datas.Systems.battlersFrameDuration), { frames: Datas.Systems.battlersFrames });
-        this.frameAttacking = new Frame(Interpreter.evaluate(Datas.Systems.battlersFrameAttackingDuration), { loop: false });
+        this.frame = new Frame(Interpreter.evaluate(Datas.Systems.battlersFrameDuration), {
+            frames: Datas.Systems.battlersFrames,
+        });
+        this.frameAttacking = new Frame(Interpreter.evaluate(Datas.Systems.battlersFrameAttackingDuration), {
+            loop: false,
+        });
         this.frameArrow = new Frame(125);
         this.step = Enum.BattlerStep.Normal;
         this.lastStep = Enum.BattlerStep.Normal;
@@ -80,7 +79,7 @@ class Battler {
             this.mesh = null;
         }
         else {
-            // Copy original material because there will be individual color 
+            // Copy original material because there will be individual color
             // changes
             let originalMaterial = Datas.Tilesets.texturesBattlers[idBattler];
             let texture = Manager.GL.getMaterialTexture(originalMaterial);
@@ -88,30 +87,23 @@ class Battler {
             let material = Manager.GL.createMaterial({
                 texture: copiedTexture,
                 uniforms: {
-                    colorD: { type: "v4", value: Manager.GL.screenTone.clone() },
-                    offset: { type: "v2", value: new THREE.Vector2() }
-                }
+                    colorD: { type: 'v4', value: Manager.GL.screenTone.clone() },
+                    offset: { type: 'v2', value: new THREE.Vector2() },
+                },
             });
-            this.width = copiedTexture.image.width / Datas.Systems.SQUARE_SIZE / Datas
-                .Systems.battlersFrames;
-            this.height = copiedTexture.image.height / Datas.Systems.SQUARE_SIZE /
-                Datas.Systems.battlersColumns;
-            let sprite = Sprite.create(Enum.ElementMapKind.SpritesFace, [0, 0,
-                this.width, this.height]);
+            this.width = copiedTexture.image.width / Datas.Systems.SQUARE_SIZE / Datas.Systems.battlersFrames;
+            this.height = copiedTexture.image.height / Datas.Systems.SQUARE_SIZE / Datas.Systems.battlersColumns;
+            let sprite = Sprite.create(Enum.ElementMapKind.SpritesFace, [0, 0, this.width, this.height]);
             let geometry = sprite.createGeometry(this.width, this.height, false, position)[0];
             this.mesh = new THREE.Mesh(geometry, material);
-            this.mesh.position.set(this.position.x, this.position.y, this
-                .position.z);
+            this.mesh.position.set(this.position.x, this.position.y, this.position.z);
             this.mesh.receiveShadow = true;
             this.mesh.castShadow = true;
             this.mesh.customDepthMaterial = material.userData.customDepthMaterial;
-            this.topLeftPosition = new Vector3(this.position.x - (this.width / 2
-                * Datas.Systems.SQUARE_SIZE), this.position.y + (this.height *
-                Datas.Systems.SQUARE_SIZE), this.position.z);
-            this.botRightPosition = new Vector3(this.position.x + (this.width / 2
-                * Datas.Systems.SQUARE_SIZE), this.position.y, this.position.z);
-            this.upPosition = new Vector3(this.position.x, this.position.y + (this.height * Datas.Systems.SQUARE_SIZE), this.position.z);
-            this.halfPosition = new Vector3(this.position.x, this.position.y + (this.height * Datas.Systems.SQUARE_SIZE / 2), this.position.z);
+            this.topLeftPosition = new Vector3(this.position.x - (this.width / 2) * Datas.Systems.SQUARE_SIZE, this.position.y + this.height * Datas.Systems.SQUARE_SIZE, this.position.z);
+            this.botRightPosition = new Vector3(this.position.x + (this.width / 2) * Datas.Systems.SQUARE_SIZE, this.position.y, this.position.z);
+            this.upPosition = new Vector3(this.position.x, this.position.y + this.height * Datas.Systems.SQUARE_SIZE, this.position.z);
+            this.halfPosition = new Vector3(this.position.x, this.position.y + (this.height * Datas.Systems.SQUARE_SIZE) / 2, this.position.z);
             if (isEnemy) {
                 this.mesh.scale.set(-1, 1, 1);
             }
@@ -187,17 +179,17 @@ class Battler {
      *  @returns {boolean}
      */
     isStepAttacking() {
-        return this.step === Enum.BattlerStep.Attack || this.step === Enum
-            .BattlerStep.Skill || this.step === Enum.BattlerStep.Item || this
-            .step === Enum.BattlerStep.Escape;
+        return (this.step === Enum.BattlerStep.Attack ||
+            this.step === Enum.BattlerStep.Skill ||
+            this.step === Enum.BattlerStep.Item ||
+            this.step === Enum.BattlerStep.Escape);
     }
     /**
      *  Check if the battler is attacking and the frames is currently run.
      *  @returns {boolean}
      */
     isAttacking() {
-        return this.isStepAttacking() && this.frameAttacking.value !== Datas
-            .Systems.FRAMES - 1;
+        return this.isStepAttacking() && this.frameAttacking.value !== Datas.Systems.FRAMES - 1;
     }
     /**
      *  Set battler step as using a skill.
@@ -253,7 +245,7 @@ class Battler {
                 this.lastStep = step;
             }
         }
-        if (this.step !== step && (user !== this.player)) {
+        if (this.step !== step && user !== this.player) {
             this.step = step;
             this.updateUVs();
         }
@@ -280,12 +272,10 @@ class Battler {
         let newX = this.mesh.position.x;
         let progression;
         if (this.isEnemy) {
-            progression = this.selected ? this.progressionEnemyFront : this
-                .progressionEnemyBack;
+            progression = this.selected ? this.progressionEnemyFront : this.progressionEnemyBack;
         }
         else {
-            progression = this.selected ? this.progressionAllyFront : this
-                .progressionAllyBack;
+            progression = this.selected ? this.progressionAllyFront : this.progressionAllyBack;
         }
         let time = new Date().getTime() - this.timerMove;
         if (time <= Battler.TIME_MOVE) {
@@ -354,8 +344,7 @@ class Battler {
      *  Update positions to screen.
      */
     updatePositions() {
-        this.topPosition = Manager.GL.toScreenPosition(this.upPosition, Scene
-            .Map.current.camera.getThreeCamera());
+        this.topPosition = Manager.GL.toScreenPosition(this.upPosition, Scene.Map.current.camera.getThreeCamera());
         this.midPosition = Manager.GL.toScreenPosition(this.halfPosition, Scene.Map.current.camera.getThreeCamera());
         this.botPosition = Manager.GL.toScreenPosition(this.mesh.position, Scene.Map.current.camera.getThreeCamera());
         let topLeft = Manager.GL.toScreenPosition(this.topLeftPosition, Scene.Map.current.camera.getThreeCamera());
@@ -376,8 +365,7 @@ class Battler {
         let status = this.player.status[0];
         if (previousFirst != status) {
             if (status) {
-                this.currentStatusAnimation = new Animation(status.system
-                    .animationID.getValue(), true);
+                this.currentStatusAnimation = new Animation(status.system.animationID.getValue(), true);
             }
             else {
                 this.currentStatusAnimation = null;
@@ -405,8 +393,7 @@ class Battler {
      */
     updateUVs() {
         if (this.mesh) {
-            let texture = Manager.GL.getMaterialTexture(this
-                .mesh.material);
+            let texture = Manager.GL.getMaterialTexture(this.mesh.material);
             let textureWidth = texture.image.width;
             let textureHeight = texture.image.height;
             let frame = 0;
@@ -420,8 +407,8 @@ class Battler {
                     frame = this.frame.value;
                     break;
             }
-            let w = this.width * Datas.Systems.SQUARE_SIZE / textureWidth;
-            let h = this.height * Datas.Systems.SQUARE_SIZE / textureHeight;
+            let w = (this.width * Datas.Systems.SQUARE_SIZE) / textureWidth;
+            let h = (this.height * Datas.Systems.SQUARE_SIZE) / textureHeight;
             let x = frame * w;
             let y = this.step * h;
             // Update geometry
@@ -484,8 +471,7 @@ class Battler {
      */
     drawArrow() {
         if (!this.hidden) {
-            Datas.Systems.getCurrentWindowSkin().drawArrowTarget(this.frameArrow
-                .value, this.arrowPosition.x, this.arrowPosition.y, false);
+            Datas.Systems.getCurrentWindowSkin().drawArrowTarget(this.frameArrow.value, this.arrowPosition.x, this.arrowPosition.y, false);
         }
     }
     /**
@@ -497,16 +483,14 @@ class Battler {
         if (this.damagesName && this.damages && !this.isDamagesMiss) {
             this.graphicDamageName.setText(this.damagesName);
             this.graphicDamageName.zoom = zoom;
-            this.graphicDamageName.draw(x, this.damagePosition.y, this
-                .graphicDamageName.textWidth * zoom, height);
+            this.graphicDamageName.draw(x, this.damagePosition.y, this.graphicDamageName.textWidth * zoom, height);
         }
     }
     /**
      *  Draw the status on top of the battler.
      */
     drawStatus() {
-        Status.drawList(this.player.getFirstStatus(), this.damagePosition.x, this
-            .damagePosition.y, Enum.Align.Center);
+        Status.drawList(this.player.getFirstStatus(), this.damagePosition.x, this.damagePosition.y, Enum.Align.Center);
     }
     /**
      *  Draw the status animation

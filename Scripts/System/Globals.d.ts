@@ -1,10 +1,4 @@
-import { THREE_TYPE } from './Definitions.js';
-/**
- * @module Three.js
- */
-export declare const THREE: typeof THREE_TYPE;
-/**
- * @module Howler.js
- */
+import * as THREE from '../Libs/three.js';
+export { THREE };
 declare const Howl: any;
 export { Howl };

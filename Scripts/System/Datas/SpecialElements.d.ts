@@ -1,5 +1,6 @@
 import { TextureBundle } from '../Core/index.js';
 import { System } from '../index.js';
+import { THREE } from '../Globals.js';
 /** @class
  *  All the special elements datas.
  *  @static

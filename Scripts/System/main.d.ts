@@ -1,3 +1,4 @@
+import { THREE } from './Globals.js';
 /**
  * The main class who boot and loop everything's
  *
@@ -5,8 +6,8 @@
  * @class Main
  */
 export declare class Main {
-    static clock: import("three").Clock;
-    static clockFPS: import("three").Clock;
+    static clock: THREE.Clock;
+    static clockFPS: THREE.Clock;
     static delta: number;
     static maxFPS: number;
     static FPS: number;

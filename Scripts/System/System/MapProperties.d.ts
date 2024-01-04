@@ -1,4 +1,5 @@
 import { Base } from './Base.js';
+import { THREE } from '../Globals.js';
 import { System } from '../index.js';
 import { PlaySong } from './PlaySong.js';
 import { DynamicValue } from './DynamicValue.js';

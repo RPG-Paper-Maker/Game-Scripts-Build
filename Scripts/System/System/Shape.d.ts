@@ -1,6 +1,7 @@
 import { Enum } from '../Common/index.js';
 import CustomShapeKind = Enum.CustomShapeKind;
 import { Base } from './Base.js';
+import { THREE } from '../Globals.js';
 import { CustomGeometry } from '../Core/index.js';
 /** @class
  *  A shape of the game.
@@ -10,7 +11,7 @@ import { CustomGeometry } from '../Core/index.js';
  *  @param {CustomShapeKind} [kind=CustomShapeKin] - The kind of custom shape
  */
 declare class Shape extends Base {
-    static loader: import("three").FileLoader;
+    static loader: THREE.FileLoader;
     id: number;
     kind: CustomShapeKind;
     name: string;

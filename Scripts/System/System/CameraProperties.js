@@ -50,12 +50,9 @@ class CameraProperties extends Base {
      */
     initializeCamera(camera) {
         camera.isPerspective = !this.orthographic;
-        camera.distance = this.distance.getValue() * (Datas.Systems.SQUARE_SIZE
-            / Constants.BASIC_SQUARE_SIZE);
+        camera.distance = this.distance.getValue() * (Datas.Systems.SQUARE_SIZE / Constants.BASIC_SQUARE_SIZE);
         if (camera.isPerspective) {
-            camera.perspectiveCamera = new THREE.PerspectiveCamera(this.fov
-                .getValue(), ScreenResolution.CANVAS_WIDTH / ScreenResolution
-                .CANVAS_HEIGHT, this.near.getValue(), this.far.getValue());
+            camera.perspectiveCamera = new THREE.PerspectiveCamera(this.fov.getValue(), ScreenResolution.CANVAS_WIDTH / ScreenResolution.CANVAS_HEIGHT, this.near.getValue(), this.far.getValue());
         }
         else {
             let x = ScreenResolution.CANVAS_WIDTH * (camera.distance / 1000);

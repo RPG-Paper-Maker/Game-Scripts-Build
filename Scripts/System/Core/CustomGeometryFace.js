@@ -64,8 +64,7 @@ export class CustomGeometryFace extends CustomGeometry {
             Sprite.rotateVertex(vertex, center, a, axis, false);
             this.b_vertices.push(vertex.x, vertex.y, vertex.z);
         }
-        this.setAttribute('position', new THREE.Float32BufferAttribute(this
-            .b_vertices, 3));
+        this.setAttribute('position', new THREE.Float32BufferAttribute(this.b_vertices, 3));
         this.b_vertices = [];
         this.computeVertexNormals();
     }
@@ -73,8 +72,7 @@ export class CustomGeometryFace extends CustomGeometry {
      *  Update vertices, indices, and uvs buffer geometry attributes.
      */
     updateAttributes() {
-        this.setAttribute('position', new THREE.Float32BufferAttribute(this
-            .b_vertices, 3));
+        this.setAttribute('position', new THREE.Float32BufferAttribute(this.b_vertices, 3));
         this.b_vertices = [];
         this.setIndex(this.b_indices);
         this.b_indices = [];

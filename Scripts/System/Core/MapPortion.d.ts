@@ -1,3 +1,4 @@
+import { THREE } from '../Globals.js';
 import { Portion } from './Portion.js';
 import { MapObject } from './MapObject.js';
 import { Position } from './Position.js';

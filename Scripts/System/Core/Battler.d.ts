@@ -1,3 +1,4 @@
+import { THREE } from '../Globals.js';
 import { Player } from './Player.js';
 import { Enum } from '../Common/index.js';
 import { Frame } from './Frame.js';

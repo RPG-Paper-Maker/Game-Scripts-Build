@@ -47,11 +47,9 @@ class MapProperties extends Base {
         if (Utils.isUndefined(datas)) {
             datas = {};
         }
-        this.tileset = Datas.Tilesets.get(Utils.defaultValue(datas.tileset, json
-            .tileset));
+        this.tileset = Datas.Tilesets.get(Utils.defaultValue(datas.tileset, json.tileset));
         this.music = new PlaySong(SongKind.Music, Utils.defaultValue(datas.music, json.music));
-        this.backgroundSound = new PlaySong(SongKind.BackgroundSound, Utils
-            .defaultValue(datas.backgroundSound, json.bgs));
+        this.backgroundSound = new PlaySong(SongKind.BackgroundSound, Utils.defaultValue(datas.backgroundSound, json.bgs));
         this.cameraProperties = Datas.Systems.getCameraProperties(Utils.defaultValue(datas.camera, DynamicValue.readOrDefaultDatabase(json.cp, 1).getValue()));
         let kind = -1;
         if (!Utils.isUndefined(datas.color)) {
@@ -63,25 +61,29 @@ class MapProperties extends Base {
         this.isBackgroundColor = kind === 0 ? true : json.isky;
         this.isBackgroundImage = kind !== -1 ? false : json.isi;
         if (this.isBackgroundColor) {
-            this.backgroundColorID = Utils.isUndefined(datas.color) ? new DynamicValue(json.sky) : DynamicValue.createNumber(datas.color);
-            ;
+            this.backgroundColorID = Utils.isUndefined(datas.color)
+                ? new DynamicValue(json.sky)
+                : DynamicValue.createNumber(datas.color);
         }
         else if (this.isBackgroundImage) {
             this.backgroundImageID = json.ipid;
         }
         else {
-            this.backgroundSkyboxID = Utils.isUndefined(datas.skybox) ?
-                DynamicValue.readOrDefaultDatabase(json.sbid) : DynamicValue
-                .createNumber(datas.skybox);
+            this.backgroundSkyboxID = Utils.isUndefined(datas.skybox)
+                ? DynamicValue.readOrDefaultDatabase(json.sbid)
+                : DynamicValue.createNumber(datas.skybox);
         }
         var startupReactions = new System.MapObject(json.so);
         this.startupObject = new MapObject(startupReactions);
         this.startupObject.changeState();
         // Random battles
-        this.randomBattleMapID = System.DynamicValue.readOrDefaultDatabase(json
-            .randomBattleMapID);
+        this.randomBattleMapID = System.DynamicValue.readOrDefaultDatabase(json.randomBattleMapID);
         this.randomBattles = [];
-        Utils.readJSONSystemList({ list: Utils.defaultValue(json.randomBattles, []), listIndexes: this.randomBattles, cons: System.RandomBattle });
+        Utils.readJSONSystemList({
+            list: Utils.defaultValue(json.randomBattles, []),
+            listIndexes: this.randomBattles,
+            cons: System.RandomBattle,
+        });
         this.randomBattleNumberStep = System.DynamicValue.readOrDefaultNumber(json.randomBattleNumberStep, 300);
         this.randomBattleVariance = System.DynamicValue.readOrDefaultNumber(json.randomBattleVariance, 20);
         this.updateMaxNumberSteps();
@@ -103,8 +105,7 @@ class MapProperties extends Base {
      *  Update the background color.
      */
     updateBackgroundColor() {
-        this.backgroundColor = Datas.Systems.getColor(this.isBackgroundColor ?
-            this.backgroundColorID.getValue() : 1);
+        this.backgroundColor = Datas.Systems.getColor(this.isBackgroundColor ? this.backgroundColorID.getValue() : 1);
     }
     /**
      *  Update the background image.
@@ -119,11 +120,9 @@ class MapProperties extends Base {
      *  Update the background skybox.
      */
     updateBackgroundSkybox() {
-        let size = 10000 * Datas.Systems.SQUARE_SIZE / Constants
-            .BASIC_SQUARE_SIZE;
+        let size = (10000 * Datas.Systems.SQUARE_SIZE) / Constants.BASIC_SQUARE_SIZE;
         this.skyboxGeometry = new THREE.BoxGeometry(size, size, size);
-        this.skyboxMesh = new THREE.Mesh(this.skyboxGeometry, Datas.Systems
-            .getSkybox(this.backgroundSkyboxID.getValue()).createTextures());
+        this.skyboxMesh = new THREE.Mesh(this.skyboxGeometry, Datas.Systems.getSkybox(this.backgroundSkyboxID.getValue()).createTextures());
         Scene.Map.current.scene.add(this.skyboxMesh);
     }
     /**
@@ -133,8 +132,7 @@ class MapProperties extends Base {
         for (let battle of this.randomBattles) {
             battle.resetCurrentNumberSteps();
         }
-        this.maxNumberSteps = Mathf.variance(this.randomBattleNumberStep
-            .getValue(), this.randomBattleVariance.getValue());
+        this.maxNumberSteps = Mathf.variance(this.randomBattleNumberStep.getValue(), this.randomBattleVariance.getValue());
     }
     /**
      *  Check if a random battle can be started.
@@ -157,14 +155,13 @@ class MapProperties extends Base {
             let total = 0;
             for (randomBattle of this.randomBattles) {
                 randomBattle.updateCurrentPriority();
-                if (randomBattle.currentPriority > 0 && randomBattle
-                    .currentNumberSteps >= this.maxNumberSteps) {
+                if (randomBattle.currentPriority > 0 && randomBattle.currentNumberSteps >= this.maxNumberSteps) {
                     battles.push(randomBattle);
                     total += randomBattle.currentPriority;
                 }
             }
             for (randomBattle of battles) {
-                priority += randomBattle.priority.getValue() / total * 100;
+                priority += (randomBattle.priority.getValue() / total) * 100;
                 if (rand <= priority) {
                     break;
                 }
@@ -174,12 +171,9 @@ class MapProperties extends Base {
             }
             if (randomBattle !== null) {
                 this.updateMaxNumberSteps();
-                let battleMap = Datas.BattleSystems.getBattleMap(this
-                    .randomBattleMapID.getValue());
+                let battleMap = Datas.BattleSystems.getBattleMap(this.randomBattleMapID.getValue());
                 Game.current.heroBattle = new MapObject(Game.current.hero.system, battleMap.position.toVector3(), true);
-                Manager.Stack.push(new Scene.Battle(randomBattle.troopID
-                    .getValue(), true, true, battleMap, Enum.MapTransitionKind
-                    .Zoom, Enum.MapTransitionKind.Zoom, null, null));
+                Manager.Stack.push(new Scene.Battle(randomBattle.troopID.getValue(), true, true, battleMap, Enum.MapTransitionKind.Zoom, Enum.MapTransitionKind.Zoom, null, null));
             }
         }
     }

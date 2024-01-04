@@ -1,3 +1,4 @@
+import { THREE } from '../Globals.js';
 import { System, EventCommand } from '../index.js';
 import { Frame } from './Frame.js';
 import { Enum } from '../Common/index.js';

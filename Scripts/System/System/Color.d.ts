@@ -1,4 +1,5 @@
 import { Base } from './Base.js';
+import { THREE } from '../Globals.js';
 import { Vector3 } from '../Core/index.js';
 /** @class
  *  The system color class.

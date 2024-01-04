@@ -1,3 +1,4 @@
+import { THREE } from '../Globals.js';
 import { Base } from './Base.js';
 /** @class
  *  A skybox of the game.

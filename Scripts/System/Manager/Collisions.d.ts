@@ -1,17 +1,18 @@
 import { Enum } from '../Common/index.js';
 import { MapObject, Position, MapPortion, StructMapElementCollision, Vector3, CustomGeometry } from '../Core/index.js';
+import { THREE } from '../Globals.js';
 /** @class
  *  The collisions manager.
  *  @static
  */
 declare class Collisions {
-    static BB_MATERIAL: import("three").MeshBasicMaterial;
-    static BB_MATERIAL_DETECTION: import("three").MeshBasicMaterial;
-    static BB_EMPTY_MATERIAL: import("three").MeshBasicMaterial;
-    static BB_BOX: import("three").Mesh<CustomGeometry, import("three").Material | import("three").Material[]>;
-    static BB_ORIENTED_BOX: import("three").Mesh<CustomGeometry, import("three").Material | import("three").Material[]>;
+    static BB_MATERIAL: THREE.MeshBasicMaterial;
+    static BB_MATERIAL_DETECTION: THREE.MeshBasicMaterial;
+    static BB_EMPTY_MATERIAL: THREE.MeshBasicMaterial;
+    static BB_BOX: THREE.Mesh<CustomGeometry, THREE.Material | THREE.Material[], THREE.Object3DEventMap>;
+    static BB_ORIENTED_BOX: THREE.Mesh<CustomGeometry, THREE.Material | THREE.Material[], THREE.Object3DEventMap>;
     private static BB_BOX_DETECTION;
-    static BB_BOX_DEFAULT_DETECTION: import("three").Mesh<CustomGeometry, import("three").Material | import("three").Material[]>;
+    static BB_BOX_DEFAULT_DETECTION: THREE.Mesh<CustomGeometry, THREE.Material | THREE.Material[], THREE.Object3DEventMap>;
     static currentCustomObject3D: THREE.Mesh<CustomGeometry, THREE.Material | THREE.Material[]>;
     constructor();
     /**

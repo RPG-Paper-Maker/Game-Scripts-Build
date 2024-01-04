@@ -40,8 +40,7 @@ class Skybox extends Base {
      *  @returns {THREE.MeshPhongMaterial[]}
      */
     createTextures() {
-        return [this.left, this.right, this.top, this.bot, this.front, this.back]
-            .map(side => {
+        return [this.left, this.right, this.top, this.bot, this.front, this.back].map((side) => {
             const texture = Manager.GL.textureLoader.load(Datas.Pictures.get(PictureKind.Skyboxes, side).getPath());
             texture.wrapS = THREE.RepeatWrapping;
             texture.repeat.x = -1;
@@ -49,7 +48,7 @@ class Skybox extends Base {
                 texture: texture,
                 side: THREE.BackSide,
                 shadows: false,
-                flipY: true
+                flipY: true,
             });
         });
     }

@@ -1,4 +1,5 @@
 import { TextureBundle } from './TextureBundle.js';
+import { THREE } from '../Globals.js';
 import { Autotile } from './Autotile.js';
 import { Position } from './Position.js';
 import { StructMapElementCollision } from './MapElement.js';

@@ -44,7 +44,10 @@ class Color extends Base {
      *  @returns {Vector3}
      */
     static mix(x, y, a) {
-        return x.clone().multiplyScalar(1 - a).add(y.clone().multiplyScalar(a));
+        return x
+            .clone()
+            .multiplyScalar(1 - a)
+            .add(y.clone().multiplyScalar(a));
     }
     /**
      *  Initialize the color according to RGBA values.
@@ -58,7 +61,7 @@ class Color extends Base {
         this.green = g;
         this.blue = b;
         this.alpha = a / 255;
-        this.rgb = "rgb(" + this.red + ", " + this.green + ", " + this.blue + ")";
+        this.rgb = 'rgb(' + this.red + ', ' + this.green + ', ' + this.blue + ')';
         this.color = new THREE.Color(this.rgb);
     }
     /**
@@ -76,16 +79,14 @@ class Color extends Base {
     getHex(tone) {
         let hex;
         if (tone) {
-            let rgb = new Vector3(Math.max(Math.min(this.color.r + tone.x, 1), -1), Math.max(Math.min(this.color.g + tone.y, 1), -1), Math
-                .max(Math.min(this.color.b + tone.z, 1), -1));
+            let rgb = new Vector3(Math.max(Math.min(this.color.r + tone.x, 1), -1), Math.max(Math.min(this.color.g + tone.y, 1), -1), Math.max(Math.min(this.color.b + tone.z, 1), -1));
             let w = new Vector3(0.2125, 0.7154, 0.0721);
             let intensity = rgb.dot(w);
             let m = Color.mix(new Vector3(intensity, intensity, intensity), rgb, tone.w);
-            hex = new THREE.Color(Math.min(Math.max(0, m.x), 1), Math.min(Math
-                .max(0, m.y), 1), Math.min(Math.max(0, m.z), 1)).getHexString();
+            hex = new THREE.Color(Math.min(Math.max(0, m.x), 1), Math.min(Math.max(0, m.y), 1), Math.min(Math.max(0, m.z), 1)).getHexString();
         }
         hex = this.color.getHexString();
-        return "#" + hex;
+        return '#' + hex;
     }
 }
 Color.GREEN = System.Color.createColor(25, 214, 25);

@@ -1,3 +1,4 @@
+import { THREE } from '../Globals.js';
 import { CustomGeometry } from './CustomGeometry.js';
 import { Vector3 } from './Vector3.js';
 /**
