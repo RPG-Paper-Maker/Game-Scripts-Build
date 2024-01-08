@@ -65,6 +65,7 @@ declare class Sprite extends MapElement {
      *  @returns {number}
      */
     static addStaticSpriteToGeometry(geometry: CustomGeometry, vecA: Core.Vector3, vecB: Vector3, vecC: Vector3, vecD: Vector3, texA: Vector2, texB: Vector2, texC: Vector2, texD: Vector2, count: number): number;
+    getVectors(vecA: THREE.Vector3, vecB: THREE.Vector3, vecC: THREE.Vector3, vecD: THREE.Vector3, pos: THREE.Vector3, position: Position, size: THREE.Vector3): void;
     /**
      *  Update the geometry associated to this.
      *  @param {Core.CustomGeometry} geometry - The geometry
