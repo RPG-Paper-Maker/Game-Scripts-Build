@@ -254,6 +254,8 @@ class Sprite extends MapElement {
         }
         else {
             // Simple sprite
+            center.setX(center.x + this.xOffset * Datas.Systems.SQUARE_SIZE);
+            center.setZ(center.z + this.zOffset * Datas.Systems.SQUARE_SIZE);
             let vecSimpleA = vecA.clone();
             let vecSimpleB = vecB.clone();
             let vecSimpleC = vecC.clone();

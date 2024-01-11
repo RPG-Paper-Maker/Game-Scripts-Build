@@ -34,9 +34,10 @@ class SpriteWall extends MapElement {
      *  @param {Record<string, any>} - json Json object describing the wall
      */
     read(json) {
+        console.log(json);
         super.read(json);
         this.id = json.w;
-        this.kind = json.k;
+        this.kind = json.t;
     }
     /**
      *  Update the geometry of a group of sprite walls with the same material.
@@ -68,8 +69,7 @@ class SpriteWall extends MapElement {
         vecD.add(localPosition);
         center.add(localPosition);
         // Getting UV coordinates
-        let textureRect = [this.kind, 0, 1, Math.floor(height / Datas
-                .Systems.SQUARE_SIZE)];
+        let textureRect = [this.kind, 0, 1, Math.floor(height / Datas.Systems.SQUARE_SIZE)];
         let x = (textureRect[0] * Datas.Systems.SQUARE_SIZE) / width;
         let y = textureRect[1];
         let w = Datas.Systems.SQUARE_SIZE / width;
@@ -78,8 +78,8 @@ class SpriteWall extends MapElement {
         let coefY = MapElement.COEF_TEX / height;
         x += coefX;
         y += coefY;
-        w -= (coefX * 2);
-        h -= (coefY * 2);
+        w -= coefX * 2;
+        h -= coefY * 2;
         let texA = new Vector2();
         let texB = new Vector2();
         let texC = new Vector2();
@@ -102,19 +102,18 @@ class SpriteWall extends MapElement {
                     l: localPosition,
                     b: [
                         localPosition.x,
-                        localPosition.y + Math.floor((textureRect[3] * Datas.Systems
-                            .SQUARE_SIZE - rect[1]) / 2),
+                        localPosition.y + Math.floor((textureRect[3] * Datas.Systems.SQUARE_SIZE - rect[1]) / 2),
                         localPosition.z,
                         rect[2],
                         rect[3] - 0.001,
                         1,
                         angle,
                         0,
-                        0
+                        0,
                     ],
                     w: 0,
                     h: textureRect[3],
-                    k: true
+                    k: true,
                 });
                 let climbing = picture.getSquaresClimbing(textureRect);
                 for (let [x, y] of climbing) {
@@ -123,20 +122,19 @@ class SpriteWall extends MapElement {
                         l: localPosition,
                         b: [
                             localPosition.x + x,
-                            localPosition.y + Math.floor((textureRect[3] * Datas.Systems
-                                .SQUARE_SIZE - y) / 2),
+                            localPosition.y + Math.floor((textureRect[3] * Datas.Systems.SQUARE_SIZE - y) / 2),
                             localPosition.z,
                             rect[2],
                             rect[3],
                             1,
                             angle,
                             0,
-                            0
+                            0,
                         ],
                         w: 0,
                         h: textureRect[3],
                         k: true,
-                        cl: true
+                        cl: true,
                     });
                 }
             }
