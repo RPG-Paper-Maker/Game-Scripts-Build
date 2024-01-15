@@ -27,8 +27,7 @@ class Game {
         this.previousWeatherOptions = null;
         this.currentWeatherOptions = null;
         this.slot = slot;
-        this.hero = new MapObject(Datas.Systems.modelHero.system, Datas.Systems
-            .modelHero.position.clone(), true);
+        this.hero = new MapObject(Datas.Systems.modelHero.system, Datas.Systems.modelHero.position.clone(), true);
         this.battleMusic = Datas.BattleSystems.battleMusic;
         this.victoryMusic = Datas.BattleSystems.battleVictory;
         this.textures = {};
@@ -78,10 +77,12 @@ class Game {
         });
         // Items
         this.items = [];
-        Utils.readJSONSystemList({ list: json.itm, listIndexes: this.items,
+        Utils.readJSONSystemList({
+            list: json.itm,
+            listIndexes: this.items,
             func: (json) => {
                 return new Item(json.kind, json.id, json.nb);
-            }
+            },
         });
         // Currencies
         this.currencies = [];
@@ -104,25 +105,28 @@ class Game {
         }
         // Heroes
         this.teamHeroes = [];
-        Utils.readJSONSystemList({ list: json.th, listIndexes: this.teamHeroes,
+        Utils.readJSONSystemList({
+            list: json.th,
+            listIndexes: this.teamHeroes,
             func: (json) => {
-                return new Player(json.kind, json.id, json.instid, json.sk, json
-                    .status, json.name, json);
-            }
+                return new Player(json.kind, json.id, json.instid, json.sk, json.status, json.name, json);
+            },
         });
         this.reserveHeroes = [];
-        Utils.readJSONSystemList({ list: json.sh, listIndexes: this
-                .reserveHeroes, func: (json) => {
-                return new Player(json.kind, json.id, json.instid, json.sk, json
-                    .status, json.name, json);
-            }
+        Utils.readJSONSystemList({
+            list: json.sh,
+            listIndexes: this.reserveHeroes,
+            func: (json) => {
+                return new Player(json.kind, json.id, json.instid, json.sk, json.status, json.name, json);
+            },
         });
         this.hiddenHeroes = [];
-        Utils.readJSONSystemList({ list: json.hh, listIndexes: this.hiddenHeroes,
+        Utils.readJSONSystemList({
+            list: json.hh,
+            listIndexes: this.hiddenHeroes,
             func: (json) => {
-                return new Player(json.kind, json.id, json.instid, json.sk, json
-                    .status, json.name, json);
-            }
+                return new Player(json.kind, json.id, json.instid, json.sk, json.status, json.name, json);
+            },
         });
         // Map infos
         this.currentMapID = json.currentMapId;
@@ -182,8 +186,7 @@ class Game {
             inst: this.charactersInstances,
             vars: this.variables,
             currentMapId: this.currentMapID,
-            heroPosition: [this.hero.position.x, this.hero.position.y, this.hero
-                    .position.z],
+            heroPosition: [this.hero.position.x, this.hero.position.y, this.hero.position.z],
             heroStates: this.heroStates,
             heroProp: this.heroProperties,
             heroStatesOpts: this.heroStatesOptions,
@@ -198,11 +201,11 @@ class Game {
                 return {
                     t: chrono.time,
                     id: chrono.id,
-                    d: chrono.graphic !== null
+                    d: chrono.graphic !== null,
                 };
             }),
             textures: this.textures,
-            mapsDatas: this.getCompressedMapsDatas()
+            mapsDatas: this.getCompressedMapsDatas(),
         });
     }
     /**
@@ -227,7 +230,7 @@ class Game {
                 for (jp = 0; jp < 2; jp++) {
                     h = this.mapsDatas[id][i][jp].length;
                     objPortion[i][jp] = new Array(h);
-                    for (j = (jp === 0 ? 1 : 0); j < h; j++) {
+                    for (j = jp === 0 ? 1 : 0; j < h; j++) {
                         w = this.mapsDatas[id][i][jp][j].length;
                         objPortion[i][jp][j] = new Array(w);
                         for (k = 0; k < w; k++) {
@@ -250,14 +253,14 @@ class Game {
             }
             // Associate min and mout
             objectMapMinMout = (i) => {
-                return movedObjects[Utils.indexOfProp(movedObjects, "id", i)];
+                return movedObjects[Utils.indexOfProp(movedObjects, 'id', i)];
             };
             for (i = 0; i < l; i++) {
                 objPortion[i] = new Array(2);
                 for (jp = 0; jp < 2; jp++) {
                     h = this.mapsDatas[id][i][jp].length;
                     objPortion[i][jp] = new Array(h);
-                    for (j = (jp === 0 ? 1 : 0); j < h; j++) {
+                    for (j = jp === 0 ? 1 : 0; j < h; j++) {
                         w = this.mapsDatas[id][i][jp][j].length;
                         objPortion[i][jp][j] = new Array(w);
                         for (k = 0; k < w; k++) {
@@ -292,7 +295,7 @@ class Game {
                 for (jp = 0; jp < 2; jp++) {
                     h = this.mapsDatas[id][i][jp].length;
                     objPortion[i][jp] = new Array(h);
-                    for (j = (jp === 0 ? 1 : 0); j < h; j++) {
+                    for (j = jp === 0 ? 1 : 0; j < h; j++) {
                         w = this.mapsDatas[id][i][jp][j].length;
                         objPortion[i][jp][j] = new Array(w);
                         for (k = 0; k < w; k++) {
@@ -302,8 +305,7 @@ class Game {
                                 if (datas.min && datas.min.length) {
                                     tab = [];
                                     for (o of datas.min) {
-                                        if (o.currentStateInstance && o
-                                            .currentStateInstance.keepPosition) {
+                                        if (o.currentStateInstance && o.currentStateInstance.keepPosition) {
                                             tab.push(o.system.id);
                                         }
                                     }
@@ -314,8 +316,7 @@ class Game {
                                 if (datas.mout && datas.mout.length) {
                                     tab = [];
                                     for (o of datas.mout) {
-                                        if (o.currentStateInstance && o
-                                            .currentStateInstance.keepPosition) {
+                                        if (o.currentStateInstance && o.currentStateInstance.keepPosition) {
                                             tab.push(o.system.id);
                                         }
                                     }
@@ -326,10 +327,8 @@ class Game {
                                 if (datas.m && datas.m.length) {
                                     tab = [];
                                     for (o of datas.m) {
-                                        if (o.currentStateInstance && o
-                                            .currentStateInstance.keepPosition) {
-                                            tab.push([o.system.id, o.position.x,
-                                                o.position.y, o.position.z]);
+                                        if (o.currentStateInstance && o.currentStateInstance.keepPosition) {
+                                            tab.push([o.system.id, o.position.x, o.position.y, o.position.z]);
                                         }
                                     }
                                     if (tab.length) {
@@ -385,9 +384,7 @@ class Game {
         this.startupProperties = {};
         this.mapsProperties = {};
         for (let member of Datas.Systems.initialPartyMembers) {
-            this.instanciateTeam(member.teamKind, member.characterKind, member
-                .heroID.getValue(), member.level.getValue(), member
-                .variableInstanceID.getValue(true));
+            this.instanciateTeam(member.teamKind, member.characterKind, member.heroID.getValue(), member.level.getValue(), member.variableInstanceID.getValue(true));
         }
         this.mapsDatas = {};
         this.hero.initializeProperties();
@@ -437,10 +434,12 @@ class Game {
      *  Get the path save according to slot.
      *  @param {number} [slot=undefined]
      *  @returns {string}
-    */
+     */
     getPathSave(slot) {
-        return Paths.SAVES + Constants.STRING_SLASH + (Utils.isUndefined(slot) ?
-            this.slot : slot) + Constants.EXTENSION_JSON;
+        return (Paths.SAVES +
+            Constants.STRING_SLASH +
+            (Utils.isUndefined(slot) ? this.slot : slot) +
+            Constants.EXTENSION_JSON);
     }
     /**
      *  Get the variable by ID.
@@ -448,7 +447,7 @@ class Game {
      *  @returns {any}
      */
     getVariable(id) {
-        return Datas.Base.get(id, this.variables, "variable");
+        return Datas.Base.get(id, this.variables, 'variable');
     }
     /**
      *  Get the currency by ID.
@@ -456,7 +455,7 @@ class Game {
      *  @returns {any}
      */
     getCurrency(id) {
-        return Datas.Base.get(id, this.currencies, "currency");
+        return Datas.Base.get(id, this.currencies, 'currency');
     }
     /**
      *  Get the currency earned by ID.
@@ -464,7 +463,7 @@ class Game {
      *  @returns {any}
      */
     getCurrencyEarned(id) {
-        return Datas.Base.get(id, this.currenciesEarned, "currency earned");
+        return Datas.Base.get(id, this.currenciesEarned, 'currency earned');
     }
     /**
      *  Get the currency used by ID.
@@ -472,7 +471,7 @@ class Game {
      *  @returns {any}
      */
     getCurrencyUsed(id) {
-        return Datas.Base.get(id, this.currenciesUsed, "currency used");
+        return Datas.Base.get(id, this.currenciesUsed, 'currency used');
     }
     /**
      *  Get the hero with instance ID.
@@ -493,15 +492,14 @@ class Game {
             return hero;
         }
         if (Scene.Map.current.isBattleMap) {
-            return Game.getHeroInstanceInTab(Scene.Map.current
-                .players[Enum.CharacterKind.Monster], id);
+            return Game.getHeroInstanceInTab(Scene.Map.current.players[Enum.CharacterKind.Monster], id);
         }
         return null;
     }
     /**
      *  Use an item and remove it from inventory.
      *  @param {Item} item - The item
-    */
+     */
     useItem(item) {
         if (!item.use()) {
             this.items.splice(this.items.indexOf(item), 1);
@@ -529,7 +527,7 @@ class Game {
      *  @param {number} id - The map id
      *  @param {Portion} portion - The portion
      *  @returns {Record<string, any>}
-    */
+     */
     getPortionDatas(id, portion) {
         return this.getPortionPosDatas(id, portion.x, portion.y, portion.z);
     }
@@ -540,7 +538,7 @@ class Game {
      *  @param {number} j
      *  @param {number} k
      *  @returns {Record<string, any>}
-    */
+     */
     getPortionPosDatas(id, i, j, k) {
         let datas = this.mapsDatas[id];
         if (Utils.isUndefined(datas)) {
@@ -567,7 +565,7 @@ class Game {
     /**
      *  Get a chrono ID.
      *  @returns {number}
-    */
+     */
     getNewChronoID() {
         let id = 0;
         let test = false;
@@ -591,8 +589,7 @@ class Game {
         this.playTime.update();
         for (let chrono of this.chronometers) {
             if (chrono.update()) {
-                Manager.Events.sendEvent(null, 0, 1, true, 2, [null, System
-                        .DynamicValue.createNumber(chrono.id)], true, false);
+                Manager.Events.sendEvent(null, 0, 1, true, 2, [null, System.DynamicValue.createNumber(chrono.id)], true, false);
             }
         }
     }

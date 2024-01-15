@@ -101,7 +101,7 @@ declare class Game {
      *  Get the path save according to slot.
      *  @param {number} [slot=undefined]
      *  @returns {string}
-    */
+     */
     getPathSave(slot?: number): string;
     /**
      *  Get the variable by ID.
@@ -136,7 +136,7 @@ declare class Game {
     /**
      *  Use an item and remove it from inventory.
      *  @param {Item} item - The item
-    */
+     */
     useItem(item: Item): void;
     /**
      *  Get the team according to group kind.
@@ -149,7 +149,7 @@ declare class Game {
      *  @param {number} id - The map id
      *  @param {Portion} portion - The portion
      *  @returns {Record<string, any>}
-    */
+     */
     getPortionDatas(id: number, portion: Portion): Record<string, any>;
     /**
      *  Get the portions datas according to id and position.
@@ -158,12 +158,12 @@ declare class Game {
      *  @param {number} j
      *  @param {number} k
      *  @returns {Record<string, any>}
-    */
+     */
     getPortionPosDatas(id: number, i: number, j: number, k: number): Record<string, any>;
     /**
      *  Get a chrono ID.
      *  @returns {number}
-    */
+     */
     getNewChronoID(): number;
     /**
      *  Update.

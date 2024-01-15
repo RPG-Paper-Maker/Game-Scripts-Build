@@ -12,7 +12,7 @@ import { THREE } from '../Globals.js';
 import { MapObject } from './MapObject.js';
 import { Position } from './Position.js';
 import { System, Datas, Manager, Scene } from '../index.js';
-import { Constants, Enum, Platform } from '../Common/index.js';
+import { Constants, Enum } from '../Common/index.js';
 import { Floor } from './Floor.js';
 import { Autotiles } from './Autotiles.js';
 import { Autotile } from './Autotile.js';
@@ -62,17 +62,14 @@ class MapPortion {
         this.staticWallsList = new Array();
         this.staticObjects3DList = new Array();
         this.overflowMountains = new Array();
-        this.heroID = -1;
     }
     /**
      *  Read the JSON associated to the map portion.
      *  @param {Record<string, any>} json - object describing the map portion
-     *  @param {boolean} isMapHero - Indicates if this map is where the hero is
-     *  at the beginning of the game.
      */
-    async read(json, isMapHero) {
+    async read(json) {
         await this.readStatic(json);
-        await this.readObjects(json.objs, isMapHero);
+        await this.readObjects(json.objs);
     }
     /**
      *  Read the JSON associated to the map portion, but only the static part.
@@ -456,10 +453,8 @@ class MapPortion {
     /**
      *  Read the JSON associated to the objects in the portion.
      *  @param {Record<string, any>} json - Json object describing the objects
-     *  @param {boolean} isMapHero - Indicates if this map is where the hero is
-     *  at the beginning of the game
      */
-    async readObjects(json, isMapHero) {
+    async readObjects(json) {
         let datas = Scene.Map.current.getObjectsAtPortion(this.portion);
         let objectsM = datas.m;
         let objectsR = datas.r;
@@ -486,16 +481,11 @@ class MapPortion {
                     break;
                 }
             }
-            /* If it is the hero, you should not add it to the list of
-            objects to display */
-            if ((!isMapHero || Datas.Systems.ID_OBJECT_START_HERO !== object.id) && index === -1) {
+            if (index === -1) {
                 localPosition = position.toVector3();
                 mapObject = new MapObject(object, localPosition);
                 await mapObject.changeState();
                 this.objectsList.push(mapObject);
-            }
-            else {
-                this.heroID = object.id;
             }
         }
         // Add moved objects to the scene
@@ -598,28 +588,6 @@ class MapPortion {
             }
         }
         return null;
-    }
-    /**
-     *  Get hero model.
-     *  @param {Record<string, any>} json - Json object describing the objects
-     *  @returns {MapObject}
-     */
-    getHeroModel(json) {
-        json = json.objs;
-        if (!json) {
-            Platform.showErrorMessage('Your hero object seems to be in a non existing map. Please use define as hero in a map to correct it.');
-        }
-        let jsonObject, position, jsonObjectValue, object;
-        for (let i = 0, l = json.length; i < l; i++) {
-            jsonObject = json[i];
-            position = Position.createFromArray(jsonObject.k);
-            jsonObjectValue = jsonObject.v;
-            if (Datas.Systems.ID_OBJECT_START_HERO === jsonObjectValue.id) {
-                object = new System.MapObject(jsonObjectValue);
-                return new MapObject(object, position.toVector3(), true);
-            }
-        }
-        throw 'Impossible to get the hero. Please delete your hero from the map and define it again.';
     }
     /**
      *  Update the face sprites orientation.

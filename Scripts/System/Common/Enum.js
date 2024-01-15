@@ -141,7 +141,6 @@ var Enum;
         EventCommandKind[EventCommandKind["TransformABattler"] = 77] = "TransformABattler";
         EventCommandKind[EventCommandKind["ChangeBattlerGraphics"] = 78] = "ChangeBattlerGraphics";
     })(EventCommandKind = Enum.EventCommandKind || (Enum.EventCommandKind = {}));
-    ;
     /**
      *   Enum for the different items kind.
      *   @enum {number}
@@ -153,7 +152,6 @@ var Enum;
         ItemKind[ItemKind["Weapon"] = 1] = "Weapon";
         ItemKind[ItemKind["Armor"] = 2] = "Armor";
     })(ItemKind = Enum.ItemKind || (Enum.ItemKind = {}));
-    ;
     /**
      *   Enum for the different players kind.
      *   @enum {number}
@@ -238,7 +236,6 @@ var Enum;
         ElementMapKind[ElementMapKind["Object3D"] = 10] = "Object3D";
         ElementMapKind[ElementMapKind["Mountains"] = 11] = "Mountains";
     })(ElementMapKind = Enum.ElementMapKind || (Enum.ElementMapKind = {}));
-    ;
     /**
      *   Enum for the different sprite walls kind.
      *   @enum {number}
@@ -251,7 +248,6 @@ var Enum;
         SpriteWallKind[SpriteWallKind["Right"] = 2] = "Right";
         SpriteWallKind[SpriteWallKind["LeftRight"] = 3] = "LeftRight";
     })(SpriteWallKind = Enum.SpriteWallKind || (Enum.SpriteWallKind = {}));
-    ;
     /**
      *   Enum for the different pictures kind.
      *   @enum {number}
@@ -278,7 +274,6 @@ var Enum;
         PictureKind[PictureKind["Particles"] = 16] = "Particles";
         PictureKind[PictureKind["GameOver"] = 17] = "GameOver";
     })(PictureKind = Enum.PictureKind || (Enum.PictureKind = {}));
-    ;
     /**
      *   Enum for the different songs kind.
      *   @enum {number}
@@ -292,7 +287,6 @@ var Enum;
         SongKind[SongKind["Sound"] = 3] = "Sound";
         SongKind[SongKind["MusicEffect"] = 4] = "MusicEffect";
     })(SongKind = Enum.SongKind || (Enum.SongKind = {}));
-    ;
     /** Enum for the different primitive values kind.
      *   @enum {number}
      *   @readonly
@@ -371,7 +365,6 @@ var Enum;
         DynamicValueKind[DynamicValueKind["Sound"] = 68] = "Sound";
         DynamicValueKind[DynamicValueKind["MusicEffect"] = 69] = "MusicEffect";
     })(DynamicValueKind = Enum.DynamicValueKind || (Enum.DynamicValueKind = {}));
-    ;
     /**
      *   Enum for the different window orientations.
      *   @enum {number}
@@ -382,7 +375,6 @@ var Enum;
         OrientationWindow[OrientationWindow["Vertical"] = 0] = "Vertical";
         OrientationWindow[OrientationWindow["Horizontal"] = 1] = "Horizontal";
     })(OrientationWindow = Enum.OrientationWindow || (Enum.OrientationWindow = {}));
-    ;
     /**
      *   Enum for the different battler steps.
      *   @enum {number}
@@ -400,7 +392,6 @@ var Enum;
         BattlerStep[BattlerStep["Victory"] = 7] = "Victory";
         BattlerStep[BattlerStep["Dead"] = 8] = "Dead";
     })(BattlerStep = Enum.BattlerStep || (Enum.BattlerStep = {}));
-    ;
     /**
      *   Enum for the different loots kind.
      *   @enum {number}
@@ -412,7 +403,6 @@ var Enum;
         LootKind[LootKind["Weapon"] = 1] = "Weapon";
         LootKind[LootKind["Armor"] = 2] = "Armor";
     })(LootKind = Enum.LootKind || (Enum.LootKind = {}));
-    ;
     /**
      *   Enum for the different damages kind.
      *   @enum {number}
@@ -424,7 +414,6 @@ var Enum;
         DamagesKind[DamagesKind["Currency"] = 1] = "Currency";
         DamagesKind[DamagesKind["Variable"] = 2] = "Variable";
     })(DamagesKind = Enum.DamagesKind || (Enum.DamagesKind = {}));
-    ;
     /**
      *   Enum for the different effect kind.
      *   @enum {number}
@@ -440,7 +429,6 @@ var Enum;
         EffectKind[EffectKind["SpecialActions"] = 5] = "SpecialActions";
         EffectKind[EffectKind["Script"] = 6] = "Script";
     })(EffectKind = Enum.EffectKind || (Enum.EffectKind = {}));
-    ;
     /**
      *   Enum for the different effect special action kind.
      *   @enum {number}
@@ -456,7 +444,6 @@ var Enum;
         EffectSpecialActionKind[EffectSpecialActionKind["EndTurn"] = 4] = "EndTurn";
         EffectSpecialActionKind[EffectSpecialActionKind["DoNothing"] = 5] = "DoNothing";
     })(EffectSpecialActionKind = Enum.EffectSpecialActionKind || (Enum.EffectSpecialActionKind = {}));
-    ;
     /**
      *   Enum for the different characteristic kind.
      *   @enum {number}
@@ -471,7 +458,6 @@ var Enum;
         CharacteristicKind[CharacteristicKind["BeginEquipment"] = 4] = "BeginEquipment";
         CharacteristicKind[CharacteristicKind["Element"] = 5] = "Element";
     })(CharacteristicKind = Enum.CharacteristicKind || (Enum.CharacteristicKind = {}));
-    ;
     /**
      *   Enum for the different increase / decrease kind.
      *   @enum {number}
@@ -487,7 +473,6 @@ var Enum;
         IncreaseDecreaseKind[IncreaseDecreaseKind["SkillCost"] = 5] = "SkillCost";
         IncreaseDecreaseKind[IncreaseDecreaseKind["Variable"] = 6] = "Variable";
     })(IncreaseDecreaseKind = Enum.IncreaseDecreaseKind || (Enum.IncreaseDecreaseKind = {}));
-    ;
     /**
      *   Enum for the different target kind.
      *   @enum {number}
@@ -502,7 +487,6 @@ var Enum;
         TargetKind[TargetKind["AllEnemies"] = 4] = "AllEnemies";
         TargetKind[TargetKind["AllAllies"] = 5] = "AllAllies";
     })(TargetKind = Enum.TargetKind || (Enum.TargetKind = {}));
-    ;
     /**
      *   Enum for the different available kind.
      *   @enum {number}
@@ -515,7 +499,6 @@ var Enum;
         AvailableKind[AvailableKind["Always"] = 2] = "Always";
         AvailableKind[AvailableKind["Never"] = 3] = "Never";
     })(AvailableKind = Enum.AvailableKind || (Enum.AvailableKind = {}));
-    ;
     /**
      *   Enum for the different shape kind.
      *   @enum {number}
@@ -530,7 +513,6 @@ var Enum;
         ShapeKind[ShapeKind["Capsule"] = 4] = "Capsule";
         ShapeKind[ShapeKind["Custom"] = 5] = "Custom";
     })(ShapeKind = Enum.ShapeKind || (Enum.ShapeKind = {}));
-    ;
     /**
      *   Enum for the different custom shape kind.
      *   @enum {number}
@@ -543,7 +525,6 @@ var Enum;
         CustomShapeKind[CustomShapeKind["MTL"] = 2] = "MTL";
         CustomShapeKind[CustomShapeKind["Collisions"] = 3] = "Collisions";
     })(CustomShapeKind = Enum.CustomShapeKind || (Enum.CustomShapeKind = {}));
-    ;
     /**
      *   Enum for the different object collision kind.
      *   @enum {number}
@@ -556,7 +537,6 @@ var Enum;
         ObjectCollisionKind[ObjectCollisionKind["Simplified"] = 2] = "Simplified";
         ObjectCollisionKind[ObjectCollisionKind["Custom"] = 3] = "Custom";
     })(ObjectCollisionKind = Enum.ObjectCollisionKind || (Enum.ObjectCollisionKind = {}));
-    ;
     /**
      *   Enum for the map transitions.
      *   @enum {number}
@@ -568,7 +548,6 @@ var Enum;
         MapTransitionKind[MapTransitionKind["Fade"] = 1] = "Fade";
         MapTransitionKind[MapTransitionKind["Zoom"] = 2] = "Zoom";
     })(MapTransitionKind = Enum.MapTransitionKind || (Enum.MapTransitionKind = {}));
-    ;
     /**
      *   Enum for the map transitions.
      *   @enum {number}
@@ -580,7 +559,6 @@ var Enum;
         MountainCollisionKind[MountainCollisionKind["Always"] = 1] = "Always";
         MountainCollisionKind[MountainCollisionKind["Never"] = 2] = "Never";
     })(MountainCollisionKind = Enum.MountainCollisionKind || (Enum.MountainCollisionKind = {}));
-    ;
     /**
      *   Enum for the title screen commands.
      *   @enum {number}
@@ -594,7 +572,6 @@ var Enum;
         TitleCommandKind[TitleCommandKind["Exit"] = 3] = "Exit";
         TitleCommandKind[TitleCommandKind["Script"] = 4] = "Script";
     })(TitleCommandKind = Enum.TitleCommandKind || (Enum.TitleCommandKind = {}));
-    ;
     /**
      *   Enum for the game over commands.
      *   @enum {number}
@@ -607,7 +584,6 @@ var Enum;
         GameOverCommandKind[GameOverCommandKind["Exit"] = 2] = "Exit";
         GameOverCommandKind[GameOverCommandKind["Script"] = 3] = "Script";
     })(GameOverCommandKind = Enum.GameOverCommandKind || (Enum.GameOverCommandKind = {}));
-    ;
     /**
      *   Enum for the title settings.
      *   @enum {number}
@@ -618,7 +594,6 @@ var Enum;
         TitleSettingKind[TitleSettingKind["KeyboardAssigment"] = 0] = "KeyboardAssigment";
         TitleSettingKind[TitleSettingKind["Language"] = 1] = "Language";
     })(TitleSettingKind = Enum.TitleSettingKind || (Enum.TitleSettingKind = {}));
-    ;
     /**
      *   Enum for the object moving.
      *   @enum {number}
@@ -630,7 +605,6 @@ var Enum;
         ObjectMovingKind[ObjectMovingKind["Random"] = 1] = "Random";
         ObjectMovingKind[ObjectMovingKind["Route"] = 2] = "Route";
     })(ObjectMovingKind = Enum.ObjectMovingKind || (Enum.ObjectMovingKind = {}));
-    ;
     /**
      *   Enum for the tags.
      *   @enum {number}
@@ -656,7 +630,6 @@ var Enum;
         TagKind[TagKind["HeroName"] = 15] = "HeroName";
         TagKind[TagKind["Icon"] = 16] = "Icon";
     })(TagKind = Enum.TagKind || (Enum.TagKind = {}));
-    ;
     /**
      *   Enum for the condition heroes.
      *   @enum {number}
@@ -669,7 +642,6 @@ var Enum;
         ConditionHeroesKind[ConditionHeroesKind["AtLeastOneHero"] = 2] = "AtLeastOneHero";
         ConditionHeroesKind[ConditionHeroesKind["TheHeroeWithInstanceID"] = 3] = "TheHeroeWithInstanceID";
     })(ConditionHeroesKind = Enum.ConditionHeroesKind || (Enum.ConditionHeroesKind = {}));
-    ;
     /**
      *   Enum for the variables map object characteristics.
      *   @enum {number}
@@ -686,7 +658,6 @@ var Enum;
         VariableMapObjectCharacteristicKind[VariableMapObjectCharacteristicKind["Orientation"] = 6] = "Orientation";
         VariableMapObjectCharacteristicKind[VariableMapObjectCharacteristicKind["Terrain"] = 7] = "Terrain";
     })(VariableMapObjectCharacteristicKind = Enum.VariableMapObjectCharacteristicKind || (Enum.VariableMapObjectCharacteristicKind = {}));
-    ;
     /**
      *   Enum for the animation position kind.
      *   @enum {number}
@@ -699,7 +670,6 @@ var Enum;
         AnimationPositionKind[AnimationPositionKind["Bottom"] = 2] = "Bottom";
         AnimationPositionKind[AnimationPositionKind["ScreenCenter"] = 3] = "ScreenCenter";
     })(AnimationPositionKind = Enum.AnimationPositionKind || (Enum.AnimationPositionKind = {}));
-    ;
     /**
      *   Enum for the animation effect condition kind.
      *   @enum {number}
@@ -712,7 +682,6 @@ var Enum;
         AnimationEffectConditionKind[AnimationEffectConditionKind["Miss"] = 2] = "Miss";
         AnimationEffectConditionKind[AnimationEffectConditionKind["Critical"] = 3] = "Critical";
     })(AnimationEffectConditionKind = Enum.AnimationEffectConditionKind || (Enum.AnimationEffectConditionKind = {}));
-    ;
     /**
      *   Enum for the monster action kind.
      *   @enum {number}
@@ -724,7 +693,6 @@ var Enum;
         MonsterActionKind[MonsterActionKind["UseItem"] = 1] = "UseItem";
         MonsterActionKind[MonsterActionKind["DoNothing"] = 2] = "DoNothing";
     })(MonsterActionKind = Enum.MonsterActionKind || (Enum.MonsterActionKind = {}));
-    ;
     /**
      *   Enum for the monster action target kind.
      *   @enum {number}
@@ -735,7 +703,6 @@ var Enum;
         MonsterActionTargetKind[MonsterActionTargetKind["Random"] = 0] = "Random";
         MonsterActionTargetKind[MonsterActionTargetKind["WeakEnemies"] = 1] = "WeakEnemies";
     })(MonsterActionTargetKind = Enum.MonsterActionTargetKind || (Enum.MonsterActionTargetKind = {}));
-    ;
     /**
      *   Enum for the operation kind.
      *   @enum {number}
@@ -750,7 +717,6 @@ var Enum;
         OperationKind[OperationKind["GreaterThan"] = 4] = "GreaterThan";
         OperationKind[OperationKind["LesserThan"] = 5] = "LesserThan";
     })(OperationKind = Enum.OperationKind || (Enum.OperationKind = {}));
-    ;
     /**
      *   Enum for the battle step.
      *   @enum {number}
@@ -766,7 +732,6 @@ var Enum;
         BattleStep[BattleStep["EndTurn"] = 5] = "EndTurn";
         BattleStep[BattleStep["Victory"] = 6] = "Victory";
     })(BattleStep = Enum.BattleStep || (Enum.BattleStep = {}));
-    ;
     /**
      * Enum for the screen transition.
      *

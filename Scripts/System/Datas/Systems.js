@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Paths, Platform, ScreenResolution, Utils, Constants, Enum } from '../Common/index.js';
+import { Paths, Platform, ScreenResolution, Utils, Enum } from '../Common/index.js';
 import { Manager, Datas, Scene, System } from '../index.js';
-import { Position, MapPortion } from '../Core/index.js';
+import { Position, MapObject } from '../Core/index.js';
 /** @class
  *   All the System datas.
  *   @static
@@ -66,7 +66,7 @@ class Systems {
         this.PATH_DLCS = Paths.FILES + (await Platform.parseFileJSON(Paths.FILE_DLCS)).p;
         // Hero beginning
         this.ID_MAP_START_HERO = json.idMapHero;
-        this.ID_OBJECT_START_HERO = json.idObjHero;
+        this.heroMapPosition = Position.createFromArray(json.hmp);
         // Debug bounding box
         this.showBB = Utils.defaultValue(json.bb, false);
         if (this.showBB) {
@@ -273,26 +273,8 @@ class Systems {
      *  @static
      *  @async
      */
-    static async getModelHero() {
-        let mapName = Scene.Map.generateMapName(this.ID_MAP_START_HERO);
-        let json = (await Platform.parseFileJSON(Paths.FILE_MAPS + mapName + Paths.FILE_MAP_OBJECTS)).objs;
-        let jsonObject, position;
-        for (let i = 0, l = json.length; i < l; i++) {
-            jsonObject = json[i];
-            if (jsonObject.id === this.ID_OBJECT_START_HERO) {
-                position = Position.createFromArray(jsonObject.p);
-                break;
-            }
-        }
-        if (Utils.isUndefined(position)) {
-            Platform.showErrorMessage('Object linking issue. Please go to map ' +
-                mapName +
-                ' and use Options > Debug Options in map > Synchronize map objects. Please report it to dev.');
-        }
-        let globalPortion = position.getGlobalPortion();
-        let fileName = globalPortion.getFileName();
-        json = await Platform.parseFileJSON(Paths.FILE_MAPS + mapName + Constants.STRING_SLASH + fileName);
-        this.modelHero = new MapPortion(globalPortion).getHeroModel(json);
+    static getModelHero() {
+        this.modelHero = new MapObject(Datas.CommonEvents.getCommonObject(2), this.heroMapPosition.toVector3(), true);
     }
     /**
      *  Load the window skins pictures

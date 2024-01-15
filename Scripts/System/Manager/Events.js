@@ -18,7 +18,7 @@ import { EventCommand, Manager, Datas, Scene } from '../index.js';
  */
 class Events {
     constructor() {
-        throw new Error("This is a static class");
+        throw new Error('This is a static class');
     }
     /**
      *  Get the event command and read json.
@@ -213,8 +213,7 @@ class Events {
                 }
                 else {
                     Scene.Map.current.updatePortions(this, function (x, y, z, i, j, k) {
-                        let objects = Game.current.getPortionDatas(Scene.Map
-                            .current.id, new Portion(x, y, z));
+                        let objects = Game.current.getPortionDatas(Scene.Map.current.id, new Portion(x, y, z));
                         // Moved objects
                         let a, l, object;
                         for (a = 0, l = objects.min.length; a < l; a++) {
@@ -240,9 +239,6 @@ class Events {
                                     object.receiveEvent(sender, isSystem, eventID, parameters, object.states);
                                     break;
                                 }
-                            }
-                            if (mapPortion.heroID === targetID) {
-                                Game.current.hero.receiveEvent(sender, isSystem, eventID, parameters, Game.current.heroStates);
                             }
                         }
                     });
@@ -286,8 +282,7 @@ class Events {
                 }
             }
             if (onlyTheClosest) {
-                closests.push([Game.current.hero, sender, isSystem, eventID,
-                    parameters, Game.current.heroStates]);
+                closests.push([Game.current.hero, sender, isSystem, eventID, parameters, Game.current.heroStates]);
             }
             else {
                 Game.current.hero.receiveEvent(sender, isSystem, eventID, parameters, Game.current.heroStates);
@@ -335,12 +330,10 @@ class Events {
             }
             // Make the object receive the event
             if (onlyTheClosest) {
-                closests.push([object, sender, isSystem, eventID, parameters,
-                    object.states]);
+                closests.push([object, sender, isSystem, eventID, parameters, object.states]);
             }
             else {
-                object.receiveEvent(sender, isSystem, eventID, parameters, object
-                    .states);
+                object.receiveEvent(sender, isSystem, eventID, parameters, object.states);
             }
         }
     }

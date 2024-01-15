@@ -27,15 +27,12 @@ declare class MapPortion {
     staticWallsList: THREE.Mesh[];
     staticObjects3DList: THREE.Mesh[];
     overflowMountains: Position[];
-    heroID: number;
     constructor(portion: Portion);
     /**
      *  Read the JSON associated to the map portion.
      *  @param {Record<string, any>} json - object describing the map portion
-     *  @param {boolean} isMapHero - Indicates if this map is where the hero is
-     *  at the beginning of the game.
      */
-    read(json: Record<string, any>, isMapHero: boolean): Promise<void>;
+    read(json: Record<string, any>): Promise<void>;
     /**
      *  Read the JSON associated to the map portion, but only the static part.
      *  @param {Record<string, any>} json - object describing the map portion
@@ -74,10 +71,8 @@ declare class MapPortion {
     /**
      *  Read the JSON associated to the objects in the portion.
      *  @param {Record<string, any>} json - Json object describing the objects
-     *  @param {boolean} isMapHero - Indicates if this map is where the hero is
-     *  at the beginning of the game
      */
-    readObjects(json: Record<string, any>, isMapHero: boolean): Promise<void>;
+    readObjects(json: Record<string, any>): Promise<void>;
     /**
      *  Remove all the static stuff from the scene.
      */
@@ -93,12 +88,6 @@ declare class MapPortion {
      *  @returns {MapObject}
      */
     getObjFromID(json: Record<string, any>, id: number): MapObject;
-    /**
-     *  Get hero model.
-     *  @param {Record<string, any>} json - Json object describing the objects
-     *  @returns {MapObject}
-     */
-    getHeroModel(json: Record<string, any>): MapObject;
     /**
      *  Update the face sprites orientation.
      *  @param {number} angle - The angle on the Y axis

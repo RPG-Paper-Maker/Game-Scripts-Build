@@ -1,5 +1,5 @@
 import { EventCommand, System } from '../index.js';
-import { MapObject } from '../Core/index.js';
+import { Position, MapObject } from '../Core/index.js';
 /** @class
  *   All the System datas.
  *   @static
@@ -11,7 +11,7 @@ declare class Systems {
     static PATH_BR: string;
     static PATH_DLCS: string;
     static ID_MAP_START_HERO: number;
-    static ID_OBJECT_START_HERO: number;
+    static heroMapPosition: Position;
     static projectName: System.Translatable;
     static antialias: boolean;
     static isMouseControls: boolean;
@@ -148,7 +148,7 @@ declare class Systems {
      *  @static
      *  @async
      */
-    static getModelHero(): Promise<void>;
+    static getModelHero(): void;
     /**
      *  Load the window skins pictures
      *  @static
