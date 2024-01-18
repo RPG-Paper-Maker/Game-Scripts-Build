@@ -206,15 +206,15 @@ declare namespace Enum {
         None = 0,
         Floors = 1,
         Autotiles = 2,
-        Water = 3,
-        SpritesFace = 4,
-        SpritesFix = 5,
-        SpritesDouble = 6,
-        SpritesQuadra = 7,
-        SpritesWall = 8,
-        Object = 9,
-        Object3D = 10,
-        Mountains = 11
+        SpritesFace = 3,
+        SpritesFix = 4,
+        SpritesDouble = 5,
+        SpritesQuadra = 6,
+        SpritesWall = 7,
+        Mountains = 8,
+        Object3D = 9,
+        Object = 10,
+        StartPosition = 11
     }
     /**
      *   Enum for the different sprite walls kind.

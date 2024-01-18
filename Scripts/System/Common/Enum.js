@@ -226,15 +226,15 @@ var Enum;
         ElementMapKind[ElementMapKind["None"] = 0] = "None";
         ElementMapKind[ElementMapKind["Floors"] = 1] = "Floors";
         ElementMapKind[ElementMapKind["Autotiles"] = 2] = "Autotiles";
-        ElementMapKind[ElementMapKind["Water"] = 3] = "Water";
-        ElementMapKind[ElementMapKind["SpritesFace"] = 4] = "SpritesFace";
-        ElementMapKind[ElementMapKind["SpritesFix"] = 5] = "SpritesFix";
-        ElementMapKind[ElementMapKind["SpritesDouble"] = 6] = "SpritesDouble";
-        ElementMapKind[ElementMapKind["SpritesQuadra"] = 7] = "SpritesQuadra";
-        ElementMapKind[ElementMapKind["SpritesWall"] = 8] = "SpritesWall";
-        ElementMapKind[ElementMapKind["Object"] = 9] = "Object";
-        ElementMapKind[ElementMapKind["Object3D"] = 10] = "Object3D";
-        ElementMapKind[ElementMapKind["Mountains"] = 11] = "Mountains";
+        ElementMapKind[ElementMapKind["SpritesFace"] = 3] = "SpritesFace";
+        ElementMapKind[ElementMapKind["SpritesFix"] = 4] = "SpritesFix";
+        ElementMapKind[ElementMapKind["SpritesDouble"] = 5] = "SpritesDouble";
+        ElementMapKind[ElementMapKind["SpritesQuadra"] = 6] = "SpritesQuadra";
+        ElementMapKind[ElementMapKind["SpritesWall"] = 7] = "SpritesWall";
+        ElementMapKind[ElementMapKind["Mountains"] = 8] = "Mountains";
+        ElementMapKind[ElementMapKind["Object3D"] = 9] = "Object3D";
+        ElementMapKind[ElementMapKind["Object"] = 10] = "Object";
+        ElementMapKind[ElementMapKind["StartPosition"] = 11] = "StartPosition";
     })(ElementMapKind = Enum.ElementMapKind || (Enum.ElementMapKind = {}));
     /**
      *   Enum for the different sprite walls kind.
