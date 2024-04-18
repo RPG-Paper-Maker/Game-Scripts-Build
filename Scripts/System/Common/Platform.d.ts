@@ -5,6 +5,7 @@
  */
 declare class Platform {
     static readonly ROOT_DIRECTORY: any;
+    static readonly IS_DESKTOP = false;
     static readonly screen: any;
     static readonly screenWidth: number;
     static readonly screenHeight: number;

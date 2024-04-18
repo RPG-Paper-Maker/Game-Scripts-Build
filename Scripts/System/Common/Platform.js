@@ -98,6 +98,7 @@ class Platform {
     }
 }
 Platform.ROOT_DIRECTORY = `${app.getAppPath()}/Content/`;
+Platform.IS_DESKTOP = false;
 Platform.screen = ElectronScreen.getPrimaryDisplay();
 Platform.screenWidth = Platform.screen.bounds.width;
 Platform.screenHeight = Platform.screen.bounds.height;
