@@ -49,6 +49,9 @@ class CommonEvents {
         }
         // Now, we can create all the models without problem
         Utils.readJSONSystemList({ list: reorderedList, listIDs: this.commonObjects, cons: System.MapObject });
+        // Hero object
+        this.heroObject = new System.MapObject();
+        this.heroObject.read(json.ho);
     }
     /**
      *  Reorder the models in the right order for inheritance.

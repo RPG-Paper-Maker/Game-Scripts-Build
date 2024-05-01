@@ -274,7 +274,7 @@ class Systems {
      *  @async
      */
     static getModelHero() {
-        this.modelHero = new MapObject(Datas.CommonEvents.getCommonObject(2), this.heroMapPosition.toVector3(), true);
+        this.modelHero = new MapObject(Datas.CommonEvents.heroObject, this.heroMapPosition.toVector3(), true);
     }
     /**
      *  Load the window skins pictures

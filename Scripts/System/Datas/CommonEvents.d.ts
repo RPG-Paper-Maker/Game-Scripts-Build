@@ -9,6 +9,7 @@ declare class CommonEvents {
     private static eventsUser;
     private static commonReactions;
     private static commonObjects;
+    static heroObject: System.MapObject;
     constructor();
     /**
      *  Read the JSON file associated to common events.
