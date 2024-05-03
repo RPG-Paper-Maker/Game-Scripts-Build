@@ -9,7 +9,6 @@ declare class Paths {
     static readonly TEST: string;
     static readonly FILE_MAPS: string;
     static readonly FILE_MAP_INFOS = "/infos.json";
-    static readonly FILE_MAP_OBJECTS = "/objects.json";
     static readonly FILE_PICTURES: string;
     static readonly FILE_VIDEOS: string;
     static readonly FILE_FONTS: string;

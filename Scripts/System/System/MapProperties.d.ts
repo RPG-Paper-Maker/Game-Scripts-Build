@@ -6,6 +6,7 @@ import { DynamicValue } from './DynamicValue.js';
 import { MapObject } from '../Core/MapObject.js';
 import { CameraProperties } from './CameraProperties.js';
 import { Color } from './Color.js';
+import { Position } from '../Core/index.js';
 /** @class
  *  The properties of a map.
  *  @extends System.Base
@@ -36,6 +37,8 @@ declare class MapProperties extends Base {
     skyboxMesh: THREE.Mesh;
     maxNumberSteps: number;
     isSunLight: boolean;
+    allObjects: Position[];
+    maxObjectsID: number;
     constructor();
     /**
      *  Read the JSON associated to the map properties.
@@ -43,6 +46,10 @@ declare class MapProperties extends Base {
      *  properties
      */
     read(json: Record<string, any>): void;
+    /**
+     *  Initialize the map objects.
+     */
+    readObjects(json: Record<string, any>): void;
     /**
      *  Update the background.
      */

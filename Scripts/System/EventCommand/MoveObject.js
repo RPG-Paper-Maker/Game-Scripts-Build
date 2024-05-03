@@ -23,7 +23,7 @@ class MoveObject extends Base {
     constructor(command) {
         super();
         let iterator = {
-            i: 0
+            i: 0,
         };
         let l = command.length;
         // Object ID
@@ -38,10 +38,9 @@ class MoveObject extends Base {
         let permanent;
         while (iterator.i < l) {
             this.kind = command[iterator.i++];
-            if (this.kind >= CommandMoveKind.MoveNorth && this.kind <=
-                CommandMoveKind.MoveBack) {
+            if (this.kind >= CommandMoveKind.MoveNorth && this.kind <= CommandMoveKind.MoveBack) {
                 this.parameters.push({
-                    square: !Utils.numToBool(command[iterator.i++])
+                    square: !Utils.numToBool(command[iterator.i++]),
                 });
                 switch (this.kind) {
                     case CommandMoveKind.MoveNorth:
@@ -105,7 +104,7 @@ class MoveObject extends Base {
                     z: z,
                     peakY: peakY,
                     peakYPlus: peakYPlus,
-                    time: time
+                    time: time,
                 });
                 this.moves.push(this.jump);
             }
@@ -142,12 +141,11 @@ class MoveObject extends Base {
                     indexX: indexX,
                     indexY: indexY,
                     width: width,
-                    height: height
+                    height: height,
                 });
                 this.moves.push(this.changeGraphics);
             }
-            else if (this.kind >= CommandMoveKind.TurnNorth && this.kind <=
-                CommandMoveKind.LookAtHeroOpposite) {
+            else if (this.kind >= CommandMoveKind.TurnNorth && this.kind <= CommandMoveKind.LookAtHeroOpposite) {
                 this.parameters.push({});
                 switch (this.kind) {
                     case CommandMoveKind.TurnNorth:
@@ -176,13 +174,12 @@ class MoveObject extends Base {
                         break;
                 }
             }
-            else if (this.kind === CommandMoveKind.ChangeSpeed || this.kind
-                === CommandMoveKind.ChangeFrequency) {
+            else if (this.kind === CommandMoveKind.ChangeSpeed || this.kind === CommandMoveKind.ChangeFrequency) {
                 let permanent = Utils.numToBool(command[iterator.i++]);
                 let value = System.DynamicValue.createValueCommand(command, iterator);
                 this.parameters.push({
                     permanent: permanent,
-                    value: value
+                    value: value,
                 });
                 if (this.kind === CommandMoveKind.ChangeSpeed) {
                     this.moves.push(this.changeSpeed);
@@ -191,13 +188,12 @@ class MoveObject extends Base {
                     this.moves.push(this.changeFrequency);
                 }
             }
-            else if (this.kind >= CommandMoveKind.MoveAnimation && this.kind
-                <= CommandMoveKind.KeepPosition) {
+            else if (this.kind >= CommandMoveKind.MoveAnimation && this.kind <= CommandMoveKind.KeepPosition) {
                 let onOff = Utils.numToBool(command[iterator.i++]);
                 let permanent = Utils.numToBool(command[iterator.i++]);
                 this.parameters.push({
                     onOff: onOff,
-                    permanent: permanent
+                    permanent: permanent,
                 });
                 switch (this.kind) {
                     case CommandMoveKind.MoveAnimation:
@@ -226,8 +222,7 @@ class MoveObject extends Base {
                         break;
                 }
             }
-            else if (this.kind >= CommandMoveKind.Wait && this.kind <=
-                CommandMoveKind.Script) {
+            else if (this.kind >= CommandMoveKind.Wait && this.kind <= CommandMoveKind.Script) {
                 let kind, l;
                 switch (this.kind) {
                     case CommandMoveKind.Wait:
@@ -247,10 +242,10 @@ class MoveObject extends Base {
                 iterator.i += l;
                 let eventCommand = Manager.Events.getEventCommand({
                     kind: kind,
-                    command: commandList
+                    command: commandList,
                 });
                 this.parameters.push({
-                    command: eventCommand
+                    command: eventCommand,
                 });
                 this.moves.push(this.useCommand);
             }
@@ -301,7 +296,7 @@ class MoveObject extends Base {
             moveHeroOrientation: null,
             pause: false,
             currentTime: -1,
-            commandState: null
+            commandState: null,
         };
     }
     /**
@@ -316,14 +311,11 @@ class MoveObject extends Base {
         if (object.moveFrequencyTick > 0) {
             return false;
         }
-        let angle = this.isCameraOrientation ? Scene.Map.current.camera
-            .horizontalAngle : -90.0;
+        let angle = this.isCameraOrientation ? Scene.Map.current.camera.horizontalAngle : -90.0;
         if (currentState.position === null && square) {
-            currentState.position = object.getFuturPosition(orientation, Datas
-                .Systems.SQUARE_SIZE, angle)[0];
+            currentState.position = object.getFuturPosition(orientation, Datas.Systems.SQUARE_SIZE, angle)[0];
         }
-        if (object.previousMoveCommand === null && object.previousOrientation
-            === null) {
+        if (object.previousMoveCommand === null && object.previousOrientation === null) {
             object.previousMoveCommand = this;
             object.previousOrientation = orientation;
         }
@@ -333,21 +325,20 @@ class MoveObject extends Base {
                 return true;
             }
         }
-        else if (object.previousMoveCommand && object.otherMoveCommand &&
-            object.otherMoveCommand !== this) {
+        else if (object.previousMoveCommand && object.otherMoveCommand && object.otherMoveCommand !== this) {
             this.moveFrequency(object);
             return true;
         }
         else if (object.previousMoveCommand !== this) {
             object.otherMoveCommand = this;
         }
-        let distances = object.move(orientation, Datas.Systems.SQUARE_SIZE -
-            currentState.distance, angle, this.isCameraOrientation);
+        let distances = object.move(orientation, Datas.Systems.SQUARE_SIZE - currentState.distance, angle, this.isCameraOrientation);
         currentState.distance += distances[0];
         currentState.normalDistance += distances[1];
-        if (!square || (square && currentState.normalDistance >= Datas.Systems
-            .SQUARE_SIZE) || (square && currentState.distance >= Datas.Systems
-            .SQUARE_SIZE || (distances[0] === 0))) {
+        if (!square ||
+            (square && currentState.normalDistance >= Datas.Systems.SQUARE_SIZE) ||
+            (square && currentState.distance >= Datas.Systems.SQUARE_SIZE) ||
+            distances[0] === 0) {
             if (distances[0] === 0 && square && !this.isIgnore) {
                 currentState.position = null;
                 object.moving = true;
@@ -400,7 +391,7 @@ class MoveObject extends Base {
      *  @param {MapObject} object - The object to move
      *  @param {Record<string, any>} - parameters The parameters
      *  @returns {Orientation}
-    */
+     */
     moveWest(currentState, object, parameters) {
         if (object) {
             return this.move(currentState, object, parameters.square, Orientation.West);
@@ -468,7 +459,7 @@ class MoveObject extends Base {
      *  @param {MapObject} object - The object to move
      *  @param {Record<string, any>} - parameters The parameters
      *  @returns {Orientation}
-    */
+     */
     moveSouthEast(currentState, object, parameters) {
         if (object) {
             object.previousOrientation = Orientation.South;
@@ -501,7 +492,7 @@ class MoveObject extends Base {
      *  @param {MapObject} object - The object to move
      *  @param {Record<string, any>} - parameters The parameters
      *  @returns {Orientation}
-    */
+     */
     moveHero(currentState, object, parameters) {
         return this.moveHeroAndOpposite(currentState, object, parameters, false);
     }
@@ -511,7 +502,7 @@ class MoveObject extends Base {
      *  @param {MapObject} object - The object to move
      *  @param {Record<string, any>} - parameters The parameters
      *  @returns {Orientation}
-    */
+     */
     moveOppositeHero(currentState, object, parameters) {
         return this.moveHeroAndOpposite(currentState, object, parameters, true);
     }
@@ -522,11 +513,12 @@ class MoveObject extends Base {
      *  @param {Object} parameters - The parameters
      *  @param {boolean} opposite - Indicate if opposite
      *  @returns {Orientation}
-    */
+     */
     moveHeroAndOpposite(currentState, object, parameters, opposite) {
         if (object) {
-            let orientation = currentState.moveHeroOrientation === null ? this
-                .getHeroOrientation(object) : currentState.moveHeroOrientation;
+            let orientation = currentState.moveHeroOrientation === null
+                ? this.getHeroOrientation(object)
+                : currentState.moveHeroOrientation;
             currentState.moveHeroOrientation = orientation;
             if (opposite) {
                 orientation = EventCommand.MoveObject.oppositeOrientation(orientation);
@@ -552,11 +544,10 @@ class MoveObject extends Base {
      *  @param {MapObject} object - The object to move
      *  @param {Record<string, any>} - parameters The parameters
      *  @returns {Orientation}
-    */
+     */
     moveFront(currentState, object, parameters) {
         if (object) {
-            let orientation = currentState.moveHeroOrientation === null ? object
-                .orientationEye : currentState.moveHeroOrientation;
+            let orientation = currentState.moveHeroOrientation === null ? object.orientationEye : currentState.moveHeroOrientation;
             currentState.moveHeroOrientation = orientation;
             return this.move(currentState, object, parameters.square, currentState.moveHeroOrientation);
         }
@@ -568,11 +559,12 @@ class MoveObject extends Base {
      *  @param {MapObject} object - The object to move
      *  @param {Record<string, any>} - parameters The parameters
      *  @returns {Orientation}
-    */
+     */
     moveBack(currentState, object, parameters) {
         if (object) {
-            let orientation = currentState.moveHeroOrientation === null ?
-                EventCommand.MoveObject.oppositeOrientation(object.orientationEye) : currentState.moveHeroOrientation;
+            let orientation = currentState.moveHeroOrientation === null
+                ? EventCommand.MoveObject.oppositeOrientation(object.orientationEye)
+                : currentState.moveHeroOrientation;
             currentState.moveHeroOrientation = orientation;
             return this.move(currentState, object, parameters.square, currentState.moveHeroOrientation);
         }
@@ -584,28 +576,26 @@ class MoveObject extends Base {
      *  @param {MapObject} object - The object to move
      *  @param {Record<string, any>} - parameters The parameters
      *  @returns {Orientation}
-    */
+     */
     jump(currentState, object, parameters) {
         if (object) {
             if (currentState.currentTime === -1) {
                 currentState.currentTime = 0;
-                currentState.startJump = new Vector3(object.position.x, object
-                    .position.y, object.position.z);
+                currentState.startJump = new Vector3(object.position.x, object.position.y, object.position.z);
                 let square = parameters.square ? Datas.Systems.SQUARE_SIZE : 1;
-                currentState.endJump = new Vector3(parameters.x.getValue() *
-                    square + currentState.startJump.x, parameters.y.getValue() *
-                    square + parameters.yPlus.getValue() + currentState.startJump
-                    .y, parameters.z.getValue() * square + currentState.startJump.z);
-                currentState.peak = parameters.peakY.getValue() * Datas.Systems
-                    .SQUARE_SIZE + parameters.peakYPlus.getValue();
+                currentState.endJump = new Vector3(parameters.x.getValue() * square + currentState.startJump.x, parameters.y.getValue() * square + parameters.yPlus.getValue() + currentState.startJump.y, parameters.z.getValue() * square + currentState.startJump.z);
+                currentState.peak =
+                    parameters.peakY.getValue() * Datas.Systems.SQUARE_SIZE + parameters.peakYPlus.getValue();
                 if (currentState.peak < currentState.endJump.y) {
-                    Platform.showErrorMessage("Move object command: jump peak cannot be lower than final y position offset. Final position=" +
-                        currentState.endJump.y + "px, Peak position=" + currentState.peak + "px");
+                    Platform.showErrorMessage('Move object command: jump peak cannot be lower than final y position offset. Final position=' +
+                        currentState.endJump.y +
+                        'px, Peak position=' +
+                        currentState.peak +
+                        'px');
                 }
                 currentState.time = parameters.time.getValue() * 1000;
             }
-            currentState.currentTime = object.jump(currentState.startJump, currentState.endJump, currentState.peak, currentState
-                .currentTime, currentState.time);
+            currentState.currentTime = object.jump(currentState.startJump, currentState.endJump, currentState.peak, currentState.currentTime, currentState.time);
             if (currentState.currentTime === currentState.time) {
                 currentState.currentTime = -1;
                 return true;
@@ -733,27 +723,26 @@ class MoveObject extends Base {
      *  @param {Record<string, any>} - currentState The current state of the event
      *  @param {MapObject} object - The object to move
      *  @param {Record<string, any>} - parameters The parameters
-    */
+     */
     changeGraphics(currentState, object, parameters) {
         if (object) {
             // Change object current state value
-            object.currentStateInstance.previousGraphicKind = object
-                .currentStateInstance.graphicKind;
+            object.currentStateInstance.previousGraphicKind = object.currentStateInstance.graphicKind;
             object.currentStateInstance.graphicKind = parameters.kind;
-            object.currentStateInstance.graphicID = parameters.pictureID
-                .getValue();
+            object.currentStateInstance.graphicID = parameters.pictureID.getValue();
             if (object.currentStateInstance.graphicID === 0) {
                 object.currentStateInstance.rectTileset = [
                     parameters.indexX,
                     parameters.indexY,
                     parameters.width,
-                    parameters.height
+                    parameters.height,
                 ];
             }
             else {
                 object.currentStateInstance.indexX = parameters.indexX;
-                object.currentStateInstance.indexY = parameters.dontChangeOrientation ?
-                    object.orientationEye : parameters.indexY;
+                object.currentStateInstance.indexY = parameters.dontChangeOrientation
+                    ? object.orientationEye
+                    : parameters.indexY;
             }
             // Permanent change
             if (parameters.permanent) {
@@ -1024,7 +1013,7 @@ class MoveObject extends Base {
      *  Get the hero orientation.
      *  @param {MapObject} object - The object to move
      *  @returns {Orientation}
-    */
+     */
     getHeroOrientation(object) {
         let xDif = object.position.x - Game.current.hero.position.x;
         let zDif = object.position.z - Game.current.hero.position.z;
@@ -1093,10 +1082,8 @@ class MoveObject extends Base {
             return null;
         }
         else {
-            let portion = Scene.Map.current.allObjects[object.system.id]
-                .getGlobalPortion();
-            let portionDatas = Game.current.getPortionDatas(Scene.Map
-                .current.id, portion);
+            let portion = Scene.Map.current.mapProperties.allObjects[object.system.id].getGlobalPortion();
+            let portionDatas = Game.current.getPortionDatas(Scene.Map.current.id, portion);
             let indexProp = portionDatas.soi.indexOf(object.system.id);
             if (indexProp === -1) {
                 statesOptions = [];
@@ -1120,7 +1107,7 @@ class MoveObject extends Base {
      *  @param {MapObject} object - The current object reacting
      *  @param {number} state - The state ID
      *  @returns {number} The number of node to pass
-    */
+     */
     update(currentState, object, state) {
         if (currentState.pause) {
             return 0;
@@ -1147,7 +1134,7 @@ class MoveObject extends Base {
                         Scene.Map.current.mapProperties.checkRandomBattle();
                     }
                 }
-                return (this.moves[currentState.index] == null) ? 1 : 0;
+                return this.moves[currentState.index] == null ? 1 : 0;
             }
             return 0;
         }

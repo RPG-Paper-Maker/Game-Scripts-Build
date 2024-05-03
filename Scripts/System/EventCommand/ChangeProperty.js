@@ -21,7 +21,7 @@ class ChangeProperty extends Base {
     constructor(command) {
         super();
         let iterator = {
-            i: 0
+            i: 0,
         };
         this.propertyID = System.DynamicValue.createValueCommand(command, iterator);
         this.operationKind = command[iterator.i++];
@@ -33,11 +33,10 @@ class ChangeProperty extends Base {
      *  @param {MapObject} object - The current object reacting
      *  @param {number} state - The state ID
      *  @returns {number} The number of node to pass
-    */
+     */
     update(currentState, object, state) {
         let propertyID = this.propertyID.getValue();
-        let newValue = Mathf.OPERATORS_NUMBERS[this.operationKind](object
-            .properties[propertyID], this.newValue.getValue());
+        let newValue = Mathf.OPERATORS_NUMBERS[this.operationKind](object.properties[propertyID], this.newValue.getValue());
         object.properties[propertyID] = newValue;
         let props;
         if (object.isHero) {
@@ -51,8 +50,7 @@ class ChangeProperty extends Base {
             }
         }
         else {
-            let portion = Scene.Map.current.allObjects[object.system.id]
-                .getGlobalPortion();
+            let portion = Scene.Map.current.mapProperties.allObjects[object.system.id].getGlobalPortion();
             let portionDatas = Game.current.getPortionDatas(Scene.Map.current.id, portion);
             let indexProp = portionDatas.pi.indexOf(object.system.id);
             if (indexProp === -1) {

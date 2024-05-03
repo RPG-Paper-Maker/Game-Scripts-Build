@@ -21,7 +21,7 @@ class ChangeState extends Base {
     constructor(command) {
         super();
         let iterator = {
-            i: 0
+            i: 0,
         };
         this.mapID = System.DynamicValue.createValueCommand(command, iterator);
         this.objectID = System.DynamicValue.createValueCommand(command, iterator);
@@ -111,7 +111,7 @@ class ChangeState extends Base {
             map: null,
             object: null,
             mapID: this.mapID.getValue(),
-            objectID: this.objectID.getValue()
+            objectID: this.objectID.getValue(),
         };
     }
     /**
@@ -124,21 +124,20 @@ class ChangeState extends Base {
     update(currentState, object, state) {
         if (!currentState.waitingObject) {
             if (currentState.map === null) {
-                if (currentState.mapID === -1 || currentState.mapID === Scene
-                    .Map.current.id || currentState.objectID === -1) {
+                if (currentState.mapID === -1 ||
+                    currentState.mapID === Scene.Map.current.id ||
+                    currentState.objectID === -1) {
                     currentState.map = Scene.Map.current;
                 }
                 else {
                     currentState.map = new Scene.Map(currentState.mapID, false, true);
                     (async () => {
                         await currentState.map.readMapProperties(true);
-                        await currentState.map.initializeObjects();
                         currentState.map.initializePortionsObjects();
                     })();
                 }
             }
-            if (currentState.map.allObjects && currentState.map
-                .portionsObjectsUpdated) {
+            if (currentState.map.mapProperties.allObjects && currentState.map.portionsObjectsUpdated) {
                 if (currentState.map === Scene.Map.current) {
                     MapObject.search(currentState.objectID, (result) => {
                         currentState.object = result.object;
@@ -152,8 +151,9 @@ class ChangeState extends Base {
         }
         if (currentState.waitingObject && currentState.object !== null) {
             if (currentState.object.isHero || currentState.object.isStartup) {
-                let states = currentState.object.isHero ? Game.current
-                    .heroStates : Game.current.startupStates[Scene.Map.current.id];
+                let states = currentState.object.isHero
+                    ? Game.current.heroStates
+                    : Game.current.startupStates[Scene.Map.current.id];
                 switch (this.operationKind) {
                     case 0: // Replacing
                         if (currentState.object.isHero) {
@@ -162,28 +162,26 @@ class ChangeState extends Base {
                         else {
                             Game.current.startupStates[Scene.Map.current.id] = [];
                         }
-                        states = currentState.object.isHero ? Game.current
-                            .heroStates : Game.current.startupStates[Scene.Map.current.id];
-                        EventCommand.ChangeState.addStateSpecial(states, this
-                            .idState.getValue());
+                        states = currentState.object.isHero
+                            ? Game.current.heroStates
+                            : Game.current.startupStates[Scene.Map.current.id];
+                        EventCommand.ChangeState.addStateSpecial(states, this.idState.getValue());
                         break;
                     case 1: // Adding
-                        EventCommand.ChangeState.addStateSpecial(states, this
-                            .idState.getValue());
+                        EventCommand.ChangeState.addStateSpecial(states, this.idState.getValue());
                         break;
                     case 2: // Deleting
-                        EventCommand.ChangeState.removeStateSpecial(states, this
-                            .idState.getValue());
+                        EventCommand.ChangeState.removeStateSpecial(states, this.idState.getValue());
                         break;
                 }
             }
             else {
-                let objectID = currentState.objectID === -1 ? object.system.id :
-                    currentState.objectID;
-                let position = currentState.map.allObjects[objectID];
+                let objectID = currentState.objectID === -1 ? object.system.id : currentState.objectID;
+                let position = currentState.map.mapProperties.allObjects[objectID];
                 if (!position) {
-                    Platform.showErrorMessage("Change state command: the object ID " +
-                        objectID + " selected doesn't exist in the map " +
+                    Platform.showErrorMessage('Change state command: the object ID ' +
+                        objectID +
+                        " selected doesn't exist in the map " +
                         currentState.map.name);
                 }
                 let portion = position.getGlobalPortion();

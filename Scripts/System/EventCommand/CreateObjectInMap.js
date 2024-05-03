@@ -21,19 +21,17 @@ class CreateObjectInMap extends Base {
     constructor(command) {
         super();
         let iterator = {
-            i: 0
+            i: 0,
         };
         this.modelID = System.DynamicValue.createValueCommand(command, iterator);
         this.objectIDPosition = null;
         this.mapID = null;
         switch (command[iterator.i++]) {
             case 0:
-                this.mapID = System.DynamicValue.createNumber(command[iterator
-                    .i++]);
+                this.mapID = System.DynamicValue.createNumber(command[iterator.i++]);
                 this.x = System.DynamicValue.createNumber(command[iterator.i++]);
                 this.y = System.DynamicValue.createNumber(command[iterator.i++]);
-                this.yPlus = System.DynamicValue.createNumber(command[iterator
-                    .i++]);
+                this.yPlus = System.DynamicValue.createNumber(command[iterator.i++]);
                 this.z = System.DynamicValue.createNumber(command[iterator.i++]);
                 break;
             case 1:
@@ -59,7 +57,7 @@ class CreateObjectInMap extends Base {
     initialize() {
         return {
             position: null,
-            waitingPosition: false
+            waitingPosition: false,
         };
     }
     /**
@@ -71,16 +69,13 @@ class CreateObjectInMap extends Base {
      */
     update(currentState, object, state) {
         // Do nothing if not in the current map
-        if (this.objectIDPosition === null && this.mapID.getValue() !== Scene.Map
-            .current.id) {
+        if (this.objectIDPosition === null && this.mapID.getValue() !== Scene.Map.current.id) {
             return 1;
         }
         if (!currentState.waitingPosition) {
             // Set object's position
             if (this.objectIDPosition === null) {
-                currentState.position = new Position(this.x.getValue(), this
-                    .y.getValue(), this.z.getValue(), this.yPlus.getValue()
-                    * 100 / Datas.Systems.SQUARE_SIZE).toVector3();
+                currentState.position = new Position(this.x.getValue(), this.y.getValue(), this.z.getValue(), (this.yPlus.getValue() * 100) / Datas.Systems.SQUARE_SIZE).toVector3();
             }
             else {
                 MapObject.search(this.objectIDPosition.getValue(), (result) => {
@@ -90,10 +85,10 @@ class CreateObjectInMap extends Base {
             currentState.waitingPosition = true;
         }
         if (currentState.position !== null) {
-            let id = ++Scene.Map.current.maxObjectsID;
+            let id = ++Scene.Map.current.mapProperties.maxObjectsID;
             let position = Position.createFromVector3(currentState.position);
             let globalPortion = position.getGlobalPortion();
-            Scene.Map.current.allObjects[id] = position;
+            Scene.Map.current.mapProperties.allObjects[id] = position;
             let newObject = new MapObject(System.MapObject.createFromModelID(this.modelID.getValue(), id), currentState.position);
             if (this.isStockID) {
                 Game.current.variables[this.stockID.getValue(true)] = id;

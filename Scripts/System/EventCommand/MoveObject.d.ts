@@ -66,7 +66,7 @@ declare class MoveObject extends Base {
      *  @param {MapObject} object - The object to move
      *  @param {Record<string, any>} - parameters The parameters
      *  @returns {Orientation}
-    */
+     */
     moveWest(currentState: Record<string, any>, object: MapObject, parameters: Record<string, any>): Orientation | boolean;
     /**
      *  Function to move east.
@@ -106,7 +106,7 @@ declare class MoveObject extends Base {
      *  @param {MapObject} object - The object to move
      *  @param {Record<string, any>} - parameters The parameters
      *  @returns {Orientation}
-    */
+     */
     moveSouthEast(currentState: Record<string, any>, object: MapObject, parameters: Record<string, any>): Orientation | boolean;
     /**
      *  Function to move random.
@@ -122,7 +122,7 @@ declare class MoveObject extends Base {
      *  @param {MapObject} object - The object to move
      *  @param {Record<string, any>} - parameters The parameters
      *  @returns {Orientation}
-    */
+     */
     moveHero(currentState: Record<string, any>, object: MapObject, parameters: Record<string, any>): Orientation | boolean;
     /**
      *  Function to move opposite to hero.
@@ -130,7 +130,7 @@ declare class MoveObject extends Base {
      *  @param {MapObject} object - The object to move
      *  @param {Record<string, any>} - parameters The parameters
      *  @returns {Orientation}
-    */
+     */
     moveOppositeHero(currentState: Record<string, any>, object: MapObject, parameters: Record<string, any>): Orientation | boolean;
     /**
      *  Function to move hero and opposite hero.
@@ -139,7 +139,7 @@ declare class MoveObject extends Base {
      *  @param {Object} parameters - The parameters
      *  @param {boolean} opposite - Indicate if opposite
      *  @returns {Orientation}
-    */
+     */
     moveHeroAndOpposite(currentState: Record<string, any>, object: MapObject, parameters: Record<string, any>, opposite: boolean): Orientation | boolean;
     /**
      *  Function to move front.
@@ -147,7 +147,7 @@ declare class MoveObject extends Base {
      *  @param {MapObject} object - The object to move
      *  @param {Record<string, any>} - parameters The parameters
      *  @returns {Orientation}
-    */
+     */
     moveFront(currentState: Record<string, any>, object: MapObject, parameters: Record<string, any>): Orientation | boolean;
     /**
      *  Function to move back.
@@ -155,7 +155,7 @@ declare class MoveObject extends Base {
      *  @param {MapObject} object - The object to move
      *  @param {Record<string, any>} - parameters The parameters
      *  @returns {Orientation}
-    */
+     */
     moveBack(currentState: Record<string, any>, object: MapObject, parameters: Record<string, any>): Orientation | boolean;
     /**
      *  Function to jump.
@@ -163,7 +163,7 @@ declare class MoveObject extends Base {
      *  @param {MapObject} object - The object to move
      *  @param {Record<string, any>} - parameters The parameters
      *  @returns {Orientation}
-    */
+     */
     jump(currentState: Record<string, any>, object: MapObject, parameters: Record<string, any>): Orientation | boolean;
     /**
      *  Function to look at north.
@@ -234,7 +234,7 @@ declare class MoveObject extends Base {
      *  @param {Record<string, any>} - currentState The current state of the event
      *  @param {MapObject} object - The object to move
      *  @param {Record<string, any>} - parameters The parameters
-    */
+     */
     changeGraphics(currentState: Record<string, any>, object: MapObject, parameters: Record<string, any>): Orientation | boolean;
     /**
      *  Function to change speed.
@@ -328,7 +328,7 @@ declare class MoveObject extends Base {
      *  Get the hero orientation.
      *  @param {MapObject} object - The object to move
      *  @returns {Orientation}
-    */
+     */
     getHeroOrientation(object: MapObject): Orientation;
     /**
      *  Get the current orientation.
@@ -348,7 +348,7 @@ declare class MoveObject extends Base {
      *  @param {MapObject} object - The current object reacting
      *  @param {number} state - The state ID
      *  @returns {number} The number of node to pass
-    */
+     */
     update(currentState: Record<string, any>, object: MapObject, state: number): number;
 }
 export { MoveObject };

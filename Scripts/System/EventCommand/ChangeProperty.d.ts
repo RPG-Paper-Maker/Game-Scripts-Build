@@ -17,7 +17,7 @@ declare class ChangeProperty extends Base {
      *  @param {MapObject} object - The current object reacting
      *  @param {number} state - The state ID
      *  @returns {number} The number of node to pass
-    */
+     */
     update(currentState: Record<string, any>, object: MapObject, state: number): number;
 }
 export { ChangeProperty };

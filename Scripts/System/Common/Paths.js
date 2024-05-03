@@ -24,7 +24,6 @@ Paths.FILES = 'file:///';
 Paths.TEST = Platform.ROOT_DIRECTORY + '/Test/';
 Paths.FILE_MAPS = Platform.ROOT_DIRECTORY + 'Maps/';
 Paths.FILE_MAP_INFOS = '/infos.json';
-Paths.FILE_MAP_OBJECTS = '/objects.json';
 Paths.FILE_PICTURES = Platform.ROOT_DIRECTORY + 'pictures.json';
 Paths.FILE_VIDEOS = Platform.ROOT_DIRECTORY + 'videos.json';
 Paths.FILE_FONTS = Platform.ROOT_DIRECTORY + 'fonts.json';

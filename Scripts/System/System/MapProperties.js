@@ -17,7 +17,7 @@ import { MapObject } from '../Core/MapObject.js';
 import { Enum, Constants, Utils, Mathf } from '../Common/index.js';
 var SongKind = Enum.SongKind;
 var PictureKind = Enum.PictureKind;
-import { Game } from '../Core/index.js';
+import { Game, Position } from '../Core/index.js';
 /** @class
  *  The properties of a map.
  *  @extends System.Base
@@ -88,6 +88,24 @@ class MapProperties extends Base {
         this.randomBattleVariance = System.DynamicValue.readOrDefaultNumber(json.randomBattleVariance, 20);
         this.updateMaxNumberSteps();
         this.isSunLight = Utils.defaultValue(json.isl, true);
+        this.readObjects(json);
+    }
+    /**
+     *  Initialize the map objects.
+     */
+    readObjects(json) {
+        const { objs } = json;
+        let l = objs.length;
+        this.allObjects = new Array(l + 1);
+        let jsonObject;
+        this.maxObjectsID = 1;
+        for (let i = 0; i < l; i++) {
+            jsonObject = objs[i];
+            this.allObjects[jsonObject.id] = Position.createFromArray(jsonObject.p);
+            if (jsonObject.id > this.maxObjectsID) {
+                this.maxObjectsID = jsonObject.id;
+            }
+        }
     }
     /**
      *  Update the background.

@@ -13,7 +13,7 @@ import { Base } from './Base.js';
 import { Enum, Utils, Constants, Paths, Inputs, Interpreter, Platform, ScreenResolution } from '../Common/index.js';
 var PictureKind = Enum.PictureKind;
 import { System, Datas, Scene, Manager } from '../index.js';
-import { Position, Portion, MapPortion, Camera, ReactionInterpreter, Vector3, Autotiles, Game, Frame, Vector2, } from '../Core/index.js';
+import { Portion, MapPortion, Camera, ReactionInterpreter, Vector3, Autotiles, Game, Frame, Vector2, } from '../Core/index.js';
 /** @class
  *  A scene for a local map.
  *  @extends Scene.Base
@@ -57,7 +57,6 @@ class Map extends Base {
         this.initializeSunLight();
         this.initializeCamera();
         this.orientation = this.camera.getMapOrientation();
-        await this.initializeObjects();
         this.initializePortionsObjects();
         await this.loadTextures();
         this.loadCollisions();
@@ -176,23 +175,6 @@ class Map extends Base {
         if (this.mapProperties.skyboxGeometry !== null) {
             this.previousCameraPosition = this.camera.getThreeCamera().position.clone();
             this.mapProperties.skyboxGeometry.translate(this.camera.getThreeCamera().position.x, this.camera.getThreeCamera().position.y, this.camera.getThreeCamera().position.z);
-        }
-    }
-    /**
-     *  Initialize the map objects.
-     */
-    async initializeObjects() {
-        let json = (await Platform.parseFileJSON(Paths.FILE_MAPS + this.mapFilename + Paths.FILE_MAP_OBJECTS)).objs;
-        let l = json.length;
-        this.allObjects = new Array(l + 1);
-        let jsonObject;
-        this.maxObjectsID = 1;
-        for (let i = 0; i < l; i++) {
-            jsonObject = json[i];
-            this.allObjects[jsonObject.id] = Position.createFromArray(jsonObject.p);
-            if (jsonObject.id > this.maxObjectsID) {
-                this.maxObjectsID = jsonObject.id;
-            }
         }
     }
     /**

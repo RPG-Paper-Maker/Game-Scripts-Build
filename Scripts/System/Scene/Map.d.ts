@@ -30,7 +30,6 @@ declare class Map extends Base {
     battleCommandKind: EffectSpecialActionKind;
     mapProperties: System.MapProperties;
     scene: THREE.Scene;
-    allObjects: Position[];
     currentPortion: Portion;
     previousPortion: Portion;
     mapPortions: MapPortion[];
@@ -39,7 +38,6 @@ declare class Map extends Base {
     collisions: number[][][][];
     previousCameraPosition: Vector3;
     portionsObjectsUpdated: boolean;
-    maxObjectsID: number;
     heroOrientation: Enum.Orientation;
     previousWeatherPoints: THREE.Points;
     previousWeatherVelocities: number[];
@@ -84,10 +82,6 @@ declare class Map extends Base {
      *  Initialize the map objects.
      */
     initializeCamera(): void;
-    /**
-     *  Initialize the map objects.
-     */
-    initializeObjects(): Promise<void>;
     /**
      *  Initialize all the objects moved or / and with changed states.
      */
