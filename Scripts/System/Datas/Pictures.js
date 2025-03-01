@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { System, Datas } from '../index.js';
-import { Paths, Platform, Enum } from '../Common/index.js';
-var PictureKind = Enum.PictureKind;
+import { Constants, Enum, Paths, Platform } from '../Common/index.js';
 import { Picture2D } from '../Core/index.js';
+import { Datas, System } from '../index.js';
+var PictureKind = Enum.PictureKind;
 /** @class
  *   All the pictures datas.
  *   @static
@@ -51,6 +51,12 @@ class Pictures {
                 if (jsonPicture) {
                     id = jsonPicture.id;
                     picture = new System.Picture(jsonPicture, k);
+                    if (Platform.WEB_DEV && !picture.isBR) {
+                        picture.base64 = await Platform.loadFile(Platform.ROOT_DIRECTORY.slice(0, -1) +
+                            System.Picture.getLocalFolder(picture.kind) +
+                            Constants.STRING_SLASH +
+                            picture.name);
+                    }
                     if (k === PictureKind.Icons ||
                         k === PictureKind.Pictures ||
                         k === PictureKind.Facesets ||

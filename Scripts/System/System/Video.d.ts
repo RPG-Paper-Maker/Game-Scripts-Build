@@ -10,6 +10,7 @@ declare class Video extends Base {
     name: string;
     isBR: boolean;
     dlc: string;
+    base64: string;
     constructor(json?: Record<string, any>);
     /**
      *  Get the folder associated to videos.

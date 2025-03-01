@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Platform, Paths, Enum } from '../Common/index.js';
+import { Constants, Enum, Paths, Platform } from '../Common/index.js';
+import { Datas, System } from '../index.js';
 var SongKind = Enum.SongKind;
-import { System, Datas } from '../index.js';
 /** @class
  *   All the songs datas
  *   @static
@@ -48,6 +48,12 @@ class Songs {
                 if (jsonSong) {
                     id = jsonSong.id;
                     song = new System.Song(jsonSong, k);
+                    if (Platform.WEB_DEV && !song.isBR) {
+                        song.base64 = await Platform.loadFile(Platform.ROOT_DIRECTORY.slice(0, -1) +
+                            System.Song.getLocalFolder(song.kind) +
+                            Constants.STRING_SLASH +
+                            song.name);
+                    }
                     if (k !== SongKind.Sound) {
                         song.load();
                     }

@@ -1,4 +1,4 @@
-import { Player, MapObject } from '../Core/index.js';
+import { MapObject, Player } from '../Core/index.js';
 /**
  *  The interpreter to evaluate formulas or simple scripts without having to import.
  * @class Interpreter
@@ -12,13 +12,14 @@ declare class Interpreter {
     private static manager;
     private static scene;
     private static system;
+    private static main;
     private static three;
     private static howl;
     constructor();
     /**
      *  Evaluate a formula.
      */
-    static evaluate(formula: string, { user, target, damage, thisObject, addReturn, additionalName, additionalValue, defaultValue }?: {
+    static evaluate(formula: string, { user, target, damage, thisObject, addReturn, additionalName, additionalValue, defaultValue, }?: {
         user?: Player;
         target?: Player;
         damage?: number;

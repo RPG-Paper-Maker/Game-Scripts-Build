@@ -8,12 +8,12 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum, Constants, Paths, Utils, Platform } from '../Common/index.js';
-var CustomShapeKind = Enum.CustomShapeKind;
-import { Base } from './Base.js';
-import { Datas, Manager } from '../index.js';
+import { Constants, Enum, Paths, Platform, Utils } from '../Common/index.js';
+import { CustomGeometry, Vector2, Vector3 } from '../Core/index.js';
 import { THREE } from '../Globals.js';
-import { Vector3, Vector2, CustomGeometry } from '../Core/index.js';
+import { Datas, Manager } from '../index.js';
+import { Base } from './Base.js';
+var CustomShapeKind = Enum.CustomShapeKind;
 /** @class
  *  A shape of the game.
  *  @extends System.Base
@@ -188,7 +188,8 @@ class Shape extends Base {
     async load() {
         if (this.id !== -1 && !this.geometry) {
             if (this.base64) {
-                this.geometry = Shape.parse(atob(this.base64));
+                const base64Data = this.base64.split(',')[1];
+                this.geometry = Shape.parse(atob(base64Data));
                 this.base64 = '';
             }
             else {

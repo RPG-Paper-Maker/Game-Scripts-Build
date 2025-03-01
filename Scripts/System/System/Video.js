@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
-import { Datas, System } from '../index.js';
 import { Constants, Paths, Utils } from '../Common/index.js';
+import { Datas, System } from '../index.js';
+import { Base } from './Base.js';
 /** @class
  *  A video of the game.
  *  @extends System.Base
@@ -29,9 +29,11 @@ class Video extends Base {
      *  @returns {string}
      */
     static getFolder(isBR, dlc) {
-        return (isBR ? Datas.Systems.PATH_BR : (dlc ? Datas.Systems.PATH_DLCS +
-            Constants.STRING_SLASH + dlc : Paths.ROOT_DIRECTORY_LOCAL)) + this
-            .getLocalFolder();
+        return ((isBR
+            ? Datas.Systems.PATH_BR
+            : dlc
+                ? Datas.Systems.PATH_DLCS + Constants.STRING_SLASH + dlc
+                : Paths.ROOT_DIRECTORY_LOCAL) + this.getLocalFolder());
     }
     /**
      *  Get the local folder associated to videos.
@@ -49,15 +51,17 @@ class Video extends Base {
         this.id = json.id;
         this.name = json.name;
         this.isBR = json.br;
-        this.dlc = Utils.defaultValue(json.d, "");
+        this.dlc = Utils.defaultValue(json.d, '');
     }
     /**
      *  Get the absolute path associated to this video.
      *  @returns {string}
      */
     getPath() {
-        return this.id === -1 ? "" : System.Video.getFolder(this.isBR, this.dlc)
-            + Constants.STRING_SLASH + this.name;
+        if (this.base64) {
+            return this.base64;
+        }
+        return this.id === -1 ? '' : System.Video.getFolder(this.isBR, this.dlc) + Constants.STRING_SLASH + this.name;
     }
 }
 export { Video };

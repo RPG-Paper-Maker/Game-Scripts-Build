@@ -8,8 +8,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Platform, Paths, Utils } from '../Common/index.js';
-import { System, Datas } from '../index.js';
+import { Constants, Paths, Platform, Utils } from '../Common/index.js';
+import { Datas, System } from '../index.js';
 /** @class
  *  All the videos datas.
  *  @static
@@ -25,6 +25,16 @@ class Videos {
         let json = (await Platform.parseFileJSON(Paths.FILE_VIDEOS)).list;
         this.list = [];
         Utils.readJSONSystemList({ list: json, listIDs: this.list, cons: System.Video });
+        if (Platform.WEB_DEV) {
+            for (const video of this.list) {
+                if (video) {
+                    video.base64 = await Platform.loadFile(Platform.ROOT_DIRECTORY.slice(0, -1) +
+                        System.Video.getLocalFolder() +
+                        Constants.STRING_SLASH +
+                        video.name);
+                }
+            }
+        }
     }
     /**
      *  Get the corresponding video.

@@ -8,8 +8,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Platform, Paths, Enum } from '../Common/index.js';
-import { System, Datas } from '../index.js';
+import { Constants, Enum, Paths, Platform } from '../Common/index.js';
+import { Datas, System } from '../index.js';
 var CustomShapeKind = Enum.CustomShapeKind;
 /** @class
  *  All the shapes datas.
@@ -48,6 +48,12 @@ class Shapes {
                 if (jsonShape) {
                     id = jsonShape.id;
                     shape = new System.Shape(jsonShape, k);
+                    if (Platform.WEB_DEV && !shape.isBR) {
+                        shape.base64 = await Platform.loadFile(Platform.ROOT_DIRECTORY.slice(0, -1) +
+                            System.Shape.getLocalFolder(shape.kind) +
+                            Constants.STRING_SLASH +
+                            shape.name);
+                    }
                     if (k === CustomShapeKind.OBJ || k === CustomShapeKind.Collisions) {
                         await shape.load();
                     }

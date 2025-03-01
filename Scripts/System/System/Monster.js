@@ -8,12 +8,12 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { Enum, Utils } from '../Common/index.js';
+import { Class } from './Class.js';
 import { Hero } from './Hero.js';
-import { ProgressionTable } from './ProgressionTable.js';
 import { Loot } from './Loot.js';
 import { MonsterAction } from './MonsterAction.js';
-import { Class } from './Class.js';
-import { Utils, Enum } from '../Common/index.js';
+import { ProgressionTable } from './ProgressionTable.js';
 var LootKind = Enum.LootKind;
 /** @class
  *  A monster of the game.
@@ -32,8 +32,7 @@ class Monster extends Hero {
         super.read(json);
         this.rewards = {};
         // Experience
-        this.rewards.xp = new ProgressionTable(this.getProperty(Class
-            .PROPERTY_FINAL_LEVEL, undefined), json.xp);
+        this.rewards.xp = new ProgressionTable(this.getProperty(Class.PROPERTY_FINAL_LEVEL, undefined), json.xp);
         // Currencies
         let jsonCurrencies = json.cur;
         let l = jsonCurrencies.length;
@@ -46,16 +45,21 @@ class Monster extends Hero {
         }
         // Loots
         this.rewards.loots = [];
-        Utils.readJSONSystemList({ list: Utils.defaultValue(json.loots, []),
-            listIndexes: this.rewards.loots, cons: Loot });
+        Utils.readJSONSystemList({
+            list: Utils.defaultValue(json.loots, []),
+            listIndexes: this.rewards.loots,
+            cons: Loot,
+        });
         // Actions
         this.actions = [];
-        Utils.readJSONSystemList({ list: Utils.defaultValue(json.a, []),
-            listIndexes: this.actions, func: (jsonAction) => {
+        Utils.readJSONSystemList({
+            list: Utils.defaultValue(json.a, []),
+            listIndexes: this.actions,
+            func: (jsonAction) => {
                 let action = new MonsterAction(jsonAction);
                 action.monster = this;
                 return action;
-            }
+            },
         });
     }
     /**
@@ -64,8 +68,7 @@ class Monster extends Hero {
      *  @returns {number}
      */
     getRewardExperience(level) {
-        return this.rewards.xp.getProgressionAt(level, this.getProperty(Class
-            .PROPERTY_FINAL_LEVEL, undefined));
+        return this.rewards.xp.getProgressionAt(level, this.getProperty(Class.PROPERTY_FINAL_LEVEL, undefined));
     }
     /**
      *  Get the currencies reward.

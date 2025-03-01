@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { Enum, ScreenResolution, Utils } from '../Common/index.js';
+import { Datas, Manager, System } from '../index.js';
 import { Base } from './Base.js';
-import { System, Manager, Datas } from '../index.js';
-import { Utils, Enum, ScreenResolution } from '../Common/index.js';
 var PictureKind = Enum.PictureKind;
 /** @class
  *  An event command for setting / moving / turning a picture.
@@ -21,7 +21,7 @@ class SetMoveTurnAPicture extends Base {
     constructor(command) {
         super();
         let iterator = {
-            i: 0
+            i: 0,
         };
         this.index = System.DynamicValue.createValueCommand(command, iterator);
         if (Utils.numToBool(command[iterator.i++])) {
@@ -43,8 +43,8 @@ class SetMoveTurnAPicture extends Base {
         if (Utils.numToBool(command[iterator.i++])) {
             this.angle = System.DynamicValue.createValueCommand(command, iterator);
         }
-        this.time = System.DynamicValue.createValueCommand(command, iterator);
         this.waitEnd = Utils.numToBool(command[iterator.i++]);
+        this.time = System.DynamicValue.createValueCommand(command, iterator);
         this.parallel = !this.waitEnd;
     }
     /**
@@ -94,18 +94,17 @@ class SetMoveTurnAPicture extends Base {
         return {
             parallel: this.waitEnd,
             picture: picture,
-            finalDifZoom: this.zoom ? (this.zoom.getValue() / 100) - picture
-                .zoom : null,
-            finalDifOpacity: this.opacity ? (this.opacity.getValue() / 100) -
-                picture.opacity : null,
-            finalDifX: this.x ? (picture.centered ? ScreenResolution.SCREEN_X /
-                2 : 0) + this.x.getValue() - picture.oX : null,
-            finalDifY: this.y ? (picture.centered ? ScreenResolution.SCREEN_Y /
-                2 : 0) + this.y.getValue() - picture.oY : null,
-            finalDifAngle: this.angle ? this.angle.getValue() - picture.angle :
-                null,
+            finalDifZoom: this.zoom ? this.zoom.getValue() / 100 - picture.zoom : null,
+            finalDifOpacity: this.opacity ? this.opacity.getValue() / 100 - picture.opacity : null,
+            finalDifX: this.x
+                ? (picture.centered ? ScreenResolution.SCREEN_X / 2 : 0) + this.x.getValue() - picture.oX
+                : null,
+            finalDifY: this.y
+                ? (picture.centered ? ScreenResolution.SCREEN_Y / 2 : 0) + this.y.getValue() - picture.oY
+                : null,
+            finalDifAngle: this.angle ? this.angle.getValue() - picture.angle : null,
             time: time,
-            timeLeft: time
+            timeLeft: time,
         };
     }
     /**
@@ -137,26 +136,21 @@ class SetMoveTurnAPicture extends Base {
             }
             // Set
             if (this.zoom) {
-                currentState.picture.zoom += timeRate * currentState
-                    .finalDifZoom;
+                currentState.picture.zoom += timeRate * currentState.finalDifZoom;
             }
             if (this.opacity) {
-                currentState.picture.opacity += timeRate * currentState
-                    .finalDifOpacity;
+                currentState.picture.opacity += timeRate * currentState.finalDifOpacity;
             }
             // Move
             if (this.x) {
-                currentState.picture.setX(currentState.picture.oX + (timeRate *
-                    currentState.finalDifX));
+                currentState.picture.setX(currentState.picture.oX + timeRate * currentState.finalDifX);
             }
             if (this.y) {
-                currentState.picture.setY(currentState.picture.oY + (timeRate *
-                    currentState.finalDifY));
+                currentState.picture.setY(currentState.picture.oY + timeRate * currentState.finalDifY);
             }
             // Turn
             if (this.angle) {
-                currentState.picture.angle += timeRate * currentState
-                    .finalDifAngle;
+                currentState.picture.angle += timeRate * currentState.finalDifAngle;
             }
             Manager.Stack.requestPaintHUD = true;
             // If time = 0, then this is the end of the command

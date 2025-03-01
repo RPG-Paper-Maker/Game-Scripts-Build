@@ -8,24 +8,27 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Datas, Common, Core, EventCommand, Graphic, Manager, System, Scene } from '../index.js';
-import { THREE, Howl } from '../Globals.js';
+import { Howl, THREE } from '../Globals.js';
+import { Common, Core, Datas, EventCommand, Graphic, Main, Manager, Scene, System } from '../index.js';
 /**
  *  The interpreter to evaluate formulas or simple scripts without having to import.
  * @class Interpreter
  */
 class Interpreter {
     constructor() {
-        throw new Error("This is a static class");
+        throw new Error('This is a static class');
     }
     /**
      *  Evaluate a formula.
      */
-    static evaluate(formula, { user, target, damage, thisObject, addReturn = true, additionalName = "", additionalValue = null, defaultValue = true } = {}) {
+    static evaluate(formula, { user, target, damage, thisObject, addReturn = true, additionalName = '', additionalValue = null, defaultValue = true, } = {}) {
+        if (!this.main) {
+            this.main = Main;
+        }
         if (formula === null) {
             return defaultValue;
         }
-        return new Function("Common", "Core", "Datas", "EventCommand", "Graphic", "Manager", "Scene", "System", "THREE", "Howl", "u", "t", "damage", "$object", additionalName, (addReturn ? "return " : "") + formula)(this.common, this.core, this.datas, this.eventCommand, this.graphic, this.manager, this.scene, this.system, this.three, this.howl, user, target, damage, thisObject, additionalValue);
+        return new Function('Common', 'Core', 'Datas', 'EventCommand', 'Graphic', 'Manager', 'Scene', 'System', 'Main', 'THREE', 'Howl', 'u', 't', 'damage', '$object', additionalName, (addReturn ? 'return ' : '') + formula)(this.common, this.core, this.datas, this.eventCommand, this.graphic, this.manager, this.scene, this.system, this.main, this.three, this.howl, user, target, damage, thisObject, additionalValue);
     }
 }
 Interpreter.common = Common;

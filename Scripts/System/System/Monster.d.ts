@@ -1,8 +1,8 @@
+import { Item } from '../Core/index.js';
 import { Hero } from './Hero.js';
-import { ProgressionTable } from './ProgressionTable.js';
 import { Loot } from './Loot.js';
 import { MonsterAction } from './MonsterAction.js';
-import { Item } from '../Core/index.js';
+import { ProgressionTable } from './ProgressionTable.js';
 interface StructReward {
     xp: ProgressionTable;
     currencies: ProgressionTable[];
@@ -42,4 +42,4 @@ declare class Monster extends Hero {
      */
     getRewardLoots(level: number): Record<string, Item>[];
 }
-export { StructReward, Monster };
+export { Monster, StructReward };

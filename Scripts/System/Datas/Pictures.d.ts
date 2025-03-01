@@ -1,7 +1,7 @@
-import { System } from '../index.js';
 import { Enum } from '../Common/index.js';
-import PictureKind = Enum.PictureKind;
 import { Picture2D } from '../Core/index.js';
+import { System } from '../index.js';
+import PictureKind = Enum.PictureKind;
 /** @class
  *   All the pictures datas.
  *   @static

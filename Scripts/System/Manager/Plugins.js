@@ -6,7 +6,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Paths, Constants, Utils, Platform } from '../Common/index.js';
+import { Constants, Interpreter, Paths, Platform, Utils } from '../Common/index.js';
 import { System } from '../index.js';
 /** @class
  *  The class who handles plugins of RPG Paper Maker.
@@ -41,16 +41,9 @@ class Plugins {
         // FIX 01 : plugin wasn't unloaded if not enabled.
         if (plugin.isOn) {
             this.register(plugin);
-            return await new Promise((resolve, reject) => {
-                let url = Paths.PLUGINS + pluginJSON.name + Constants.STRING_SLASH + Paths.FILE_PLUGIN_CODE;
-                let script = document.createElement('script');
-                script.type = 'module';
-                script.src = url;
-                document.body.appendChild(script);
-                script.onload = () => {
-                    resolve(true);
-                };
-            });
+            const code = await Platform.loadFile(Paths.PLUGINS + pluginJSON.name + Constants.STRING_SLASH + Paths.FILE_PLUGIN_CODE);
+            Interpreter.evaluate(code, { addReturn: false });
+            return true;
         }
     }
     /**
