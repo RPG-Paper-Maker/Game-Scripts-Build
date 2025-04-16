@@ -1,5 +1,5 @@
-import { Base } from './Base.js';
 import { System } from '../index.js';
+import { Base } from './Base.js';
 /** @class
  *  A custom plugin in the game.
  *  @extends System.Base
@@ -9,7 +9,6 @@ import { System } from '../index.js';
 declare class Plugin extends Base {
     id: number;
     name: string;
-    isOn: boolean;
     author: string;
     version: string;
     parameters: Record<string, System.DynamicValue>;

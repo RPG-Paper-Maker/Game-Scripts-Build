@@ -76,13 +76,6 @@ declare class Plugins {
      */
     static getParameter(pluginName: string, parameter: string, forceDeepGetValue?: boolean): any;
     /**
-     *  Check whether or not the plugin is enabled or not.
-     *  @static
-     *  @param {string} pluginName
-     *  @returns {boolean}
-     */
-    static isEnabled(pluginName: string): boolean;
-    /**
      *  Merge the two plugins to extends their plugins data.
      *  @static
      *  @usage This function is used to extends the parameters of other plugins.

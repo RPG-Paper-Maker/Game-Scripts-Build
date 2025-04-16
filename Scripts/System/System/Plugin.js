@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
 import { Utils } from '../Common/index.js';
 import { System } from '../index.js';
+import { Base } from './Base.js';
 /** @class
  *  A custom plugin in the game.
  *  @extends System.Base
@@ -28,9 +28,8 @@ class Plugin extends Base {
      */
     read(json) {
         this.name = json.name;
-        this.isOn = Utils.defaultValue(json.isOn, true);
-        this.author = Utils.defaultValue(json.author, "");
-        this.version = Utils.defaultValue(json.version, "1.0.0");
+        this.author = Utils.defaultValue(json.author, '');
+        this.version = Utils.defaultValue(json.version, '1.0.0');
         this.parameters = {};
         let jsonList = Utils.defaultValue(json.parameters, []);
         let obj, jsonObj;

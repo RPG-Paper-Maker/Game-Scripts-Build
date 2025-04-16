@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Paths, Platform, ScreenResolution, Utils, Enum } from '../Common/index.js';
-import { Manager, Datas, Scene, System } from '../index.js';
-import { Position, MapObject } from '../Core/index.js';
+import { Enum, Paths, Platform, ScreenResolution, Utils } from '../Common/index.js';
+import { MapObject, Position } from '../Core/index.js';
+import { Datas, Manager, Scene, System } from '../index.js';
 /** @class
  *   All the System datas.
  *   @static
@@ -78,7 +78,7 @@ class Systems {
         Manager.Collisions.BB_MATERIAL.visible = this.showBB;
         Manager.Collisions.BB_MATERIAL_DETECTION.visible = this.showBB;
         this.showFPS = Utils.defaultValue(json.fps, false);
-        this.ignoreAssetsLoadingErrors = false; //TODO
+        this.ignoreAssetsLoadingErrors = true; //TODO
         // Lists
         this.itemsTypes = [];
         this.inventoryFilters = [];

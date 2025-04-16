@@ -1,11 +1,11 @@
-import { THREE } from '../Globals.js';
-import { Base } from './Base.js';
 import { Enum } from '../Common/index.js';
+import { Battler, Frame, MapPortion, Player, Portion, Position, Vector2, Vector3 } from '../Core/index.js';
+import { THREE } from '../Globals.js';
+import { Scene, System } from '../index.js';
+import { Base } from './Base.js';
 import Orientation = Enum.Orientation;
 import EffectSpecialActionKind = Enum.EffectSpecialActionKind;
 import PictureKind = Enum.PictureKind;
-import { System, Scene } from '../index.js';
-import { Position, Portion, MapPortion, Vector3, Battler, Frame, Vector2, Player } from '../Core/index.js';
 /** @class
  *  A scene for a local map.
  *  @extends Scene.Base

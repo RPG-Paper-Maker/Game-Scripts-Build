@@ -8,12 +8,12 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { Constants, Enum, Inputs, Interpreter, Paths, Platform, ScreenResolution, Utils } from '../Common/index.js';
+import { Autotiles, Camera, Frame, Game, MapPortion, Portion, ReactionInterpreter, Vector2, Vector3, } from '../Core/index.js';
 import { THREE } from '../Globals.js';
+import { Datas, Manager, Scene, System } from '../index.js';
 import { Base } from './Base.js';
-import { Enum, Utils, Constants, Paths, Inputs, Interpreter, Platform, ScreenResolution } from '../Common/index.js';
 var PictureKind = Enum.PictureKind;
-import { System, Datas, Scene, Manager } from '../index.js';
-import { Portion, MapPortion, Camera, ReactionInterpreter, Vector3, Autotiles, Game, Frame, Vector2, } from '../Core/index.js';
 /** @class
  *  A scene for a local map.
  *  @extends Scene.Base

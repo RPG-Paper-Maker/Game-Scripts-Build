@@ -1,19 +1,19 @@
-import { Base } from './Base.js';
+import { Position } from '../Core/index.js';
+import { MapObject } from '../Core/MapObject.js';
 import { THREE } from '../Globals.js';
 import { System } from '../index.js';
-import { PlaySong } from './PlaySong.js';
-import { DynamicValue } from './DynamicValue.js';
-import { MapObject } from '../Core/MapObject.js';
+import { Base } from './Base.js';
 import { CameraProperties } from './CameraProperties.js';
 import { Color } from './Color.js';
-import { Position } from '../Core/index.js';
+import { DynamicValue } from './DynamicValue.js';
+import { PlaySong } from './PlaySong.js';
 /** @class
  *  The properties of a map.
  *  @extends System.Base
  */
 declare class MapProperties extends Base {
     id: number;
-    name: string;
+    names: System.Translatable;
     length: number;
     width: number;
     height: number;

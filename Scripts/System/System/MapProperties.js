@@ -8,16 +8,16 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
-import { THREE } from '../Globals.js';
-import { Datas, System, Manager, Scene } from '../index.js';
-import { PlaySong } from './PlaySong.js';
-import { DynamicValue } from './DynamicValue.js';
+import { Constants, Enum, Mathf, Utils } from '../Common/index.js';
+import { Game, Position } from '../Core/index.js';
 import { MapObject } from '../Core/MapObject.js';
-import { Enum, Constants, Utils, Mathf } from '../Common/index.js';
+import { THREE } from '../Globals.js';
+import { Datas, Manager, Scene, System } from '../index.js';
+import { Base } from './Base.js';
+import { DynamicValue } from './DynamicValue.js';
+import { PlaySong } from './PlaySong.js';
 var SongKind = Enum.SongKind;
 var PictureKind = Enum.PictureKind;
-import { Game, Position } from '../Core/index.js';
 /** @class
  *  The properties of a map.
  *  @extends System.Base
@@ -37,7 +37,7 @@ class MapProperties extends Base {
         this.skyboxGeometry = null;
         this.skyboxMesh = null;
         this.id = json.id;
-        this.name = json.name;
+        this.names = new System.Translatable(json);
         this.length = json.l;
         this.width = json.w;
         this.height = json.h;

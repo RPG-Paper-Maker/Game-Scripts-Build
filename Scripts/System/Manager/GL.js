@@ -8,11 +8,11 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { Paths, Platform, ScreenResolution, Utils } from '../Common/index.js';
+import { Vector2 } from '../Core/index.js';
 import { THREE } from '../Globals.js';
 import { Datas } from '../index.js';
-import { ScreenResolution, Platform, Utils, Paths } from '../Common/index.js';
 import { Stack } from './Stack.js';
-import { Vector2 } from '../Core/index.js';
 /** @class
  *  The GL class handling some 3D stuff.
  *  @static
@@ -81,7 +81,7 @@ class GL {
                 if (Datas.Systems.ignoreAssetsLoadingErrors) {
                     let t = new THREE.Texture();
                     t.image = new Image();
-                    console.log(error);
+                    console.warn(error);
                     resolve(t);
                 }
                 else {

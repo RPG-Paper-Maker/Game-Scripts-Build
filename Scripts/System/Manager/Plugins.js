@@ -39,7 +39,7 @@ class Plugins {
         let json = await Platform.parseFileJSON(Paths.PLUGINS + pluginJSON.name + Constants.STRING_SLASH + Paths.FILE_PLUGIN_DETAILS);
         let plugin = new System.Plugin(pluginJSON.id, json);
         // FIX 01 : plugin wasn't unloaded if not enabled.
-        if (plugin.isOn) {
+        if (Utils.defaultValue(pluginJSON.checked, true)) {
             this.register(plugin);
             const code = await Platform.loadFile(Paths.PLUGINS + pluginJSON.name + Constants.STRING_SLASH + Paths.FILE_PLUGIN_CODE);
             Interpreter.evaluate(code, { addReturn: false });
@@ -129,15 +129,6 @@ class Plugins {
      */
     static getParameter(pluginName, parameter, forceDeepGetValue = true) {
         return this.getParameters(pluginName)[parameter].getValue(false, forceDeepGetValue);
-    }
-    /**
-     *  Check whether or not the plugin is enabled or not.
-     *  @static
-     *  @param {string} pluginName
-     *  @returns {boolean}
-     */
-    static isEnabled(pluginName) {
-        return this.plugins[pluginName].isOn;
     }
     /**
      *  Merge the two plugins to extends their plugins data.

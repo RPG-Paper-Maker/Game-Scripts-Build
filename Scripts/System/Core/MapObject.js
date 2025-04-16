@@ -8,27 +8,27 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { Constants, Enum, Mathf, Paths, Platform, Utils } from '../Common/index.js';
 import { THREE } from '../Globals.js';
-import { System, Manager, Datas, Scene } from '../index.js';
+import { Datas, Manager, Scene, System } from '../index.js';
+import { CollisionSquare } from './CollisionSquare.js';
+import { CustomGeometry } from './CustomGeometry.js';
 import { Frame } from './Frame.js';
-import { Enum, Utils, Paths, Constants, Platform, Mathf } from '../Common/index.js';
+import { Game } from './Game.js';
+import { MapElement } from './MapElement.js';
+import { MapPortion } from './MapPortion.js';
+import { Object3DBox } from './Object3DBox.js';
+import { Object3DCustom } from './Object3DCustom.js';
+import { Portion } from './Portion.js';
+import { Position } from './Position.js';
+import { Sprite } from './Sprite.js';
+import { Vector2 } from './Vector2.js';
+import { Vector3 } from './Vector3.js';
 var Orientation = Enum.Orientation;
 var ElementMapKind = Enum.ElementMapKind;
 var PictureKind = Enum.PictureKind;
 var ObjectMovingKind = Enum.ObjectMovingKind;
 var ShapeKind = Enum.ShapeKind;
-import { MapPortion } from './MapPortion.js';
-import { Sprite } from './Sprite.js';
-import { Position } from './Position.js';
-import { CollisionSquare } from './CollisionSquare.js';
-import { MapElement } from './MapElement.js';
-import { Vector3 } from './Vector3.js';
-import { Game } from './Game.js';
-import { Object3DBox } from './Object3DBox.js';
-import { Object3DCustom } from './Object3DCustom.js';
-import { CustomGeometry } from './CustomGeometry.js';
-import { Vector2 } from './Vector2.js';
-import { Portion } from './Portion.js';
 /**
  * Object in local map that can move.
  *
@@ -142,7 +142,7 @@ class MapObject {
             Platform.showErrorMessage("Can't find object with ID" +
                 objectID +
                 ' in map ' +
-                Scene.Map.current.mapProperties.name +
+                Scene.Map.current.mapProperties.names.name() +
                 '. Please check where ' +
                 'this ID is used and remove it.');
         }
@@ -294,7 +294,7 @@ class MapObject {
             let obj = Scene.Map.current.mapProperties.allObjects[this.system.id];
             if (Utils.isUndefined(obj)) {
                 Platform.showErrorMessage('Object linking issue. Please go to map ' +
-                    Scene.Map.current.mapProperties.name +
+                    Scene.Map.current.mapProperties.names.name() +
                     ' and use Options > Debug Options in map > Synchronize map objects. Please report it to dev.');
             }
             let portion = obj.getGlobalPortion();
@@ -410,7 +410,7 @@ class MapObject {
             let pos = Scene.Map.current.mapProperties.allObjects[this.system.id];
             if (Utils.isUndefined(pos)) {
                 Platform.showErrorMessage('Object linking issue. Please go to map ' +
-                    Scene.Map.current.mapProperties.name +
+                    Scene.Map.current.mapProperties.names.name() +
                     ' and use Options > Debug Options in map > Synchronize map objects. Please report it to dev.');
             }
             let portion = pos.getGlobalPortion();

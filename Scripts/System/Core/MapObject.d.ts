@@ -1,10 +1,10 @@
-import { THREE } from '../Globals.js';
-import { System, EventCommand } from '../index.js';
-import { Frame } from './Frame.js';
 import { Enum } from '../Common/index.js';
-import Orientation = Enum.Orientation;
-import { Vector3 } from './Vector3.js';
+import { THREE } from '../Globals.js';
+import { EventCommand, System } from '../index.js';
 import { CustomGeometry } from './CustomGeometry.js';
+import { Frame } from './Frame.js';
+import { Vector3 } from './Vector3.js';
+import Orientation = Enum.Orientation;
 interface StructSearchResult {
     object: MapObject;
     id: number;
@@ -265,4 +265,4 @@ declare class MapObject {
      */
     getSquaresBB(direction?: Vector3): [number, number, number, number, number, number];
 }
-export { StructSearchResult, MapObject };
+export { MapObject, StructSearchResult };
