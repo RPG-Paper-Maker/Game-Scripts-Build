@@ -27,12 +27,11 @@ class TroopMonster extends Base {
      *  monster
      */
     read(json) {
-        this.id = json.id;
+        this.id = json.mid;
         this.level = System.DynamicValue.readOrDefaultNumber(json.l, 1);
         this.hidden = System.DynamicValue.readOrDefaultSwitch(json.h, false);
         this.isSpecificPosition = Utils.defaultValue(json.isSpecificPosition, false);
-        this.specificPosition = System.DynamicValue.readOrDefaultMessage(json
-            .specificPosition, "new Core.Vector3(0,0,0)");
+        this.specificPosition = System.DynamicValue.readOrDefaultMessage(json.specificPosition, 'new Core.Vector3(0,0,0)');
     }
 }
 export { TroopMonster };
