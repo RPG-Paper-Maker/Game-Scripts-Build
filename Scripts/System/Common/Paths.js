@@ -21,7 +21,7 @@ class Paths {
 }
 Paths.ROOT_DIRECTORY_LOCAL = '.';
 Paths.FILES = 'file:///';
-Paths.TEST = Platform.ROOT_DIRECTORY + '/Test/';
+Paths.TEST = Platform.ROOT_DIRECTORY + 'Test/';
 Paths.FILE_MAPS = Platform.ROOT_DIRECTORY + 'Maps/';
 Paths.FILE_MAP_INFOS = '/infos.json';
 Paths.FILE_PICTURES = Platform.ROOT_DIRECTORY + 'pictures.json';
