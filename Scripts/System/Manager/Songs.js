@@ -9,17 +9,17 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Enum } from '../Common/index.js';
-var SongKind = Enum.SongKind;
+import { Howl } from '../Globals.js';
 import { Datas, System } from '../index.js';
 import { ProgressionTable } from '../System/index.js';
-import { Howl } from '../Globals.js';
+var SongKind = Enum.SongKind;
 /** @class
  *  The manager for songs.
  *  @static
  */
 class Songs {
     constructor() {
-        throw new Error("This is a static class");
+        throw new Error('This is a static class');
     }
     /**
      *  Initialize all the lists according to SongKind.
@@ -71,6 +71,7 @@ class Songs {
         }
         let song = Datas.Songs.get(kind, id);
         if (song) {
+            song.load();
             let howl = song.howl;
             howl.volume(volume);
             howl.seek(start);
@@ -96,12 +97,11 @@ class Songs {
         System.PlaySong.currentPlayingMusic = new System.PlaySong(SongKind.Music);
         let current = new Date().getTime();
         let ellapsedTime = current - time;
-        let currentHowl = kind === SongKind.Sound ? this.currentSounds[id] : this
-            .current[kind];
+        let currentHowl = kind === SongKind.Sound ? this.currentSounds[id] : this.current[kind];
         if (!currentHowl) {
             return true;
         }
-        if (ellapsedTime >= (seconds * 1000)) {
+        if (ellapsedTime >= seconds * 1000) {
             currentHowl.volume(0);
             if (pause) {
                 currentHowl.pause();
@@ -113,8 +113,7 @@ class Songs {
             return true;
         }
         else {
-            currentHowl.volume((this.volumes[kind] * (100 - ((ellapsedTime /
-                (seconds * 1000)) * 100))) / 100);
+            currentHowl.volume((this.volumes[kind] * (100 - (ellapsedTime / (seconds * 1000)) * 100)) / 100);
             return false;
         }
     }
@@ -134,13 +133,12 @@ class Songs {
         if (currentHowl === null) {
             return true;
         }
-        if (ellapsedTime >= (seconds * 1000)) {
+        if (ellapsedTime >= seconds * 1000) {
             currentHowl.volume(this.volumes[kind]);
             return true;
         }
         else {
-            currentHowl.volume(this.volumes[kind] * (ellapsedTime / (seconds *
-                1000)));
+            currentHowl.volume(this.volumes[kind] * (ellapsedTime / (seconds * 1000)));
             return false;
         }
     }
@@ -158,7 +156,7 @@ class Songs {
         if (sound) {
             let howl = new Howl({
                 src: [sound.getPath()],
-                volume: volume
+                volume: volume,
             });
             this.currentSounds[id] = howl;
             howl.play();
@@ -240,8 +238,7 @@ class Songs {
     static stopMusic(time) {
         this.isMusicNone = true;
         this.stopSong(SongKind.Music, time, 0, -1, false);
-        this.initializeProgressionMusic(this.current[SongKind.Music] ===
-            null ? 0 : this.current[SongKind.Music].volume(), 0, 0, time);
+        this.initializeProgressionMusic(this.current[SongKind.Music] === null ? 0 : this.current[SongKind.Music].volume(), 0, 0, time);
     }
     /**
      *  Initialize progression music (for stop).
@@ -268,8 +265,7 @@ class Songs {
             }
             let howl = this.current[SongKind.Music];
             if (howl) {
-                howl.volume(this.progressionMusic.getProgressionAt(tick, this
-                    .progressionMusicEnd) / 100);
+                howl.volume(this.progressionMusic.getProgressionAt(tick, this.progressionMusicEnd) / 100);
                 if (howl.volume() === 0) {
                     howl.stop();
                 }

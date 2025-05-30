@@ -1,6 +1,6 @@
 import { Enum } from '../Common/index.js';
-import SongKind = Enum.SongKind;
 import { Howl } from '../Globals.js';
+import SongKind = Enum.SongKind;
 /** @class
  *  The manager for songs.
  *  @static
@@ -12,8 +12,8 @@ declare class Songs {
     static volumes: number[];
     static starts: number[];
     static ends: number[];
-    static current: typeof Howl[];
-    static currentSounds: typeof Howl[];
+    static current: (typeof Howl)[];
+    static currentSounds: (typeof Howl)[];
     static progressionMusic: any;
     static progressionMusicTime: number;
     static progressionMusicEnd: number;

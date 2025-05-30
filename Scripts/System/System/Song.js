@@ -8,11 +8,11 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
-import { Enum, Constants, Paths, Utils } from '../Common/index.js';
-var SongKind = Enum.SongKind;
-import { Datas } from '../index.js';
+import { Constants, Enum, Paths, Utils } from '../Common/index.js';
 import { Howl } from '../Globals.js';
+import { Datas } from '../index.js';
+import { Base } from './Base.js';
+var SongKind = Enum.SongKind;
 /** @class
  *  A song of the game.
  *  @extends System.Base
@@ -39,15 +39,15 @@ class Song extends Base {
     static songKindToString(kind) {
         switch (kind) {
             case SongKind.Music:
-                return "music";
+                return 'music';
             case SongKind.BackgroundSound:
-                return "background music";
+                return 'background music';
             case SongKind.MusicEffect:
-                return "music effect";
+                return 'music effect';
             case SongKind.Sound:
-                return "sound";
+                return 'sound';
         }
-        return "";
+        return '';
     }
     /**
      *  Get the folder associated to a kind of song.
@@ -58,9 +58,11 @@ class Song extends Base {
      *  @returns {string}
      */
     static getFolder(kind, isBR, dlc) {
-        return (isBR ? Datas.Systems.PATH_BR : (dlc ? Datas.Systems.PATH_DLCS +
-            Constants.STRING_SLASH + dlc : Paths.ROOT_DIRECTORY_LOCAL)) + this
-            .getLocalFolder(kind);
+        return ((isBR
+            ? Datas.Systems.PATH_BR
+            : dlc
+                ? Datas.Systems.PATH_DLCS + Constants.STRING_SLASH + dlc
+                : Paths.ROOT_DIRECTORY_LOCAL) + this.getLocalFolder(kind));
     }
     /**
      *  Get the local folder associated to a kind of song.
@@ -78,7 +80,7 @@ class Song extends Base {
             case SongKind.MusicEffect:
                 return Paths.MUSIC_EFFECTS;
         }
-        return "";
+        return '';
     }
     /**
      *  Read the JSON associated to the song.
@@ -88,7 +90,7 @@ class Song extends Base {
         this.id = json.id;
         this.name = json.name;
         this.isBR = json.br;
-        this.dlc = Utils.defaultValue(json.d, "");
+        this.dlc = Utils.defaultValue(json.d, '');
         this.base64 = json.base64;
     }
     /**
@@ -102,8 +104,7 @@ class Song extends Base {
         if (this.howl) {
             return this.howl._src;
         }
-        return Song.getFolder(this.kind, this.isBR, this.dlc) + Constants
-            .STRING_SLASH + this.name;
+        return Song.getFolder(this.kind, this.isBR, this.dlc) + Constants.STRING_SLASH + this.name;
     }
     /**
      *  Load the song.
@@ -113,10 +114,11 @@ class Song extends Base {
             this.howl = new Howl({
                 src: [this.getPath()],
                 loop: this.kind !== SongKind.MusicEffect,
-                html5: true
+                html5: true,
+                pool: 10,
             });
             if (this.base64) {
-                this.base64 = "";
+                this.base64 = '';
             }
         }
     }

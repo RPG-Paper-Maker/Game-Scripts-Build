@@ -54,9 +54,6 @@ class Songs {
                             Constants.STRING_SLASH +
                             song.name);
                     }
-                    if (k !== SongKind.Sound) {
-                        song.load();
-                    }
                     if (id === -1) {
                         id = 0;
                     }
