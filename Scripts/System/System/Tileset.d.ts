@@ -1,6 +1,6 @@
-import { Base } from './Base.js';
-import { CollisionSquare, TextureBundle } from '../Core/index.js';
+import { CollisionSquare } from '../Core/index.js';
 import { System } from '../index.js';
+import { Base } from './Base.js';
 /** @class
  *  A tileset of the game.
  *  @extends System.Base
@@ -11,10 +11,6 @@ declare class Tileset extends Base {
     id: number;
     battleMap: System.DynamicValue;
     picture: System.Picture;
-    autotiles: number[];
-    walls: number[];
-    mountains: number[];
-    objects: number[];
     constructor(json?: Record<string, any>);
     /**
      *  Assign the default members.
@@ -30,25 +26,5 @@ declare class Tileset extends Base {
      *  @returns {string}
      */
     getPath(): string;
-    /**
-     *  Get the textures for autotiles.
-     *  @returns {Promise<TextureBundle[]>}
-     */
-    getTexturesAutotiles(): Promise<TextureBundle[][]>;
-    /**
-     *  Get the textures for walls.
-     *  @returns {Promise<THREE.MeshPhongMaterial[]>}
-     */
-    getTexturesWalls(): Promise<THREE.MeshPhongMaterial[]>;
-    /**
-     *  Get the textures for 3D objects.
-     *  @returns {Promise<THREE.MeshPhongMaterial[]>}
-     */
-    getTexturesObjects3D(): Promise<THREE.MeshPhongMaterial[]>;
-    /**
-     *  Get the textures for mountains.
-     *  @returns {Promise<TextureBundle[]>}
-     */
-    getTexturesMountains(): Promise<TextureBundle[]>;
 }
 export { Tileset };
