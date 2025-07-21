@@ -55,15 +55,14 @@ class MenuEnterAName extends MenuBase {
         this.frameUnderscore = new Frame(250, { frames: 2 });
         this.currentRow = 0;
         this.offsetRow = 0;
-        this.currentCharacterPosition = this.selectedhero.name.length < this
-            .maxCharacters ? this.selectedhero.name.length : this.maxCharacters - 1;
+        this.currentCharacterPosition =
+            this.selectedhero.name.length < this.maxCharacters ? this.selectedhero.name.length : this.maxCharacters - 1;
     }
     /**
      *  Create all the pictures.
      */
     createPictures() {
-        this.pictureFaceset = Datas.Pictures.getPictureCopy(Enum.PictureKind
-            .Facesets, this.selectedhero.system.idFaceset);
+        this.pictureFaceset = Datas.Pictures.getPictureCopy(Enum.PictureKind.Facesets, this.selectedhero.system.idFaceset);
     }
     /**
      *  Create the top window.
@@ -74,16 +73,17 @@ class MenuEnterAName extends MenuBase {
             orientation: Enum.OrientationWindow.Horizontal,
             nbItemsMax: this.maxCharacters,
             bordersInsideVisible: false,
-            padding: WindowBox.SMALL_SLOT_PADDING
+            padding: WindowBox.SMALL_SLOT_PADDING,
         };
-        const rect = new Rectangle(((ScreenResolution.SCREEN_X - (slotWidth *
-            this.maxCharacters) - (options.padding[0] * 2) - Datas.Systems
-            .facesetScalingWidth) / 2) + Datas.Systems.facesetScalingWidth, Datas.Systems.facesetScalingHeight -
-            WindowBox.MEDIUM_SLOT_HEIGHT, slotWidth, WindowBox.MEDIUM_SLOT_HEIGHT);
+        const rect = new Rectangle((ScreenResolution.SCREEN_X -
+            slotWidth * this.maxCharacters -
+            options.padding[0] * 2 -
+            Datas.Systems.facesetScalingWidth) /
+            2 +
+            Datas.Systems.facesetScalingWidth, Datas.Systems.facesetScalingHeight - WindowBox.MEDIUM_SLOT_HEIGHT, slotWidth, WindowBox.MEDIUM_SLOT_HEIGHT);
         const list = new Array(this.maxCharacters);
         for (let i = 0; i < this.maxCharacters; i++) {
-            list[i] = new Graphic.Text(i < this.selectedhero.name.length ? this
-                .selectedhero.name[i] : "_");
+            list[i] = new Graphic.Text(i < this.selectedhero.name.length ? this.selectedhero.name[i] : '_');
         }
         this.windowChoicesTop = new WindowChoices(rect.x, rect.y, rect.width, rect.height, list, options);
         this.windowChoicesTop.unselect();
@@ -95,25 +95,21 @@ class MenuEnterAName extends MenuBase {
         const width = this.displayColumns * 40;
         const height = this.displayRows * 40;
         const options = {
-            padding: WindowBox.SMALL_PADDING_BOX
+            padding: WindowBox.SMALL_PADDING_BOX,
         };
-        const rect = new Rectangle(((ScreenResolution.SCREEN_X - width) / 2) -
-            options.padding[0], this.windowChoicesTop.oY + this.windowChoicesTop
-            .oH, width + (options.padding[0] * 2), height + (options.padding[0]
-            * 2));
+        const rect = new Rectangle((ScreenResolution.SCREEN_X - width) / 2 - options.padding[0], this.windowChoicesTop.oY + this.windowChoicesTop.oH, width + options.padding[0] * 2, height + options.padding[0] * 2);
         this.windowBoxMain = new WindowBox(rect.x, rect.y, rect.width, rect.height, options);
     }
     /**
      *  Create the top window.
      */
     createWindowChoicesMain() {
-        const rect = new Rectangle(this.windowBoxMain.oX + this.windowBoxMain
-            .padding[0], this.windowBoxMain.oY + this.windowBoxMain.padding[0], 40, 40);
+        const rect = new Rectangle(this.windowBoxMain.oX + this.windowBoxMain.padding[0], this.windowBoxMain.oY + this.windowBoxMain.padding[0], 40, 40);
         const options = {
             orientation: Enum.OrientationWindow.Horizontal,
             nbItemsMax: this.displayColumns,
             bordersVisible: false,
-            padding: WindowBox.NONE_PADDING
+            padding: WindowBox.NONE_PADDING,
         };
         let listGraphics;
         this.windowChoicesMain = new Array(this.rows);
@@ -122,8 +118,7 @@ class MenuEnterAName extends MenuBase {
             for (let j = 0; j < this.columns; j++) {
                 listGraphics[j] = new Graphic.Text(Datas.Systems.enterNameTable[i][j], { align: Enum.Align.Center });
             }
-            this.windowChoicesMain[i] = new WindowChoices(rect.x, rect.y + (i *
-                rect.height), rect.width, rect.height, listGraphics, options);
+            this.windowChoicesMain[i] = new WindowChoices(rect.x, rect.y + i * rect.height, rect.width, rect.height, listGraphics, options);
             this.windowChoicesMain[i].unselect();
         }
         this.windowChoicesMain[0].select(0);
@@ -133,40 +128,37 @@ class MenuEnterAName extends MenuBase {
      */
     createWindowBoxOk() {
         const width = WindowBox.SMALL_SLOT_WIDTH;
-        const rect = new Rectangle(this.windowBoxMain.oX + this.windowBoxMain.oW
-            - width, this.windowBoxMain.oY + this.windowBoxMain.oH, width, WindowBox.SMALL_SLOT_HEIGHT);
-        const graphic = new Graphic.Text("OK", { align: Enum.Align.Center });
+        const rect = new Rectangle(this.windowBoxMain.oX + this.windowBoxMain.oW - width, this.windowBoxMain.oY + this.windowBoxMain.oH, width, WindowBox.SMALL_SLOT_HEIGHT);
+        const graphic = new Graphic.Text('OK', { align: Enum.Align.Center });
         const options = {
-            content: graphic
+            content: graphic,
         };
         this.windowBoxOk = new WindowBox(rect.x, rect.y, rect.width, rect.height, options);
     }
     /**
      *  A scene action.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     action(isKey, options = {}) {
         if (Scene.MenuBase.checkActionMenu(isKey, options)) {
             Datas.Systems.soundConfirmation.playSound();
             // If is on OK button
             if (this.currentRow === this.rows) {
-                let name = "";
+                let name = '';
                 for (let i = 0; i < this.currentCharacterPosition; i++) {
                     name += this.windowChoicesTop.getContent(i).text;
                 }
                 this.selectedhero.name = name;
                 Manager.Stack.pop();
             }
-            else { // If adding a char
+            else {
+                // If adding a char
                 // If already max characters
                 if (this.currentCharacterPosition === this.maxCharacters) {
                     return;
                 }
-                this.windowChoicesTop.getContent(this
-                    .currentCharacterPosition).setText(Datas.Systems
-                    .enterNameTable[this.currentRow][this.windowChoicesMain[this
-                    .currentRow].currentSelectedIndex]);
+                this.windowChoicesTop.getContent(this.currentCharacterPosition).setText(Datas.Systems.enterNameTable[this.currentRow][this.windowChoicesMain[this.currentRow].currentSelectedIndex]);
                 this.currentCharacterPosition++;
                 if (this.currentCharacterPosition === this.maxCharacters) {
                     this.windowChoicesMain[this.currentRow].unselect();
@@ -179,12 +171,10 @@ class MenuEnterAName extends MenuBase {
             Datas.Systems.soundCancel.playSound();
             if (this.currentCharacterPosition > 0) {
                 if (this.currentCharacterPosition < this.maxCharacters) {
-                    this.windowChoicesTop.getContent(this
-                        .currentCharacterPosition).setText("_");
+                    this.windowChoicesTop.getContent(this.currentCharacterPosition).setText('_');
                 }
                 this.currentCharacterPosition--;
-                this.windowChoicesTop.getContent(this
-                    .currentCharacterPosition).setText("_");
+                this.windowChoicesTop.getContent(this.currentCharacterPosition).setText('_');
                 Manager.Stack.requestPaintHUD = true;
             }
         }
@@ -192,28 +182,26 @@ class MenuEnterAName extends MenuBase {
     /**
      *  A scene move.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     move(isKey, options = {}) {
         // If already max characters
         if (this.currentCharacterPosition === this.maxCharacters) {
             return;
         }
-        let windowChoice = this.currentRow === this.rows ? null : this
-            .windowChoicesMain[this.currentRow];
+        let windowChoice = this.currentRow === this.rows ? null : this.windowChoicesMain[this.currentRow];
         let index = windowChoice === null ? 0 : windowChoice.currentSelectedIndex;
         if (isKey) {
-            if (Datas.Keyboards.isKeyEqual(options.key, Datas.Keyboards
-                .menuControls.Down)) {
+            if (Datas.Keyboards.isKeyEqual(options.key, Datas.Keyboards.menuControls.Down)) {
                 if (windowChoice !== null) {
-                    windowChoice.listWindows[windowChoice.currentSelectedIndex]
-                        .selected = false;
+                    windowChoice.listWindows[windowChoice.currentSelectedIndex].selected = false;
                 }
                 let i = this.currentRow;
                 if (i < this.rows && i >= 0) {
                     this.currentRow++;
-                    if (this.offsetRow < (this.rows - this.displayRows) && i >= this
-                        .displayRows - 1 && i < this.rows - 1) {
+                    if (this.offsetRow < this.rows - this.displayRows &&
+                        i >= this.displayRows - 1 &&
+                        i < this.rows - 1) {
                         this.offsetRow++;
                     }
                 }
@@ -228,9 +216,7 @@ class MenuEnterAName extends MenuBase {
                 if (i !== this.currentRow) {
                     Datas.Systems.soundCursor.playSound();
                     for (let i = 0; i < this.displayRows; i++) {
-                        this.windowChoicesMain[i + this.offsetRow].setY(this
-                            .windowBoxMain.oY + this.windowBoxMain.padding[0] +
-                            (i * 40));
+                        this.windowChoicesMain[i + this.offsetRow].setY(this.windowBoxMain.oY + this.windowBoxMain.padding[0] + i * 40);
                     }
                 }
                 if (this.currentRow === this.rows) {
@@ -241,8 +227,7 @@ class MenuEnterAName extends MenuBase {
                     this.windowChoicesMain[this.currentRow].select(index);
                 }
             }
-            else if (Datas.Keyboards.isKeyEqual(options.key, Datas.Keyboards
-                .menuControls.Up)) {
+            else if (Datas.Keyboards.isKeyEqual(options.key, Datas.Keyboards.menuControls.Up)) {
                 if (windowChoice !== null) {
                     windowChoice.listWindows[windowChoice.currentSelectedIndex].selected = false;
                 }
@@ -266,9 +251,7 @@ class MenuEnterAName extends MenuBase {
                 if (i !== this.currentRow) {
                     Datas.Systems.soundCursor.playSound();
                     for (let i = 0; i < this.displayRows; i++) {
-                        this.windowChoicesMain[i + this.offsetRow].setY(this
-                            .windowBoxMain.oY + this.windowBoxMain.padding[0] +
-                            (i * 40));
+                        this.windowChoicesMain[i + this.offsetRow].setY(this.windowBoxMain.oY + this.windowBoxMain.padding[0] + i * 40);
                     }
                 }
                 if (this.currentRow === this.rows) {
@@ -279,27 +262,21 @@ class MenuEnterAName extends MenuBase {
                     this.windowChoicesMain[this.currentRow].select(index);
                 }
             }
-            else if (Datas.Keyboards.isKeyEqual(options.key, Datas.Keyboards
-                .menuControls.Right)) {
+            else if (Datas.Keyboards.isKeyEqual(options.key, Datas.Keyboards.menuControls.Right)) {
                 if (this.currentRow < this.rows) {
                     windowChoice.onKeyPressedAndRepeat(options.key);
                     for (let i = 0; i < this.rows; i++) {
-                        this.windowChoicesMain[i].currentSelectedIndex = windowChoice
-                            .currentSelectedIndex;
-                        this.windowChoicesMain[i].offsetSelectedIndex = windowChoice
-                            .offsetSelectedIndex;
+                        this.windowChoicesMain[i].currentSelectedIndex = windowChoice.currentSelectedIndex;
+                        this.windowChoicesMain[i].offsetSelectedIndex = windowChoice.offsetSelectedIndex;
                     }
                 }
             }
-            else if (Datas.Keyboards.isKeyEqual(options.key, Datas.Keyboards
-                .menuControls.Left)) {
+            else if (Datas.Keyboards.isKeyEqual(options.key, Datas.Keyboards.menuControls.Left)) {
                 if (this.currentRow < this.rows) {
                     windowChoice.onKeyPressedAndRepeat(options.key);
                     for (let i = 0; i < this.rows; i++) {
-                        this.windowChoicesMain[i].currentSelectedIndex = windowChoice
-                            .currentSelectedIndex;
-                        this.windowChoicesMain[i].offsetSelectedIndex = windowChoice
-                            .offsetSelectedIndex;
+                        this.windowChoicesMain[i].currentSelectedIndex = windowChoice.currentSelectedIndex;
+                        this.windowChoicesMain[i].offsetSelectedIndex = windowChoice.offsetSelectedIndex;
                     }
                 }
             }
@@ -333,11 +310,8 @@ class MenuEnterAName extends MenuBase {
      *  Update the scene.
      */
     update() {
-        if (this.frameUnderscore.update() && this.currentCharacterPosition <
-            this.maxCharacters) {
-            this.windowChoicesTop.getContent(this
-                .currentCharacterPosition).setText(this.frameUnderscore.value
-                === 0 ? "_" : " ");
+        if (this.frameUnderscore.update() && this.currentCharacterPosition < this.maxCharacters) {
+            this.windowChoicesTop.getContent(this.currentCharacterPosition).setText(this.frameUnderscore.value === 0 ? '_' : ' ');
         }
     }
     /**
@@ -377,12 +351,16 @@ class MenuEnterAName extends MenuBase {
      */
     drawHUD() {
         super.drawHUD();
-        this.pictureFaceset.draw({ sx: this.selectedhero.system.indexXFaceset *
-                Datas.Systems.facesetsSize, sy: this.selectedhero.system.indexYFaceset
-                * Datas.Systems.facesetsSize, sw: Datas.Systems.facesetsSize, sh: Datas.Systems.facesetsSize, w: Datas.Systems.facesetScalingWidth, h: Datas.Systems.facesetScalingHeight, x: this.windowChoicesTop.x -
-                ScreenResolution.getScreenMinXY(Datas.Systems.facesetScalingWidth),
-            y: this.windowBoxMain.y - ScreenResolution.getScreenMinXY(Datas.Systems
-                .facesetScalingHeight) });
+        this.pictureFaceset.draw({
+            sx: this.selectedhero.system.indexXFaceset * Datas.Systems.facesetsSize,
+            sy: this.selectedhero.system.indexYFaceset * Datas.Systems.facesetsSize,
+            sw: Datas.Systems.facesetsSize,
+            sh: Datas.Systems.facesetsSize,
+            w: Datas.Systems.facesetScalingWidth,
+            h: Datas.Systems.facesetScalingHeight,
+            x: this.windowChoicesTop.x - ScreenResolution.getScreenMinXY(Datas.Systems.facesetScalingWidth),
+            y: this.windowBoxMain.y - ScreenResolution.getScreenMinXY(Datas.Systems.facesetScalingHeight),
+        });
         this.windowChoicesTop.draw();
         this.windowBoxMain.draw();
         for (let i = this.offsetRow; i < this.displayRows + this.offsetRow; i++) {

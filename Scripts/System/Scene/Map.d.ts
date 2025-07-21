@@ -298,24 +298,24 @@ declare class Map extends Base {
      *  Handle scene key pressed.
      *  @param {number} key - The key ID
      */
-    onKeyPressed(key: number): void;
+    onKeyPressed(key: string): void;
     /**
      *  Handle scene key released.
      *  @param {number} key - The key ID
      */
-    onKeyReleased(key: number): void;
+    onKeyReleased(key: string): void;
     /**
      *  Handle scene pressed repeat key.
      *  @param {number} key - The key ID
      *  @returns {boolean}
      */
-    onKeyPressedRepeat(key: number): boolean;
+    onKeyPressedRepeat(key: string): boolean;
     /**
      *  Handle scene pressed and repeat key.
      *  @param {number} key - The key ID
      *  @returns {boolean}
      */
-    onKeyPressedAndRepeat(key: number): boolean;
+    onKeyPressedAndRepeat(key: string): boolean;
     /**
      *  Mouse down handle for the scene.
      *  @param {number} x - The x mouse position on screen

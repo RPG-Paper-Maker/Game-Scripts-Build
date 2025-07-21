@@ -43,7 +43,7 @@ class Base {
      *  First key release handle for the current stack.
      *  @param {Object} currentState - The current state of the event
      *  @param {number} key - The key ID pressed
-    */
+     */
     onKeyReleased(currentState, key) { }
     /**
      *  Key pressed repeat handle for the current stack.
@@ -89,7 +89,6 @@ class Base {
      *  Draw the HUD.
      *  @param {Object} currentState - The current state of the event
      */
-    drawHUD(currentState) {
-    }
+    drawHUD(currentState) { }
 }
 export { Base };

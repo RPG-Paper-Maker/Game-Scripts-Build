@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Scene, Manager, Common, System, Datas } from '../index.js';
-import { Utils, Platform, ScreenResolution, Paths, Enum, Inputs } from '../Common/index.js';
+import { Enum, Inputs, Paths, Platform, ScreenResolution, Utils } from '../Common/index.js';
 import { Game, MapObject } from '../Core/index.js';
+import { Common, Datas, Manager, Scene, System } from '../index.js';
 /** @class
  *  The game stack that is organizing the game scenes.
  *  @static

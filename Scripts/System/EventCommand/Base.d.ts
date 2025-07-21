@@ -27,20 +27,20 @@ declare abstract class Base {
      *  @param {Object} currentState - The current state of the event
      *  @param {number} key - The key ID pressed
      */
-    onKeyPressed(currentState: Object, key: number): void;
+    onKeyPressed(currentState: Object, key: string): void;
     /**
      *  First key release handle for the current stack.
      *  @param {Object} currentState - The current state of the event
      *  @param {number} key - The key ID pressed
-    */
-    onKeyReleased(currentState: Object, key: number): void;
+     */
+    onKeyReleased(currentState: Object, key: string): void;
     /**
      *  Key pressed repeat handle for the current stack.
      *  @param {Object} currentState - The current state of the event
      *  @param {number} key - The key ID pressed
      *  @returns {boolean}
      */
-    onKeyPressedRepeat(currentState: Object, key: number): boolean;
+    onKeyPressedRepeat(currentState: Object, key: string): boolean;
     /**
      *  Key pressed repeat handle for the current stack, but with
      *  a small wait after the first pressure (generally used for menus).
@@ -48,7 +48,7 @@ declare abstract class Base {
      *  @param {number} key - The key ID pressed
      *  @returns {boolean}
      */
-    onKeyPressedAndRepeat(currentState: Object, key: number): boolean;
+    onKeyPressedAndRepeat(currentState: Object, key: string): boolean;
     /**
      *  Mouse down handle for the current stack.
      *  @param {Object} currentState - The current state of the event
@@ -76,4 +76,4 @@ declare abstract class Base {
      */
     drawHUD(currentState?: Object): void;
 }
-export { StructIterator, Base };
+export { Base, StructIterator };

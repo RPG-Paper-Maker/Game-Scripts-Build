@@ -8,12 +8,12 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Bitmap } from './Bitmap.js';
 import { Enum, Inputs, ScreenResolution, Utils } from '../Common/index.js';
-var OrientationWindow = Enum.OrientationWindow;
-import { Manager, Datas } from '../index.js';
-import { WindowBox } from './WindowBox.js';
+import { Datas, Manager } from '../index.js';
+import { Bitmap } from './Bitmap.js';
 import { Rectangle } from './Rectangle.js';
+import { WindowBox } from './WindowBox.js';
+var OrientationWindow = Enum.OrientationWindow;
 /**
  * The window class who handle choices.
  *
@@ -28,13 +28,10 @@ class WindowChoices extends Bitmap {
         // Parameters
         this.orientation = Utils.defaultValue(options.orientation, OrientationWindow.Vertical);
         this.nbItemsMax = Utils.defaultValue(options.nbItemsMax, 4);
-        this.padding = Utils.defaultValue(options.padding, WindowBox
-            .SMALL_PADDING_BOX);
+        this.padding = Utils.defaultValue(options.padding, WindowBox.SMALL_PADDING_BOX);
         this.space = Utils.defaultValue(options.space, 0);
-        this.currentSelectedIndex = Utils.defaultValue(options
-            .currentSelectedIndex, -1);
-        this.bordersInsideVisible = Utils.defaultValue(options
-            .bordersInsideVisible, true);
+        this.currentSelectedIndex = Utils.defaultValue(options.currentSelectedIndex, -1);
+        this.bordersInsideVisible = Utils.defaultValue(options.bordersInsideVisible, true);
         this.bordersVisible = Utils.defaultValue(options.bordersVisible, true);
         // Initialize values
         this.offsetSelectedIndex = 0;
@@ -69,11 +66,12 @@ class WindowChoices extends Bitmap {
         let windowBox;
         for (let i = 0; i < this.listWindows.length; i++) {
             windowBox = this.listWindows[i];
-            windowBox.setX(this.orientation === OrientationWindow.Horizontal ?
-                this.oX + this.padding[0] + (i * this.choiceWidth) + (i * this
-                    .space) : this.oX + this.padding[0]);
-            windowBox.setY(this.orientation === OrientationWindow.Horizontal ?
-                this.oY : this.oY + (i * this.choiceHeight) + (i * this.space));
+            windowBox.setX(this.orientation === OrientationWindow.Horizontal
+                ? this.oX + this.padding[0] + i * this.choiceWidth + i * this.space
+                : this.oX + this.padding[0]);
+            windowBox.setY(this.orientation === OrientationWindow.Horizontal
+                ? this.oY
+                : this.oY + i * this.choiceHeight + i * this.space);
         }
     }
     /**
@@ -103,14 +101,15 @@ class WindowChoices extends Bitmap {
         this.size = totalNb > this.nbItemsMax ? this.nbItemsMax : totalNb;
         let boxWidth, boxHeight;
         if (this.orientation === OrientationWindow.Horizontal) {
-            boxWidth = (this.choiceWidth + this.space) * this.size - this.space
-                + (this.bordersInsideVisible ? 0 : this.padding[0] * 3);
+            boxWidth =
+                (this.choiceWidth + this.space) * this.size -
+                    this.space +
+                    (this.bordersInsideVisible ? 0 : this.padding[0] * 3);
             boxHeight = this.choiceHeight;
         }
         else {
             boxWidth = this.choiceWidth;
-            boxHeight = (this.choiceHeight + this.space) * this.size - this
-                .space;
+            boxHeight = (this.choiceHeight + this.space) * this.size - this.space;
         }
         this.setW(boxWidth);
         this.setH(boxHeight);
@@ -122,18 +121,15 @@ class WindowChoices extends Bitmap {
         let window;
         for (let i = 0; i < totalNb; i++) {
             if (this.orientation === OrientationWindow.Horizontal) {
-                window = new WindowBox(this.oX + this.padding[0] + (i * this.choiceWidth) + (i *
-                    this.space), this.oY, this.choiceWidth, this.choiceHeight, {
+                window = new WindowBox(this.oX + this.padding[0] + i * this.choiceWidth + i * this.space, this.oY, this.choiceWidth, this.choiceHeight, {
                     content: this.listContents[i],
-                    padding: this.bordersInsideVisible ? this.padding :
-                        WindowBox.NONE_PADDING
+                    padding: this.bordersInsideVisible ? this.padding : WindowBox.NONE_PADDING,
                 });
             }
             else {
-                window = new WindowBox(this.oX, this.oY + (i * this.choiceHeight)
-                    + (i * this.space), this.choiceWidth, this.choiceHeight, {
+                window = new WindowBox(this.oX, this.oY + i * this.choiceHeight + i * this.space, this.choiceWidth, this.choiceHeight, {
                     content: this.listContents[i],
-                    padding: this.padding
+                    padding: this.padding,
                 });
             }
             window.bordersVisible = this.bordersInsideVisible && this.bordersVisible;
@@ -304,7 +300,7 @@ class WindowChoices extends Bitmap {
     /**
      *  A widget move.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     move(isKey, options = {}) {
         if (isKey) {
@@ -321,15 +317,14 @@ class WindowChoices extends Bitmap {
         let t = new Date().getTime();
         if (t - this.mouseArrowTime >= WindowChoices.TIME_WAIT_MOUSE_ARROW) {
             this.mouseArrowTime = t;
-            let offset = this.currentSelectedIndex === -1 ? -1 : this
-                .offsetSelectedIndex;
+            let offset = this.currentSelectedIndex === -1 ? -1 : this.offsetSelectedIndex;
             // If pressing on arrow up
             if (this.isMouseInArrowUp && this.currentSelectedIndex - offset > 0) {
                 this.goArrowUp();
             }
             // If pressing on arrow down
-            if (this.isMouseInArrowDown && this.currentSelectedIndex - offset <
-                this.listWindows.length - this.nbItemsMax) {
+            if (this.isMouseInArrowDown &&
+                this.currentSelectedIndex - offset < this.listWindows.length - this.nbItemsMax) {
                 this.goArrowDown();
             }
         }
@@ -341,8 +336,7 @@ class WindowChoices extends Bitmap {
      */
     onKeyPressed(key, base) {
         if (this.currentSelectedIndex !== -1) {
-            if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls
-                .Action)) {
+            if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls.Action)) {
                 let callback = this.listCallBacks[this.currentSelectedIndex];
                 if (callback !== null) {
                     // Play a sound according to callback result
@@ -374,22 +368,18 @@ class WindowChoices extends Bitmap {
                 this.listWindows[this.currentSelectedIndex].selected = false;
                 // Go up or go down according to key and orientation
                 if (this.orientation === OrientationWindow.Vertical) {
-                    if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards
-                        .menuControls.Down)) {
+                    if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls.Down)) {
                         this.goDown();
                     }
-                    else if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards
-                        .menuControls.Up)) {
+                    else if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls.Up)) {
                         this.goUp();
                     }
                 }
                 else {
-                    if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards
-                        .menuControls.Right)) {
+                    if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls.Right)) {
                         this.goDown();
                     }
-                    else if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards
-                        .menuControls.Left)) {
+                    else if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls.Left)) {
                         this.goUp();
                     }
                 }
@@ -428,12 +418,11 @@ class WindowChoices extends Bitmap {
         }
         else {
             // If on arrow
-            let offset = this.currentSelectedIndex === -1 ? -1 : this
-                .offsetSelectedIndex;
+            let offset = this.currentSelectedIndex === -1 ? -1 : this.offsetSelectedIndex;
             let ws = Datas.Systems.getCurrentWindowSkin();
             const arrowWidth = ScreenResolution.getScreenXY(ws.arrowUpDown[2]);
             const arrowHeight = ScreenResolution.getScreenXY(ws.arrowUpDown[3] / 2);
-            const arrowX = this.x + (this.w / 2) - (arrowWidth / 2);
+            const arrowX = this.x + this.w / 2 - arrowWidth / 2;
             // If pressing on arrow up
             if (this.currentSelectedIndex - offset > 0) {
                 let rect = new Rectangle(arrowX, this.y - arrowHeight - 1, arrowWidth, arrowHeight);
@@ -442,8 +431,7 @@ class WindowChoices extends Bitmap {
                 }
             }
             // If pressing on arrow down
-            if (this.currentSelectedIndex - offset < this.listWindows.length - this
-                .nbItemsMax) {
+            if (this.currentSelectedIndex - offset < this.listWindows.length - this.nbItemsMax) {
                 let rect = new Rectangle(arrowX, this.y + this.h + 1, arrowWidth, arrowHeight);
                 if (rect.isInside(x, y)) {
                     this.isMouseInArrowDown = true;
@@ -482,24 +470,21 @@ class WindowChoices extends Bitmap {
         if (!this.bordersInsideVisible && this.bordersVisible) {
             this.windowMain.draw();
         }
-        let offset = this.currentSelectedIndex === -1 ? -1 : this
-            .offsetSelectedIndex;
+        let offset = this.currentSelectedIndex === -1 ? -1 : this.offsetSelectedIndex;
         let index;
         for (let i = 0; i < this.size; i++) {
             index = i + this.currentSelectedIndex - offset;
-            this.listWindows[index].draw(true, this.listWindows[i]
-                .windowDimension, this.listWindows[i].contentDimension);
+            this.listWindows[index].draw(true, this.listWindows[i].windowDimension, this.listWindows[i].contentDimension);
         }
         // Draw arrows
         let ws = Datas.Systems.getCurrentWindowSkin();
         const arrowWidth = ws.arrowUpDown[2];
         const arrowHeight = ws.arrowUpDown[3] / 2;
-        const arrowX = this.oX + (this.oW / 2) - (arrowWidth / 2);
+        const arrowX = this.oX + this.oW / 2 - arrowWidth / 2;
         if (this.currentSelectedIndex - offset > 0) {
             ws.drawArrowUp(arrowX, this.oY - arrowHeight - 1);
         }
-        if (this.currentSelectedIndex - offset < this.listWindows.length - this
-            .nbItemsMax) {
+        if (this.currentSelectedIndex - offset < this.listWindows.length - this.nbItemsMax) {
             ws.drawArrowDown(arrowX, this.oY + this.oH + 1);
         }
     }

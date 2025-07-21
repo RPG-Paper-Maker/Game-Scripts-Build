@@ -1,6 +1,6 @@
-import { Base } from './Base.js';
-import { MapObject } from '../Core/index.js';
 import { EventCommand, System } from "../index.js";
+import { MapObject } from '../Core/index.js';
+import { Base } from './Base.js';
 /** @class
  *  An event command for entering a number inside a variable.
  *  @extends EventCommand.Base
@@ -20,10 +20,10 @@ declare class InputNumber extends Base {
      *  An event action.
      *  @param {Record<string ,any>} currentState
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     action(currentState: Record<string, any>, isKey: boolean, options?: {
-        key?: number;
+        key?: string;
         x?: number;
         y?: number;
     }): void;
@@ -31,10 +31,10 @@ declare class InputNumber extends Base {
      *  An event move.
      *  @param {Record<string ,any>} currentState
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     move(currentState: Record<string, any>, isKey: boolean, options?: {
-        key?: number;
+        key?: string;
         x?: number;
         y?: number;
     }): void;
@@ -49,14 +49,14 @@ declare class InputNumber extends Base {
      *  @param {MapObject} object - The current object reacting
      *  @param {number} state - The state ID
      *  @returns {number} The number of node to pass
-    */
+     */
     update(currentState: Record<string, any>, object: MapObject, state: number): number;
     /**
      *  First key press handle for the current stack.
      *  @param {Record<string, any>} - currentState The current state of the event
      *  @param {number} key - The key ID pressed
      */
-    onKeyPressed(currentState: Record<string, any>, key: number): void;
+    onKeyPressed(currentState: Record<string, any>, key: string): void;
     /**
      *  Key pressed repeat handle for the current stack, but with
      *  a small wait after the first pressure (generally used for menus).
@@ -64,7 +64,7 @@ declare class InputNumber extends Base {
      *  @param {number} key - The key ID pressed
      *  @returns {boolean}
      */
-    onKeyPressedAndRepeat(currentState: Record<string, any>, key: number): boolean;
+    onKeyPressedAndRepeat(currentState: Record<string, any>, key: string): boolean;
     /**
      *  @inheritdoc
      */

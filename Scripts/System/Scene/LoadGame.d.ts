@@ -1,5 +1,5 @@
-import { SaveLoadGame } from './SaveLoadGame.js';
 import { Picture2D } from '../Core/index.js';
+import { SaveLoadGame } from './SaveLoadGame.js';
 /** @class
  *  A scene in the menu for loading a game.
  *  @extends Scene.SaveLoadGame
@@ -15,10 +15,10 @@ declare class LoadGame extends SaveLoadGame {
     /**
      *  Slot action.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     action(isKey: boolean, options?: {
-        key?: number;
+        key?: string;
         x?: number;
         y?: number;
     }): void;
@@ -26,7 +26,7 @@ declare class LoadGame extends SaveLoadGame {
      *  Handle scene key pressed
      *  @param {number} key - The key ID
      */
-    onKeyPressed(key: number): void;
+    onKeyPressed(key: string): void;
     /**
      *  @inheritdoc
      */

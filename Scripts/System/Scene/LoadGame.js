@@ -8,12 +8,12 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { SaveLoadGame } from './SaveLoadGame.js';
-import { Graphic, Datas, Manager, Scene } from '../index.js';
 import { Enum } from '../Common/index.js';
+import { Game, Picture2D } from '../Core/index.js';
+import { Datas, Graphic, Manager, Scene } from '../index.js';
+import { SaveLoadGame } from './SaveLoadGame.js';
 var Align = Enum.Align;
 var PictureKind = Enum.PictureKind;
-import { Picture2D, Game } from '../Core/index.js';
 /** @class
  *  A scene in the menu for loading a game.
  *  @extends Scene.SaveLoadGame
@@ -27,12 +27,9 @@ class LoadGame extends SaveLoadGame {
      */
     async load() {
         await super.load();
-        this.setContents(new Graphic.Text(Datas.Languages.extras.loadAGame.name(), { align: Align.Center }), new Graphic.Text(Datas.Languages.extras
-            .loadAGameDescription.name(), { align: Align.Center }));
+        this.setContents(new Graphic.Text(Datas.Languages.extras.loadAGame.name(), { align: Align.Center }), new Graphic.Text(Datas.Languages.extras.loadAGameDescription.name(), { align: Align.Center }));
         if (Datas.TitlescreenGameover.isTitleBackgroundImage) {
-            this.pictureBackground = await Picture2D.createWithID(Datas
-                .TitlescreenGameover.titleBackgroundImageID, PictureKind
-                .TitleScreen, { cover: true });
+            this.pictureBackground = await Picture2D.createWithID(Datas.TitlescreenGameover.titleBackgroundImageID, PictureKind.TitleScreen, { cover: true });
         }
         this.loading = false;
     }
@@ -47,19 +44,17 @@ class LoadGame extends SaveLoadGame {
         }
         // Pop load and title screen from the stack
         Manager.Stack.pop();
-        Manager.Stack.replace(new Scene.Map(Game.current
-            .currentMapID));
+        Manager.Stack.replace(new Scene.Map(Game.current.currentMapID));
         this.loading = false;
     }
     /**
      *  Slot action.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     action(isKey, options = {}) {
         if (Scene.MenuBase.checkActionMenu(isKey, options)) {
-            Game.current = this.windowChoicesSlots.getCurrentContent()
-                .game;
+            Game.current = this.windowChoicesSlots.getCurrentContent().game;
             if (Game.current.isEmpty) {
                 Game.current = null;
                 Datas.Systems.soundImpossible.playSound();

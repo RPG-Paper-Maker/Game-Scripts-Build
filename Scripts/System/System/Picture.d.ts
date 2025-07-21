@@ -1,7 +1,7 @@
 import { Enum } from '../Common/index.js';
-import PictureKind = Enum.PictureKind;
-import { Picture2D, CollisionSquare } from '../Core/index.js';
+import { CollisionSquare, Picture2D } from '../Core/index.js';
 import { Base } from './Base.js';
+import PictureKind = Enum.PictureKind;
 /** @class
  *  A picture of the game.
  *  @extends {System.Base}

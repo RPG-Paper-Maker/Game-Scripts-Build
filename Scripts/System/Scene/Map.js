@@ -964,7 +964,7 @@ class Map extends Base {
             if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
                 Manager.Events.sendEvent(null, 2, 0, true, 3, [
                     null,
-                    System.DynamicValue.createNumber(key),
+                    System.DynamicValue.createMessage(key),
                     System.DynamicValue.createSwitch(false),
                     System.DynamicValue.createSwitch(false),
                 ], true, false);
@@ -980,7 +980,7 @@ class Map extends Base {
         if (!this.loading) {
             // Send keyReleaseEvent to all the objects
             if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
-                Manager.Events.sendEvent(null, 2, 0, true, 4, [null, System.DynamicValue.createNumber(key)], true, false);
+                Manager.Events.sendEvent(null, 2, 0, true, 4, [null, System.DynamicValue.createMessage(key)], true, false);
             }
             super.onKeyReleased(key);
         }
@@ -995,7 +995,7 @@ class Map extends Base {
             if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
                 Manager.Events.sendEvent(null, 2, 0, true, 3, [
                     null,
-                    System.DynamicValue.createNumber(key),
+                    System.DynamicValue.createMessage(key),
                     System.DynamicValue.createSwitch(true),
                     System.DynamicValue.createSwitch(true),
                 ], true, false);
@@ -1014,7 +1014,7 @@ class Map extends Base {
             if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
                 Manager.Events.sendEvent(null, 2, 0, true, 3, [
                     null,
-                    System.DynamicValue.createNumber(key),
+                    System.DynamicValue.createMessage(key),
                     System.DynamicValue.createSwitch(true),
                     System.DynamicValue.createSwitch(false),
                 ], true, false);

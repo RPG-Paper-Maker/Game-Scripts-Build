@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
-import { System, Graphic, Datas, Manager, Scene } from '../index.js';
+import { Enum, Utils } from '../Common/index.js';
 import { WindowBox } from '../Core/index.js';
-import { Utils, Enum } from '../Common/index.js';
+import { Datas, Graphic, Manager, Scene, System } from '../index.js';
+import { Base } from './Base.js';
 var Align = Enum.Align;
 /** @class
  *  An event command for displaying text.
@@ -22,7 +22,7 @@ class ShowText extends Base {
     constructor(command) {
         super();
         let iterator = {
-            i: 0
+            i: 0,
         };
         this.interlocutor = System.DynamicValue.createValueCommand(command, iterator);
         this.facesetID = command[iterator.i++];
@@ -34,27 +34,23 @@ class ShowText extends Base {
         }
         this.message = lang.name();
         this.windowMain = new WindowBox(0, 0, 0, 0, {
-            content: new Graphic.Message(this.message, this.facesetID, this
-                .facesetIndexX, this.facesetIndexY),
-            padding: WindowBox.HUGE_PADDING_BOX
+            content: new Graphic.Message(this.message, this.facesetID, this.facesetIndexX, this.facesetIndexY),
+            padding: WindowBox.HUGE_PADDING_BOX,
         });
-        this.windowInterlocutor = new WindowBox(this.windowMain.oX + (WindowBox
-            .MEDIUM_SLOT_HEIGHT / 2), this.windowMain.oY - (WindowBox
-            .MEDIUM_SLOT_HEIGHT / 2), WindowBox.MEDIUM_SLOT_WIDTH, WindowBox
-            .MEDIUM_SLOT_HEIGHT, {
-            content: new Graphic.Text("", { align: Align.Center }),
-            padding: WindowBox.SMALL_SLOT_PADDING
+        this.windowInterlocutor = new WindowBox(this.windowMain.oX + WindowBox.MEDIUM_SLOT_HEIGHT / 2, this.windowMain.oY - WindowBox.MEDIUM_SLOT_HEIGHT / 2, WindowBox.MEDIUM_SLOT_WIDTH, WindowBox.MEDIUM_SLOT_HEIGHT, {
+            content: new Graphic.Text('', { align: Align.Center }),
+            padding: WindowBox.SMALL_SLOT_PADDING,
         });
     }
     /**
      *  An event action.
      *  @param {Record<string ,any>} currentState
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     action(currentState, isKey, options = {}) {
-        if (Scene.MenuBase.checkActionMenu(isKey, options) && (isKey || (!isKey
-            && this.windowMain.isInside(options.x, options.y)))) {
+        if (Scene.MenuBase.checkActionMenu(isKey, options) &&
+            (isKey || (!isKey && this.windowMain.isInside(options.x, options.y)))) {
             currentState.clicked = true;
         }
     }
@@ -67,27 +63,20 @@ class ShowText extends Base {
         this.windowMain.setY(Utils.defaultValue(Datas.Systems.dbOptions.v_y, 0));
         this.windowMain.setW(Utils.defaultValue(Datas.Systems.dbOptions.v_w, 0));
         this.windowMain.setH(Utils.defaultValue(Datas.Systems.dbOptions.v_h, 0));
-        this.windowInterlocutor.setX(this.windowMain.oX + (WindowBox
-            .MEDIUM_SLOT_HEIGHT / 2));
-        this.windowInterlocutor.setY(this.windowMain.oY - (WindowBox
-            .MEDIUM_SLOT_HEIGHT / 2));
-        this.windowMain.padding[0] = Utils.defaultValue(Datas.Systems.dbOptions
-            .v_pLeft, 0);
-        this.windowMain.padding[1] = Utils.defaultValue(Datas.Systems.dbOptions
-            .v_pTop, 0);
-        this.windowMain.padding[2] = Utils.defaultValue(Datas.Systems.dbOptions
-            .v_pRight, 0);
-        this.windowMain.padding[3] = Utils.defaultValue(Datas.Systems.dbOptions
-            .v_pBottom, 0);
+        this.windowInterlocutor.setX(this.windowMain.oX + WindowBox.MEDIUM_SLOT_HEIGHT / 2);
+        this.windowInterlocutor.setY(this.windowMain.oY - WindowBox.MEDIUM_SLOT_HEIGHT / 2);
+        this.windowMain.padding[0] = Utils.defaultValue(Datas.Systems.dbOptions.v_pLeft, 0);
+        this.windowMain.padding[1] = Utils.defaultValue(Datas.Systems.dbOptions.v_pTop, 0);
+        this.windowMain.padding[2] = Utils.defaultValue(Datas.Systems.dbOptions.v_pRight, 0);
+        this.windowMain.padding[3] = Utils.defaultValue(Datas.Systems.dbOptions.v_pBottom, 0);
         this.windowMain.updateDimensions();
         this.windowMain.content.update();
-        this.windowInterlocutor.content.setText(this
-            .interlocutor.getValue());
+        this.windowInterlocutor.content.setText(this.interlocutor.getValue());
         return {
             clicked: false,
             frame: 0,
             frameTick: 0,
-            frameDuration: 150
+            frameDuration: 150,
         };
     }
     /**
@@ -107,8 +96,7 @@ class ShowText extends Base {
             currentState.frameTick = 0;
             Manager.Stack.requestPaintHUD = true;
         }
-        this.windowInterlocutor.content.setText(this
-            .interlocutor.getValue());
+        this.windowInterlocutor.content.setText(this.interlocutor.getValue());
         return 0;
     }
     /**
@@ -135,9 +123,7 @@ class ShowText extends Base {
             this.windowInterlocutor.draw();
         }
         if (currentState) {
-            Datas.Systems.getCurrentWindowSkin().drawArrowMessage(currentState
-                .frame, this.windowMain.oX + (this.windowMain.oW / 2), this
-                .windowMain.oY + (this.windowMain.oH - 40));
+            Datas.Systems.getCurrentWindowSkin().drawArrowMessage(currentState.frame, this.windowMain.oX + this.windowMain.oW / 2, this.windowMain.oY + (this.windowMain.oH - 40));
         }
     }
 }

@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { ReactionInterpreter } from '../Core/index.js';
-import { Scene, Manager, Graphic, Datas } from '../index.js';
 import { Enum, Utils } from '../Common/index.js';
+import { ReactionInterpreter } from '../Core/index.js';
+import { Datas, Graphic, Manager, Scene } from '../index.js';
 import { Main } from '../main.js';
 /**
  *  The superclass who shape the structure of a scene.
@@ -23,9 +23,9 @@ class Base {
      */
     constructor(loading = true, ...args) {
         this.graphicFPS = null;
-        this.reactionInterpreters = new Array;
-        this.reactionInterpretersEffects = new Array;
-        this.parallelCommands = new Array;
+        this.reactionInterpreters = new Array();
+        this.reactionInterpretersEffects = new Array();
+        this.parallelCommands = new Array();
         this.initialize(...args);
         if (loading) {
             this.loading = true;
@@ -66,7 +66,7 @@ class Base {
      */
     updateInterpreters() {
         // Index of all the finished parallel reactions
-        let endingReactions = new Array;
+        let endingReactions = new Array();
         // Updating blocking hero
         ReactionInterpreter.blockingHero = false;
         let reaction;
@@ -103,7 +103,7 @@ class Base {
      *  Update all the parallel commands from the scenes.
      */
     updateParallelCommands() {
-        let endingCommands = new Array; // Index of all the finished commands
+        let endingCommands = new Array(); // Index of all the finished commands
         let i, l, previousCommand, command;
         for (i = 0, l = this.parallelCommands.length; i < l; i++) {
             previousCommand = this.parallelCommands[i].currentCommand;
@@ -162,7 +162,7 @@ class Base {
         this.updateParallelCommands.call(this);
         // FPS
         if (this.graphicFPS) {
-            this.graphicFPS.setText("" + Main.FPS + "FPS");
+            this.graphicFPS.setText('' + Main.FPS + 'FPS');
         }
     }
     /**

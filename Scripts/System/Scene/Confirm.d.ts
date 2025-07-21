@@ -28,20 +28,20 @@ declare class Confirm extends Base {
     /**
      *  Slot action.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     action(isKey: boolean, options?: {
-        key?: number;
+        key?: string;
         x?: number;
         y?: number;
     }): void;
     /**
      *  Slot move.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     move(isKey: boolean, options?: {
-        key?: number;
+        key?: string;
         x?: number;
         y?: number;
     }): void;
@@ -49,7 +49,7 @@ declare class Confirm extends Base {
      *  Handle scene key pressed.
      *   @param {number} key - The key ID
      */
-    onKeyPressed(key: number): void;
+    onKeyPressed(key: string): void;
     /**
      *  @inheritdoc
      */
@@ -59,7 +59,7 @@ declare class Confirm extends Base {
      *  @param {number} key - The key ID
      *  @returns {boolean}
      */
-    onKeyPressedAndRepeat(key: number): boolean;
+    onKeyPressedAndRepeat(key: string): boolean;
     /**
      *  @inheritdoc
      */

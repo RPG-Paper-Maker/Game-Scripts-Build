@@ -8,12 +8,12 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Camera, Game, Vector3, ReactionInterpreter } from '../Core/index.js';
-import { System, Scene, Manager, Datas } from "../index.js";
+import { Datas, Manager, Scene, System } from "../index.js";
 import { Enum } from '../Common/index.js';
+import { Camera, Game, ReactionInterpreter, Vector3, } from '../Core/index.js';
+import { Map } from './Map.js';
 var CharacterKind = Enum.CharacterKind;
 var BattleStep = Enum.BattleStep;
-import { Map } from './Map.js';
 /** @class
  *  A scene for battling.
  *  @extends SceneGame
@@ -84,18 +84,19 @@ class Battle extends Map {
             return [];
         }
         else {
-            return this.battlers[((targetKind === Enum.TargetKind.Ally ||
-                targetKind === Enum.TargetKind.AllAllies) && this.attackingGroup
-                === Enum.CharacterKind.Hero) ? Enum.CharacterKind.Hero : Enum
-                .CharacterKind.Monster].map(battler => { return battler.player; });
+            return this.battlers[(targetKind === Enum.TargetKind.Ally || targetKind === Enum.TargetKind.AllAllies) &&
+                this.attackingGroup === Enum.CharacterKind.Hero
+                ? Enum.CharacterKind.Hero
+                : Enum.CharacterKind.Monster].map((battler) => {
+                return battler.player;
+            });
         }
     }
     /**
      *  Initialize and correct some camera settings for the battle start
      */
     initializeCamera() {
-        this.camera = new Camera(this.mapProperties.cameraProperties, Game
-            .current.heroBattle);
+        this.camera = new Camera(this.mapProperties.cameraProperties, Game.current.heroBattle);
         this.cameraStep = 0;
         this.cameraTick = Scene.Battle.CAMERA_TICK;
         this.cameraOffset = Battle.CAMERA_OFFSET;
@@ -108,7 +109,6 @@ class Battle extends Map {
         }
         this.camera.update();
     }
-    ;
     /**
      *  Make the attacking group all actives.
      */
@@ -129,12 +129,13 @@ class Battle extends Map {
         if (target) {
             return !battler.hidden && (!this.skill || this.skill.isPossible(battler.player));
         }
-        return battler.active && !battler.player.isDead() && !battler.hidden &&
+        return (battler.active &&
+            !battler.player.isDead() &&
+            !battler.hidden &&
             !battler.containsRestriction(Enum.StatusRestrictionsKind.CantDoAnything) &&
-            !battler.containsRestriction(Enum.StatusRestrictionsKind
-                .AttackRandomAlly) && !battler.containsRestriction(Enum
-            .StatusRestrictionsKind.AttackRandomEnemy) && !battler
-            .containsRestriction(Enum.StatusRestrictionsKind.AttackRandomTarget);
+            !battler.containsRestriction(Enum.StatusRestrictionsKind.AttackRandomAlly) &&
+            !battler.containsRestriction(Enum.StatusRestrictionsKind.AttackRandomEnemy) &&
+            !battler.containsRestriction(Enum.StatusRestrictionsKind.AttackRandomTarget));
     }
     /**
      *  Check if all the heroes or enemies are inactive.
@@ -270,7 +271,7 @@ class Battle extends Map {
         // Y angle
         let vector = new Vector3();
         this.camera.getThreeCamera().getWorldDirection(vector);
-        let angle = Math.atan2(vector.x, vector.z) + (180 * Math.PI / 180.0);
+        let angle = Math.atan2(vector.x, vector.z) + (180 * Math.PI) / 180.0;
         // Heroes
         let battlers = this.battlers[CharacterKind.Hero];
         let i, l;
@@ -289,9 +290,9 @@ class Battle extends Map {
             let reaction;
             for (l = this.troop.reactions.length; this.indexTroopReaction < l; this.indexTroopReaction++) {
                 reaction = this.troop.reactions[this.indexTroopReaction];
-                if (reaction.frequency === Enum.TroopReactionFrequencyKind.Always
-                    || (reaction.frequency === Enum.TroopReactionFrequencyKind
-                        .OneTime && !this.oneTimeTroopReactions[reaction.id])) {
+                if (reaction.frequency === Enum.TroopReactionFrequencyKind.Always ||
+                    (reaction.frequency === Enum.TroopReactionFrequencyKind.OneTime &&
+                        !this.oneTimeTroopReactions[reaction.id])) {
                     // Check conditions
                     if (!reaction.conditions.isValid()) {
                         continue;
@@ -351,40 +352,32 @@ class Battle extends Map {
                 case 0:
                     this.camera.distance -= this.cameraTick;
                     this.camera.targetOffset.x += this.cameraTick;
-                    if (this.camera.distance <= this.cameraDistance - this
-                        .cameraOffset) {
-                        this.camera.distance = this.cameraDistance - this
-                            .cameraOffset;
+                    if (this.camera.distance <= this.cameraDistance - this.cameraOffset) {
+                        this.camera.distance = this.cameraDistance - this.cameraOffset;
                         this.camera.targetOffset.x = this.cameraOffset;
                         this.cameraStep = 1;
                     }
                     break;
                 case 1:
                     this.camera.distance += this.cameraTick;
-                    if (this.camera.distance >= this.cameraDistance + this
-                        .cameraOffset) {
-                        this.camera.distance = this.cameraDistance + this
-                            .cameraOffset;
+                    if (this.camera.distance >= this.cameraDistance + this.cameraOffset) {
+                        this.camera.distance = this.cameraDistance + this.cameraOffset;
                         this.cameraStep = 2;
                     }
                     break;
                 case 2:
                     this.camera.distance -= this.cameraTick;
                     this.camera.targetOffset.x -= this.cameraTick;
-                    if (this.camera.distance <= this.cameraDistance - this
-                        .cameraOffset) {
-                        this.camera.distance = this.cameraDistance - this
-                            .cameraOffset;
+                    if (this.camera.distance <= this.cameraDistance - this.cameraOffset) {
+                        this.camera.distance = this.cameraDistance - this.cameraOffset;
                         this.camera.targetOffset.x = -this.cameraOffset;
                         this.cameraStep = 3;
                     }
                     break;
                 case 3:
                     this.camera.distance += this.cameraTick;
-                    if (this.camera.distance >= this.cameraDistance + this
-                        .cameraOffset) {
-                        this.camera.distance = this.cameraDistance + this
-                            .cameraOffset;
+                    if (this.camera.distance >= this.cameraDistance + this.cameraOffset) {
+                        this.camera.distance = this.cameraDistance + this.cameraOffset;
                         this.cameraStep = 4;
                     }
                     break;

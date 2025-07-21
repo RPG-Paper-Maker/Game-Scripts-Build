@@ -10,8 +10,8 @@
 */
 import { Base } from "./index.js";
 import { Datas, Graphic, Scene } from "../index.js";
-import { Game } from '../Core/index.js';
 import { Inputs } from '../Common/index.js';
+import { Game } from '../Core/index.js';
 /**
  * The superclass who handle menu related scenes
  *
@@ -28,24 +28,21 @@ class MenuBase extends Base {
      *  @static
      */
     static checkActionMenu(isKey, options = {}) {
-        return (isKey && Datas.Keyboards.checkActionMenu(options.key)) || (!isKey
-            && Inputs.mouseLeftPressed);
+        return (isKey && Datas.Keyboards.checkActionMenu(options.key)) || (!isKey && Inputs.mouseLeftPressed);
     }
     /**
      *  Check is canceling menu input (for keyboard and mouse).
      *  @static
      */
     static checkCancelMenu(isKey, options = {}) {
-        return (isKey && Datas.Keyboards.checkCancelMenu(options.key)) || (!isKey
-            && Inputs.mouseRightPressed);
+        return (isKey && Datas.Keyboards.checkCancelMenu(options.key)) || (!isKey && Inputs.mouseRightPressed);
     }
     /**
      *  Check is canceling input (for keyboard and mouse).
      *  @static
      */
     static checkCancel(isKey, options = {}) {
-        return (isKey && Datas.Keyboards.checkCancel(options.key)) || (!isKey
-            && Inputs.mouseRightPressed);
+        return (isKey && Datas.Keyboards.checkCancel(options.key)) || (!isKey && Inputs.mouseRightPressed);
     }
     /**
      * Return the whole party array.
@@ -92,7 +89,7 @@ class MenuBase extends Base {
      */
     setActiveHero(id) {
         if (id > this.party().length) {
-            throw new Error("Out of bound error : The id is higher than the party array.");
+            throw new Error('Out of bound error : The id is higher than the party array.');
         }
         this._activeHero = id;
     }

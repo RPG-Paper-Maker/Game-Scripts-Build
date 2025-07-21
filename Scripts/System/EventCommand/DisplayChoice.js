@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { Constants, Enum, ScreenResolution } from '../Common/index.js';
+import { WindowBox, WindowChoices } from '../Core/index.js';
+import { Datas, Graphic, Scene, System } from '../index.js';
 import { Base } from './Base.js';
-import { System, Graphic, Datas, Scene } from '../index.js';
-import { ScreenResolution, Enum, Constants } from '../Common/index.js';
-import { WindowChoices, WindowBox } from '../Core/index.js';
 var Align = Enum.Align;
 /** @class
  *  An event command for displaying a choice.
@@ -22,7 +22,7 @@ class DisplayChoice extends Base {
     constructor(command) {
         super();
         let iterator = {
-            i: 0
+            i: 0,
         };
         this.cancelAutoIndex = System.DynamicValue.createValueCommand(command, iterator);
         this.maxNumberChoices = System.DynamicValue.createValueCommand(command, iterator);
@@ -71,7 +71,7 @@ class DisplayChoice extends Base {
      *  An event action.
      *  @param {Record<string ,any>} currentState
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     action(currentState, isKey, options = {}) {
         if (Scene.MenuBase.checkActionMenu(isKey, options)) {
@@ -87,7 +87,7 @@ class DisplayChoice extends Base {
      *  An event move.
      *  @param {Record<string ,any>} currentState
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     move(currentState, isKey, options = {}) {
         this.windowChoices.move(isKey, options);
@@ -98,19 +98,18 @@ class DisplayChoice extends Base {
      */
     initialize() {
         let maxItems = this.maxNumberChoices.getValue();
-        this.windowChoices = new WindowChoices((ScreenResolution.SCREEN_X - this
-            .maxWidth) / 2, ScreenResolution.SCREEN_Y - 10 - 150 - (Math.min(this
-            .choices.length, maxItems) * WindowBox.MEDIUM_SLOT_HEIGHT), this
-            .maxWidth, WindowBox.MEDIUM_SLOT_HEIGHT, this.graphics, {
-            nbItemsMax: maxItems
+        this.windowChoices = new WindowChoices((ScreenResolution.SCREEN_X - this.maxWidth) / 2, ScreenResolution.SCREEN_Y -
+            10 -
+            150 -
+            Math.min(this.choices.length, maxItems) * WindowBox.MEDIUM_SLOT_HEIGHT, this.maxWidth, WindowBox.MEDIUM_SLOT_HEIGHT, this.graphics, {
+            nbItemsMax: maxItems,
         });
         // Move to right if show text before
         if (this.showText) {
-            this.windowChoices.setX(ScreenResolution.SCREEN_X - this
-                .windowChoices.oW - 10);
+            this.windowChoices.setX(ScreenResolution.SCREEN_X - this.windowChoices.oW - 10);
         }
         return {
-            index: -1
+            index: -1,
         };
     }
     /**

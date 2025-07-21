@@ -24,8 +24,7 @@ class SpinBox extends Bitmap {
      *  @param {number} x - The x coordinates
      *  @param {number} y - The y coordinates
      */
-    constructor(x, y, { w = SpinBox.DEFAULT_WIDTH, h = SpinBox
-        .DEFAULT_HEIGHT, value = 1, min = 1, max = 100, active = true, allowLeftRight = true, times = true } = {}) {
+    constructor(x, y, { w = SpinBox.DEFAULT_WIDTH, h = SpinBox.DEFAULT_HEIGHT, value = 1, min = 1, max = 100, active = true, allowLeftRight = true, times = true, } = {}) {
         super(x, y, w, h);
         this.isMouseInArrowUp = false;
         this.isMouseInArrowDown = false;
@@ -37,7 +36,7 @@ class SpinBox extends Bitmap {
         const options = {
             content: graphic,
             padding: WindowBox.MEDIUM_PADDING_BOX,
-            selected: true
+            selected: true,
         };
         this.windowBox = new WindowBox(x, y, w, h, options);
         this.startTime = new Date().getTime();
@@ -145,7 +144,7 @@ class SpinBox extends Bitmap {
     /**
      *  A widget move.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     move(isKey, options = {}) {
         if (isKey) {
@@ -212,7 +211,7 @@ class SpinBox extends Bitmap {
             const arrowWidth = ScreenResolution.getScreenXY(ws.arrowUpDown[2]);
             const arrowHeight = ScreenResolution.getScreenXY(ws.arrowUpDown[3]);
             if (this.value < this.max) {
-                let rect = new Rectangle(this.x + (this.w - arrowWidth) / 2, this.y - (arrowHeight / 2) - 1, arrowWidth, arrowHeight);
+                let rect = new Rectangle(this.x + (this.w - arrowWidth) / 2, this.y - arrowHeight / 2 - 1, arrowWidth, arrowHeight);
                 if (rect.isInside(x, y)) {
                     this.isMouseInArrowUp = true;
                 }
@@ -233,8 +232,7 @@ class SpinBox extends Bitmap {
         if (this.active) {
             const ws = Datas.Systems.getCurrentWindowSkin();
             if (this.value < this.max) {
-                ws.drawArrowUp(this.oX + (this.oW - ws.arrowUpDown[2]) / 2, this
-                    .oY - (ws.arrowUpDown[3] / 2) - 1);
+                ws.drawArrowUp(this.oX + (this.oW - ws.arrowUpDown[2]) / 2, this.oY - ws.arrowUpDown[3] / 2 - 1);
             }
             if (this.value > this.min) {
                 ws.drawArrowDown(this.oX + (this.oW - ws.arrowUpDown[2]) / 2, this.oY + this.oH + 1);

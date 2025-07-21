@@ -1,11 +1,11 @@
-import { Battler, WindowBox, WindowChoices, Item, Animation, Player, ReactionInterpreter } from '../Core/index.js';
-import { Graphic, System, Scene } from "../index.js";
+import { Graphic, Scene, System } from "../index.js";
 import { Enum } from '../Common/index.js';
+import { Animation, Battler, Item, Player, ReactionInterpreter, WindowBox, WindowChoices } from '../Core/index.js';
+import { Map } from './Map.js';
 import CharacterKind = Enum.CharacterKind;
 import EffectSpecialActionKind = Enum.EffectSpecialActionKind;
 import MapTransitionKind = Enum.MapTransitionKind;
 import BattleStep = Enum.BattleStep;
-import { Map } from './Map.js';
 /** @class
  *  A scene for battling.
  *  @extends SceneGame
@@ -229,24 +229,24 @@ declare class Battle extends Map {
      *  Handle battle key pressed according to step.
      *  @param {number} key - The key ID
      */
-    onKeyPressed(key: number): void;
+    onKeyPressed(key: string): void;
     /**
      *  Handle battle key released according to step.
      *  @param {number} key - The key ID
      */
-    onKeyReleased(key: number): void;
+    onKeyReleased(key: string): void;
     /**
      *  Handle battle key pressed repeat according to step.
      *  @param {number} key - The key ID
      *  @returns {boolean}
      */
-    onKeyPressedRepeat(key: number): boolean;
+    onKeyPressedRepeat(key: string): boolean;
     /**
      *  Handle battle key pressed and repeat according to step.
      *  @param {number} key - The key ID
      *  @returns {boolean}
      */
-    onKeyPressedAndRepeat(key: number): boolean;
+    onKeyPressedAndRepeat(key: string): boolean;
     /**
      *  @inheritdoc
      */

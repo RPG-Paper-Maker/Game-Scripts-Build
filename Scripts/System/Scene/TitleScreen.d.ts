@@ -1,5 +1,5 @@
-import { Base } from './Base.js';
 import { Picture2D, WindowChoices } from '../Core/index.js';
+import { Base } from './Base.js';
 /**
  *  The Scene displaying the game title screen.
  *  @class TitleScreen
@@ -37,13 +37,13 @@ declare class TitleScreen extends Base {
      *  @inheritdoc
      *  @param {number} key - the key ID
      */
-    onKeyPressed(key: number): void;
+    onKeyPressed(key: string): void;
     /**
      *  @inheritdoc
      *  @param {number} key - the key ID
      *  @return {*}  {boolean}
      */
-    onKeyPressedAndRepeat(key: number): boolean;
+    onKeyPressedAndRepeat(key: string): boolean;
     /**
      *  @inheritdoc
      */

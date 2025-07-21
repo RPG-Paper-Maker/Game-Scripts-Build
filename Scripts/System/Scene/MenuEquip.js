@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { MenuBase } from './MenuBase.js';
-import { Manager, Graphic, Datas, Scene } from '../index.js';
-import { WindowBox, WindowChoices, Player, Item, Game, Rectangle } from '../Core/index.js';
 import { Enum, Interpreter } from '../Common/index.js';
+import { Game, Item, Player, Rectangle, WindowBox, WindowChoices } from '../Core/index.js';
+import { Datas, Graphic, Manager, Scene } from '../index.js';
+import { MenuBase } from './MenuBase.js';
 var Align = Enum.Align;
 var OrientationWindow = Enum.OrientationWindow;
 var ItemKind = Enum.ItemKind;
@@ -48,7 +48,7 @@ class MenuEquip extends MenuBase {
     createWindowTop() {
         const rect = new Rectangle(20, 20, 200, 30);
         this.windowTop = new WindowBox(rect.x, rect.y, rect.width, rect.height, {
-            content: new Graphic.Text(this.title, { align: Align.Center })
+            content: new Graphic.Text(this.title, { align: Align.Center }),
         });
     }
     /**
@@ -65,7 +65,7 @@ class MenuEquip extends MenuBase {
         const options = {
             orientation: OrientationWindow.Horizontal,
             nbItemMax: 4,
-            padding: [0, 0, 0, 0]
+            padding: [0, 0, 0, 0],
         };
         this.windowChoicesTabs = new WindowChoices(rect.x, rect.y, rect.width, rect.height, listHeroes, options);
     }
@@ -78,10 +78,9 @@ class MenuEquip extends MenuBase {
         const rect = new Rectangle(20, 100, 290, WindowBox.SMALL_SLOT_HEIGHT);
         const nbEquipments = Datas.BattleSystems.equipmentsOrder.length;
         const options = {
-            nbItemsMax: Math.min(Scene.MenuEquip.MAX_SLOTS_EQUIPMENTS, nbEquipments)
+            nbItemsMax: Math.min(Scene.MenuEquip.MAX_SLOTS_EQUIPMENTS, nbEquipments),
         };
-        this.windowChoicesEquipment = new WindowChoices(rect.x, rect.y, rect
-            .width, rect.height, new Array(nbEquipments), options);
+        this.windowChoicesEquipment = new WindowChoices(rect.x, rect.y, rect.width, rect.height, new Array(nbEquipments), options);
     }
     /**
      * create the choice window
@@ -89,14 +88,13 @@ class MenuEquip extends MenuBase {
      * @memberof MenuEquip
      */
     createWindowChoiceList() {
-        const nbEquips = Math.min(Scene.MenuEquip.MAX_SLOTS_EQUIPMENTS, Datas
-            .BattleSystems.equipmentsOrder.length);
+        const nbEquips = Math.min(Scene.MenuEquip.MAX_SLOTS_EQUIPMENTS, Datas.BattleSystems.equipmentsOrder.length);
         const nbEquipChoice = MenuBase.SLOTS_TO_DISPLAY - nbEquips - 1;
         const y = 100 + (nbEquips + 1) * WindowBox.SMALL_SLOT_HEIGHT;
         const rect = new Rectangle(20, y, 290, WindowBox.SMALL_SLOT_HEIGHT);
         this.windowChoicesList = new WindowChoices(rect.x, rect.y, rect.width, rect.height, [], {
             nbItemsMax: nbEquipChoice,
-            currentSelectedIndex: -1
+            currentSelectedIndex: -1,
         });
     }
     /**
@@ -107,7 +105,7 @@ class MenuEquip extends MenuBase {
     createWindowInformation() {
         const rect = new Rectangle(330, 100, 285, 350);
         this.windowInformation = new WindowBox(rect.x, rect.y, rect.width, rect.height, {
-            padding: WindowBox.SMALL_PADDING_BOX
+            padding: WindowBox.SMALL_PADDING_BOX,
         });
     }
     /**
@@ -129,13 +127,11 @@ class MenuEquip extends MenuBase {
             for (j = 0, m = characteristics.length; j < m; j++) {
                 characteristic = characteristics[j];
                 if (characteristic.kind === Enum.CharacteristicKind.AllowForbidChange &&
-                    characteristic.changeEquipmentID.getValue() === Datas
-                        .BattleSystems.equipmentsOrder[i]) {
+                    characteristic.changeEquipmentID.getValue() === Datas.BattleSystems.equipmentsOrder[i]) {
                     isPossible = characteristic.isAllowChangeEquipment;
                 }
             }
-            list[i] = new Graphic.Equip(player, Datas.BattleSystems
-                .equipmentsOrder[i], equipLength, isPossible);
+            list[i] = new Graphic.Equip(player, Datas.BattleSystems.equipmentsOrder[i], equipLength, isPossible);
         }
         this.windowChoicesEquipment.setContents(list);
         this.selectedEquipment = -1;
@@ -151,12 +147,10 @@ class MenuEquip extends MenuBase {
     updateEquipmentList() {
         const currentIndex = this.windowChoicesEquipment.currentSelectedIndex;
         let idEquipment = Datas.BattleSystems.equipmentsOrder[currentIndex];
-        let list = [new Graphic.Text("  [" + Datas.Languages
-                .extras.remove.name() + "]")];
+        let list = [new Graphic.Text('  [' + Datas.Languages.extras.remove.name() + ']')];
         let item, systemItem;
         let type, nbItem;
-        let player = Game.current.teamHeroes[this.windowChoicesTabs
-            .currentSelectedIndex];
+        let player = Game.current.teamHeroes[this.windowChoicesTabs.currentSelectedIndex];
         let j, m, characteristic, allow, characteristics;
         for (let i = 0, l = Game.current.items.length; i < l; i++) {
             item = Game.current.items[i];
@@ -167,9 +161,10 @@ class MenuEquip extends MenuBase {
                     nbItem = item.nb;
                     if (nbItem > 0) {
                         allow = player.canEquipWeaponArmor(item);
-                        if (allow && Interpreter.evaluate(systemItem
-                            .conditionFormula.getValue(), { user: Game.current
-                                .teamHeroes[this.windowChoicesTabs.currentSelectedIndex] })) {
+                        if (allow &&
+                            Interpreter.evaluate(systemItem.conditionFormula.getValue(), {
+                                user: Game.current.teamHeroes[this.windowChoicesTabs.currentSelectedIndex],
+                            })) {
                             list.push(new Graphic.Item(item, { nbItem: nbItem }));
                         }
                     }
@@ -184,15 +179,13 @@ class MenuEquip extends MenuBase {
      * @memberof MenuEquip
      */
     updateInformations() {
-        let player = Game.current.teamHeroes[this.windowChoicesTabs
-            .currentSelectedIndex];
+        let player = Game.current.teamHeroes[this.windowChoicesTabs.currentSelectedIndex];
         if (this.selectedEquipment === -1) {
             this.list = [];
         }
         else {
             let item = this.windowChoicesList.getCurrentContent();
-            let equipmentID = Datas.BattleSystems.equipmentsOrder[this
-                .windowChoicesEquipment.currentSelectedIndex];
+            let equipmentID = Datas.BattleSystems.equipmentsOrder[this.windowChoicesEquipment.currentSelectedIndex];
             let system = item.item ? item.item.system : null;
             let result = player.getEquipmentStatsAndBonus(system, equipmentID);
             this.list = result[0];
@@ -203,7 +196,7 @@ class MenuEquip extends MenuBase {
     /**
      *  Move tab according to key.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     moveTabKey(isKey, options = {}) {
         // Tab
@@ -219,16 +212,14 @@ class MenuEquip extends MenuBase {
         }
         // Equipment
         if (this.selectedEquipment === -1) {
-            let indexEquipment = this.windowChoicesEquipment
-                .currentSelectedIndex;
+            let indexEquipment = this.windowChoicesEquipment.currentSelectedIndex;
             if (isKey) {
                 this.windowChoicesEquipment.onKeyPressedAndRepeat(options.key);
             }
             else {
                 this.windowChoicesEquipment.onMouseMove(options.x, options.y);
             }
-            if (indexEquipment !== this.windowChoicesEquipment
-                .currentSelectedIndex) {
+            if (indexEquipment !== this.windowChoicesEquipment.currentSelectedIndex) {
                 this.updateEquipmentList();
             }
         }
@@ -249,8 +240,7 @@ class MenuEquip extends MenuBase {
      *  Remove the selected equipment.
      */
     remove() {
-        this.removeAnEquipment(Datas.BattleSystems.equipmentsOrder[this
-            .windowChoicesEquipment.currentSelectedIndex]);
+        this.removeAnEquipment(Datas.BattleSystems.equipmentsOrder[this.windowChoicesEquipment.currentSelectedIndex]);
     }
     /**
      *  Remove an equipment according to ID.
@@ -277,20 +267,16 @@ class MenuEquip extends MenuBase {
     equip() {
         let index = this.windowChoicesTabs.currentSelectedIndex;
         let character = Game.current.teamHeroes[index];
-        let gameItem = this.windowChoicesList
-            .getCurrentContent().item;
-        let id = Datas.BattleSystems.equipmentsOrder[this.windowChoicesEquipment
-            .currentSelectedIndex];
+        let gameItem = this.windowChoicesList.getCurrentContent().item;
+        let id = Datas.BattleSystems.equipmentsOrder[this.windowChoicesEquipment.currentSelectedIndex];
         let prev = character.equip[id];
         character.equip[id] = gameItem;
         // If "don't allow weapon/armor" characteristic now active, remove equipment
         for (let characteristic of gameItem.system.characteristics) {
-            if (characteristic.kind === Enum.CharacteristicKind
-                .AllowForbidEquip && !characteristic.isAllowEquip) {
-                let weaponArmor = (characteristic.isAllowEquipWeapon) ? Datas
-                    .BattleSystems.getWeaponKind(characteristic.equipWeaponTypeID
-                    .getValue()) : Datas.BattleSystems.getArmorKind(characteristic
-                    .equipArmorTypeID.getValue());
+            if (characteristic.kind === Enum.CharacteristicKind.AllowForbidEquip && !characteristic.isAllowEquip) {
+                let weaponArmor = characteristic.isAllowEquipWeapon
+                    ? Datas.BattleSystems.getWeaponKind(characteristic.equipWeaponTypeID.getValue())
+                    : Datas.BattleSystems.getArmorKind(characteristic.equipArmorTypeID.getValue());
                 for (let [id, equipment] of weaponArmor.equipments.entries()) {
                     if (equipment) {
                         this.removeAnEquipment(id);
@@ -330,7 +316,7 @@ class MenuEquip extends MenuBase {
     /**
      *  A scene action.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     action(isKey, options = {}) {
         if (this.selectedEquipment === -1) {
@@ -339,11 +325,9 @@ class MenuEquip extends MenuBase {
                 Manager.Stack.pop();
             }
             else if (Scene.MenuBase.checkActionMenu(isKey, options)) {
-                if (this.windowChoicesEquipment.getCurrentContent()
-                    .isPossible) {
+                if (this.windowChoicesEquipment.getCurrentContent().isPossible) {
                     Datas.Systems.soundConfirmation.playSound();
-                    this.selectedEquipment = this.windowChoicesEquipment
-                        .currentSelectedIndex;
+                    this.selectedEquipment = this.windowChoicesEquipment.currentSelectedIndex;
                     this.windowChoicesList.currentSelectedIndex = 0;
                     if (this.windowChoicesList.listContents.length > 1) {
                         this.windowChoicesList.goDown();
@@ -385,7 +369,7 @@ class MenuEquip extends MenuBase {
     /**
      *  A scene move.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     move(isKey, options = {}) {
         this.moveTabKey(isKey, options);
@@ -418,7 +402,7 @@ class MenuEquip extends MenuBase {
      *  Handle scene pressed repeat key.
      *  @param {number} key - The key ID
      *  @returns {boolean}
-    */
+     */
     onKeyPressedRepeat(key) {
         return super.onKeyPressedAndRepeat(key);
     }
@@ -426,10 +410,9 @@ class MenuEquip extends MenuBase {
      *  Handle scene pressed and repeat key.
      *  @param {number} key - The key ID
      *  @returns {boolean}
-    */
+     */
     onKeyPressedAndRepeat(key) {
-        let res = Scene.Base.prototype.onKeyPressedAndRepeat.call(Scene.Map
-            .current, key);
+        let res = Scene.Base.prototype.onKeyPressedAndRepeat.call(Scene.Map.current, key);
         this.move(true, { key: key });
         return res;
     }

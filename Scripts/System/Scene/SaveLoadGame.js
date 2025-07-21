@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
-import { WindowBox, WindowChoices, Game } from '../Core/index.js';
 import { ScreenResolution } from '../Common/index.js';
-import { Graphic, Datas, Manager, Scene } from '../index.js';
+import { Game, WindowBox, WindowChoices } from '../Core/index.js';
+import { Datas, Graphic, Manager, Scene } from '../index.js';
+import { Base } from './Base.js';
 /** @class
  *  Abstract class for the game save and loading menus.
  *  @extends Scene.Base
@@ -37,12 +37,11 @@ class SaveLoadGame extends Base {
         // Initialize windows
         this.windowTop = new WindowBox(20, 20, ScreenResolution.SCREEN_X - 40, 30);
         this.windowInformations = new WindowBox(120, 100, 500, 300, {
-            padding: WindowBox.MEDIUM_PADDING_BOX
+            padding: WindowBox.MEDIUM_PADDING_BOX,
         });
-        this.windowChoicesSlots = new WindowChoices(10, 100, 100, 50, this
-            .gamesDatas, {
+        this.windowChoicesSlots = new WindowChoices(10, 100, 100, 50, this.gamesDatas, {
             nbItemsMax: 6,
-            padding: WindowBox.NONE_PADDING
+            padding: WindowBox.NONE_PADDING,
         });
         this.windowBot = new WindowBox(20, ScreenResolution.SCREEN_Y - 50, ScreenResolution.SCREEN_X - 40, 30);
         this.updateInformations(this.windowChoicesSlots.currentSelectedIndex);
@@ -73,7 +72,7 @@ class SaveLoadGame extends Base {
     /**
      *  Slot cancel.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     cancel(isKey, options = {}) {
         if (Scene.MenuBase.checkCancelMenu(isKey, options)) {
@@ -84,7 +83,7 @@ class SaveLoadGame extends Base {
     /**
      *  Slot move.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     move(isKey, options = {}) {
         if (isKey) {
@@ -93,8 +92,7 @@ class SaveLoadGame extends Base {
         else {
             this.windowChoicesSlots.onMouseMove(options.x, options.y);
         }
-        this.updateInformations.call(this, this.windowChoicesSlots
-            .currentSelectedIndex);
+        this.updateInformations.call(this, this.windowChoicesSlots.currentSelectedIndex);
     }
     /**
      *  Update the scene.

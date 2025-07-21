@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
-import { System, Datas } from '../index.js';
-import { ReactionInterpreter } from '../Core/index.js';
 import { Enum } from '../Common/index.js';
+import { ReactionInterpreter } from '../Core/index.js';
+import { Datas, System } from '../index.js';
+import { Base } from './Base.js';
 var DynamicValueKind = Enum.DynamicValueKind;
 /** @class
  *  An event command for calling a common reaction.
@@ -22,7 +22,7 @@ class CallACommonReaction extends Base {
     constructor(command) {
         super();
         let iterator = {
-            i: 0
+            i: 0,
         };
         this.commonReactionID = command[iterator.i++];
         this.parameters = [];
@@ -39,7 +39,7 @@ class CallACommonReaction extends Base {
      */
     initialize() {
         return {
-            interpreter: null
+            interpreter: null,
         };
     }
     /**
@@ -51,10 +51,8 @@ class CallACommonReaction extends Base {
      */
     update(currentState, object, state) {
         if (!currentState.interpreter) {
-            let reaction = Datas.CommonEvents.getCommonReaction(this
-                .commonReactionID);
-            let parameters = System.DynamicValue.mapWithParametersProperties(this
-                .parameters);
+            let reaction = Datas.CommonEvents.getCommonReaction(this.commonReactionID);
+            let parameters = System.DynamicValue.mapWithParametersProperties(this.parameters);
             // Correct parameters for default values
             let v, parameter, k;
             for (let id in reaction.parameters) {
@@ -62,13 +60,11 @@ class CallACommonReaction extends Base {
                 parameter = parameters[id];
                 k = parameter ? parameter.kind : DynamicValueKind.None;
                 if (k > DynamicValueKind.Unknown && k <= DynamicValueKind.Default) {
-                    parameter = k === DynamicValueKind.Default ? v : System
-                        .DynamicValue.create(k, null);
+                    parameter = k === DynamicValueKind.Default ? v : System.DynamicValue.create(k, null);
                 }
                 parameters[id] = parameter;
             }
-            currentState.interpreter = new ReactionInterpreter(object, Datas
-                .CommonEvents.getCommonReaction(this.commonReactionID), object, state, parameters);
+            currentState.interpreter = new ReactionInterpreter(object, Datas.CommonEvents.getCommonReaction(this.commonReactionID), object, state, parameters);
         }
         let previousBlocking = ReactionInterpreter.blockingHero;
         ReactionInterpreter.blockingHero = currentState.interpreter.currentReaction.blockingHero;
@@ -110,8 +106,7 @@ class CallACommonReaction extends Base {
      */
     onKeyPressedRepeat(currentState, key) {
         if (currentState.interpreter && currentState.interpreter.currentCommand) {
-            return currentState.interpreter.currentCommand.data
-                .onKeyPressedRepeat(currentState.interpreter.currentCommandState, key);
+            return currentState.interpreter.currentCommand.data.onKeyPressedRepeat(currentState.interpreter.currentCommandState, key);
         }
         return super.onKeyPressedRepeat(currentState, key);
     }
@@ -134,8 +129,7 @@ class CallACommonReaction extends Base {
      */
     drawHUD(currentState) {
         if (currentState.interpreter && currentState.interpreter.currentCommand) {
-            currentState.interpreter.currentCommand.data.drawHUD(currentState
-                .interpreter.currentCommandState);
+            currentState.interpreter.currentCommand.data.drawHUD(currentState.interpreter.currentCommandState);
         }
         super.drawHUD(currentState);
     }

@@ -45,22 +45,20 @@ class ChangeLanguage extends Base {
         const rect = new Rectangle(Constants.HUGE_SPACE, Constants.HUGE_SPACE, WindowBox.MEDIUM_SLOT_WIDTH, WindowBox.LARGE_SLOT_HEIGHT);
         const graphic = new Graphic.Text(Datas.Languages.extras.language.name(), { align: Enum.Align.Center });
         const options = {
-            content: graphic
+            content: graphic,
         };
-        this.windowBoxLanguage = new WindowBox(rect.x, rect.y, rect.width, rect
-            .height, options);
+        this.windowBoxLanguage = new WindowBox(rect.x, rect.y, rect.width, rect.height, options);
     }
     /**
      *  Create the window information on top.
      */
     createWindowBoxTop() {
-        const rect = new Rectangle(Constants.HUGE_SPACE + WindowBox
-            .MEDIUM_SLOT_WIDTH + Constants.LARGE_SPACE, Constants.HUGE_SPACE, ScreenResolution.SCREEN_X - (2 * Constants.HUGE_SPACE) - WindowBox
-            .MEDIUM_SLOT_WIDTH - Constants.LARGE_SPACE, WindowBox.LARGE_SLOT_HEIGHT);
-        const graphic = new Graphic.Text(Datas.Languages.extras.languageSelectedDescription
-            .name(), { align: Enum.Align.Center });
+        const rect = new Rectangle(Constants.HUGE_SPACE + WindowBox.MEDIUM_SLOT_WIDTH + Constants.LARGE_SPACE, Constants.HUGE_SPACE, ScreenResolution.SCREEN_X - 2 * Constants.HUGE_SPACE - WindowBox.MEDIUM_SLOT_WIDTH - Constants.LARGE_SPACE, WindowBox.LARGE_SLOT_HEIGHT);
+        const graphic = new Graphic.Text(Datas.Languages.extras.languageSelectedDescription.name(), {
+            align: Enum.Align.Center,
+        });
         const options = {
-            content: graphic
+            content: graphic,
         };
         this.windowBoxTop = new WindowBox(rect.x, rect.y, rect.width, rect.height, options);
     }
@@ -68,17 +66,14 @@ class ChangeLanguage extends Base {
      *  Create the window information on top.
      */
     createWindowChoicesMain() {
-        const rect = new Rectangle(Constants.HUGE_SPACE, Constants.HUGE_SPACE +
-            WindowBox.LARGE_SLOT_HEIGHT + Constants.LARGE_SPACE, ScreenResolution
-            .SCREEN_X - (2 * Constants.HUGE_SPACE), WindowBox.MEDIUM_SLOT_HEIGHT);
+        const rect = new Rectangle(Constants.HUGE_SPACE, Constants.HUGE_SPACE + WindowBox.LARGE_SLOT_HEIGHT + Constants.LARGE_SPACE, ScreenResolution.SCREEN_X - 2 * Constants.HUGE_SPACE, WindowBox.MEDIUM_SLOT_HEIGHT);
         const options = {
             nbItemsMax: 9,
-            listCallbacks: Datas.Languages.getCommandsCallbacks()
+            listCallbacks: Datas.Languages.getCommandsCallbacks(),
         };
         this.windowChoicesMain = new WindowChoices(rect.x, rect.y, rect.width, rect.height, Datas.Languages.getCommandsGraphics(), options);
         this.windowChoicesMain.unselect();
-        this.windowChoicesMain.select(Datas.Languages.getIndexByID(Datas.Settings
-            .currentLanguage));
+        this.windowChoicesMain.select(Datas.Languages.getIndexByID(Datas.Settings.currentLanguage));
     }
     /**
      *  Create the window confirmation.
@@ -89,39 +84,36 @@ class ChangeLanguage extends Base {
         const rect = new Rectangle((ScreenResolution.SCREEN_X - width) / 2, (ScreenResolution.SCREEN_Y - height) / 2, width, height);
         const graphic = new Graphic.Text(Datas.Languages.extras.confirm.name(), { align: Enum.Align.Center });
         const options = {
-            content: graphic
+            content: graphic,
         };
-        this.windowBoxConfirm = new WindowBox(rect.x, rect.y, rect.width, rect
-            .height, options);
+        this.windowBoxConfirm = new WindowBox(rect.x, rect.y, rect.width, rect.height, options);
     }
     /**
      *  Create the window information on top.
      */
     createWindowChoicesConfirm() {
-        const rect = new Rectangle(this.windowBoxConfirm.oX + ((this
-            .windowBoxConfirm.oW - WindowBox.SMALL_SLOT_WIDTH) / 2), this
-            .windowBoxConfirm.oY + this.windowBoxConfirm.oH, WindowBox
-            .SMALL_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
+        const rect = new Rectangle(this.windowBoxConfirm.oX + (this.windowBoxConfirm.oW - WindowBox.SMALL_SLOT_WIDTH) / 2, this.windowBoxConfirm.oY + this.windowBoxConfirm.oH, WindowBox.SMALL_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
         const options = {
             listCallbacks: [
                 () => {
-                    Datas.Settings.updateCurrentLanguage(Datas.Languages
-                        .listOrder[this.windowChoicesMain.currentSelectedIndex]);
+                    // YES
+                    Datas.Settings.updateCurrentLanguage(Datas.Languages.listOrder[this.windowChoicesMain.currentSelectedIndex]);
                     Manager.Stack.translateAll();
                     this.step = 0;
                     Manager.Stack.requestPaintHUD = true;
                     return true;
                 },
                 () => {
+                    // NO
                     this.step = 0;
                     Manager.Stack.requestPaintHUD = true;
                     return false;
-                }
-            ]
+                },
+            ],
         };
         const graphics = [
             new Graphic.Text(Datas.Languages.extras.yes.name(), { align: Enum.Align.Center }),
-            new Graphic.Text(Datas.Languages.extras.no.name(), { align: Enum.Align.Center })
+            new Graphic.Text(Datas.Languages.extras.no.name(), { align: Enum.Align.Center }),
         ];
         this.windowChoicesConfirm = new WindowChoices(rect.x, rect.y, rect.width, rect.height, graphics, options);
     }
@@ -137,13 +129,10 @@ class ChangeLanguage extends Base {
      */
     async createBackground() {
         if (Datas.TitlescreenGameover.isTitleBackgroundImage) {
-            this.pictureBackground = await Picture2D.createWithID(Datas
-                .TitlescreenGameover.titleBackgroundImageID, Enum.PictureKind
-                .TitleScreen, { cover: true });
+            this.pictureBackground = await Picture2D.createWithID(Datas.TitlescreenGameover.titleBackgroundImageID, Enum.PictureKind.TitleScreen, { cover: true });
         }
         else {
-            await Manager.Videos.play(Datas.Videos.get(Datas
-                .TitlescreenGameover.titleBackgroundVideoID).getPath());
+            await Manager.Videos.play(Datas.Videos.get(Datas.TitlescreenGameover.titleBackgroundVideoID).getPath());
         }
     }
     /**

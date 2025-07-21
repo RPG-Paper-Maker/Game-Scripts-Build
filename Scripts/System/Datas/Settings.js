@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Datas } from "../index.js";
-import { IO, Platform, Paths, Utils, Enum } from '../Common/index.js';
+import { Enum, IO, Paths, Platform, Utils } from '../Common/index.js';
 var TitleSettingKind = Enum.TitleSettingKind;
 /** @class
  *  All the settings datas.
@@ -57,7 +57,7 @@ class Settings {
     /**
      *  Update Keyboard settings.
      *  @param {number} id
-     *  @param {number[][]} sc -
+     *  @param {string[][]} sc -
      *  @static
      */
     static updateKeyboard(id, sc) {

@@ -1,4 +1,4 @@
-import { System, Graphic } from '../index.js';
+import { Graphic, System } from '../index.js';
 /** @class
  *  All the keyBoards datas.
  *  @static
@@ -16,7 +16,7 @@ declare class Keyboards {
      *  @param {System.KeyBoard} abr - The keyBoard to compare to the key
      *  @returns {boolean}
      */
-    static isKeyEqual(key: number, abr: System.Keyboard): boolean;
+    static isKeyEqual(key: string, abr: System.Keyboard): boolean;
     /**
      *  Read the JSON file associated to keyboard.
      *  @static
@@ -47,18 +47,18 @@ declare class Keyboards {
      *  @static
      *  @returns {boolean}
      */
-    static checkCancelMenu(key: number): boolean;
+    static checkCancelMenu(key: string): boolean;
     /**
      *  Check if key is cancelling.
      *  @static
      *  @returns {boolean}
      */
-    static checkCancel(key: number): boolean;
+    static checkCancel(key: string): boolean;
     /**
      *  Check if key is action menu.
      *  @static
      *  @returns {boolean}
      */
-    static checkActionMenu(key: number): boolean;
+    static checkActionMenu(key: string): boolean;
 }
 export { Keyboards };

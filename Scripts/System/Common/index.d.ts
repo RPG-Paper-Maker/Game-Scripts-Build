@@ -4,7 +4,6 @@ export * from "./Enum.js";
 export * from "./Inputs.js";
 export * from "./Interpreter.js";
 export * from "./IO.js";
-export * from "./KeyEvent.js";
 export * from "./Mathf.js";
 export * from "./Paths.js";
 export * from "./Platform.js";

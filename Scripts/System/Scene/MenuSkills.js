@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
-import { Manager, Graphic, Scene, Datas } from '../index.js';
-import { WindowBox, WindowChoices, Battler, Game, Rectangle } from '../Core/index.js';
 import { Constants, Enum, ScreenResolution } from '../Common/index.js';
+import { Battler, Game, Rectangle, WindowBox, WindowChoices } from '../Core/index.js';
+import { Datas, Graphic, Manager, Scene } from '../index.js';
+import { Base } from './Base.js';
 var Align = Enum.Align;
 var OrientationWindow = Enum.OrientationWindow;
 var TargetKind = Enum.TargetKind;
@@ -29,32 +29,30 @@ class MenuSkills extends Base {
         let listHeroes = new Array(nbHeroes);
         this.positionChoice = new Array(nbHeroes);
         for (let i = 0; i < nbHeroes; i++) {
-            listHeroes[i] = new Graphic.PlayerDescription(Game.current
-                .teamHeroes[i]);
+            listHeroes[i] = new Graphic.PlayerDescription(Game.current.teamHeroes[i]);
             this.positionChoice[i] = {
                 index: 0,
-                offset: 0
+                offset: 0,
             };
         }
         // All the windows
         this.windowTop = new WindowBox(20, 20, 200, 30, {
-            content: new Graphic.Text(this.title, { align: Align.Center })
+            content: new Graphic.Text(this.title, { align: Align.Center }),
         });
-        this.windowChoicesTabs = new WindowChoices(50, 60, 110, WindowBox
-            .SMALL_SLOT_HEIGHT, listHeroes, {
+        this.windowChoicesTabs = new WindowChoices(50, 60, 110, WindowBox.SMALL_SLOT_HEIGHT, listHeroes, {
             orientation: OrientationWindow.Horizontal,
             nbItemsMax: 4,
-            padding: [0, 0, 0, 0]
+            padding: [0, 0, 0, 0],
         });
         this.createWindowChoicesList();
         this.createWindowBoxInformation();
         this.windowEmpty = new WindowBox(10, 100, ScreenResolution.SCREEN_X - 20, WindowBox.SMALL_SLOT_HEIGHT, {
             content: new Graphic.Text(Datas.Languages.extras.empty.name(), { align: Align.Center }),
-            padding: WindowBox.SMALL_SLOT_PADDING
+            padding: WindowBox.SMALL_SLOT_PADDING,
         });
         this.windowBoxUseSkill = new WindowBox(240, 320, 360, 140, {
             content: new Graphic.UseSkillItem(),
-            padding: WindowBox.SMALL_PADDING_BOX
+            padding: WindowBox.SMALL_PADDING_BOX,
         });
         // Update for changing tab
         this.substep = 0;
@@ -65,11 +63,9 @@ class MenuSkills extends Base {
      *  Create the choice list.
      */
     createWindowChoicesList() {
-        const rect = new Rectangle(Constants.HUGE_SPACE, Constants.HUGE_SPACE +
-            ((WindowBox.SMALL_SLOT_HEIGHT + Constants.LARGE_SPACE) * 2), WindowBox
-            .LARGE_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
+        const rect = new Rectangle(Constants.HUGE_SPACE, Constants.HUGE_SPACE + (WindowBox.SMALL_SLOT_HEIGHT + Constants.LARGE_SPACE) * 2, WindowBox.LARGE_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
         const options = {
-            nbItemsMax: Scene.Menu.SLOTS_TO_DISPLAY
+            nbItemsMax: Scene.Menu.SLOTS_TO_DISPLAY,
         };
         this.windowChoicesList = new WindowChoices(rect.x, rect.y, rect.width, rect.height, [], options);
     }
@@ -77,32 +73,26 @@ class MenuSkills extends Base {
      *  Create the information window.
      */
     createWindowBoxInformation() {
-        const width = ScreenResolution.SCREEN_X - (Constants.HUGE_SPACE * 2) -
-            WindowBox.LARGE_SLOT_WIDTH - Constants.LARGE_SPACE;
+        const width = ScreenResolution.SCREEN_X - Constants.HUGE_SPACE * 2 - WindowBox.LARGE_SLOT_WIDTH - Constants.LARGE_SPACE;
         const height = 200;
-        const rect = new Rectangle(ScreenResolution.SCREEN_X - Constants
-            .HUGE_SPACE - width, Constants.HUGE_SPACE + ((WindowBox
-            .SMALL_SLOT_HEIGHT + Constants.LARGE_SPACE) * 2), width, height);
+        const rect = new Rectangle(ScreenResolution.SCREEN_X - Constants.HUGE_SPACE - width, Constants.HUGE_SPACE + (WindowBox.SMALL_SLOT_HEIGHT + Constants.LARGE_SPACE) * 2, width, height);
         const options = {
-            padding: WindowBox.HUGE_PADDING_BOX
+            padding: WindowBox.HUGE_PADDING_BOX,
         };
-        this.windowBoxInformation = new WindowBox(rect.x, rect.y, rect.width, rect
-            .height, options);
+        this.windowBoxInformation = new WindowBox(rect.x, rect.y, rect.width, rect.height, options);
     }
     /**
      *  Synchronize informations with selected hero.
      */
     synchronize() {
-        this.windowBoxInformation.content = this.windowChoicesList
-            .getCurrentContent();
+        this.windowBoxInformation.content = this.windowChoicesList.getCurrentContent();
     }
     /**
      *  Update tab
      */
     updateForTab() {
         let indexTab = this.windowChoicesTabs.currentSelectedIndex;
-        Scene.Map.current.user = new Battler(Game.current
-            .teamHeroes[indexTab]);
+        Scene.Map.current.user = new Battler(Game.current.teamHeroes[indexTab]);
         let skills = Scene.Map.current.user.player.skills;
         // Get the first skills of the hero
         let list = [];
@@ -114,13 +104,12 @@ class MenuSkills extends Base {
         this.windowChoicesList.unselect();
         this.windowChoicesList.offsetSelectedIndex = this.positionChoice[indexTab].offset;
         this.windowChoicesList.select(this.positionChoice[indexTab].index);
-        Scene.Map.current.user = new Battler(Game.current
-            .teamHeroes[indexTab]);
+        Scene.Map.current.user = new Battler(Game.current.teamHeroes[indexTab]);
     }
     /**
      *  Move tab according to key.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     moveTabKey(isKey, options = {}) {
         // Tab
@@ -141,8 +130,7 @@ class MenuSkills extends Base {
         else {
             this.windowChoicesList.onMouseMove(options.x, options.y);
         }
-        let position = this.positionChoice[this.windowChoicesTabs
-            .currentSelectedIndex];
+        let position = this.positionChoice[this.windowChoicesTabs.currentSelectedIndex];
         position.index = this.windowChoicesList.currentSelectedIndex;
         position.offset = this.windowChoicesList.offsetSelectedIndex;
         this.synchronize();
@@ -150,7 +138,7 @@ class MenuSkills extends Base {
     /**
      *  A scene action.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     action(isKey, options = {}) {
         let graphic = this.windowBoxInformation.content;
@@ -163,10 +151,9 @@ class MenuSkills extends Base {
                     }
                     let targetKind = graphic.system.targetKind;
                     let availableKind = graphic.system.availableKind;
-                    if (graphic.system.isPossible() && (targetKind ===
-                        TargetKind.Ally || targetKind === TargetKind.AllAllies)
-                        && (availableKind === AvailableKind.Always ||
-                            availableKind === AvailableKind.MainMenu)) {
+                    if (graphic.system.isPossible() &&
+                        (targetKind === TargetKind.Ally || targetKind === TargetKind.AllAllies) &&
+                        (availableKind === AvailableKind.Always || availableKind === AvailableKind.MainMenu)) {
                         Datas.Systems.soundConfirmation.playSound();
                         this.substep = 1;
                         graphicUse.setSkillItem(graphic.system);
@@ -187,8 +174,7 @@ class MenuSkills extends Base {
                 if (Scene.MenuBase.checkActionMenu(isKey, options)) {
                     if (graphic.system.use()) {
                         graphic.system.sound.playSound();
-                        this.windowBoxUseSkill.content
-                            .updateStats();
+                        this.windowBoxUseSkill.content.updateStats();
                         if (!graphic.system.isPossible()) {
                             this.substep = 0;
                         }
@@ -206,7 +192,7 @@ class MenuSkills extends Base {
     /**
      *  A scene move.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     move(isKey, options = {}) {
         switch (this.substep) {
@@ -215,12 +201,10 @@ class MenuSkills extends Base {
                 break;
             case 1:
                 if (isKey) {
-                    this.windowBoxUseSkill.content
-                        .onKeyPressedAndRepeat(options.key);
+                    this.windowBoxUseSkill.content.onKeyPressedAndRepeat(options.key);
                 }
                 else {
-                    this.windowBoxUseSkill.content
-                        .onMouseMove(options.x, options.y);
+                    this.windowBoxUseSkill.content.onMouseMove(options.x, options.y);
                 }
                 break;
         }

@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { Constants, Enum, ScreenResolution } from '../Common/index.js';
+import { Game, Picture2D, WindowBox, WindowChoices } from '../Core/index.js';
+import { Datas, Manager } from '../index.js';
 import { Base } from './Base.js';
-import { Manager, Datas } from '../index.js';
-import { Picture2D, WindowChoices, WindowBox, Game } from '../Core/index.js';
-import { Enum, ScreenResolution, Constants } from '../Common/index.js';
 var PictureKind = Enum.PictureKind;
 /**
  *  The Scene displaying the game title screen.
@@ -42,23 +42,17 @@ class TitleScreen extends Base {
         Manager.Stack.displayedPictures = [];
         // Creating background
         if (Datas.TitlescreenGameover.isTitleBackgroundImage) {
-            this.pictureBackground = await Picture2D.createWithID(Datas
-                .TitlescreenGameover.titleBackgroundImageID, PictureKind
-                .TitleScreen, { cover: true });
+            this.pictureBackground = await Picture2D.createWithID(Datas.TitlescreenGameover.titleBackgroundImageID, PictureKind.TitleScreen, { cover: true });
         }
         else {
-            await Manager.Videos.play(Datas.Videos.get(Datas
-                .TitlescreenGameover.titleBackgroundVideoID).getPath());
+            await Manager.Videos.play(Datas.Videos.get(Datas.TitlescreenGameover.titleBackgroundVideoID).getPath());
         }
         // Windows
         let commandsNb = Datas.TitlescreenGameover.titleCommands.length;
-        this.windowChoicesCommands = new WindowChoices(ScreenResolution.SCREEN_X
-            / 2 - (WindowBox.MEDIUM_SLOT_WIDTH / 2), ScreenResolution.SCREEN_Y -
-            Constants.HUGE_SPACE - (commandsNb * WindowBox.MEDIUM_SLOT_HEIGHT), WindowBox.MEDIUM_SLOT_WIDTH, WindowBox.MEDIUM_SLOT_HEIGHT, Datas
-            .TitlescreenGameover.getTitleCommandsNames(), {
+        this.windowChoicesCommands = new WindowChoices(ScreenResolution.SCREEN_X / 2 - WindowBox.MEDIUM_SLOT_WIDTH / 2, ScreenResolution.SCREEN_Y - Constants.HUGE_SPACE - commandsNb * WindowBox.MEDIUM_SLOT_HEIGHT, WindowBox.MEDIUM_SLOT_WIDTH, WindowBox.MEDIUM_SLOT_HEIGHT, Datas.TitlescreenGameover.getTitleCommandsNames(), {
             nbItemsMax: commandsNb,
             listCallbacks: Datas.TitlescreenGameover.getTitleCommandsActions(),
-            padding: [0, 0, 0, 0]
+            padding: [0, 0, 0, 0],
         });
         // Play title screen song
         Datas.TitlescreenGameover.titleMusic.playMusic();
@@ -83,8 +77,7 @@ class TitleScreen extends Base {
      *  @param {number} key - the key ID
      */
     onKeyPressed(key) {
-        this.windowChoicesCommands.onKeyPressed(key, this.windowChoicesCommands
-            .getCurrentContent().datas);
+        this.windowChoicesCommands.onKeyPressed(key, this.windowChoicesCommands.getCurrentContent().datas);
     }
     /**
      *  @inheritdoc
@@ -104,8 +97,7 @@ class TitleScreen extends Base {
      *  @inheritdoc
      */
     onMouseUp(x, y) {
-        this.windowChoicesCommands.onMouseUp(x, y, this.windowChoicesCommands
-            .getCurrentContent().datas);
+        this.windowChoicesCommands.onMouseUp(x, y, this.windowChoicesCommands.getCurrentContent().datas);
     }
     /**
      *  @inheritdoc

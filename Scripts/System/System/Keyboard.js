@@ -9,7 +9,6 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Translatable } from './Translatable.js';
-import { KeyEvent } from '../Common/index.js';
 /** @class
  *  A key shortcut of the game.
  *  @extends {System.Translatable}
@@ -28,33 +27,33 @@ class Keyboard extends Translatable {
         super.read(json);
         this.id = json.id;
         this.sc = json.sc;
-        let list;
-        let i, j, l, m;
-        for (i = 0, l = this.sc.length; i < l; i++) {
-            list = this.sc[i];
-            for (j = 0, m = list.length; j < m; j++) {
-                list[j] = KeyEvent.qtToDOM(list[j]);
-            }
-        }
     }
     /**
      *  Get the string representation of the keyboard.
      *  @returns {string}
      */
     toString() {
-        let l = this.sc.length;
-        let stringList = new Array(l);
-        let j, m, originalSubList, subList;
-        for (let i = 0; i < l; i++) {
-            originalSubList = this.sc[i];
-            m = originalSubList.length;
-            subList = new Array(m);
-            for (j = 0; j < m; j++) {
-                subList[j] = KeyEvent.getKeyString(originalSubList[j]);
+        return this.sc
+            .map((shortcut) => shortcut
+            .map((sc) => {
+            switch (sc) {
+                case 'ArrowUp':
+                    return '↑';
+                case 'ArrowDown':
+                    return '↓';
+                case 'ArrowLeft':
+                    return '←';
+                case 'ArrowRight':
+                    return '→';
+                case 'Control':
+                    return 'Ctrl';
+                default:
+                    return sc;
             }
-            stringList[i] = subList.join(" + ");
-        }
-        return stringList.join(" | ");
+        })
+            .join(' + '))
+            .join(' | ')
+            .toUpperCase();
     }
 }
 export { Keyboard };

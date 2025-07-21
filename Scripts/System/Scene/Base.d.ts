@@ -1,5 +1,5 @@
-import { Camera, ReactionInterpreter, MapObject } from '../Core/index.js';
-import { System, Graphic } from '../index.js';
+import { Camera, MapObject, ReactionInterpreter } from '../Core/index.js';
+import { Graphic, System } from '../index.js';
 /**
  *  The superclass who shape the structure of a scene.
  *  @abstract
@@ -84,10 +84,7 @@ declare abstract class Base {
      * @param {boolean} [moving=false] - indicate if the command is of type moving.
      * @return {ReactionInterpreter}
      */
-    addReaction(sender: MapObject, reaction: System.Reaction, object: MapObject, state: number, parameters: System.DynamicValue[], event: [
-        System.Event,
-        number
-    ], moving?: boolean): ReactionInterpreter;
+    addReaction(sender: MapObject, reaction: System.Reaction, object: MapObject, state: number, parameters: System.DynamicValue[], event: [System.Event, number], moving?: boolean): ReactionInterpreter;
     /**
      * Update the scene.
      */
@@ -96,24 +93,24 @@ declare abstract class Base {
      *  Handle the scene reactions when a key is pressed.
      *  @param {number} key - the key ID
      */
-    onKeyPressed(key: number): void;
+    onKeyPressed(key: string): void;
     /**
      *  Handle the scene reactions when a key is released.
      *  @param {number} key - the key ID
      */
-    onKeyReleased(key: number): void;
+    onKeyReleased(key: string): void;
     /**
      *  Handle the scene reactions when a key is repeated.
      *  @param {number} key - The key ID
      *  @return {boolean}
      */
-    onKeyPressedRepeat(key: number): boolean;
+    onKeyPressedRepeat(key: string): boolean;
     /**
      *  Handle scene reactions when a key is pressed and repeated.
      *  @param {number} key
      *  @return {boolean}
      */
-    onKeyPressedAndRepeat(key: number): boolean;
+    onKeyPressedAndRepeat(key: string): boolean;
     /**
      *  Mouse down handle for the scene.
      *  @param {number} x - The x mouse position on screen

@@ -1,7 +1,7 @@
 import { Base } from "./index.js";
 import { Graphic } from "../index.js";
-import { Player } from '../Core/index.js';
 import { Enum } from '../Common/index.js';
+import { Player } from '../Core/index.js';
 import Align = Enum.Align;
 /**
  * The menu commands structure
@@ -43,7 +43,7 @@ declare abstract class MenuBase extends Base {
      *  @static
      */
     static checkActionMenu(isKey: boolean, options?: {
-        key?: number;
+        key?: string;
         x?: number;
         y?: number;
     }): boolean;
@@ -52,7 +52,7 @@ declare abstract class MenuBase extends Base {
      *  @static
      */
     static checkCancelMenu(isKey: boolean, options?: {
-        key?: number;
+        key?: string;
         x?: number;
         y?: number;
     }): boolean;
@@ -61,7 +61,7 @@ declare abstract class MenuBase extends Base {
      *  @static
      */
     static checkCancel(isKey: boolean, options?: {
-        key?: number;
+        key?: string;
         x?: number;
         y?: number;
     }): boolean;
@@ -131,8 +131,8 @@ declare abstract class MenuBase extends Base {
      * @memberof MenuBase
      */
     update(): void;
-    onKeyPressed(key: number): void;
-    onKeyPressedAndRepeat(key: number): any;
-    onKeyReleased(key: number): void;
+    onKeyPressed(key: string): void;
+    onKeyPressedAndRepeat(key: string): any;
+    onKeyReleased(key: string): void;
 }
 export { MenuBase, MenuCommands };

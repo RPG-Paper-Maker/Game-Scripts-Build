@@ -1,6 +1,6 @@
-import { Base } from './Base.js';
-import { System } from '../index.js';
 import { MapObject } from '../Core/index.js';
+import { System } from '../index.js';
+import { Base } from './Base.js';
 /** @class
  *  An event command for calling a common reaction.
  *  @extends EventCommand.Base
@@ -28,20 +28,20 @@ declare class CallACommonReaction extends Base {
      *  @param {Record<string, any>} - currentState The current state of the event
      *  @param {number} key - The key ID pressed
      */
-    onKeyPressed(currentState: Record<string, any>, key: number): void;
+    onKeyPressed(currentState: Record<string, any>, key: string): void;
     /**
      *  First key release handle for the current stack.
      *  @param {Record<string, any>} - currentState The current state of the event
      *  @param {number} key - The key ID pressed
      */
-    onKeyReleased(currentState: Record<string, any>, key: number): void;
+    onKeyReleased(currentState: Record<string, any>, key: string): void;
     /**
      *  Key pressed repeat handle for the current stack.
      *  @param {Record<string, any>} - currentState The current state of the event
      *  @param {number} key - The key ID pressed
      *  @returns {boolean}
      */
-    onKeyPressedRepeat(currentState: Record<string, any>, key: number): boolean;
+    onKeyPressedRepeat(currentState: Record<string, any>, key: string): boolean;
     /**
      *  Key pressed repeat handle for the current stack, but with
      *  a small wait after the first pressure (generally used for menus).
@@ -49,7 +49,7 @@ declare class CallACommonReaction extends Base {
      *  @param {number} key - The key ID pressed
      *  @returns {boolean}
      */
-    onKeyPressedAndRepeat(currentState: Record<string, any>, key: number): boolean;
+    onKeyPressedAndRepeat(currentState: Record<string, any>, key: string): boolean;
     /**
      *  Draw the HUD.
      *  @param {Record<string, any>} - currentState The current state of the event

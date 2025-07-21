@@ -7,7 +7,7 @@ import { Translatable } from './Translatable.js';
  */
 declare class Keyboard extends Translatable {
     id: number;
-    sc: number[][];
+    sc: string[][];
     constructor(json?: Record<string, any>);
     /**
      *  Read the JSON associated to the keyboard.

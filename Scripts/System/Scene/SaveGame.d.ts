@@ -21,20 +21,20 @@ declare class SaveGame extends SaveLoadGame {
     /**
      *  Slot action.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     action(isKey: boolean, options?: {
-        key?: number;
+        key?: string;
         x?: number;
         y?: number;
     }): void;
     /**
      *  Slot move.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     move(isKey: boolean, options?: {
-        key?: number;
+        key?: string;
         x?: number;
         y?: number;
     }): void;
@@ -42,7 +42,7 @@ declare class SaveGame extends SaveLoadGame {
      *  Handle scene key pressed.
      *   @param {number} key - The key ID
      */
-    onKeyPressed(key: number): void;
+    onKeyPressed(key: string): void;
     /**
      *  @inheritdoc
      */

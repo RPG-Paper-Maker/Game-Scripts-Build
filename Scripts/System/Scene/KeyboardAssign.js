@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
-import { Datas, Graphic, Scene, Manager } from '../index.js';
+import { Constants, Enum, Inputs, ScreenResolution } from '../Common/index.js';
 import { Picture2D, WindowBox, WindowChoices } from '../Core/index.js';
-import { Enum, Constants, ScreenResolution, Inputs } from '../Common/index.js';
+import { Datas, Graphic, Manager, Scene } from '../index.js';
+import { Base } from './Base.js';
 /** @class
  *  A scene for the keyboard assign setting.
  *  @extends Scene.Base
@@ -26,38 +26,29 @@ class KeyboardAssign extends Base {
     async load() {
         // Creating background
         if (Datas.TitlescreenGameover.isTitleBackgroundImage) {
-            this.pictureBackground = await Picture2D.createWithID(Datas
-                .TitlescreenGameover.titleBackgroundImageID, Enum.PictureKind
-                .TitleScreen, { cover: true });
+            this.pictureBackground = await Picture2D.createWithID(Datas.TitlescreenGameover.titleBackgroundImageID, Enum.PictureKind.TitleScreen, { cover: true });
         }
         // Creating windows
-        this.windowKeyboard = new WindowBox(Constants.HUGE_SPACE, Constants
-            .HUGE_SPACE, WindowBox.MEDIUM_SLOT_WIDTH, WindowBox
-            .LARGE_SLOT_HEIGHT, {
-            content: new Graphic.Text(Datas.Languages.extras.keyboardAssignment
-                .name(), { align: Enum.Align.Center }),
-            padding: WindowBox.SMALL_SLOT_PADDING
+        this.windowKeyboard = new WindowBox(Constants.HUGE_SPACE, Constants.HUGE_SPACE, WindowBox.MEDIUM_SLOT_WIDTH, WindowBox.LARGE_SLOT_HEIGHT, {
+            content: new Graphic.Text(Datas.Languages.extras.keyboardAssignment.name(), {
+                align: Enum.Align.Center,
+            }),
+            padding: WindowBox.SMALL_SLOT_PADDING,
         });
-        this.windowInformations = new WindowBox(Constants.HUGE_SPACE + WindowBox
-            .MEDIUM_SLOT_WIDTH + Constants.LARGE_SPACE, Constants.HUGE_SPACE, ScreenResolution.SCREEN_X - (2 * Constants.HUGE_SPACE) - WindowBox
-            .MEDIUM_SLOT_WIDTH - Constants.LARGE_SPACE, WindowBox
-            .LARGE_SLOT_HEIGHT, {
-            content: new Graphic.Text(Datas.Languages.extras
-                .keyboardAssignmentSelectedDescription.name(), { align: Enum
-                    .Align.Center }),
-            padding: WindowBox.SMALL_SLOT_PADDING
+        this.windowInformations = new WindowBox(Constants.HUGE_SPACE + WindowBox.MEDIUM_SLOT_WIDTH + Constants.LARGE_SPACE, Constants.HUGE_SPACE, ScreenResolution.SCREEN_X - 2 * Constants.HUGE_SPACE - WindowBox.MEDIUM_SLOT_WIDTH - Constants.LARGE_SPACE, WindowBox.LARGE_SLOT_HEIGHT, {
+            content: new Graphic.Text(Datas.Languages.extras.keyboardAssignmentSelectedDescription.name(), {
+                align: Enum.Align.Center,
+            }),
+            padding: WindowBox.SMALL_SLOT_PADDING,
         });
-        this.windowChoicesMain = new WindowChoices(Constants.HUGE_SPACE, Constants.HUGE_SPACE + WindowBox.LARGE_SLOT_HEIGHT + Constants
-            .LARGE_SPACE, ScreenResolution.SCREEN_X - (2 * Constants.HUGE_SPACE), WindowBox.MEDIUM_SLOT_HEIGHT, Datas.Keyboards.getCommandsGraphics(), {
+        this.windowChoicesMain = new WindowChoices(Constants.HUGE_SPACE, Constants.HUGE_SPACE + WindowBox.LARGE_SLOT_HEIGHT + Constants.LARGE_SPACE, ScreenResolution.SCREEN_X - 2 * Constants.HUGE_SPACE, WindowBox.MEDIUM_SLOT_HEIGHT, Datas.Keyboards.getCommandsGraphics(), {
             nbItemsMax: 9,
             listCallbacks: Datas.Keyboards.getCommandsActions(),
-            bordersInsideVisible: false
+            bordersInsideVisible: false,
         });
-        this.windowPress = new WindowBox((ScreenResolution.SCREEN_X / 2) - (Scene.KeyboardAssign.WINDOW_PRESS_WIDTH / 2), (ScreenResolution
-            .SCREEN_Y / 2) - (Scene.KeyboardAssign.WINDOW_PRESS_HEIGHT / 2), Scene.KeyboardAssign.WINDOW_PRESS_WIDTH, Scene.KeyboardAssign
-            .WINDOW_PRESS_HEIGHT, {
+        this.windowPress = new WindowBox(ScreenResolution.SCREEN_X / 2 - Scene.KeyboardAssign.WINDOW_PRESS_WIDTH / 2, ScreenResolution.SCREEN_Y / 2 - Scene.KeyboardAssign.WINDOW_PRESS_HEIGHT / 2, Scene.KeyboardAssign.WINDOW_PRESS_WIDTH, Scene.KeyboardAssign.WINDOW_PRESS_HEIGHT, {
             content: this.windowChoicesMain.getCurrentContent(),
-            padding: WindowBox.DIALOG_PADDING_BOX
+            padding: WindowBox.DIALOG_PADDING_BOX,
         });
         // Initialize
         this.showPress = false;
@@ -73,8 +64,7 @@ class KeyboardAssign extends Base {
         this.compareWait = Scene.KeyboardAssign.MAX_WAIT_TIME_FIRST;
         this.waitTime = new Date().getTime();
         this.showPress = true;
-        let graphic = this.windowChoicesMain
-            .getCurrentContent();
+        let graphic = this.windowChoicesMain.getCurrentContent();
         this.originalSC = graphic.kb.sc;
         this.currentSC = [];
         graphic.updateShort(this.currentSC);
@@ -99,12 +89,10 @@ class KeyboardAssign extends Base {
      */
     update() {
         if (this.showPress) {
-            if (this.keysPressed.length === 0 && new Date().getTime() - this
-                .waitTime >= this.compareWait) {
+            if (this.keysPressed.length === 0 && new Date().getTime() - this.waitTime >= this.compareWait) {
                 this.showPress = false;
                 // If nothing, go back to previous sc
-                let graphic = this.windowChoicesMain
-                    .getCurrentContent();
+                let graphic = this.windowChoicesMain.getCurrentContent();
                 if (this.currentSC.length === 0) {
                     graphic.updateShort(this.originalSC);
                 }
@@ -133,8 +121,7 @@ class KeyboardAssign extends Base {
             if (current.indexOf(key) === -1) {
                 this.compareWait = Scene.KeyboardAssign.MAX_WAIT_TIME_FIRST;
                 this.currentSC[this.currentSC.length - 1].push(key);
-                this.windowChoicesMain.getCurrentContent()
-                    .updateShort(this.currentSC);
+                this.windowChoicesMain.getCurrentContent().updateShort(this.currentSC);
             }
         }
         else {

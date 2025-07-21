@@ -40,11 +40,9 @@ class BattleStartTurn {
         if (this.step === 0) {
             let reactions = this.battle.troop.reactions;
             let reaction;
-            for (l = reactions.length; this.indexTroopReaction < l; this
-                .indexTroopReaction++) {
+            for (l = reactions.length; this.indexTroopReaction < l; this.indexTroopReaction++) {
                 reaction = reactions[this.indexTroopReaction];
-                if (reaction.frequency === Enum.TroopReactionFrequencyKind
-                    .EachTurnBegin) {
+                if (reaction.frequency === Enum.TroopReactionFrequencyKind.EachTurnBegin) {
                     // Check conditions
                     if (!reaction.conditions.isValid()) {
                         continue;
@@ -60,8 +58,7 @@ class BattleStartTurn {
         let s;
         if (this.step === 1) {
             let listStill, listHealed;
-            for (i = 0, l = this.battle.battlers[this.battle.attackingGroup]
-                .length; i < l; i++) {
+            for (i = 0, l = this.battle.battlers[this.battle.attackingGroup].length; i < l; i++) {
                 battler = this.battle.battlers[this.battle.attackingGroup][i];
                 if (!battler.player.isDead() && !battler.hidden) {
                     s = battler.player.status[0];
@@ -89,30 +86,22 @@ class BattleStartTurn {
         }
         // Check status restrictions (force attacks)
         if (this.step === 5) {
-            for (i = 0, l = this.battle.battlers[this.battle.attackingGroup]
-                .length; i < l; i++) {
+            for (i = 0, l = this.battle.battlers[this.battle.attackingGroup].length; i < l; i++) {
                 battler = this.battle.battlers[this.battle.attackingGroup][i];
                 if (battler.active) {
-                    if (battler.containsRestriction(Enum.StatusRestrictionsKind
-                        .CantDoAnything)) {
+                    if (battler.containsRestriction(Enum.StatusRestrictionsKind.CantDoAnything)) {
                         continue;
                     }
-                    if (battler.containsRestriction(Enum.StatusRestrictionsKind
-                        .AttackRandomAlly)) {
-                        this.defineRandom(battler, Enum.StatusRestrictionsKind
-                            .AttackRandomAlly);
+                    if (battler.containsRestriction(Enum.StatusRestrictionsKind.AttackRandomAlly)) {
+                        this.defineRandom(battler, Enum.StatusRestrictionsKind.AttackRandomAlly);
                         return;
                     }
-                    if (battler.containsRestriction(Enum.StatusRestrictionsKind
-                        .AttackRandomEnemy)) {
-                        this.defineRandom(battler, Enum.StatusRestrictionsKind
-                            .AttackRandomEnemy);
+                    if (battler.containsRestriction(Enum.StatusRestrictionsKind.AttackRandomEnemy)) {
+                        this.defineRandom(battler, Enum.StatusRestrictionsKind.AttackRandomEnemy);
                         return;
                     }
-                    if (battler.containsRestriction(Enum.StatusRestrictionsKind
-                        .AttackRandomTarget)) {
-                        this.defineRandom(battler, Enum.StatusRestrictionsKind
-                            .AttackRandomTarget);
+                    if (battler.containsRestriction(Enum.StatusRestrictionsKind.AttackRandomTarget)) {
+                        this.defineRandom(battler, Enum.StatusRestrictionsKind.AttackRandomTarget);
                         return;
                     }
                 }
@@ -144,18 +133,18 @@ class BattleStartTurn {
                     continue;
                 }
                 if (restriction === Enum.StatusRestrictionsKind.AttackRandomAlly &&
-                    skill.targetKind !== Enum.TargetKind.AllEnemies && skill
-                    .targetKind !== Enum.TargetKind.Enemy) {
+                    skill.targetKind !== Enum.TargetKind.AllEnemies &&
+                    skill.targetKind !== Enum.TargetKind.Enemy) {
                     continue;
                 }
                 if (restriction === Enum.StatusRestrictionsKind.AttackRandomEnemy &&
-                    skill.targetKind !== Enum.TargetKind.AllEnemies && skill
-                    .targetKind !== Enum.TargetKind.Enemy) {
+                    skill.targetKind !== Enum.TargetKind.AllEnemies &&
+                    skill.targetKind !== Enum.TargetKind.Enemy) {
                     continue;
                 }
                 if (restriction === Enum.StatusRestrictionsKind.AttackRandomTarget &&
-                    skill.targetKind !== Enum.TargetKind.AllEnemies && skill
-                    .targetKind !== Enum.TargetKind.Enemy) {
+                    skill.targetKind !== Enum.TargetKind.AllEnemies &&
+                    skill.targetKind !== Enum.TargetKind.Enemy) {
                     continue;
                 }
                 skills.push(skill);
@@ -177,8 +166,7 @@ class BattleStartTurn {
                     side = Enum.CharacterKind.Monster;
                     break;
                 case Enum.StatusRestrictionsKind.AttackRandomTarget:
-                    side = Mathf.random(0, 1) === 0 ? Enum.CharacterKind
-                        .Hero : Enum.CharacterKind.Monster;
+                    side = Mathf.random(0, 1) === 0 ? Enum.CharacterKind.Hero : Enum.CharacterKind.Monster;
                     break;
             }
             switch (skill.targetKind) {
@@ -187,8 +175,9 @@ class BattleStartTurn {
                     break;
                 }
                 case Enum.TargetKind.Enemy: {
-                    this.battle.targets = [this.battle.battlers[side][Mathf
-                            .random(0, this.battle.battlers[side].length - 1)]];
+                    this.battle.targets = [
+                        this.battle.battlers[side][Mathf.random(0, this.battle.battlers[side].length - 1)],
+                    ];
                     break;
                 }
             }
@@ -212,7 +201,7 @@ class BattleStartTurn {
                 return;
             }
         }
-        if ((new Date().getTime() - this.battle.time) >= Scene.Battle.TIME_ACTION_ANIMATION) {
+        if (new Date().getTime() - this.battle.time >= Scene.Battle.TIME_ACTION_ANIMATION) {
             // Healed status
             if (this.step === 2) {
                 if (this.statusHealed.length > 0) {
@@ -222,9 +211,8 @@ class BattleStartTurn {
                     let s = status[0];
                     let message = s.getMessageHealed(battler);
                     this.battle.windowTopInformations.content.setText(message);
-                    if (message !== "") {
-                        this.battle.time = new Date().getTime() - (Scene.Battle
-                            .TIME_ACTION_ANIMATION / 2);
+                    if (message !== '') {
+                        this.battle.time = new Date().getTime() - Scene.Battle.TIME_ACTION_ANIMATION / 2;
                     }
                     status.splice(0, 1);
                     if (status.length === 0) {
@@ -247,9 +235,8 @@ class BattleStartTurn {
                     if (status.length === 0) {
                         this.statusStill.splice(0, 1);
                     }
-                    if (message !== "") {
-                        this.battle.time = new Date().getTime() - (Scene.Battle
-                            .TIME_ACTION_ANIMATION / 2);
+                    if (message !== '') {
+                        this.battle.time = new Date().getTime() - Scene.Battle.TIME_ACTION_ANIMATION / 2;
                     }
                     // If effects, apply animation only for those
                     let effects = s.system.getEffects();

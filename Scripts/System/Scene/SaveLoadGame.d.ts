@@ -1,6 +1,6 @@
-import { Base } from './Base.js';
-import { WindowBox, WindowChoices, Game } from '../Core/index.js';
+import { Game, WindowBox, WindowChoices } from '../Core/index.js';
 import { Graphic } from '../index.js';
+import { Base } from './Base.js';
 /** @class
  *  Abstract class for the game save and loading menus.
  *  @extends Scene.Base
@@ -35,20 +35,20 @@ declare class SaveLoadGame extends Base {
     /**
      *  Slot cancel.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     cancel(isKey: boolean, options?: {
-        key?: number;
+        key?: string;
         x?: number;
         y?: number;
     }): void;
     /**
      *  Slot move.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     move(isKey: boolean, options?: {
-        key?: number;
+        key?: string;
         x?: number;
         y?: number;
     }): void;
@@ -60,13 +60,13 @@ declare class SaveLoadGame extends Base {
      *  Handle scene key pressed.
      *  @param {number} key - The key ID
      */
-    onKeyPressed(key: number): void;
+    onKeyPressed(key: string): void;
     /**
      *  Handle scene pressed and repeat key.
      *  @param {number} key - The key ID
      *  @returns {boolean}
      */
-    onKeyPressedAndRepeat(key: number): boolean;
+    onKeyPressedAndRepeat(key: string): boolean;
     /**
      *  @inheritdoc
      */

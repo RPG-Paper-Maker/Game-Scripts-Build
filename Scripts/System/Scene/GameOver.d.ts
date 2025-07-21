@@ -37,13 +37,13 @@ declare class GameOver extends Base {
      *  @inheritdoc
      *  @param {number} key - the key ID
      */
-    onKeyPressed(key: number): void;
+    onKeyPressed(key: string): void;
     /**
      *  @inheritdoc
      *  @param {number} key - the key ID
      *  @return {*}  {boolean}
      */
-    onKeyPressedAndRepeat(key: number): boolean;
+    onKeyPressedAndRepeat(key: string): boolean;
     /**
      *  @inheritdoc
      */

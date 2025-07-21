@@ -8,11 +8,11 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Scene, Graphic, Manager, Datas, System } from "../index.js";
-import { Enum, ScreenResolution, Platform } from '../Common/index.js';
+import { Datas, Graphic, Manager, Scene, System } from "../index.js";
+import { Enum, Platform, ScreenResolution } from '../Common/index.js';
+import { Game, Item, WindowBox } from '../Core/index.js';
 var CharacterKind = Enum.CharacterKind;
 var LootKind = Enum.LootKind;
-import { WindowBox, Item, Game } from '../Core/index.js';
 // -------------------------------------------------------
 //
 //  CLASS BattleVictory
@@ -227,7 +227,7 @@ class BattleVictory {
     /**
      *  A scene action.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     action(isKey, options = {}) {
         switch (this.battle.subStep) {

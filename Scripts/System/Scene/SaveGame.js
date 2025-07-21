@@ -8,11 +8,11 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { SaveLoadGame } from './SaveLoadGame.js';
-import { Graphic, Datas, Manager, Scene } from '../index.js';
 import { Enum } from '../Common/index.js';
-var Align = Enum.Align;
 import { Game } from '../Core/index.js';
+import { Datas, Graphic, Manager, Scene } from '../index.js';
+import { SaveLoadGame } from './SaveLoadGame.js';
+var Align = Enum.Align;
 /** @class
  *  A scene in the menu for saving a game.
  *  @extends Scene.SaveLoadGame
@@ -33,8 +33,7 @@ class SaveGame extends SaveLoadGame {
      */
     async load() {
         await super.load();
-        this.setContents.call(this, new Graphic.Text(Datas.Languages.extras
-            .saveAGame.name(), { align: Align.Center }), new Graphic.Text(Datas.Languages.extras.saveAGameDescription.name(), { align: Align.Center }));
+        this.setContents.call(this, new Graphic.Text(Datas.Languages.extras.saveAGame.name(), { align: Align.Center }), new Graphic.Text(Datas.Languages.extras.saveAGameDescription.name(), { align: Align.Center }));
         this.loading = false;
     }
     /**
@@ -49,7 +48,7 @@ class SaveGame extends SaveLoadGame {
     /**
      *  Slot action.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     action(isKey, options = {}) {
         // If action, save in the selected slot
@@ -63,7 +62,7 @@ class SaveGame extends SaveLoadGame {
     /**
      *  Slot move.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     move(isKey, options = {}) {
         super.move(isKey, options);

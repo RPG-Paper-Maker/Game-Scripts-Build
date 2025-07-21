@@ -65,10 +65,10 @@ class MenuShop extends MenuBase {
     createWindowBoxTop() {
         const rect = new Rectangle(Constants.HUGE_SPACE, Constants.HUGE_SPACE, WindowBox.MEDIUM_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
         const graphic = new Graphic.Text(Datas.Languages.extras.shop.name(), {
-            align: Enum.Align.Center
+            align: Enum.Align.Center,
         });
         const options = {
-            content: graphic
+            content: graphic,
         };
         this.windowBoxTop = new WindowBox(rect.x, rect.y, rect.width, rect.height, options);
     }
@@ -76,19 +76,15 @@ class MenuShop extends MenuBase {
      *  Create the choice tab window buy/sell.
      */
     createWindowChoicesBuySell() {
-        const rect = new Rectangle(ScreenResolution.SCREEN_X - Constants.HUGE_SPACE -
-            (WindowBox.SMALL_SLOT_WIDTH * 2), Constants.HUGE_SPACE, WindowBox
-            .SMALL_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
-        const list = [
-            new Graphic.Text(Datas.Languages.extras.buy.name(), { align: Enum.Align.Center })
-        ];
+        const rect = new Rectangle(ScreenResolution.SCREEN_X - Constants.HUGE_SPACE - WindowBox.SMALL_SLOT_WIDTH * 2, Constants.HUGE_SPACE, WindowBox.SMALL_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
+        const list = [new Graphic.Text(Datas.Languages.extras.buy.name(), { align: Enum.Align.Center })];
         if (!this.buyOnly) {
             list.push(new Graphic.Text(Datas.Languages.extras.sell.name(), { align: Enum.Align.Center }));
         }
         const options = {
             orientation: Enum.OrientationWindow.Horizontal,
             nbItemsMax: list.length,
-            padding: WindowBox.NONE_PADDING
+            padding: WindowBox.NONE_PADDING,
         };
         this.windowChoicesBuySell = new WindowChoices(rect.x, rect.y, rect.width, rect.height, list, options);
     }
@@ -96,20 +92,17 @@ class MenuShop extends MenuBase {
      *  Create the choice tab window for sorting items kind.
      */
     createWindowChoicesItemsKind() {
-        const rect = new Rectangle(Constants.MEDIUM_SPACE, Constants.HUGE_SPACE +
-            WindowBox.SMALL_SLOT_HEIGHT + Constants.LARGE_SPACE, WindowBox
-            .SMALL_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
+        const rect = new Rectangle(Constants.MEDIUM_SPACE, Constants.HUGE_SPACE + WindowBox.SMALL_SLOT_HEIGHT + Constants.LARGE_SPACE, WindowBox.SMALL_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
         let l = Datas.Systems.inventoryFilters.length;
         let list = new Array();
         let i;
         for (i = 0, l = Datas.Systems.inventoryFilters.length; i < l; i++) {
-            list[i] = new Graphic.Text(Datas.Systems.inventoryFilters[i]
-                .name(), { align: Enum.Align.Center });
+            list[i] = new Graphic.Text(Datas.Systems.inventoryFilters[i].name(), { align: Enum.Align.Center });
         }
         const options = {
             orientation: Enum.OrientationWindow.Horizontal,
             nbItemsMax: list.length,
-            padding: [0, 0, 0, 0]
+            padding: [0, 0, 0, 0],
         };
         this.windowChoicesItemsKind = new WindowChoices(rect.x, rect.y, rect.width, rect.height, list, options);
         l = list.length;
@@ -117,7 +110,7 @@ class MenuShop extends MenuBase {
         for (let i = 0; i < l; i++) {
             this.positionChoice[i] = {
                 index: 0,
-                offset: 0
+                offset: 0,
             };
         }
     }
@@ -125,12 +118,10 @@ class MenuShop extends MenuBase {
      *  Create the choice list.
      */
     createWindowChoicesList() {
-        const rect = new Rectangle(Constants.HUGE_SPACE, Constants.HUGE_SPACE +
-            ((WindowBox.SMALL_SLOT_HEIGHT + Constants.LARGE_SPACE) * 2), WindowBox
-            .LARGE_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
+        const rect = new Rectangle(Constants.HUGE_SPACE, Constants.HUGE_SPACE + (WindowBox.SMALL_SLOT_HEIGHT + Constants.LARGE_SPACE) * 2, WindowBox.LARGE_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
         const options = {
             nbItemsMax: Scene.Menu.SLOTS_TO_DISPLAY,
-            padding: WindowBox.SMALL_SLOT_PADDING
+            padding: WindowBox.SMALL_SLOT_PADDING,
         };
         this.windowChoicesList = new WindowChoices(rect.x, rect.y, rect.width, rect.height, [], options);
     }
@@ -138,33 +129,27 @@ class MenuShop extends MenuBase {
      *  Create the information window.
      */
     createWindowBoxInformation() {
-        const width = ScreenResolution.SCREEN_X - (Constants.HUGE_SPACE * 2) -
-            WindowBox.LARGE_SLOT_WIDTH - Constants.LARGE_SPACE;
+        const width = ScreenResolution.SCREEN_X - Constants.HUGE_SPACE * 2 - WindowBox.LARGE_SLOT_WIDTH - Constants.LARGE_SPACE;
         const height = 215;
-        const rect = new Rectangle(ScreenResolution.SCREEN_X - Constants
-            .HUGE_SPACE - width, Constants.HUGE_SPACE + ((WindowBox
-            .SMALL_SLOT_HEIGHT + Constants.LARGE_SPACE) * 2), width, height);
+        const rect = new Rectangle(ScreenResolution.SCREEN_X - Constants.HUGE_SPACE - width, Constants.HUGE_SPACE + (WindowBox.SMALL_SLOT_HEIGHT + Constants.LARGE_SPACE) * 2, width, height);
         const options = {
-            padding: WindowBox.HUGE_PADDING_BOX
+            padding: WindowBox.HUGE_PADDING_BOX,
         };
-        this.windowBoxInformation = new WindowBox(rect.x, rect.y, rect.width, rect
-            .height, options);
+        this.windowBoxInformation = new WindowBox(rect.x, rect.y, rect.width, rect.height, options);
     }
     /**
      *  Create the empty window.
      */
     createWindowBoxEmpty() {
-        const rect = new Rectangle(Constants.LARGE_SPACE, WindowBox.SMALL_SLOT_WIDTH, ScreenResolution.SCREEN_X - Constants.HUGE_SPACE, WindowBox
-            .SMALL_SLOT_HEIGHT);
+        const rect = new Rectangle(Constants.LARGE_SPACE, WindowBox.SMALL_SLOT_WIDTH, ScreenResolution.SCREEN_X - Constants.HUGE_SPACE, WindowBox.SMALL_SLOT_HEIGHT);
         const graphic = new Graphic.Text(Datas.Languages.extras.empty.name(), {
-            align: Enum.Align.Center
+            align: Enum.Align.Center,
         });
         const options = {
             content: graphic,
-            padding: WindowBox.SMALL_SLOT_PADDING
+            padding: WindowBox.SMALL_SLOT_PADDING,
         };
-        this.windowBoxEmpty = new WindowBox(rect.x, rect.y, rect.width, rect
-            .height, options);
+        this.windowBoxEmpty = new WindowBox(rect.x, rect.y, rect.width, rect.height, options);
     }
     /**
      *  Create the user item window.
@@ -172,47 +157,38 @@ class MenuShop extends MenuBase {
     createWindowBoxUseItem() {
         const width = this.windowBoxInformation.oW;
         const height = 140;
-        const rect = new Rectangle(ScreenResolution.SCREEN_X - Constants
-            .HUGE_SPACE - width, this.windowBoxInformation.oY + this
-            .windowBoxInformation.oH + Constants.MEDIUM_SPACE, width, height);
+        const rect = new Rectangle(ScreenResolution.SCREEN_X - Constants.HUGE_SPACE - width, this.windowBoxInformation.oY + this.windowBoxInformation.oH + Constants.MEDIUM_SPACE, width, height);
         const graphic = new Graphic.UseSkillItem({ hideArrow: true });
         const options = {
             content: graphic,
-            padding: WindowBox.SMALL_PADDING_BOX
+            padding: WindowBox.SMALL_PADDING_BOX,
         };
-        this.windowBoxUseItem = new WindowBox(rect.x, rect.y, rect.width, rect
-            .height, options);
+        this.windowBoxUseItem = new WindowBox(rect.x, rect.y, rect.width, rect.height, options);
     }
     /**
      *  Create the owned items window.
      */
     createWindowBoxOwned() {
-        const rect = new Rectangle(Constants.LARGE_SPACE, ScreenResolution
-            .SCREEN_Y - WindowBox.SMALL_SLOT_HEIGHT - Constants.LARGE_SPACE, WindowBox.SMALL_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
-        const graphic = new Graphic.Text("", { align: Enum.Align.Center });
+        const rect = new Rectangle(Constants.LARGE_SPACE, ScreenResolution.SCREEN_Y - WindowBox.SMALL_SLOT_HEIGHT - Constants.LARGE_SPACE, WindowBox.SMALL_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
+        const graphic = new Graphic.Text('', { align: Enum.Align.Center });
         const options = {
             content: graphic,
-            padding: WindowBox.SMALL_SLOT_PADDING
+            padding: WindowBox.SMALL_SLOT_PADDING,
         };
-        this.windowBoxOwned = new WindowBox(rect.x, rect.y, rect.width, rect
-            .height, options);
+        this.windowBoxOwned = new WindowBox(rect.x, rect.y, rect.width, rect.height, options);
     }
     /**
      *  Create the currencies window.
      */
     createWindowBoxCurrencies() {
         const graphic = new Graphic.ShopCurrencies();
-        const width = graphic.getWidth() + (WindowBox.SMALL_SLOT_PADDING[0] * 2);
-        const rect = new Rectangle(ScreenResolution.SCREEN_X - Constants
-            .LARGE_SPACE - width, ScreenResolution.SCREEN_Y - WindowBox
-            .SMALL_SLOT_HEIGHT - Constants.LARGE_SPACE, width, WindowBox
-            .SMALL_SLOT_HEIGHT);
+        const width = graphic.getWidth() + WindowBox.SMALL_SLOT_PADDING[0] * 2;
+        const rect = new Rectangle(ScreenResolution.SCREEN_X - Constants.LARGE_SPACE - width, ScreenResolution.SCREEN_Y - WindowBox.SMALL_SLOT_HEIGHT - Constants.LARGE_SPACE, width, WindowBox.SMALL_SLOT_HEIGHT);
         const options = {
             content: graphic,
-            padding: WindowBox.SMALL_SLOT_PADDING
+            padding: WindowBox.SMALL_SLOT_PADDING,
         };
-        this.windowBoxCurrencies = new WindowBox(rect.x, rect.y, rect.width, rect
-            .height, options);
+        this.windowBoxCurrencies = new WindowBox(rect.x, rect.y, rect.width, rect.height, options);
     }
     /**
      *  Create the currencies window.
@@ -229,11 +205,10 @@ class MenuShop extends MenuBase {
         const width = 300;
         const height = 100;
         const rect = new Rectangle((ScreenResolution.SCREEN_X - width) / 2, (ScreenResolution.SCREEN_Y - height) / 2, width, height);
-        const graphic = new Graphic.Text(Datas.Languages.extras.equipQuestion
-            .name(), { align: Enum.Align.Center });
+        const graphic = new Graphic.Text(Datas.Languages.extras.equipQuestion.name(), { align: Enum.Align.Center });
         const options = {
             content: graphic,
-            padding: WindowBox.SMALL_SLOT_PADDING
+            padding: WindowBox.SMALL_SLOT_PADDING,
         };
         this.windowBoxConfirmEquip = new WindowBox(rect.x, rect.y, rect.width, rect.height, options);
     }
@@ -241,20 +216,16 @@ class MenuShop extends MenuBase {
      *  Create the confirm equip window choice.
      */
     createWindowChoicesConfirmEquip() {
-        const rect = new Rectangle((ScreenResolution.SCREEN_X - WindowBox
-            .SMALL_SLOT_WIDTH) / 2, this.windowBoxConfirmEquip.oY + this
-            .windowBoxConfirmEquip.oH, WindowBox.SMALL_SLOT_WIDTH, WindowBox
-            .SMALL_SLOT_HEIGHT);
+        const rect = new Rectangle((ScreenResolution.SCREEN_X - WindowBox.SMALL_SLOT_WIDTH) / 2, this.windowBoxConfirmEquip.oY + this.windowBoxConfirmEquip.oH, WindowBox.SMALL_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
         const list = [
             new Graphic.Text(Datas.Languages.extras.yes.name(), { align: Enum.Align.Center }),
-            new Graphic.Text(Datas.Languages.extras.no.name(), { align: Enum.Align.Center })
+            new Graphic.Text(Datas.Languages.extras.no.name(), { align: Enum.Align.Center }),
         ];
         const options = {
             nbItemsMax: list.length,
-            padding: WindowBox.NONE_PADDING
+            padding: WindowBox.NONE_PADDING,
         };
-        this.windowChoicesConfirmEquip = new WindowChoices(rect.x, rect.y, rect
-            .width, rect.height, list, options);
+        this.windowChoicesConfirmEquip = new WindowChoices(rect.x, rect.y, rect.width, rect.height, list, options);
     }
     /**
      *  Check if is in buy mode.
@@ -280,12 +251,12 @@ class MenuShop extends MenuBase {
         let item;
         for (let i = 0, l = listToSort.length; i < l; i++) {
             item = listToSort[i];
-            if (item.nb !== 0 && (this.isBuy() || item.system.canBeSold
-                .getValue()) && Datas.Systems.inventoryFilters[indexTab]
-                .getFilter()(item)) {
-                list.push(this.isBuy() ? new Graphic.Item(item, { nbItem: item
-                        .nb, possible: item.shop.isPossiblePrice() }) : new Graphic
-                    .Item(item, { showSellPrice: true }));
+            if (item.nb !== 0 &&
+                (this.isBuy() || item.system.canBeSold.getValue()) &&
+                Datas.Systems.inventoryFilters[indexTab].getFilter()(item)) {
+                list.push(this.isBuy()
+                    ? new Graphic.Item(item, { nbItem: item.nb, possible: item.shop.isPossiblePrice() })
+                    : new Graphic.Item(item, { showSellPrice: true }));
             }
         }
         this.windowChoicesList.setContentsCallbacks(list);
@@ -303,21 +274,19 @@ class MenuShop extends MenuBase {
             let item;
             for (let i = 0, l = Game.current.items.length; i < l; i++) {
                 item = Game.current.items[i];
-                if (item.system.id === this.windowBoxInformation
-                    .content.item.system.id) {
+                if (item.system.id === this.windowBoxInformation.content.item.system.id) {
                     owned = item.nb;
                     break;
                 }
             }
-            this.windowBoxOwned.content.setText(Datas.Languages
-                .extras.owned.name() + ": " + owned);
+            this.windowBoxOwned.content.setText(Datas.Languages.extras.owned.name() + ': ' + owned);
         }
         this.windowBoxUseItem.content.updateGraphicCharactersEquip(this.windowBoxInformation.content.item);
     }
     /**
      *  Move tab according to key.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     moveTabKey(isKey, options = {}) {
         // Tab
@@ -334,8 +303,7 @@ class MenuShop extends MenuBase {
         }
         // Update stats short if weapon / armor
         if (this.windowChoicesList.getCurrentContent()) {
-            let system = this.windowChoicesList.getCurrentContent()
-                .item.system;
+            let system = this.windowChoicesList.getCurrentContent().item.system;
             if (system.isWeaponArmor()) {
                 this.windowBoxUseItem.content.updateStatShort(system);
             }
@@ -345,8 +313,7 @@ class MenuShop extends MenuBase {
         }
         // Update position
         if (this.windowChoicesList.currentSelectedIndex !== -1) {
-            let position = this.positionChoice[this.windowChoicesItemsKind
-                .currentSelectedIndex];
+            let position = this.positionChoice[this.windowChoicesItemsKind.currentSelectedIndex];
             position.index = this.windowChoicesList.currentSelectedIndex;
             position.offset = this.windowChoicesList.offsetSelectedIndex;
         }
@@ -356,8 +323,7 @@ class MenuShop extends MenuBase {
      */
     updateEquipmentStats() {
         let player = this.getCurrentPlayer();
-        let result = player.getBestWeaponArmorToReplace(this
-            .windowChoicesList.getCurrentContent().item.system);
+        let result = player.getBestWeaponArmorToReplace(this.windowChoicesList.getCurrentContent().item.system);
         this.windowBoxInformation.content = new Graphic.EquipStats(player, result[2][0], false);
         this.currentEquipmentID = result[1];
         this.currentList = result[2][0];
@@ -380,7 +346,7 @@ class MenuShop extends MenuBase {
     /**
      *  A scene action.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     action(isKey, options = {}) {
         let graphic = this.windowChoicesList.getCurrentContent();
@@ -406,14 +372,11 @@ class MenuShop extends MenuBase {
                     if (this.isBuy()) {
                         if (graphic.item.shop.isPossiblePrice()) {
                             Datas.Systems.soundConfirmation.playSound();
-                            if (graphic.item.system.isWeaponArmor() && this.windowBoxUseItem.content
-                                .graphicCharacters.length > 0) {
-                                this.windowBoxUseItem.content
-                                    .hideArrow = false;
-                                this.windowBoxUseItem.content
-                                    .indexArrow = 0;
-                                this.windowBoxUseItem.content
-                                    .setSkillItem(graphic.item.system);
+                            if (graphic.item.system.isWeaponArmor() &&
+                                this.windowBoxUseItem.content.graphicCharacters.length > 0) {
+                                this.windowBoxUseItem.content.hideArrow = false;
+                                this.windowBoxUseItem.content.indexArrow = 0;
+                                this.windowBoxUseItem.content.setSkillItem(graphic.item.system);
                                 this.updateEquipmentStats();
                                 this.step = 3;
                             }
@@ -447,9 +410,9 @@ class MenuShop extends MenuBase {
                     Datas.Systems.soundConfirmation.playSound();
                     let shopItem = graphic.item;
                     if (this.isBuy()) {
-                        if (this.step === 2 && graphic.item.system.isWeaponArmor() &&
-                            this.windowBoxUseItem.content
-                                .graphicCharacters.length > 0) {
+                        if (this.step === 2 &&
+                            graphic.item.system.isWeaponArmor() &&
+                            this.windowBoxUseItem.content.graphicCharacters.length > 0) {
                             this.step = 4;
                             Manager.Stack.requestPaintHUD = true;
                             break;
@@ -473,11 +436,9 @@ class MenuShop extends MenuBase {
                     }
                     this.windowBoxCurrencies.update();
                     // If equip
-                    if (this.step === 4 && this.windowChoicesConfirmEquip
-                        .currentSelectedIndex === 0) {
+                    if (this.step === 4 && this.windowChoicesConfirmEquip.currentSelectedIndex === 0) {
                         this.equip(shopItem);
-                        this.windowBoxUseItem.content
-                            .hideArrow = true;
+                        this.windowBoxUseItem.content.hideArrow = true;
                         this.synchronize();
                     }
                     this.step = 1;
@@ -499,8 +460,7 @@ class MenuShop extends MenuBase {
                 }
                 else if (Scene.MenuBase.checkCancelMenu(isKey, options)) {
                     Datas.Systems.soundCancel.playSound();
-                    this.windowBoxUseItem.content
-                        .hideArrow = true;
+                    this.windowBoxUseItem.content.hideArrow = true;
                     this.synchronize();
                     this.step = 1;
                     Manager.Stack.requestPaintHUD = true;
@@ -511,7 +471,7 @@ class MenuShop extends MenuBase {
     /**
      *  A scene move.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     move(isKey, options = {}) {
         switch (this.step) {

@@ -1,5 +1,5 @@
-import { Scene } from '../index.js';
 import { Picture2D } from '../Core/index.js';
+import { Scene } from '../index.js';
 /** @class
  *  The game stack that is organizing the game scenes.
  *  @static
@@ -87,25 +87,25 @@ declare class Stack {
      *  First key press handle for the current stack.
      *  @param {number} key - The key ID pressed
      */
-    static onKeyPressed(key: number): void;
+    static onKeyPressed(key: string): void;
     /**
      *  First key release handle for the current stack.
      *  @param {number} key - The key ID released
      */
-    static onKeyReleased(key: number): void;
+    static onKeyReleased(key: string): void;
     /**
      *  Key pressed repeat handle for the current stack.
      *  @param {number} key - The key ID pressed
      *  @returns {boolean} false if the other keys are blocked after it
      */
-    static onKeyPressedRepeat(key: number): boolean;
+    static onKeyPressedRepeat(key: string): boolean;
     /**
      *  Key pressed repeat handle for the current stack, but with
      *  a small wait after the first pressure (generally used for menus).
      *  @param {number} key - The key ID pressed
      *  @returns {boolean} false if the other keys are blocked after it
      */
-    static onKeyPressedAndRepeat(key: number): boolean;
+    static onKeyPressedAndRepeat(key: string): boolean;
     /**
      *  Mouse down handle for the current stack.
      *  @param {number} x - The x mouse position on screen

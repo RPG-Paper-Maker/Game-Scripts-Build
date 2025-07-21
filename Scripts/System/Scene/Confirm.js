@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Datas, Graphic, Manager, Scene } from '../index.js';
 import { Enum, ScreenResolution } from '../Common/index.js';
 import { Rectangle, WindowBox, WindowChoices } from '../Core/index.js';
+import { Datas, Graphic, Manager, Scene } from '../index.js';
 import { Base } from './Base.js';
 /**
  * @class
@@ -43,43 +43,41 @@ class Confirm extends Base {
         const rect = new Rectangle((ScreenResolution.SCREEN_X - width) / 2, (ScreenResolution.SCREEN_Y - height) / 2, width, height);
         const graphic = new Graphic.Text(Datas.Languages.extras.confirm.name(), { align: Enum.Align.Center });
         const options = {
-            content: graphic
+            content: graphic,
         };
-        this.windowBoxConfirm = new WindowBox(rect.x, rect.y, rect.width, rect
-            .height, options);
+        this.windowBoxConfirm = new WindowBox(rect.x, rect.y, rect.width, rect.height, options);
     }
     /**
      *  Create the window information on top.
      */
     createWindowChoicesConfirm() {
-        const rect = new Rectangle(this.windowBoxConfirm.oX + ((this
-            .windowBoxConfirm.oW - WindowBox.SMALL_SLOT_WIDTH) / 2), this
-            .windowBoxConfirm.oY + this.windowBoxConfirm.oH, WindowBox
-            .SMALL_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
+        const rect = new Rectangle(this.windowBoxConfirm.oX + (this.windowBoxConfirm.oW - WindowBox.SMALL_SLOT_WIDTH) / 2, this.windowBoxConfirm.oY + this.windowBoxConfirm.oH, WindowBox.SMALL_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
         const options = {
             listCallbacks: [
                 () => {
+                    // YES
                     Manager.Stack.pop();
                     this.callback.call(Manager.Stack.top);
                     this.callback = null;
                     return true;
                 },
                 () => {
+                    // NO
                     Manager.Stack.pop();
                     return false;
-                }
-            ]
+                },
+            ],
         };
         const graphics = [
             new Graphic.Text(Datas.Languages.extras.yes.name(), { align: Enum.Align.Center }),
-            new Graphic.Text(Datas.Languages.extras.no.name(), { align: Enum.Align.Center })
+            new Graphic.Text(Datas.Languages.extras.no.name(), { align: Enum.Align.Center }),
         ];
         this.windowChoicesConfirm = new WindowChoices(rect.x, rect.y, rect.width, rect.height, graphics, options);
     }
     /**
      *  Slot action.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     action(isKey, options = {}) {
         if (Scene.MenuBase.checkActionMenu(isKey, options)) {
@@ -94,7 +92,7 @@ class Confirm extends Base {
     /**
      *  Slot move.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     move(isKey, options = {}) {
         this.windowChoicesConfirm.move(isKey, options);

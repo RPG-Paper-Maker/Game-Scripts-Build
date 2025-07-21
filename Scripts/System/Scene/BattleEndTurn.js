@@ -30,8 +30,7 @@ class BattleEndTurn {
         if (this.step === 0) {
             let reactions = this.battle.troop.reactions;
             let reaction, l;
-            for (l = reactions.length; this.indexTroopReaction < l; this
-                .indexTroopReaction++) {
+            for (l = reactions.length; this.indexTroopReaction < l; this.indexTroopReaction++) {
                 reaction = reactions[this.indexTroopReaction];
                 if (reaction.frequency === Enum.TroopReactionFrequencyKind.EachTurnEnd) {
                     // Check conditions

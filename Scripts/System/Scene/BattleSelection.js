@@ -8,15 +8,15 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Scene, Graphic, System, Manager, Datas } from "../index.js";
+import { Datas, Graphic, Manager, Scene, System } from "../index.js";
 import { Enum, Interpreter } from '../Common/index.js';
+import { Game } from '../Core/index.js';
 var BattleStep = Enum.BattleStep;
 var EffectSpecialActionKind = Enum.EffectSpecialActionKind;
 var CharacterKind = Enum.CharacterKind;
 var ItemKind = Enum.ItemKind;
 var AvailableKind = Enum.AvailableKind;
 var TargetKind = Enum.TargetKind;
-import { Game } from '../Core/index.js';
 // -------------------------------------------------------
 //
 //  CLASS BattleSelection
@@ -65,8 +65,7 @@ class BattleSelection {
         this.battle.all = false;
         this.battle.targets = [];
         this.moveArrow();
-        this.battle.battlers[this.battle.kindSelection][this
-            .selectedUserTargetIndex()].updateArrowPosition(this.battle.camera);
+        this.battle.battlers[this.battle.kindSelection][this.selectedUserTargetIndex()].updateArrowPosition(this.battle.camera);
         this.battle.listSkills = [];
         this.battle.listItems = [];
         // Items
@@ -75,42 +74,35 @@ class BattleSelection {
             ownedItem = Game.current.items[i];
             if (ownedItem.kind === ItemKind.Item) {
                 item = ownedItem.system;
-                if (item.consumable && (item.availableKind === AvailableKind
-                    .Battle || item.availableKind === AvailableKind.Always)) {
+                if (item.consumable &&
+                    (item.availableKind === AvailableKind.Battle || item.availableKind === AvailableKind.Always)) {
                     this.battle.listItems.push(new Graphic.Item(ownedItem));
                 }
             }
         }
         this.battle.windowChoicesItems.setContentsCallbacks(this.battle.listItems);
-        this.battle.windowItemDescription.content = this.battle.windowChoicesItems
-            .getCurrentContent();
+        this.battle.windowItemDescription.content = this.battle.windowChoicesItems.getCurrentContent();
     }
     /**
      *  Register the last command index and offset in the user.
      */
     registerLastCommandIndex() {
-        this.battle.user.lastCommandIndex = this.battle
-            .windowChoicesBattleCommands.currentSelectedIndex;
-        this.battle.user.lastCommandOffset = this.battle
-            .windowChoicesBattleCommands.offsetSelectedIndex;
+        this.battle.user.lastCommandIndex = this.battle.windowChoicesBattleCommands.currentSelectedIndex;
+        this.battle.user.lastCommandOffset = this.battle.windowChoicesBattleCommands.offsetSelectedIndex;
     }
     /**
      *  Register the laster skill index and offset in the user.
      */
     registerLastSkillIndex() {
-        this.battle.user.lastSkillIndex = this.battle.windowChoicesSkills
-            .currentSelectedIndex;
-        this.battle.user.lastSkillOffset = this.battle.windowChoicesSkills
-            .offsetSelectedIndex;
+        this.battle.user.lastSkillIndex = this.battle.windowChoicesSkills.currentSelectedIndex;
+        this.battle.user.lastSkillOffset = this.battle.windowChoicesSkills.offsetSelectedIndex;
     }
     /**
      *  Register the last item index and offset in the user.
      */
     registerLastItemIndex() {
-        this.battle.user.lastItemIndex = this.battle.windowChoicesItems
-            .currentSelectedIndex;
-        this.battle.user.lastItemOffset = this.battle.windowChoicesItems
-            .offsetSelectedIndex;
+        this.battle.user.lastItemIndex = this.battle.windowChoicesItems.currentSelectedIndex;
+        this.battle.user.lastItemOffset = this.battle.windowChoicesItems.offsetSelectedIndex;
     }
     /**
      *  Select a target.
@@ -122,8 +114,7 @@ class BattleSelection {
             case TargetKind.User:
                 this.battle.kindSelection = CharacterKind.Hero;
                 this.battle.userTarget = true;
-                this.battle.selectedTargetIndex = this.battle.battlers[this
-                    .battle.kindSelection].indexOf(this.battle.user);
+                this.battle.selectedTargetIndex = this.battle.battlers[this.battle.kindSelection].indexOf(this.battle.user);
                 break;
             case TargetKind.Enemy:
                 this.battle.kindSelection = CharacterKind.Monster;
@@ -142,8 +133,7 @@ class BattleSelection {
         }
         this.battle.selectedUserIndex = this.selectFirstIndex(CharacterKind.Hero, this.battle.selectedUserIndex);
         if (!this.battle.userTarget) {
-            this.battle.selectedTargetIndex = this.selectFirstIndex(this.battle
-                .kindSelection, 0);
+            this.battle.selectedTargetIndex = this.selectFirstIndex(this.battle.kindSelection, 0);
         }
         this.moveArrow();
     }
@@ -154,10 +144,10 @@ class BattleSelection {
      */
     selectFirstIndex(kind, index) {
         while (!this.battle.isDefined(kind, index, this.battle.subStep === 2)) {
-            if (index < (this.battle.battlers[kind].length - 1)) {
+            if (index < this.battle.battlers[kind].length - 1) {
                 index++;
             }
-            else if (index === (this.battle.battlers[kind].length - 1)) {
+            else if (index === this.battle.battlers[kind].length - 1) {
                 index = 0;
             }
         }
@@ -175,11 +165,9 @@ class BattleSelection {
                 index--;
             }
             else if (index === 0) {
-                index = this.battle.battlers[this.battle.kindSelection].length -
-                    1;
+                index = this.battle.battlers[this.battle.kindSelection].length - 1;
             }
-        } while (!this.battle.isDefined(this.battle.kindSelection, index, this
-            .battle.subStep === 2));
+        } while (!this.battle.isDefined(this.battle.kindSelection, index, this.battle.subStep === 2));
         return index;
     }
     /**
@@ -189,15 +177,13 @@ class BattleSelection {
     indexArrowDown() {
         let index = this.selectedUserTargetIndex();
         do {
-            if (index < (this.battle.battlers[this.battle.kindSelection].length
-                - 1)) {
+            if (index < this.battle.battlers[this.battle.kindSelection].length - 1) {
                 index++;
             }
-            else if (index === (this.battle.battlers[this.battle.kindSelection].length - 1)) {
+            else if (index === this.battle.battlers[this.battle.kindSelection].length - 1) {
                 index = 0;
             }
-        } while (!this.battle.isDefined(this.battle.kindSelection, index, this
-            .battle.subStep === 2));
+        } while (!this.battle.isDefined(this.battle.kindSelection, index, this.battle.subStep === 2));
         return index;
     }
     /**
@@ -205,8 +191,7 @@ class BattleSelection {
      */
     moveArrow() {
         // Updating window informations
-        let window = this.battle.subStep === 2 ? this.battle
-            .windowTargetInformations : this.battle.windowUserInformations;
+        let window = this.battle.subStep === 2 ? this.battle.windowTargetInformations : this.battle.windowUserInformations;
         window.content = this.battle.graphicPlayers[this.battle.kindSelection][this.selectedUserTargetIndex()];
         window.content.update();
         Manager.Stack.requestPaintHUD = true;
@@ -216,22 +201,18 @@ class BattleSelection {
      *  @returns {number}
      */
     selectedUserTargetIndex() {
-        return (this.battle.subStep === 2) ? this.battle.selectedTargetIndex :
-            this.battle.selectedUserIndex;
+        return this.battle.subStep === 2 ? this.battle.selectedTargetIndex : this.battle.selectedUserIndex;
     }
     /**
      *  When an ally is selected.
      */
     onAllySelected() {
         this.battle.subStep = 1;
-        this.battle.user = this.battle.battlers[CharacterKind.Hero][this.battle
-            .selectedUserIndex];
+        this.battle.user = this.battle.battlers[CharacterKind.Hero][this.battle.selectedUserIndex];
         this.battle.user.setSelected(true);
         this.battle.windowChoicesBattleCommands.unselect();
-        this.battle.windowChoicesBattleCommands.select(this.battle.user
-            .lastCommandIndex);
-        this.battle.windowChoicesBattleCommands.offsetSelectedIndex = this
-            .battle.user.lastCommandOffset;
+        this.battle.windowChoicesBattleCommands.select(this.battle.user.lastCommandIndex);
+        this.battle.windowChoicesBattleCommands.offsetSelectedIndex = this.battle.user.lastCommandOffset;
         this.battle.skill = null;
         // Update skills list
         let skills = this.battle.user.player.skills;
@@ -240,29 +221,24 @@ class BattleSelection {
         for (let i = 0, l = skills.length; i < l; i++) {
             ownedSkill = skills[i];
             skill = Datas.Skills.get(ownedSkill.id);
-            if ((skill.availableKind === AvailableKind.Always || skill
-                .availableKind === AvailableKind.Battle) && Interpreter
-                .evaluate(skill.conditionFormula.getValue(), { user: this.battle
-                    .user.player }) && this.battle.battlers[CharacterKind.Monster]
-                .every((battler) => {
-                return Interpreter.evaluate(skill
-                    .conditionFormula.getValue(), { user: this.battle.user.player,
-                    target: battler.player });
-            })) {
+            if ((skill.availableKind === AvailableKind.Always || skill.availableKind === AvailableKind.Battle) &&
+                Interpreter.evaluate(skill.conditionFormula.getValue(), { user: this.battle.user.player }) &&
+                this.battle.battlers[CharacterKind.Monster].every((battler) => {
+                    return Interpreter.evaluate(skill.conditionFormula.getValue(), {
+                        user: this.battle.user.player,
+                        target: battler.player,
+                    });
+                })) {
                 this.battle.listSkills.push(new Graphic.Skill(ownedSkill));
             }
         }
-        this.battle.windowChoicesSkills.setContentsCallbacks(this.battle
-            .listSkills);
-        this.battle.windowSkillDescription.content = this.battle
-            .windowChoicesSkills.getCurrentContent();
+        this.battle.windowChoicesSkills.setContentsCallbacks(this.battle.listSkills);
+        this.battle.windowSkillDescription.content = this.battle.windowChoicesSkills.getCurrentContent();
         this.battle.windowChoicesSkills.unselect();
-        this.battle.windowChoicesSkills.offsetSelectedIndex = this.battle.user
-            .lastSkillOffset;
+        this.battle.windowChoicesSkills.offsetSelectedIndex = this.battle.user.lastSkillOffset;
         this.battle.windowChoicesSkills.select(this.battle.user.lastSkillIndex);
         this.battle.windowChoicesItems.unselect();
-        this.battle.windowChoicesItems.offsetSelectedIndex = this.battle.user
-            .lastItemOffset;
+        this.battle.windowChoicesItems.offsetSelectedIndex = this.battle.user.lastItemOffset;
         this.battle.windowChoicesItems.select(this.battle.user.lastItemIndex);
         Manager.Stack.requestPaintHUD = true;
     }
@@ -288,13 +264,12 @@ class BattleSelection {
     /**
      *  When a command is selected.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     onCommandSelected(isKey, options = {}) {
         switch (this.battle.battleCommandKind) {
             case EffectSpecialActionKind.OpenSkills:
-                let skill = this.battle.windowChoicesSkills
-                    .getCurrentContent().system;
+                let skill = this.battle.windowChoicesSkills.getCurrentContent().system;
                 if (skill.isPossible()) {
                     this.battle.skill = skill;
                     this.selectTarget(skill.targetKind);
@@ -302,8 +277,7 @@ class BattleSelection {
                 }
                 return;
             case EffectSpecialActionKind.OpenItems:
-                let item = this.battle.windowItemDescription
-                    .content.item.system;
+                let item = this.battle.windowItemDescription.content.item.system;
                 if (item.isPossible()) {
                     this.battle.skill = item;
                     this.selectTarget(item.targetKind);
@@ -314,21 +288,18 @@ class BattleSelection {
                 this.battle.battleCommandKind = EffectSpecialActionKind.None;
                 break;
         }
-        let system = this.battle.windowChoicesBattleCommands
-            .getCurrentContent().system;
+        let system = this.battle.windowChoicesBattleCommands.getCurrentContent().system;
         if (isKey) {
             this.battle.windowChoicesBattleCommands.onKeyPressed(options.key, system);
         }
         else {
-            this.battle.windowChoicesBattleCommands.onMouseUp(options.x, options
-                .y, system);
+            this.battle.windowChoicesBattleCommands.onMouseUp(options.x, options.y, system);
         }
         let i, l;
         switch (this.battle.battleCommandKind) {
             case EffectSpecialActionKind.ApplyWeapons:
                 // Check weapon TargetKind
-                this.battle.attackSkill = this.battle
-                    .windowChoicesBattleCommands.getCurrentContent().system;
+                this.battle.attackSkill = (this.battle.windowChoicesBattleCommands.getCurrentContent()).system;
                 this.battle.skill = this.battle.attackSkill;
                 let targetKind = null;
                 let equipments = this.battle.user.player.equip;
@@ -347,20 +318,19 @@ class BattleSelection {
                 this.selectTarget(targetKind);
                 break;
             case EffectSpecialActionKind.OpenSkills:
-                if (this.battle.listSkills.length === 0 || this.battle.user
-                    .containsRestriction(Enum.StatusRestrictionsKind.CantUseSkills)) {
+                if (this.battle.listSkills.length === 0 ||
+                    this.battle.user.containsRestriction(Enum.StatusRestrictionsKind.CantUseSkills)) {
                     this.battle.battleCommandKind = EffectSpecialActionKind.None;
                 }
                 break;
             case EffectSpecialActionKind.OpenItems:
-                if (this.battle.listItems.length === 0 || this.battle.user
-                    .containsRestriction(Enum.StatusRestrictionsKind.CantUseItems)) {
+                if (this.battle.listItems.length === 0 ||
+                    this.battle.user.containsRestriction(Enum.StatusRestrictionsKind.CantUseItems)) {
                     this.battle.battleCommandKind = EffectSpecialActionKind.None;
                 }
                 break;
             case EffectSpecialActionKind.Escape:
-                if (this.battle.user.containsRestriction(Enum.StatusRestrictionsKind
-                    .CantEscape)) {
+                if (this.battle.user.containsRestriction(Enum.StatusRestrictionsKind.CantEscape)) {
                     this.battle.battleCommandKind = EffectSpecialActionKind.None;
                     break;
                 }
@@ -371,11 +341,8 @@ class BattleSelection {
                     this.battle.time = new Date().getTime();
                     this.battle.winning = true;
                     Scene.Battle.escapedLastBattle = true;
-                    Manager.Songs.initializeProgressionMusic(System.PlaySong
-                        .currentPlayingMusic.volume.getValue(), 0, 0, Scene
-                        .Battle.TIME_LINEAR_MUSIC_END);
-                    for (i = 0, l = this.battle.battlers[CharacterKind.Hero]
-                        .length; i < l; i++) {
+                    Manager.Songs.initializeProgressionMusic(System.PlaySong.currentPlayingMusic.volume.getValue(), 0, 0, Scene.Battle.TIME_LINEAR_MUSIC_END);
+                    for (i = 0, l = this.battle.battlers[CharacterKind.Hero].length; i < l; i++) {
                         this.battle.battlers[CharacterKind.Hero][i].setEscaping();
                     }
                 }
@@ -385,8 +352,7 @@ class BattleSelection {
                 this.battle.changeStep(Enum.BattleStep.Animation);
                 return;
             case EffectSpecialActionKind.None: // If any other skill that is not a special action
-                let skill = this.battle
-                    .windowChoicesBattleCommands.getCurrentContent().system;
+                let skill = (this.battle.windowChoicesBattleCommands.getCurrentContent().system);
                 if (skill.isPossible()) {
                     this.battle.skill = skill;
                     this.selectTarget(skill.targetKind);
@@ -404,9 +370,11 @@ class BattleSelection {
         let battlers = this.battle.battlers[this.battle.kindSelection];
         if (this.battle.all) {
             for (let battler of battlers) {
-                if (!battler.hidden && Interpreter.evaluate(this.battle.skill
-                    .targetConditionFormula.getValue(), { user: this.battle.user
-                        .player, target: battler.player })) {
+                if (!battler.hidden &&
+                    Interpreter.evaluate(this.battle.skill.targetConditionFormula.getValue(), {
+                        user: this.battle.user.player,
+                        target: battler.player,
+                    })) {
                     this.battle.targets.push(battler);
                 }
             }
@@ -432,7 +400,7 @@ class BattleSelection {
     /**
      *  A scene action.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     action(isKey, options = {}) {
         switch (this.battle.subStep) {
@@ -466,7 +434,7 @@ class BattleSelection {
     /**
      *  A scene move.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     move(isKey, options = {}) {
         let index = this.selectedUserTargetIndex();
@@ -475,28 +443,25 @@ class BattleSelection {
             case 2:
                 if (!this.battle.userTarget) {
                     if (isKey) {
-                        if (Datas.Keyboards.isKeyEqual(options.key, Datas
-                            .Keyboards.menuControls.Up) || Datas.Keyboards
-                            .isKeyEqual(options.key, this.battle.subStep === 0 ?
-                            Datas.Keyboards.menuControls.Left : Datas.Keyboards
-                            .menuControls.Right)) {
+                        if (Datas.Keyboards.isKeyEqual(options.key, Datas.Keyboards.menuControls.Up) ||
+                            Datas.Keyboards.isKeyEqual(options.key, this.battle.subStep === 0
+                                ? Datas.Keyboards.menuControls.Left
+                                : Datas.Keyboards.menuControls.Right)) {
                             index = this.indexArrowUp();
                         }
-                        else if (Datas.Keyboards.isKeyEqual(options.key, Datas
-                            .Keyboards.menuControls.Down) || Datas.Keyboards
-                            .isKeyEqual(options.key, this.battle.subStep === 0 ?
-                            Datas.Keyboards.menuControls.Right : Datas.Keyboards
-                            .menuControls.Left)) {
+                        else if (Datas.Keyboards.isKeyEqual(options.key, Datas.Keyboards.menuControls.Down) ||
+                            Datas.Keyboards.isKeyEqual(options.key, this.battle.subStep === 0
+                                ? Datas.Keyboards.menuControls.Right
+                                : Datas.Keyboards.menuControls.Left)) {
                             index = this.indexArrowDown();
                         }
                     }
                     else {
                         let battler;
-                        for (let i = 0, l = this.battle.battlers[this.battle
-                            .kindSelection].length; i < l; i++) {
+                        for (let i = 0, l = this.battle.battlers[this.battle.kindSelection].length; i < l; i++) {
                             battler = this.battle.battlers[this.battle.kindSelection][i];
-                            if (battler.isInside(options.x, options.y) && this
-                                .battle.isDefined(this.battle.kindSelection, i, this.battle.subStep === 2)) {
+                            if (battler.isInside(options.x, options.y) &&
+                                this.battle.isDefined(this.battle.kindSelection, i, this.battle.subStep === 2)) {
                                 index = i;
                                 break;
                             }
@@ -526,8 +491,8 @@ class BattleSelection {
                         else {
                             this.battle.windowChoicesSkills.onMouseMove(options.x, options.y);
                         }
-                        this.battle.windowSkillDescription.content = this.battle
-                            .windowChoicesSkills.getCurrentContent();
+                        this.battle.windowSkillDescription.content =
+                            this.battle.windowChoicesSkills.getCurrentContent();
                         break;
                     case EffectSpecialActionKind.OpenItems:
                         if (isKey) {
@@ -536,8 +501,7 @@ class BattleSelection {
                         else {
                             this.battle.windowChoicesItems.onMouseMove(options.x, options.y);
                         }
-                        this.battle.windowItemDescription.content = this.battle
-                            .windowChoicesItems.getCurrentContent();
+                        this.battle.windowItemDescription.content = this.battle.windowChoicesItems.getCurrentContent();
                         break;
                     default:
                         if (isKey) {
@@ -570,8 +534,7 @@ class BattleSelection {
      *  Handle key released.
      *  @param {number} key - The key ID
      */
-    onKeyReleasedStep(key) {
-    }
+    onKeyReleasedStep(key) { }
     /**
      *  Handle key repeat pressed.
      *  @param {number} key - The key ID
@@ -609,11 +572,9 @@ class BattleSelection {
         // Draw heroes window informations
         this.battle.windowUserInformations.draw();
         if (this.battle.subStep === 2) {
-            this.battle.windowTargetInformations.content
-                .updateReverse(true);
+            this.battle.windowTargetInformations.content.updateReverse(true);
             this.battle.windowTargetInformations.draw();
-            this.battle.windowTargetInformations.content
-                .updateReverse(false);
+            this.battle.windowTargetInformations.content.updateReverse(false);
         }
         // Arrows
         let battlers = this.battle.battlers[this.battle.kindSelection];

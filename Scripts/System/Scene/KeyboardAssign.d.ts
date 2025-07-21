@@ -1,5 +1,5 @@
-import { Base } from './Base.js';
 import { Picture2D, WindowBox, WindowChoices } from '../Core/index.js';
+import { Base } from './Base.js';
 /** @class
  *  A scene for the keyboard assign setting.
  *  @extends Scene.Base
@@ -15,11 +15,11 @@ declare class KeyboardAssign extends Base {
     windowChoicesMain: WindowChoices;
     windowPress: WindowBox;
     showPress: boolean;
-    currentSC: number[][];
-    keysPressed: number[];
+    currentSC: string[][];
+    keysPressed: string[];
     compareWait: number;
     waitTime: number;
-    originalSC: number[][];
+    originalSC: string[][];
     nextOR: boolean;
     constructor();
     /**
@@ -46,18 +46,18 @@ declare class KeyboardAssign extends Base {
      *  Handle scene key pressed.
      *  @param {number} key - The key ID
      */
-    onKeyPressed(key: number): void;
+    onKeyPressed(key: string): void;
     /**
      *  Handle scene key released.
      *  @param {number} key - The key ID
      */
-    onKeyReleased(key: number): void;
+    onKeyReleased(key: string): void;
     /**
      *  Handle scene pressed and repeat key.
      *  @param {number} key - The key ID
      *  @returns {boolean}
      */
-    onKeyPressedAndRepeat(key: number): boolean;
+    onKeyPressedAndRepeat(key: string): boolean;
     /**
      *  @inheritdoc
      */

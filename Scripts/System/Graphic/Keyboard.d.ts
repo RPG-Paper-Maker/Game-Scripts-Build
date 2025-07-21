@@ -1,4 +1,4 @@
-import { System, Graphic } from '../index.js';
+import { Graphic, System } from '../index.js';
 import { Base } from './Base.js';
 /** @class
  *  A class for all keyboard assign to display in screen.
@@ -12,9 +12,9 @@ declare class Keyboard extends Base {
     constructor(kb: System.Keyboard);
     /**
      *  Update short sc.
-     *  @param {number[][]} sh - The short list
+     *  @param {string[][]} sh - The short list
      */
-    updateShort(sh: number[][]): void;
+    updateShort(sh: string[][]): void;
     /**
      *  Drawing the keyboard in choice box.
      *  @param {number} x - The x position to draw graphic

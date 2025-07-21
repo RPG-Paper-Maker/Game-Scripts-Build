@@ -1,5 +1,5 @@
-import { MenuBase } from './MenuBase.js';
 import { WindowBox, WindowChoices } from '../Core/index.js';
+import { MenuBase } from './MenuBase.js';
 /**
  * The scene menu describing players statistics.
  *
@@ -67,20 +67,20 @@ declare class MenuDescriptionState extends MenuBase {
     /**
      *  A scene action.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     action(isKey: boolean, options?: {
-        key?: number;
+        key?: string;
         x?: number;
         y?: number;
     }): void;
     /**
      *  A scene move.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     move(isKey: boolean, options?: {
-        key?: number;
+        key?: string;
         x?: number;
         y?: number;
     }): void;
@@ -96,22 +96,14 @@ declare class MenuDescriptionState extends MenuBase {
      * @param {number} key - the key ID
      * @memberof MenuDescriptionState
      */
-    onKeyPressed(key: number): void;
+    onKeyPressed(key: string): void;
     /**
      * @inheritdoc
      *
      * @param {number} key - the key id
      * @memberof MenuDescriptionState
      */
-    onKeyReleased(key: number): void;
-    /**
-     * @inheritdoc
-     *
-     * @param {number} key - the key id
-     * @return {*}  {boolean}
-     * @memberof MenuDescriptionState
-     */
-    onKeyPressedRepeat(key: number): boolean;
+    onKeyReleased(key: string): void;
     /**
      * @inheritdoc
      *
@@ -119,7 +111,15 @@ declare class MenuDescriptionState extends MenuBase {
      * @return {*}  {boolean}
      * @memberof MenuDescriptionState
      */
-    onKeyPressedAndRepeat(key: number): boolean;
+    onKeyPressedRepeat(key: string): boolean;
+    /**
+     * @inheritdoc
+     *
+     * @param {number} key - the key id
+     * @return {*}  {boolean}
+     * @memberof MenuDescriptionState
+     */
+    onKeyPressedAndRepeat(key: string): boolean;
     /**
      *  @inheritdoc
      */

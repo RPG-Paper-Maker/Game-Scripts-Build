@@ -8,11 +8,11 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum, Constants, Paths, Utils, Platform } from '../Common/index.js';
-var PictureKind = Enum.PictureKind;
+import { Constants, Enum, Paths, Platform, Utils } from '../Common/index.js';
+import { CollisionSquare, Picture2D } from '../Core/index.js';
 import { Datas } from '../index.js';
-import { Picture2D, CollisionSquare } from '../Core/index.js';
 import { Base } from './Base.js';
+var PictureKind = Enum.PictureKind;
 /** @class
  *  A picture of the game.
  *  @extends {System.Base}
@@ -21,8 +21,7 @@ import { Base } from './Base.js';
  *  @param {PictureKind} [kind=PictureKind.Pictures] - The kind of picture
  */
 class Picture extends Base {
-    constructor(json, kind = PictureKind
-        .Pictures) {
+    constructor(json, kind = PictureKind.Pictures) {
         super(json, kind);
     }
     /**
@@ -40,39 +39,39 @@ class Picture extends Base {
     static pictureKindToString(kind) {
         switch (kind) {
             case PictureKind.Bars:
-                return "bar";
+                return 'bar';
             case PictureKind.Icons:
-                return "icon";
+                return 'icon';
             case PictureKind.Autotiles:
-                return "autotile";
+                return 'autotile';
             case PictureKind.Characters:
-                return "character";
+                return 'character';
             case PictureKind.Mountains:
-                return "mountain";
+                return 'mountain';
             case PictureKind.Tilesets:
-                return "tileset";
+                return 'tileset';
             case PictureKind.Walls:
-                return "wall";
+                return 'wall';
             case PictureKind.Battlers:
-                return "battler";
+                return 'battler';
             case PictureKind.Facesets:
-                return "faceset";
+                return 'faceset';
             case PictureKind.WindowSkins:
-                return "window skin";
+                return 'window skin';
             case PictureKind.TitleScreen:
-                return "title screen";
+                return 'title screen';
             case PictureKind.Objects3D:
-                return "object 3D";
+                return 'object 3D';
             case PictureKind.Pictures:
-                return "picture";
+                return 'picture';
             case PictureKind.Animations:
-                return "animation";
+                return 'animation';
             case PictureKind.Skyboxes:
-                return "skybox";
+                return 'skybox';
             case PictureKind.Particles:
-                return "particles";
+                return 'particles';
         }
-        return "";
+        return '';
     }
     /**
      *  Get the folder associated to a kind of picture.
@@ -83,9 +82,11 @@ class Picture extends Base {
      *  @returns {string}
      */
     static getFolder(kind, isBR, dlc) {
-        return (isBR ? Datas.Systems.PATH_BR : (dlc ? Datas.Systems.PATH_DLCS +
-            Constants.STRING_SLASH + dlc : Paths.ROOT_DIRECTORY_LOCAL)) +
-            this.getLocalFolder(kind);
+        return ((isBR
+            ? Datas.Systems.PATH_BR
+            : dlc
+                ? Datas.Systems.PATH_DLCS + Constants.STRING_SLASH + dlc
+                : Paths.ROOT_DIRECTORY_LOCAL) + this.getLocalFolder(kind));
     }
     /**
      *  Get the local folder associated to a kind of picture.
@@ -130,7 +131,7 @@ class Picture extends Base {
             case PictureKind.GameOver:
                 return Paths.GAME_OVER;
         }
-        return "";
+        return '';
     }
     /**
      *  Read the JSON associated to the picture.
@@ -140,7 +141,7 @@ class Picture extends Base {
         this.id = json.id;
         this.name = json.name;
         this.isBR = json.br;
-        this.dlc = Utils.defaultValue(json.d, "");
+        this.dlc = Utils.defaultValue(json.d, '');
         this.base64 = json.base64;
         this.jsonCollisions = Utils.defaultValue(json.col, []);
         this.collisionsRepeat = Utils.defaultValue(json.rcol, false);
@@ -154,7 +155,7 @@ class Picture extends Base {
     async load() {
         this.picture = await Picture2D.create(this);
         if (this.base64) {
-            this.base64 = "";
+            this.base64 = '';
         }
     }
     /**
@@ -180,7 +181,9 @@ class Picture extends Base {
         if (this.picture) {
             return this.picture.path;
         }
-        return this.id === -1 || !this.name ? "" : Picture.getFolder(this.kind, this.isBR, this.dlc) + Constants.STRING_SLASH + this.name;
+        return this.id === -1 || !this.name
+            ? ''
+            : Picture.getFolder(this.kind, this.isBR, this.dlc) + Constants.STRING_SLASH + this.name;
     }
     /**
      *  Read collisions according to image size.
@@ -213,15 +216,14 @@ class Picture extends Base {
             jsonTab = this.jsonCollisions[i];
             jsonKey = jsonTab.k;
             jsonVal = jsonTab.v;
-            index = jsonKey[0] + (jsonKey[1] * this.width);
-            collision = new CollisionSquare;
+            index = jsonKey[0] + jsonKey[1] * this.width;
+            collision = new CollisionSquare();
             collision.read(jsonVal);
             this.collisions[index] = collision;
             if (this.collisionsRepeat) {
                 for (j = 0; j < Datas.Systems.FRAMES; j++) {
                     for (k = 0; k < 4; k++) {
-                        this.collisions[(jsonKey[0] + (j * w)) + ((jsonKey[1] +
-                            (k * h)) * this.width)] = collision;
+                        this.collisions[jsonKey[0] + j * w + (jsonKey[1] + k * h) * this.width] = collision;
                     }
                 }
             }
@@ -251,8 +253,7 @@ class Picture extends Base {
      *  @returns {CollisionSquare}
      */
     getCollisionAtIndex(index) {
-        return this.getCollisionAtPos(index % this.width, Math.floor(index /
-            this.width));
+        return this.getCollisionAtPos(index % this.width, Math.floor(index / this.width));
     }
     /**
      *  Get a specific collision for wall.
@@ -275,21 +276,21 @@ class Picture extends Base {
                     squares[i] = null;
                 }
                 else if (leftSquare === null || rightSquare === null) {
-                    square = (leftSquare === null ? rightSquare : leftSquare);
+                    square = leftSquare === null ? rightSquare : leftSquare;
                     if (!square) {
-                        Platform.showErrorMessage("Your wall image " + this.name
-                            + " is not using a correct template. Your image "
-                            + "should be this size: WIDTH: 3 * SQUARE_SIZE, "
-                            + "HEIGHT: as you wish. There should be left wall, "
-                            + "middle wall, and right wall for the 3 width "
-                            + "squares.");
+                        Platform.showErrorMessage('Your wall image ' +
+                            this.name +
+                            ' is not using a correct template. Your image ' +
+                            'should be this size: WIDTH: 3 * SQUARE_SIZE, ' +
+                            'HEIGHT: as you wish. There should be left wall, ' +
+                            'middle wall, and right wall for the 3 width ' +
+                            'squares.');
                         return;
                     }
                     squares[i] = square.rect;
                 }
                 else {
-                    squares[i] = [0, 0, Datas.Systems.SQUARE_SIZE, Datas.Systems
-                            .SQUARE_SIZE];
+                    squares[i] = [0, 0, Datas.Systems.SQUARE_SIZE, Datas.Systems.SQUARE_SIZE];
                 }
             }
             else {
@@ -311,8 +312,7 @@ class Picture extends Base {
         var squares = new Array(l);
         let square;
         for (let i = 0; i < l; i++) {
-            square = this.getCollisionAtPos(texture[0] + (i % w), texture[1] +
-                Math.floor(i / w));
+            square = this.getCollisionAtPos(texture[0] + (i % w), texture[1] + Math.floor(i / w));
             squares[i] = square ? square.rect : null;
         }
         return CollisionSquare.unionSquares(squares, l, w, h);
@@ -323,15 +323,13 @@ class Picture extends Base {
      *  @returns {number[][][]}
      */
     getSquaresForStates(image) {
-        let w = Math.floor(image.width / Datas.Systems.SQUARE_SIZE / Datas
-            .Systems.FRAMES);
+        let w = Math.floor(image.width / Datas.Systems.SQUARE_SIZE / Datas.Systems.FRAMES);
         let h = Math.floor(image.height / Datas.Systems.SQUARE_SIZE / this.getRows());
         let states = new Array(Datas.Systems.FRAMES * 4);
         let j;
         for (let i = 0; i < Datas.Systems.FRAMES; i++) {
             for (j = 0; j < 4; j++) {
-                states[i + (j * Datas.Systems.FRAMES)] = this
-                    .getSquaresForTexture([i * w, j * h, w, h]);
+                states[i + j * Datas.Systems.FRAMES] = this.getSquaresForTexture([i * w, j * h, w, h]);
             }
         }
         return states;
@@ -356,7 +354,7 @@ class Picture extends Base {
                     break;
                 }
             }
-            this.borderLeft = x - (this.picture.image.width / 2);
+            this.borderLeft = x - this.picture.image.width / 2;
             isTransparent = true;
             for (x = this.picture.image.width - 1; x >= 0; x--) {
                 for (y = 0; y < this.picture.image.height; y++) {

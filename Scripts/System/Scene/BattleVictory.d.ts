@@ -33,10 +33,10 @@ declare class BattleVictory {
     /**
      *  A scene action.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     action(isKey: boolean, options?: {
-        key?: number;
+        key?: string;
         x?: number;
         y?: number;
     }): void;
@@ -48,23 +48,23 @@ declare class BattleVictory {
      *  Handle key pressed.
      *  @param {number} key - The key ID
      */
-    onKeyPressedStep(key: number): void;
+    onKeyPressedStep(key: string): void;
     /**
      *  Handle key released.
      *  @param {number} key - The key ID
      */
-    onKeyReleasedStep(key: number): void;
+    onKeyReleasedStep(key: string): void;
     /**
      *  Handle key repeat pressed.
      *  @param {number} key - The key ID
      *  @returns {boolean}
      */
-    onKeyPressedRepeatStep(key: number): boolean;
+    onKeyPressedRepeatStep(key: string): boolean;
     /**
      *  Handle key pressed and repeat.
      *  @param {number} key - The key ID
      */
-    onKeyPressedAndRepeatStep(key: number): boolean;
+    onKeyPressedAndRepeatStep(key: string): boolean;
     /**
      *  @inheritdoc
      */

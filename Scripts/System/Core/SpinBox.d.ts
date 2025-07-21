@@ -22,7 +22,7 @@ declare class SpinBox extends Bitmap {
      *  @param {number} x - The x coordinates
      *  @param {number} y - The y coordinates
      */
-    constructor(x: number, y: number, { w, h, value, min, max, active, allowLeftRight, times }?: {
+    constructor(x: number, y: number, { w, h, value, min, max, active, allowLeftRight, times, }?: {
         w?: number;
         h?: number;
         value?: number;
@@ -81,10 +81,10 @@ declare class SpinBox extends Bitmap {
     /**
      *  A widget move.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     move(isKey: boolean, options?: {
-        key?: number;
+        key?: string;
         x?: number;
         y?: number;
     }): void;
@@ -98,7 +98,7 @@ declare class SpinBox extends Bitmap {
      *  @param {number} key - The key ID pressed
      *  @returns {boolean} false if the other keys are blocked after it
      */
-    onKeyPressedAndRepeat(key: number): boolean;
+    onKeyPressedAndRepeat(key: string): boolean;
     /**
      *  Mouse down handle for the current stack.
      *  @param {number} x - The x mouse position on screen

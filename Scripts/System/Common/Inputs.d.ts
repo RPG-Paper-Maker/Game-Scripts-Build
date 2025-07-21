@@ -3,7 +3,7 @@
  *  Handles inputs for keyboard and mouse.
  */
 declare class Inputs {
-    static keysPressed: number[];
+    static keysPressed: string[];
     static mouseLeftPressed: boolean;
     static mouseRightPressed: boolean;
     static mouseFirstPressX: number;

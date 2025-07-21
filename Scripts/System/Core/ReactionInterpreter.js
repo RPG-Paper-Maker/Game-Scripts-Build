@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Node } from './index.js';
-import { Utils, Platform } from '../Common/index.js';
+import { Platform, Utils } from '../Common/index.js';
 import { EventCommand, Manager, Scene } from '../index.js';
+import { Node } from './index.js';
 /** @class
  *  A reaction command interpreter.
  *  @param {MapObject} sender - Current event sender (null for System events)
@@ -33,8 +33,7 @@ class ReactionInterpreter {
         this.currentParameters = parameters;
         this.currentCommand = command;
         this.updateObjectParameters();
-        this.currentCommandState = this.currentCommand === null ? null : this
-            .currentCommand.data.initialize();
+        this.currentCommandState = this.currentCommand === null ? null : this.currentCommand.data.initialize();
         this.currentTimeState = event;
         this.isInMainMenu = Manager.Stack.isInMainMenu;
         Manager.Stack.requestPaintHUD = true;
@@ -44,15 +43,14 @@ class ReactionInterpreter {
      *  @returns {boolean}
      */
     isFinished() {
-        return (this.currentCommand === null || this.currentCommand.data === null);
+        return this.currentCommand === null || this.currentCommand.data === null;
     }
     /**
      *  Check if the command can be executed.
      *  @returns {boolean}
      */
     canExecute() {
-        return this.isInMainMenu || this.isInMainMenu === Manager.Stack
-            .isInMainMenu;
+        return this.isInMainMenu || this.isInMainMenu === Manager.Stack.isInMainMenu;
     }
     /**
      *  Update current object and parameters (for variables).
@@ -77,8 +75,7 @@ class ReactionInterpreter {
      *  Update the current commands
      */
     update() {
-        if (this.isFinished() || Scene.Map.current.loading || !this
-            .canExecute()) {
+        if (this.isFinished() || Scene.Map.current.loading || !this.canExecute()) {
             return;
         }
         ReactionInterpreter.currentReaction = this;
@@ -86,9 +83,7 @@ class ReactionInterpreter {
         let interpreter, newCommand;
         while (directNode) {
             if (this.currentCommand.data.parallel) {
-                interpreter = new ReactionInterpreter(this.currentSender, this
-                    .currentReaction, this.currentMapObject, this.currentState, this.currentParameters, this.currentTimeState, this
-                    .currentCommand);
+                interpreter = new ReactionInterpreter(this.currentSender, this.currentReaction, this.currentMapObject, this.currentState, this.currentParameters, this.currentTimeState, this.currentCommand);
                 interpreter.currentCommandState.parallel = true;
                 Scene.Map.current.parallelCommands.push(interpreter);
             }
@@ -97,8 +92,7 @@ class ReactionInterpreter {
                 Manager.Stack.requestPaintHUD = true;
                 this.currentCommand = newCommand;
                 if (this.currentCommand !== null) {
-                    this.currentCommandState = this.currentCommand.data
-                        .initialize();
+                    this.currentCommandState = this.currentCommand.data.initialize();
                     directNode = true;
                 }
                 else {
@@ -133,7 +127,8 @@ class ReactionInterpreter {
                 }
             }
         }
-        else { /* Else, that means it's a number which represents the number
+        else {
+            /* Else, that means it's a number which represents the number
             of nodes to skip */
             // If entering in a node
             if (result === -1) {
@@ -144,7 +139,8 @@ class ReactionInterpreter {
                     value = this.currentCommand.firstChild;
                 }
             }
-            else if (result === -2) { // If leaving last while node
+            else if (result === -2) {
+                // If leaving last while node
                 let whileNode = this.currentCommand.parent;
                 while (whileNode !== null) {
                     if (whileNode.data instanceof EventCommand.While) {
@@ -154,12 +150,14 @@ class ReactionInterpreter {
                 }
                 /* If going here, that means there is no parent while...
                 bring error */
-                Platform.showErrorMessage("Error: there is a breaking loop that is not inside a loop.");
+                Platform.showErrorMessage('Error: there is a breaking loop that is not inside a loop.');
             }
-            else if (result === -3) { // If stopping the reaction
+            else if (result === -3) {
+                // If stopping the reaction
                 return null;
             }
-            else { // If positive number, then it's the number of nodes to skip
+            else {
+                // If positive number, then it's the number of nodes to skip
                 value = this.currentCommand;
                 for (let j = 1; j <= result; j++) {
                     value = value.next;
@@ -177,10 +175,12 @@ class ReactionInterpreter {
      */
     endOfBlock(command, value) {
         if (value === null) {
-            if (command.parent.parent === null) { // If end of the event
+            if (command.parent.parent === null) {
+                // If end of the event
                 return null;
             }
-            else { // Else, it's only the end of a bloc of instructions
+            else {
+                // Else, it's only the end of a bloc of instructions
                 // If while...
                 if (command.parent.data instanceof EventCommand.While) {
                     return command.parent; // Redo the while command
@@ -220,7 +220,7 @@ class ReactionInterpreter {
      *  @param {number} key - The key ID pressed
      */
     onKeyPressed(key) {
-        if (!this.isFinished() && (!Scene.Map.current.loading && this.canExecute())) {
+        if (!this.isFinished() && !Scene.Map.current.loading && this.canExecute()) {
             this.currentCommand.data.onKeyPressed(this.currentCommandState, key);
         }
     }
@@ -229,7 +229,7 @@ class ReactionInterpreter {
      *  @param {number} key - The key ID released
      */
     onKeyReleased(key) {
-        if (!this.isFinished() && (!Scene.Map.current.loading && this.canExecute())) {
+        if (!this.isFinished() && !Scene.Map.current.loading && this.canExecute()) {
             this.currentCommand.data.onKeyReleased(this.currentCommandState, key);
         }
     }
@@ -239,9 +239,8 @@ class ReactionInterpreter {
      *  @returns {boolean} false if the other keys are blocked after it
      */
     onKeyPressedRepeat(key) {
-        if (!this.isFinished() && (!Scene.Map.current.loading && this.canExecute())) {
-            return this.currentCommand.data.onKeyPressedRepeat(this
-                .currentCommandState, key);
+        if (!this.isFinished() && !Scene.Map.current.loading && this.canExecute()) {
+            return this.currentCommand.data.onKeyPressedRepeat(this.currentCommandState, key);
         }
         return true;
     }
@@ -250,11 +249,10 @@ class ReactionInterpreter {
      *  wait after the first pressure (generally used for menus).
      *  @param {number} key - The key ID pressed
      *  @returns {boolean} false if the other keys are blocked after it
-    */
+     */
     onKeyPressedAndRepeat(key) {
-        if (!this.isFinished() && (!Scene.Map.current.loading && this.canExecute())) {
-            return this.currentCommand.data.onKeyPressedAndRepeat(this
-                .currentCommandState, key);
+        if (!this.isFinished() && !Scene.Map.current.loading && this.canExecute()) {
+            return this.currentCommand.data.onKeyPressedAndRepeat(this.currentCommandState, key);
         }
         return true;
     }
@@ -264,7 +262,7 @@ class ReactionInterpreter {
      *  @param {number} y - The y mouse position on screen
      */
     onMouseDown(x, y) {
-        if (!this.isFinished() && (!Scene.Map.current.loading && this.canExecute())) {
+        if (!this.isFinished() && !Scene.Map.current.loading && this.canExecute()) {
             return this.currentCommand.data.onMouseDown(this.currentCommandState, x, y);
         }
     }
@@ -274,7 +272,7 @@ class ReactionInterpreter {
      *  @param {number} y - The y mouse position on screen
      */
     onMouseMove(x, y) {
-        if (!this.isFinished() && (!Scene.Map.current.loading && this.canExecute())) {
+        if (!this.isFinished() && !Scene.Map.current.loading && this.canExecute()) {
             return this.currentCommand.data.onMouseMove(this.currentCommandState, x, y);
         }
     }
@@ -284,7 +282,7 @@ class ReactionInterpreter {
      *  @param {number} y - The y mouse position on screen
      */
     onMouseUp(x, y) {
-        if (!this.isFinished() && (!Scene.Map.current.loading && this.canExecute())) {
+        if (!this.isFinished() && !Scene.Map.current.loading && this.canExecute()) {
             return this.currentCommand.data.onMouseUp(this.currentCommandState, x, y);
         }
     }

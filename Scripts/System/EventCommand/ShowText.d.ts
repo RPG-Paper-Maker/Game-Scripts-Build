@@ -1,6 +1,6 @@
-import { Base } from './Base.js';
+import { MapObject, WindowBox } from '../Core/index.js';
 import { System } from '../index.js';
-import { WindowBox, MapObject } from '../Core/index.js';
+import { Base } from './Base.js';
 /** @class
  *  An event command for displaying text.
  *  @extends EventCommand.Base
@@ -19,10 +19,10 @@ declare class ShowText extends Base {
      *  An event action.
      *  @param {Record<string ,any>} currentState
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     action(currentState: Record<string, any>, isKey: boolean, options?: {
-        key?: number;
+        key?: string;
         x?: number;
         y?: number;
     }): void;
@@ -44,7 +44,7 @@ declare class ShowText extends Base {
      *  @param {Record<string, any>} - currentState The current state of the event
      *  @param {number} key - The key ID pressed
      */
-    onKeyPressed(currentState: Record<string, any>, key: number): void;
+    onKeyPressed(currentState: Record<string, any>, key: string): void;
     /**
      *  @inheritdoc
      */

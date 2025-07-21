@@ -1,5 +1,5 @@
-import { MapObject, Node } from './index.js';
 import { System } from '../index.js';
+import { MapObject, Node } from './index.js';
 /** @class
  *  A reaction command interpreter.
  *  @param {MapObject} sender - Current event sender (null for System events)
@@ -27,10 +27,7 @@ declare class ReactionInterpreter {
     currentCommandState: Record<string, any>;
     currentTimeState: [System.Event, number];
     isInMainMenu: boolean;
-    constructor(sender: MapObject, reaction: System.Reaction, object: MapObject, state: number, parameters?: System.DynamicValue[], event?: [
-        System.Event,
-        number
-    ], command?: Node);
+    constructor(sender: MapObject, reaction: System.Reaction, object: MapObject, state: number, parameters?: System.DynamicValue[], event?: [System.Event, number], command?: Node);
     /**
      *  Check if the current reaction is finished (no more commands to excecute).
      *  @returns {boolean}
@@ -76,25 +73,25 @@ declare class ReactionInterpreter {
      *  First key press handle for the current command
      *  @param {number} key - The key ID pressed
      */
-    onKeyPressed(key: number): void;
+    onKeyPressed(key: string): void;
     /**
      *  First key release handle for the current command.
      *  @param {number} key - The key ID released
      */
-    onKeyReleased(key: number): void;
+    onKeyReleased(key: string): void;
     /**
      *  Key pressed repeat handle for the current command.
      *  @param {number} key - The key ID pressed
      *  @returns {boolean} false if the other keys are blocked after it
      */
-    onKeyPressedRepeat(key: number): boolean;
+    onKeyPressedRepeat(key: string): boolean;
     /**
      *  Key pressed repeat handle for the current command, but with a small
      *  wait after the first pressure (generally used for menus).
      *  @param {number} key - The key ID pressed
      *  @returns {boolean} false if the other keys are blocked after it
-    */
-    onKeyPressedAndRepeat(key: number): boolean;
+     */
+    onKeyPressedAndRepeat(key: string): boolean;
     /**
      *  Mouse down handle for the current command.
      *  @param {number} x - The x mouse position on screen

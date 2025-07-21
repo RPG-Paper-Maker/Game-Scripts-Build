@@ -1,8 +1,8 @@
-import { Bitmap } from './Bitmap.js';
 import { Enum } from '../Common/index.js';
-import OrientationWindow = Enum.OrientationWindow;
 import { Graphic } from '../index.js';
+import { Bitmap } from './Bitmap.js';
 import { WindowBox } from './WindowBox.js';
+import OrientationWindow = Enum.OrientationWindow;
 /**
  * the choices options used for the window initialization
  *
@@ -191,10 +191,10 @@ declare class WindowChoices extends Bitmap {
     /**
      *  A widget move.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     move(isKey: boolean, options?: {
-        key?: number;
+        key?: string;
         x?: number;
         y?: number;
     }): void;
@@ -207,14 +207,14 @@ declare class WindowChoices extends Bitmap {
      *  @param {number} key - The key ID pressed
      *  @param {Object} base - The base object to apply with callback
      */
-    onKeyPressed(key: number, base?: Object): void;
+    onKeyPressed(key: string, base?: Object): void;
     /**
      *  Key pressed repeat handle, but with a small wait after the first
      *  pressure (generally used for menus).
      *  @param {number} key - The key ID pressed
      *  @returns {boolean} false if the other keys are blocked after it
      */
-    onKeyPressedAndRepeat(key: number): boolean;
+    onKeyPressedAndRepeat(key: string): boolean;
     /**
      *  Mouse move handle for the current stack.
      *  @param {number} x - The x mouse position on screen
@@ -233,4 +233,4 @@ declare class WindowChoices extends Bitmap {
      */
     draw(): void;
 }
-export { WindowChoices, ChoicesOptions };
+export { ChoicesOptions, WindowChoices };

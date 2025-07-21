@@ -1,6 +1,6 @@
-import { Base } from './Base.js';
-import { Graphic, System } from '../index.js';
 import { Item, Player } from '../Core/index.js';
+import { Graphic, System } from '../index.js';
+import { Base } from './Base.js';
 /** @class
  *  The graphic displaying a skill or an item use.
  *  @extends Graphic.Base
@@ -60,10 +60,10 @@ declare class UseSkillItem extends Base {
     /**
      *  A widget move.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     move(isKey: boolean, options?: {
-        key?: number;
+        key?: string;
         x?: number;
         y?: number;
     }): void;
@@ -76,7 +76,7 @@ declare class UseSkillItem extends Base {
      *  pressure.
      *  @param {number} key - The key ID pressed
      */
-    onKeyPressedAndRepeat(key: number): void;
+    onKeyPressedAndRepeat(key: string): void;
     /**
      *  Mouse move handle for the current stack.
      *  @param {number} x - The x mouse position on screen

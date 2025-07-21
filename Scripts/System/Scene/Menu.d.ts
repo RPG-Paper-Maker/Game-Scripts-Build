@@ -1,4 +1,4 @@
-import { WindowChoices, WindowBox } from '../Core/index.js';
+import { WindowBox, WindowChoices } from '../Core/index.js';
 import { MenuBase } from './MenuBase.js';
 interface StructPositionChoice {
     index: number;
@@ -82,7 +82,7 @@ declare class Menu extends MenuBase {
      *  A scene action.
      */
     action(isKey: boolean, options?: {
-        key?: number;
+        key?: string;
         x?: number;
         y?: number;
     }): void;
@@ -91,25 +91,25 @@ declare class Menu extends MenuBase {
      *
      *  @param {number} key - The key ID
      */
-    onKeyPressed(key: number): void;
+    onKeyPressed(key: string): void;
     /**
      *  @inheritdoc
      *
      *  @param {number} key - The key ID
      */
-    onKeyReleased(key: number): void;
+    onKeyReleased(key: string): void;
     /**
      *  @inheritdoc
      *  @param {number} key - The key ID
      *  @returns {boolean}
      */
-    onKeyPressedRepeat(key: number): boolean;
+    onKeyPressedRepeat(key: string): boolean;
     /**
      *  @inheritdoc
      *  @param {number} key - The key ID
      *  @returns {boolean}
      */
-    onKeyPressedAndRepeat(key: number): boolean;
+    onKeyPressedAndRepeat(key: string): boolean;
     /**
      *  @inheritdoc
      */
@@ -131,4 +131,4 @@ declare class Menu extends MenuBase {
      */
     close(): void;
 }
-export { StructPositionChoice, Menu };
+export { Menu, StructPositionChoice };

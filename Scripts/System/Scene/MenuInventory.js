@@ -8,14 +8,14 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
-import { Graphic, Datas, Scene, Manager } from '../index.js';
 import { Constants, Enum, ScreenResolution } from '../Common/index.js';
+import { Game, Rectangle, WindowBox, WindowChoices } from '../Core/index.js';
+import { Datas, Graphic, Manager, Scene } from '../index.js';
+import { Base } from './Base.js';
 var Align = Enum.Align;
 var OrientationWindow = Enum.OrientationWindow;
 var TargetKind = Enum.TargetKind;
 var AvailableKind = Enum.AvailableKind;
-import { WindowBox, WindowChoices, Game, Rectangle } from '../Core/index.js';
 /** @class
  *  A scene in the menu for describing inventory.
  *  @extends Scene.Base
@@ -31,23 +31,21 @@ class MenuInventory extends Base {
         let menuKind = new Array();
         let i;
         for (i = 0, l = Datas.Systems.inventoryFilters.length; i < l; i++) {
-            menuKind[i] = new Graphic.Text(Datas.Systems.inventoryFilters[i]
-                .name(), { align: Align.Center });
+            menuKind[i] = new Graphic.Text(Datas.Systems.inventoryFilters[i].name(), { align: Align.Center });
         }
         // All the windows
         this.windowTop = new WindowBox(20, 20, 200, 30, {
-            content: new Graphic.Text(this.title, { align: Align.Center })
+            content: new Graphic.Text(this.title, { align: Align.Center }),
         });
-        this.windowChoicesTabs = new WindowChoices(5, 60, 100, WindowBox
-            .SMALL_SLOT_HEIGHT, menuKind, {
+        this.windowChoicesTabs = new WindowChoices(5, 60, 100, WindowBox.SMALL_SLOT_HEIGHT, menuKind, {
             orientation: OrientationWindow.Horizontal,
-            nbItemsMax: 6
+            nbItemsMax: 6,
         });
         this.createWindowChoicesList();
         this.createWindowBoxInformation();
         this.windowEmpty = new WindowBox(10, 100, ScreenResolution.SCREEN_X - 20, WindowBox.SMALL_SLOT_HEIGHT, {
-            content: new Graphic.Text("Empty", { align: Align.Center }),
-            padding: WindowBox.SMALL_SLOT_PADDING
+            content: new Graphic.Text('Empty', { align: Align.Center }),
+            padding: WindowBox.SMALL_SLOT_PADDING,
         });
         this.createWindowBoxUseItem();
         l = menuKind.length;
@@ -55,7 +53,7 @@ class MenuInventory extends Base {
         for (i = 0; i < l; i++) {
             this.positionChoice[i] = {
                 index: 0,
-                offset: 0
+                offset: 0,
             };
         }
         // Update for changing tab
@@ -67,11 +65,9 @@ class MenuInventory extends Base {
      *  Create the choice list.
      */
     createWindowChoicesList() {
-        const rect = new Rectangle(Constants.HUGE_SPACE, Constants.HUGE_SPACE +
-            ((WindowBox.SMALL_SLOT_HEIGHT + Constants.LARGE_SPACE) * 2), WindowBox
-            .LARGE_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
+        const rect = new Rectangle(Constants.HUGE_SPACE, Constants.HUGE_SPACE + (WindowBox.SMALL_SLOT_HEIGHT + Constants.LARGE_SPACE) * 2, WindowBox.LARGE_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
         const options = {
-            nbItemsMax: Scene.Menu.SLOTS_TO_DISPLAY
+            nbItemsMax: Scene.Menu.SLOTS_TO_DISPLAY,
         };
         this.windowChoicesList = new WindowChoices(rect.x, rect.y, rect.width, rect.height, [], options);
     }
@@ -79,17 +75,13 @@ class MenuInventory extends Base {
      *  Create the information window.
      */
     createWindowBoxInformation() {
-        const width = ScreenResolution.SCREEN_X - (Constants.HUGE_SPACE * 2) -
-            WindowBox.LARGE_SLOT_WIDTH - Constants.LARGE_SPACE;
+        const width = ScreenResolution.SCREEN_X - Constants.HUGE_SPACE * 2 - WindowBox.LARGE_SLOT_WIDTH - Constants.LARGE_SPACE;
         const height = 215;
-        const rect = new Rectangle(ScreenResolution.SCREEN_X - Constants
-            .HUGE_SPACE - width, Constants.HUGE_SPACE + ((WindowBox
-            .SMALL_SLOT_HEIGHT + Constants.LARGE_SPACE) * 2), width, height);
+        const rect = new Rectangle(ScreenResolution.SCREEN_X - Constants.HUGE_SPACE - width, Constants.HUGE_SPACE + (WindowBox.SMALL_SLOT_HEIGHT + Constants.LARGE_SPACE) * 2, width, height);
         const options = {
-            padding: WindowBox.HUGE_PADDING_BOX
+            padding: WindowBox.HUGE_PADDING_BOX,
         };
-        this.windowBoxInformation = new WindowBox(rect.x, rect.y, rect.width, rect
-            .height, options);
+        this.windowBoxInformation = new WindowBox(rect.x, rect.y, rect.width, rect.height, options);
     }
     /**
      *  Create the user item window.
@@ -97,23 +89,19 @@ class MenuInventory extends Base {
     createWindowBoxUseItem() {
         const width = this.windowBoxInformation.oW;
         const height = 140;
-        const rect = new Rectangle(ScreenResolution.SCREEN_X - Constants
-            .HUGE_SPACE - width, this.windowBoxInformation.oY + this
-            .windowBoxInformation.oH + Constants.MEDIUM_SPACE, width, height);
+        const rect = new Rectangle(ScreenResolution.SCREEN_X - Constants.HUGE_SPACE - width, this.windowBoxInformation.oY + this.windowBoxInformation.oH + Constants.MEDIUM_SPACE, width, height);
         const graphic = new Graphic.UseSkillItem();
         const options = {
             content: graphic,
-            padding: WindowBox.SMALL_PADDING_BOX
+            padding: WindowBox.SMALL_PADDING_BOX,
         };
-        this.windowBoxUseItem = new WindowBox(rect.x, rect.y, rect.width, rect
-            .height, options);
+        this.windowBoxUseItem = new WindowBox(rect.x, rect.y, rect.width, rect.height, options);
     }
     /**
      *  Update informations to display.
      */
     synchronize() {
-        this.windowBoxInformation.content = this.windowChoicesList
-            .getCurrentContent();
+        this.windowBoxInformation.content = this.windowChoicesList.getCurrentContent();
     }
     /**
      *  Update tab.
@@ -176,8 +164,7 @@ class MenuInventory extends Base {
         else {
             this.windowChoicesList.onMouseMove(options.x, options.y);
         }
-        let position = this.positionChoice[this.windowChoicesTabs
-            .currentSelectedIndex];
+        let position = this.positionChoice[this.windowChoicesTabs.currentSelectedIndex];
         position.index = this.windowChoicesList.currentSelectedIndex;
         position.offset = this.windowChoicesList.offsetSelectedIndex;
         this.synchronize();
@@ -185,7 +172,7 @@ class MenuInventory extends Base {
     /**
      *  A scene action.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     action(isKey, options = {}) {
         let graphic = this.windowBoxInformation.content;
@@ -198,11 +185,9 @@ class MenuInventory extends Base {
                     }
                     let targetKind = graphic.item.system.targetKind;
                     let availableKind = graphic.item.system.availableKind;
-                    if (graphic.item.system.isPossible() && (availableKind
-                        === AvailableKind.Always || availableKind ===
-                        AvailableKind.MainMenu)) {
-                        if (targetKind === TargetKind.Ally || targetKind ===
-                            TargetKind.AllAllies) {
+                    if (graphic.item.system.isPossible() &&
+                        (availableKind === AvailableKind.Always || availableKind === AvailableKind.MainMenu)) {
+                        if (targetKind === TargetKind.Ally || targetKind === TargetKind.AllAllies) {
                             Datas.Systems.soundConfirmation.playSound();
                             this.substep = 1;
                             graphicUse.setSkillItem(graphic.item.system);
@@ -252,7 +237,7 @@ class MenuInventory extends Base {
     /**
      *  A scene move.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     move(isKey, options = {}) {
         switch (this.substep) {
@@ -261,12 +246,10 @@ class MenuInventory extends Base {
                 break;
             case 1:
                 if (isKey) {
-                    this.windowBoxUseItem.content
-                        .onKeyPressedAndRepeat(options.key);
+                    this.windowBoxUseItem.content.onKeyPressedAndRepeat(options.key);
                 }
                 else {
-                    this.windowBoxUseItem.content
-                        .onMouseMove(options.x, options.y);
+                    this.windowBoxUseItem.content.onMouseMove(options.x, options.y);
                 }
                 break;
         }

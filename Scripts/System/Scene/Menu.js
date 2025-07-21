@@ -8,11 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Scene, Manager, Graphic, Datas } from '../index.js';
 import { Enum, ScreenResolution } from '../Common/index.js';
-import { WindowChoices, WindowBox, Rectangle } from '../Core/index.js';
+import { Rectangle, WindowBox, WindowChoices } from '../Core/index.js';
+import { Datas, Graphic, Manager, Scene } from '../index.js';
 import { MenuBase } from './MenuBase.js';
-;
 /**
  * The class who handle the scene menu in game.
  *
@@ -65,7 +64,7 @@ class Menu extends MenuBase {
         const options = {
             nbItemsMax: Math.min(8, graphics.length),
             listCallbacks: actions,
-            padding: [0, 0, 0, 0]
+            padding: [0, 0, 0, 0],
         };
         this.windowChoicesCommands = new WindowChoices(rect.x, rect.y, rect.width, rect.height, graphics, options);
     }
@@ -80,7 +79,7 @@ class Menu extends MenuBase {
             nbItemsMax: 4,
             padding: WindowBox.VERY_SMALL_PADDING_BOX,
             space: 15,
-            currentSelectedIndex: -1
+            currentSelectedIndex: -1,
         };
         this.windowChoicesTeam = new WindowChoices(rect.x, rect.y, rect.width, rect.height, this.partyGraphics(), options);
     }
@@ -93,10 +92,10 @@ class Menu extends MenuBase {
         const rect = new Rectangle(20, 0, 150, 0);
         this.windowTimeCurrencies = new WindowBox(rect.x, rect.y, rect.width, rect.height, {
             content: new Graphic.TimeCurrencies(),
-            padding: WindowBox.HUGE_PADDING_BOX
+            padding: WindowBox.HUGE_PADDING_BOX,
         });
-        let h = this.windowTimeCurrencies.content
-            .height + this.windowTimeCurrencies.padding[1] +
+        let h = this.windowTimeCurrencies.content.height +
+            this.windowTimeCurrencies.padding[1] +
             this.windowTimeCurrencies.padding[3];
         this.windowTimeCurrencies.setY(ScreenResolution.SCREEN_Y - 20 - h);
         this.windowTimeCurrencies.setH(h);
@@ -173,8 +172,7 @@ class Menu extends MenuBase {
             winTeam.setContent(this.selectedOrder, graphic2);
             winTeam.setContent(currentSelectedHero, graphic1);
             // Change background color
-            winTeam.listWindows[this.selectedOrder]
-                .selected = false;
+            winTeam.listWindows[this.selectedOrder].selected = false;
             this.selectedOrder = -1;
             winTeam.select(currentSelectedHero);
         }

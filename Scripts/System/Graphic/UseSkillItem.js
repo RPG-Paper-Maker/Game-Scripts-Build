@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
-import { Graphic, Manager, Datas, Scene } from '../index.js';
 import { Mathf, ScreenResolution } from '../Common/index.js';
 import { Battler, Game } from '../Core/index.js';
+import { Datas, Graphic, Manager, Scene } from '../index.js';
+import { Base } from './Base.js';
 /** @class
  *  The graphic displaying a skill or an item use.
  *  @extends Graphic.Base
@@ -46,8 +46,7 @@ class UseSkillItem extends Base {
             let l = Game.current.teamHeroes.length;
             Scene.Map.current.targets = new Array(l);
             for (let i = 0; i < l; i++) {
-                Scene.Map.current.targets[i] = new Battler(Game.current
-                    .teamHeroes[i]);
+                Scene.Map.current.targets[i] = new Battler(Game.current.teamHeroes[i]);
             }
         }
         else {
@@ -83,8 +82,7 @@ class UseSkillItem extends Base {
         if (!this.all) {
             let target;
             do {
-                this.indexArrow = Mathf.mod(this.indexArrow + index, this
-                    .graphicCharacters.length);
+                this.indexArrow = Mathf.mod(this.indexArrow + index, this.graphicCharacters.length);
                 target = Game.current.teamHeroes[this.indexArrow];
             } while (!this.skillItem.isPossible(target));
             Scene.Map.current.targets = [new Battler(target)];
@@ -128,7 +126,7 @@ class UseSkillItem extends Base {
     /**
      *  A widget move.
      *  @param {boolean} isKey
-     *  @param {{ key?: number, x?: number, y?: number }} [options={}]
+     *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     move(isKey, options = {}) {
         if (isKey) {
@@ -155,8 +153,7 @@ class UseSkillItem extends Base {
         if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls.Right)) {
             this.goRight();
         }
-        else if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls
-            .Left)) {
+        else if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls.Left)) {
             this.goLeft();
         }
     }
@@ -194,10 +191,7 @@ class UseSkillItem extends Base {
      *  @param {number} h - The h size
      */
     drawArrowAtIndex(index, x, y, h) {
-        Datas.Systems.getCurrentWindowSkin().drawArrowTarget(this
-            .graphicCharacters[index].battlerFrame.value, x + ScreenResolution
-            .getScreenMinXY(32 + (index * 85)), y + h - ScreenResolution
-            .getScreenMinXY(20));
+        Datas.Systems.getCurrentWindowSkin().drawArrowTarget(this.graphicCharacters[index].battlerFrame.value, x + ScreenResolution.getScreenMinXY(32 + index * 85), y + h - ScreenResolution.getScreenMinXY(20));
     }
     /**
      *  Drawing the skill or item use informations.
@@ -219,9 +213,7 @@ class UseSkillItem extends Base {
     draw(x, y, w, h) {
         let i, l;
         for (i = 0, l = this.graphicCharacters.length; i < l; i++) {
-            this.graphicCharacters[i].drawCharacter(x + ScreenResolution
-                .getScreenMinXY(5 + (i * 85)), y - ScreenResolution
-                .getScreenMinXY(32), w, h);
+            this.graphicCharacters[i].drawCharacter(x + ScreenResolution.getScreenMinXY(5 + i * 85), y - ScreenResolution.getScreenMinXY(32), w, h);
         }
         if (!this.hideArrow) {
             if (this.all) {

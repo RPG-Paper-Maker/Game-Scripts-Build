@@ -10,7 +10,6 @@
 */
 import { Datas, Manager } from "../index.js";
 import { Main } from '../main.js';
-import { KeyEvent } from './KeyEvent.js';
 /**
  *  @class
  *  Handles inputs for keyboard and mouse.
@@ -35,10 +34,10 @@ class Inputs {
         // Key down
         document.addEventListener('keydown', function (event) {
             if (Main.loaded && !Manager.Stack.isLoading()) {
-                let key = event.keyCode;
+                let key = event.key;
                 // On pressing F12, quit game
                 switch (key) {
-                    case KeyEvent.DOM_VK_F4:
+                    case 'F4':
                         Datas.Systems.switchFullscreen();
                         break;
                 }
@@ -65,7 +64,7 @@ class Inputs {
         // Key up
         document.addEventListener('keyup', function (event) {
             if (Main.loaded && !Manager.Stack.isLoading()) {
-                let key = event.keyCode;
+                let key = event.key;
                 // Remove this key from pressed keys list
                 Inputs.keysPressed.splice(Inputs.keysPressed.indexOf(key), 1);
                 // Call release RPM event
