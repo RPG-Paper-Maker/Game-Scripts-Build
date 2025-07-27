@@ -19,7 +19,6 @@ class Paths {
         throw new Error('This is a static class');
     }
 }
-Paths.ROOT_DIRECTORY_LOCAL = '.';
 Paths.FILES = 'file:///';
 Paths.TEST = Platform.ROOT_DIRECTORY + 'Test/';
 Paths.FILE_MAPS = Platform.ROOT_DIRECTORY + 'Maps/';

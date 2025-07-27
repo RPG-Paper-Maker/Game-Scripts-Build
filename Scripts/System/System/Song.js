@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Constants, Enum, Paths, Utils } from '../Common/index.js';
+import { Constants, Enum, Paths, Platform, Utils } from '../Common/index.js';
 import { Howl } from '../Globals.js';
 import { Datas } from '../index.js';
 import { Base } from './Base.js';
@@ -62,7 +62,7 @@ class Song extends Base {
             ? Datas.Systems.PATH_BR
             : dlc
                 ? Datas.Systems.PATH_DLCS + Constants.STRING_SLASH + dlc
-                : Paths.ROOT_DIRECTORY_LOCAL) + this.getLocalFolder(kind));
+                : Platform.ROOT_DIRECTORY) + this.getLocalFolder(kind));
     }
     /**
      *  Get the local folder associated to a kind of song.

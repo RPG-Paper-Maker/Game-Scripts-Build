@@ -4,7 +4,6 @@
  * @class Paths
  */
 declare class Paths {
-    static readonly ROOT_DIRECTORY_LOCAL = ".";
     static readonly FILES = "file:///";
     static readonly TEST: string;
     static readonly FILE_MAPS: string;

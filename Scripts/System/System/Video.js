@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Constants, Paths, Utils } from '../Common/index.js';
+import { Constants, Paths, Platform, Utils } from '../Common/index.js';
 import { Datas, System } from '../index.js';
 import { Base } from './Base.js';
 /** @class
@@ -33,7 +33,7 @@ class Video extends Base {
             ? Datas.Systems.PATH_BR
             : dlc
                 ? Datas.Systems.PATH_DLCS + Constants.STRING_SLASH + dlc
-                : Paths.ROOT_DIRECTORY_LOCAL) + this.getLocalFolder());
+                : Platform.ROOT_DIRECTORY) + this.getLocalFolder());
     }
     /**
      *  Get the local folder associated to videos.
