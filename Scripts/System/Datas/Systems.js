@@ -341,7 +341,7 @@ class Systems {
      */
     static switchFullscreen() {
         this.isScreenWindow = !this.isScreenWindow;
-        this.updateWindowSize(this.windowWidth, this.windowHeight, !this.isScreenWindow);
+        this.updateWindowSize(this.windowWidth, this.windowHeight, this.isScreenWindow);
     }
 }
 export { Systems };

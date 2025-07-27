@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Datas, Manager } from "../index.js";
+import { Datas, Manager, Scene } from "../index.js";
 import { Main } from '../main.js';
 /**
  *  @class
@@ -67,6 +67,7 @@ class Inputs {
                 let key = event.key;
                 // Remove this key from pressed keys list
                 Inputs.keysPressed.splice(Inputs.keysPressed.indexOf(key), 1);
+                Inputs.lockedKeys.splice(Inputs.lockedKeys.findIndex(([k]) => k === key), 1);
                 // Call release RPM event
                 Manager.Stack.onKeyReleased(key);
             }
@@ -152,8 +153,19 @@ class Inputs {
             }
         }, false);
     }
+    static updateLockedKeysAngles(angle) {
+        if (Scene.Map.current.camera.horizontalAngle !== angle) {
+            for (const key of Inputs.keysPressed) {
+                const value = Inputs.lockedKeys.find(([k]) => k === key);
+                if (!value) {
+                    Inputs.lockedKeys.push([key, angle]);
+                }
+            }
+        }
+    }
 }
-Inputs.keysPressed = [];
+Inputs.keysPressed = []; // Currently pressed keys
+Inputs.lockedKeys = []; // Locked keys after a camera angle change
 Inputs.mouseLeftPressed = false;
 Inputs.mouseRightPressed = false;
 Inputs.mouseFirstPressX = -1;

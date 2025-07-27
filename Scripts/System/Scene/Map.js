@@ -734,7 +734,7 @@ class Map extends Base {
         }
         points = new THREE.Points(geometry, material);
         points.position.set(Scene.Map.current.camera.target.position.x, Scene.Map.current.camera.target.position.y, Scene.Map.current.camera.target.position.z);
-        points.renderOrder = 1000;
+        points.renderOrder = -1;
         this.scene.add(points);
         if (current) {
             this.weatherPoints = points;
@@ -892,7 +892,7 @@ class Map extends Base {
         this.camera.getThreeCamera().getWorldDirection(vector);
         let angle = Math.atan2(vector.x, vector.z) + Math.PI;
         // Update the objects
-        if (!this.isBattleMap) {
+        if (Game.current !== null) {
             Game.current.hero.update(angle);
         }
         this.updatePortions(this, function (x, y, z, i, j, k) {

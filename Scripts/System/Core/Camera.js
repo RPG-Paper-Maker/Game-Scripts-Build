@@ -8,8 +8,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { ScreenResolution, Mathf } from '../Common/index.js';
-import { Scene, Datas, Manager } from '../index.js';
+import { Mathf, ScreenResolution } from '../Common/index.js';
+import { Datas, Manager, Scene } from '../index.js';
 /** @class
  *  The camera of the current map.
  *  @param {System.CameraProperties} cameraProperties - The System camera
@@ -197,7 +197,7 @@ class Camera {
      *  Update the distance.
      */
     updateDistance() {
-        this.distance = this.getThreeCamera().position.distanceTo(this.targetPosition);
+        this.getThreeCamera().position.normalize().multiplyScalar(this.distance);
     }
     /**
      * Update the three.js camera view.

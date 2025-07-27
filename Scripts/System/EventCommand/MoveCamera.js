@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Base } from './Base.js';
-import { Utils, Mathf } from '../Common/index.js';
+import { Utils, Mathf, Inputs } from '../Common/index.js';
 import { System, Manager, Datas, Scene } from '../index.js';
 import { MapObject, Vector3 } from '../Core/index.js';
 /** @class
@@ -74,6 +74,7 @@ class MoveCamera extends Base {
         let finalDistance = operation(Scene.Map.current.camera.distance, this.distance.getValue());
         return {
             parallel: this.isWaitEnd,
+            initialH: Scene.Map.current.camera.horizontalAngle,
             finalPosition: new Vector3(finalX, finalY, finalZ),
             finalDifH: finalH - Scene.Map.current.camera.horizontalAngle,
             finalDifV: finalV - Scene.Map.current.camera.verticalAngle,
@@ -178,6 +179,7 @@ class MoveCamera extends Base {
                 Scene.Map.current.camera.update();
                 // If time = 0, then this is the end of the command
                 if (currentState.timeLeft === 0) {
+                    Inputs.updateLockedKeysAngles(currentState.initialH);
                     return 1;
                 }
             }

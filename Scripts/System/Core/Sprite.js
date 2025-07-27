@@ -8,15 +8,15 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum, Utils } from '../Common/index.js';
-var ElementMapKind = Enum.ElementMapKind;
-import { MapElement } from './MapElement.js';
+import { Enum, Mathf, Utils } from '../Common/index.js';
 import { THREE } from '../Globals.js';
 import { Datas, Scene } from '../index.js';
-import { Vector3 } from './Vector3.js';
-import { Vector2 } from './Vector2.js';
 import { CustomGeometry } from './CustomGeometry.js';
 import { CustomGeometryFace } from './CustomGeometryFace.js';
+import { MapElement } from './MapElement.js';
+import { Vector2 } from './Vector2.js';
+import { Vector3 } from './Vector3.js';
+var ElementMapKind = Enum.ElementMapKind;
 /** @class
  *  A sprite in the map.
  *  @extends MapElement
@@ -67,10 +67,10 @@ class Sprite extends MapElement {
      *   @param {Vector3} axis - The vector axis
      */
     static rotateSprite(vecA, vecB, vecC, vecD, center, angle, axis) {
-        Sprite.rotateVertex(vecA, center, angle, axis);
-        Sprite.rotateVertex(vecB, center, angle, axis);
-        Sprite.rotateVertex(vecC, center, angle, axis);
-        Sprite.rotateVertex(vecD, center, angle, axis);
+        Mathf.rotateVertex(vecA, center, angle, axis);
+        Mathf.rotateVertex(vecB, center, angle, axis);
+        Mathf.rotateVertex(vecC, center, angle, axis);
+        Mathf.rotateVertex(vecD, center, angle, axis);
     }
     static rotateVertexEuler(vec, center, euler) {
         vec.sub(center);
@@ -78,10 +78,10 @@ class Sprite extends MapElement {
         vec.add(center);
     }
     static rotateQuadEuler(vecA, vecB, vecC, vecD, center, euler) {
-        Sprite.rotateVertexEuler(vecA, center, euler);
-        Sprite.rotateVertexEuler(vecB, center, euler);
-        Sprite.rotateVertexEuler(vecC, center, euler);
-        Sprite.rotateVertexEuler(vecD, center, euler);
+        Mathf.rotateVertexEuler(vecA, center, euler);
+        Mathf.rotateVertexEuler(vecB, center, euler);
+        Mathf.rotateVertexEuler(vecC, center, euler);
+        Mathf.rotateVertexEuler(vecD, center, euler);
     }
     /**
      *  Add a static sprite to the geometry.

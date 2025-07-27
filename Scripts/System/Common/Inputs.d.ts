@@ -4,6 +4,7 @@
  */
 declare class Inputs {
     static keysPressed: string[];
+    static lockedKeys: [string, number][];
     static mouseLeftPressed: boolean;
     static mouseRightPressed: boolean;
     static mouseFirstPressX: number;
@@ -26,5 +27,6 @@ declare class Inputs {
      *  @static
      */
     static initializeMouse(): void;
+    static updateLockedKeysAngles(angle: number): void;
 }
 export { Inputs };

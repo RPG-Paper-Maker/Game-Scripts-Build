@@ -94,8 +94,9 @@ class MainMenuCommand extends Translatable {
                     return true;
                 };
             case Enum.MainMenuCommandKind.Script:
+                const t = this;
                 return function () {
-                    return Interpreter.evaluate(this.script, { additionalName: "menu", additionalValue: this });
+                    return Interpreter.evaluate(t.script, { additionalName: "menu", additionalValue: t, addReturn: false });
                 };
             default:
                 return null;

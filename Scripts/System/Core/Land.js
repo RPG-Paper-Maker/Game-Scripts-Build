@@ -8,12 +8,12 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { THREE } from '../Globals.js';
-import { MapElement } from './MapElement.js';
 import { Utils } from '../Common/index.js';
+import { THREE } from '../Globals.js';
 import { Datas } from '../index.js';
-import { Sprite } from './Sprite.js';
 import { CustomGeometry } from './CustomGeometry.js';
+import { MapElement } from './MapElement.js';
+import { Sprite } from './Sprite.js';
 import { Vector2 } from './Vector2.js';
 /** @class
  *  A land in the map.
@@ -121,15 +121,7 @@ class Land extends MapElement {
                 objCollision = {
                     p: position,
                     l: localPosition,
-                    b: [
-                        a + rect[0] + Datas.Systems.SQUARE_SIZE / 2,
-                        b + 0.5,
-                        c + rect[1] + Datas.Systems.SQUARE_SIZE / 2,
-                        rect[2],
-                        rect[3],
-                        1,
-                        0,
-                    ],
+                    b: [a + rect[0] + rect[2] / 2, b + 0.5, c + rect[1] + rect[3] / 2, rect[2], rect[3], 1, 0],
                     cs: null,
                 };
             }

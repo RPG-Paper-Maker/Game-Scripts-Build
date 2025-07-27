@@ -10,6 +10,7 @@
 */
 import { Base } from './Base.js';
 import { Scene } from "../index.js";
+import { Inputs } from '../Common/index.js';
 /** @class
  *  An event command for reseting the camera.
  *  @extends EventCommand.Base
@@ -27,8 +28,10 @@ class ResetCamera extends Base {
      *  @returns {number} The number of node to pass
     */
     update(currentState, object, state) {
+        const initialH = Scene.Map.current.camera.horizontalAngle;
         Scene.Map.current.camera.initialize();
         Scene.Map.current.camera.update();
+        Inputs.updateLockedKeysAngles(initialH);
         return 1;
     }
 }

@@ -11,7 +11,7 @@ import { System } from '../index.js';
 /** @class
  *  The class who handles plugins of RPG Paper Maker.
  *  @static
- *  @author Nio Kasgami, Wano
+ *  @author Nio Kasgami, Wano, Trico Everfire
  */
 class Plugins {
     constructor() {

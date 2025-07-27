@@ -1,4 +1,5 @@
 import { Vector2, Vector3 } from '../Core/index.js';
+import { THREE } from '../Globals.js';
 /**
  * The static class for Math related function.
  *
@@ -265,5 +266,7 @@ declare class Mathf {
     static numberWithCommas(x: number): string;
     static radiansToDegrees(radians: number): number;
     static degreesToRadians(degrees: number): number;
+    static rotateVertex(vec: Vector3, center: Vector3, angle: number, axis: Vector3, isDegree?: boolean): void;
+    static rotateVertexEuler(vec: THREE.Vector3, center: THREE.Vector3, euler: THREE.Euler): void;
 }
 export { Mathf };

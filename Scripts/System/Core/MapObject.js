@@ -480,7 +480,9 @@ class MapObject {
                 this.currentStateInstance.indexX >= Datas.Systems.FRAMES
                     ? Datas.Systems.FRAMES - 1
                     : this.currentStateInstance.indexX;
-            this.orientationEye = this.currentStateInstance.indexY;
+            this.orientationEye = this.currentStateInstance.setWithCamera
+                ? this.currentStateInstance.indexY
+                : Mathf.mod(Scene.Map.current.orientation + this.currentStateInstance.indexY - 2, 4);
             this.updateOrientation();
             let result;
             let positionTranformation = Position.createFromVector3(this.position);
@@ -553,7 +555,7 @@ class MapObject {
                 this.mesh.customDepthMaterial = material.userData.customDepthMaterial;
             }
             this.mesh.position.set(this.position.x, this.position.y, this.position.z);
-            this.mesh.renderOrder = 9999;
+            this.mesh.renderOrder = -1;
             this.boundingBoxSettings = objCollision[1][0];
             if (this.boundingBoxSettings) {
                 if (this.currentStateInstance.graphicID === 0) {
@@ -657,8 +659,9 @@ class MapObject {
         let yMountain = null;
         let blocked = false;
         let o = Enum.Orientation.None;
-        let i, l, result;
-        for (i = 0, l = this.meshBoundingBox.length; i < l; i++) {
+        let i, result;
+        const l = this.meshBoundingBox?.length ?? 0;
+        for (i = 0; i < l; i++) {
             this.currentBoundingBox = this.meshBoundingBox[i];
             result = Manager.Collisions.checkRay(this.position, position, this, this.boundingBoxSettings.b[i]);
             if (result[1] !== null) {
@@ -680,7 +683,7 @@ class MapObject {
         if (!blocked && yMountain !== null) {
             position.setY(yMountain);
             this.updateBBPosition(position);
-            for (i = 0, l = this.meshBoundingBox.length; i < l; i++) {
+            for (i = 0; i < l; i++) {
                 this.currentBoundingBox = this.meshBoundingBox[i];
                 result = Manager.Collisions.checkRay(this.position, position, this, this.boundingBoxSettings.b[i], true);
                 if (result[0]) {
@@ -715,8 +718,8 @@ class MapObject {
      *  @returns {Vector3}
      */
     checkCollisionDetection() {
-        let i, l;
-        for (i = 0, l = this.meshBoundingBox.length; i < l; i++) {
+        const l = this.meshBoundingBox?.length ?? 0;
+        for (let i = 0; i < l; i++) {
             if (Manager.Collisions.obbVSobb(this.meshBoundingBox[i].geometry, Manager.Collisions.getBBBoxDetection(true).geometry)) {
                 return true;
             }
@@ -817,8 +820,10 @@ class MapObject {
      *  @param {Vector3} position - Position to update
      */
     updateBBPosition(position) {
-        for (let i = 0, l = this.meshBoundingBox.length; i < l; i++) {
-            this.updateMeshBBPosition(this.meshBoundingBox[i], this.boundingBoxSettings.b[i], position);
+        if (this.meshBoundingBox) {
+            for (let i = 0, l = this.meshBoundingBox.length; i < l; i++) {
+                this.updateMeshBBPosition(this.meshBoundingBox[i], this.boundingBoxSettings.b[i], position);
+            }
         }
     }
     /**
@@ -864,7 +869,7 @@ class MapObject {
      *  @returns {number[]}
      */
     move(orientation, limit, angle, isCameraOrientation) {
-        if (this.removed) {
+        if (this.removed || !this.speed) {
             return [0, 0];
         }
         // Set position

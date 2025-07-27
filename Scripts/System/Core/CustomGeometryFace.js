@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { Mathf } from '../Common/index.js';
 import { THREE } from '../Globals.js';
 import { CustomGeometry } from './CustomGeometry.js';
-import { Sprite } from './Sprite.js';
 /**
  *  The geometry used to apply vertices + indices + uvs.
  *
@@ -61,7 +61,7 @@ export class CustomGeometryFace extends CustomGeometry {
             ic = Math.floor(i / 12) * 3;
             vertex.set(vertices[i], vertices[i + 1], vertices[i + 2]);
             center.set(this.centerPoints[ic], this.centerPoints[ic + 1], this.centerPoints[ic + 2]);
-            Sprite.rotateVertex(vertex, center, a, axis, false);
+            Mathf.rotateVertex(vertex, center, a, axis, false);
             this.b_vertices.push(vertex.x, vertex.y, vertex.z);
         }
         this.setAttribute('position', new THREE.Float32BufferAttribute(this.b_vertices, 3));

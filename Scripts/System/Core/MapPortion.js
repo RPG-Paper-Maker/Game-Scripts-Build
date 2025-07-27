@@ -8,25 +8,25 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { THREE } from '../Globals.js';
-import { MapObject } from './MapObject.js';
-import { Position } from './Position.js';
-import { System, Datas, Manager, Scene } from '../index.js';
 import { Constants, Enum } from '../Common/index.js';
-import { Floor } from './Floor.js';
-import { Autotiles } from './Autotiles.js';
+import { THREE } from '../Globals.js';
+import { Datas, Manager, Scene, System } from '../index.js';
 import { Autotile } from './Autotile.js';
-import { Sprite } from './Sprite.js';
-var ElementMapKind = Enum.ElementMapKind;
-var ShapeKind = Enum.ShapeKind;
-import { SpriteWall } from './SpriteWall.js';
-import { Mountains } from './Mountains.js';
-import { Mountain } from './Mountain.js';
-import { Object3DBox } from './Object3DBox.js';
-import { Object3DCustom } from './Object3DCustom.js';
-import { Game } from './Game.js';
+import { Autotiles } from './Autotiles.js';
 import { CustomGeometry } from './CustomGeometry.js';
 import { CustomGeometryFace } from './CustomGeometryFace.js';
+import { Floor } from './Floor.js';
+import { Game } from './Game.js';
+import { MapObject } from './MapObject.js';
+import { Mountain } from './Mountain.js';
+import { Mountains } from './Mountains.js';
+import { Object3DBox } from './Object3DBox.js';
+import { Object3DCustom } from './Object3DCustom.js';
+import { Position } from './Position.js';
+import { Sprite } from './Sprite.js';
+import { SpriteWall } from './SpriteWall.js';
+var ElementMapKind = Enum.ElementMapKind;
+var ShapeKind = Enum.ShapeKind;
 /** @class
  *  A portion of the map.
  *  @param {Portion} portion
@@ -178,27 +178,13 @@ class MapPortion {
         if (!geometry.isEmpty()) {
             geometry.updateAttributes();
             this.staticFloorsMesh = new THREE.Mesh(geometry, material);
-            this.staticFloorsMesh.renderOrder = 0;
+            this.staticFloorsMesh.renderOrder = -1;
             if (Scene.Map.current.mapProperties.isSunLight) {
                 this.staticFloorsMesh.receiveShadow = true;
                 this.staticFloorsMesh.castShadow = true;
                 this.staticFloorsMesh.customDepthMaterial = material.userData.customDepthMaterial;
             }
             Scene.Map.current.scene.add(this.staticFloorsMesh);
-        }
-        for (let list of this.staticAutotilesList) {
-            if (list) {
-                for (const autotiles of list) {
-                    if (autotiles && autotiles.createMesh()) {
-                        if (Scene.Map.current.mapProperties.isSunLight) {
-                            autotiles.mesh.receiveShadow = true;
-                            autotiles.mesh.castShadow = true;
-                            autotiles.mesh.customDepthMaterial = autotiles.bundle.material.userData.customDepthMaterial;
-                        }
-                        Scene.Map.current.scene.add(autotiles.mesh);
-                    }
-                }
-            }
         }
     }
     /**
@@ -244,7 +230,7 @@ class MapPortion {
         if (!staticGeometry.isEmpty()) {
             staticGeometry.updateAttributes();
             this.staticSpritesMesh = new THREE.Mesh(staticGeometry, material);
-            this.staticSpritesMesh.renderOrder = 999;
+            this.staticSpritesMesh.renderOrder = -1;
             if (Scene.Map.current.mapProperties.isSunLight) {
                 this.staticSpritesMesh.receiveShadow = true;
                 this.staticSpritesMesh.castShadow = true;
@@ -255,7 +241,7 @@ class MapPortion {
         if (!faceGeometry.isEmpty()) {
             faceGeometry.updateAttributes();
             this.faceSpritesMesh = new THREE.Mesh(faceGeometry, material);
-            this.faceSpritesMesh.renderOrder = 999;
+            this.faceSpritesMesh.renderOrder = -1;
             if (Scene.Map.current.mapProperties.isSunLight) {
                 this.faceSpritesMesh.castShadow = true;
                 this.faceSpritesMesh.receiveShadow = true;
@@ -439,7 +425,7 @@ class MapPortion {
                 geometry.updateAttributes();
                 const mesh = new THREE.Mesh(geometry, obj.material);
                 this.staticObjects3DList.push(mesh);
-                mesh.renderOrder = 999;
+                mesh.renderOrder = -1;
                 if (Scene.Map.current.mapProperties.isSunLight) {
                     mesh.receiveShadow = true;
                     mesh.castShadow = true;

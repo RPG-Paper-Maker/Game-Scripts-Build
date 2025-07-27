@@ -1,15 +1,17 @@
-import { Base } from './Base.js';
-import { System } from '../index.js';
 import { Enum } from '../Common/index.js';
+import { MapObject } from '../Core/index.js';
+import { System } from '../index.js';
+import { Base } from './Base.js';
 import CommandMoveKind = Enum.CommandMoveKind;
 import Orientation = Enum.Orientation;
-import { MapObject } from '../Core/index.js';
 /** @class
  *  An event command for moving object.
  *  @extends EventCommand.Base
  *  @param {any[]} command - Direct JSON command to parse
  */
 declare class MoveObject extends Base {
+    static lockedInputs: boolean;
+    static followGrid: boolean;
     objectID: System.DynamicValue;
     isIgnore: boolean;
     isWaitEnd: boolean;
@@ -30,6 +32,7 @@ declare class MoveObject extends Base {
      *  @returns {Record<string, any>} The current state
      */
     initialize(): Record<string, any>;
+    getLockedOrientation(orientation: Enum.Orientation): number;
     /**
      *  Function to move north.
      *  @param {Record<string, any>} - currentState The current state of the event

@@ -403,6 +403,16 @@ class Mathf {
     static degreesToRadians(degrees) {
         return degrees * (Math.PI / 180);
     }
+    static rotateVertex(vec, center, angle, axis, isDegree = true) {
+        vec.sub(center);
+        vec.applyAxisAngle(axis, isDegree ? (angle * Math.PI) / 180.0 : angle);
+        vec.add(center);
+    }
+    static rotateVertexEuler(vec, center, euler) {
+        vec.sub(center);
+        vec.applyEuler(euler);
+        vec.add(center);
+    }
 }
 Mathf.OPERATORS_COMPARE = [
     function (a, b) {

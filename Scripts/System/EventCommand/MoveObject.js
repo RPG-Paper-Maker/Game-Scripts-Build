@@ -8,12 +8,12 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { Enum, Inputs, Mathf, Platform, Utils } from '../Common/index.js';
+import { Game, MapObject, ReactionInterpreter, Vector3 } from '../Core/index.js';
+import { Datas, EventCommand, Manager, Scene, System } from '../index.js';
 import { Base } from './Base.js';
-import { System, Datas, EventCommand, Scene, Manager } from '../index.js';
-import { Enum, Utils, Mathf, Platform } from '../Common/index.js';
 var CommandMoveKind = Enum.CommandMoveKind;
 var Orientation = Enum.Orientation;
-import { MapObject, Game, Vector3 } from '../Core/index.js';
 /** @class
  *  An event command for moving object.
  *  @extends EventCommand.Base
@@ -299,6 +299,22 @@ class MoveObject extends Base {
             commandState: null,
         };
     }
+    getLockedOrientation(orientation) {
+        if (this.isCameraOrientation && Inputs.lockedKeys.length > 0) {
+            const currentEvent = ReactionInterpreter.currentReaction.currentReaction.event;
+            if (currentEvent && currentEvent.idEvent === 3 && currentEvent.isSystem) {
+                const pressedKey = ReactionInterpreter.currentParameters[1].getValue();
+                const value = Inputs.lockedKeys.find(([k]) => k === pressedKey);
+                if (value) {
+                    const [, lockedAngle] = value;
+                    let dif = lockedAngle - Scene.Map.current.camera.horizontalAngle;
+                    let angleDif = Math.round(dif / 90);
+                    return Mathf.mod(orientation + angleDif, 4);
+                }
+            }
+        }
+        return orientation;
+    }
     /**
      *  Function to move north.
      *  @param {Record<string, any>} - currentState The current state of the event
@@ -311,7 +327,14 @@ class MoveObject extends Base {
         if (object.moveFrequencyTick > 0) {
             return false;
         }
-        let angle = this.isCameraOrientation ? Scene.Map.current.camera.horizontalAngle : -90.0;
+        if (MoveObject.lockedInputs) {
+            orientation = this.getLockedOrientation(orientation);
+        }
+        const angle = this.isCameraOrientation
+            ? MoveObject.followGrid
+                ? Math.round(Scene.Map.current.camera.horizontalAngle / 90) * 90
+                : Scene.Map.current.camera.horizontalAngle
+            : -90.0;
         if (currentState.position === null && square) {
             currentState.position = object.getFuturPosition(orientation, Datas.Systems.SQUARE_SIZE, angle)[0];
         }
@@ -615,7 +638,7 @@ class MoveObject extends Base {
      */
     turnNorth(currentState, object, parameters) {
         if (object) {
-            object.lookAt(Orientation.North);
+            object.lookAt((Orientation.North + (this.isCameraOrientation ? Scene.Map.current.orientation + 2 : 0)) % 4);
             return true;
         }
         return Orientation.North;
@@ -629,7 +652,7 @@ class MoveObject extends Base {
      */
     turnSouth(currentState, object, parameters) {
         if (object) {
-            object.lookAt(Orientation.South);
+            object.lookAt((Orientation.South + (this.isCameraOrientation ? Scene.Map.current.orientation + 2 : 0)) % 4);
             return true;
         }
         return Orientation.South;
@@ -643,7 +666,7 @@ class MoveObject extends Base {
      */
     turnWest(currentState, object, parameters) {
         if (object) {
-            object.lookAt(Orientation.West);
+            object.lookAt((Orientation.West + (this.isCameraOrientation ? Scene.Map.current.orientation + 2 : 0)) % 4);
             return true;
         }
         return Orientation.West;
@@ -657,7 +680,7 @@ class MoveObject extends Base {
      */
     turnEast(currentState, object, parameters) {
         if (object) {
-            object.lookAt(Orientation.East);
+            object.lookAt((Orientation.East + (this.isCameraOrientation ? Scene.Map.current.orientation + 2 : 0)) % 4);
             return true;
         }
         return Orientation.East;
@@ -781,7 +804,7 @@ class MoveObject extends Base {
                 options.sid = object.currentStateInstance.speedID;
             }
             object.currentStateInstance.indexX = object.frame.value;
-            object.currentStateInstance.indexY = object.orientation;
+            object.currentStateInstance.indexY = object.orientationEye;
             object.changeState();
         }
         return Orientation.None;
@@ -806,7 +829,7 @@ class MoveObject extends Base {
                 options.fid = object.currentStateInstance.frequencyID;
             }
             object.currentStateInstance.indexX = object.frame.value;
-            object.currentStateInstance.indexY = object.orientation;
+            object.currentStateInstance.indexY = object.orientationEye;
             object.changeState();
         }
         return Orientation.None;
@@ -1141,4 +1164,6 @@ class MoveObject extends Base {
         return 1;
     }
 }
+MoveObject.lockedInputs = false; // TEMP: to remove after adding the locked option
+MoveObject.followGrid = false; // TEMP: to remove after adding the option
 export { MoveObject };

@@ -35,7 +35,9 @@ class Event extends Base {
         let jsonReactions = json.r;
         this.reactions = {};
         for (let idState in jsonReactions) {
-            this.reactions[idState] = new System.Reaction(jsonReactions[idState]);
+            const reaction = new System.Reaction(jsonReactions[idState]);
+            reaction.event = this;
+            this.reactions[idState] = reaction;
         }
     }
     /**

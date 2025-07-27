@@ -12,6 +12,7 @@ declare class Reaction extends Base {
     idEvent: number;
     blockingHero: boolean;
     commands: Tree;
+    event: System.Event;
     constructor(json?: Record<string, any>);
     /**
      *  Read the JSON associated to the object reaction.
