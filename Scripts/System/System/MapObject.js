@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
-import { Datas, System } from '../index.js';
 import { Utils } from '../Common/index.js';
+import { Datas, System } from '../index.js';
+import { Base } from './Base.js';
 /** @class
  *  An object in the map.
  *  @extends System.Base
@@ -30,7 +30,7 @@ class MapObject extends Base {
     static createFromModelID(modelID, id) {
         let mapObject = new MapObject();
         mapObject.id = id;
-        mapObject.name = "";
+        mapObject.name = '';
         mapObject.addDefaultValues();
         mapObject.addInheritanceModel(modelID);
         mapObject.timeEvents = mapObject.getTimeEvents();
@@ -44,8 +44,7 @@ class MapObject extends Base {
         this.id = json.id;
         this.name = json.name;
         this.isEventFrame = json.ooepf;
-        this.canBeTriggeredAnotherObject = Utils.defaultValue(json
-            .canBeTriggeredAnotherObject, true);
+        this.canBeTriggeredAnotherObject = Utils.defaultValue(json.canBeTriggeredAnotherObject, true);
         this.addDefaultValues();
         this.addInheritanceModel(json.hId);
         // States
@@ -135,7 +134,7 @@ class MapObject extends Base {
             let eventsList, realEventsList;
             for (let idEvent in events) {
                 eventsList = events[idEvent];
-                realEventsList = new Array;
+                realEventsList = new Array();
                 for (i = 0, l = eventsList.length; i < l; i++) {
                     realEventsList.push(eventsList[i]);
                 }
@@ -179,7 +178,7 @@ class MapObject extends Base {
                 event = events[i];
                 if (event.isSystem === isSystem) {
                     for (j = 1, m = parameters.length; j < m; j++) {
-                        if (!event.parameters[j].value.isEqual(parameters[j])) {
+                        if (event.parameters[j] && !event.parameters[j].value.isEqual(parameters[j])) {
                             test = false;
                             break;
                         }

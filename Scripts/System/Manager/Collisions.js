@@ -8,11 +8,11 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Mathf, Constants, Enum } from '../Common/index.js';
-import { MapObject, Position, Portion, Vector3, Vector2, Game, CustomGeometry, } from '../Core/index.js';
-import { Datas, Scene, Manager } from '../index.js';
-var ElementMapKind = Enum.ElementMapKind;
+import { Constants, Enum, Mathf } from '../Common/index.js';
+import { CustomGeometry, Game, MapObject, Portion, Position, Vector2, Vector3, } from '../Core/index.js';
 import { THREE } from '../Globals.js';
+import { Datas, Manager, Scene } from '../index.js';
+var ElementMapKind = Enum.ElementMapKind;
 /** @class
  *  The collisions manager.
  *  @static
@@ -64,10 +64,9 @@ class Collisions {
      */
     static applyBoxLandTransforms(box, boundingBox) {
         // Cancel previous geometry transforms
-        box.geometry.translate(-box['previousTranslate'][0], -box['previousTranslate'][1], -box['previousTranslate'][2]);
-        box.geometry.rotateZ((-box['previousRotate'][2] * Math.PI) / 180.0);
-        box.geometry.rotateY((-box['previousRotate'][0] * Math.PI) / 180.0);
-        box.geometry.rotateX((-box['previousRotate'][1] * Math.PI) / 180.0);
+        box.geometry.translate(-box['previousTranslate'][0] + box['previousCenter'][0], -box['previousTranslate'][1] + box['previousCenter'][1], -box['previousTranslate'][2] + box['previousCenter'][2]);
+        let geometry = box.geometry;
+        geometry.rotateFromEuler(new THREE.Euler((-box['previousRotate'][1] * Math.PI) / 180.0, (-box['previousRotate'][0] * Math.PI) / 180.0, (-box['previousRotate'][2] * Math.PI) / 180.0, 'ZYX'), new Vector3(box['previousCenter'][0], box['previousCenter'][1], box['previousCenter'][2]));
         box.geometry.scale(1 / box['previousScale'][0], 1 / box['previousScale'][1], 1 / box['previousScale'][2]);
         // Update to the new ones
         box.geometry.scale(boundingBox[3], 1, boundingBox[4]);
@@ -76,6 +75,7 @@ class Collisions {
         box['previousTranslate'] = [boundingBox[0], boundingBox[1], boundingBox[2]];
         box['previousRotate'] = [0, 0, 0];
         box['previousScale'] = [boundingBox[3], 1, boundingBox[4]];
+        box['previousCenter'] = [0, 0, 0];
         // Update geometry now
         box.updateMatrixWorld();
         // Compute bounding box manually

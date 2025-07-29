@@ -8,13 +8,13 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
 import { Enum, Utils } from '../Common/index.js';
+import { Manager, System } from '../index.js';
+import { Base } from './Base.js';
 var ObjectMovingKind = Enum.ObjectMovingKind;
 var EventCommandKind = Enum.EventCommandKind;
 var DynamicValueKind = Enum.DynamicValueKind;
 var CommandMoveKind = Enum.CommandMoveKind;
-import { System, Manager } from '../index.js';
 /** @class
  *  A possible state of an object.
  *  @extends System.Base
@@ -35,22 +35,24 @@ class State extends Base {
         this.graphicKind = json.gk;
         if (this.graphicID === 0) {
             this.rectTileset = json.rt;
+            if (this.rectTileset.length === 2) {
+                this.rectTileset.push(1);
+                this.rectTileset.push(1);
+            }
         }
         else {
             this.indexX = json.x;
             this.indexY = json.y;
         }
-        this.objectMovingKind = Utils.defaultValue(json.omk, ObjectMovingKind
-            .Fix);
+        this.objectMovingKind = Utils.defaultValue(json.omk, ObjectMovingKind.Fix);
         this.route = new System.Reaction({
             bh: false,
             c: [
                 Utils.defaultValue(json.ecr, {
                     kind: EventCommandKind.MoveObject,
-                    command: [DynamicValueKind.DataBase, -1, 1, 1, 0,
-                        CommandMoveKind.MoveRandom, 0]
-                })
-            ]
+                    command: [DynamicValueKind.DataBase, -1, 1, 1, 0, CommandMoveKind.MoveRandom, 0],
+                }),
+            ],
         });
         this.speedID = Utils.defaultValue(json.s, 1);
         this.frequencyID = Utils.defaultValue(json.f, 1);
@@ -64,8 +66,7 @@ class State extends Base {
         this.keepPosition = json.pos;
         this.detection = Utils.defaultValue(json.ecd, null);
         if (this.detection !== null) {
-            this.detection = Manager.Events.getEventCommand(this
-                .detection);
+            this.detection = Manager.Events.getEventCommand(this.detection);
         }
         this.centerX = System.DynamicValue.readOrDefaultNumberDouble(json.cx, 50);
         this.centerZ = System.DynamicValue.readOrDefaultNumberDouble(json.cz, 50);
@@ -104,7 +105,7 @@ class State extends Base {
             angleZ: this.angleZ.createCopy(),
             scaleX: this.scaleX.createCopy(),
             scaleY: this.scaleY.createCopy(),
-            scaleZ: this.scaleZ.createCopy()
+            scaleZ: this.scaleZ.createCopy(),
         };
     }
 }

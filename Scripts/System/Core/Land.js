@@ -61,7 +61,7 @@ class Land extends MapElement {
      *  @returns {StructCollision}
      */
     updateGeometryLand(geometry, collision, position, width, height, x, y, w, h, count) {
-        let localPosition = position.toVector3();
+        const localPosition = position.toVector3();
         let a = localPosition.x;
         let yLayerOffset = position.layer * 0.05;
         if (!this.up) {
@@ -101,15 +101,7 @@ class Land extends MapElement {
                 if (rect === null) {
                     rect = [0, 0, Datas.Systems.SQUARE_SIZE, Datas.Systems.SQUARE_SIZE];
                 }
-                rect = [
-                    a + rect[0] + Datas.Systems.SQUARE_SIZE / 2,
-                    b + 0.5,
-                    c + rect[1] + Datas.Systems.SQUARE_SIZE / 2,
-                    rect[2],
-                    rect[3],
-                    1,
-                    0,
-                ];
+                rect = [a + rect[0], b + 0.5, c + rect[1], rect[2], rect[3], 1, 0];
                 objCollision = {
                     p: position,
                     l: localPosition,
@@ -121,7 +113,7 @@ class Land extends MapElement {
                 objCollision = {
                     p: position,
                     l: localPosition,
-                    b: [a + rect[0] + rect[2] / 2, b + 0.5, c + rect[1] + rect[3] / 2, rect[2], rect[3], 1, 0],
+                    b: [a + rect[0], b + 0.5, c + rect[1], rect[2], rect[3], 1, 0],
                     cs: null,
                 };
             }

@@ -734,7 +734,7 @@ class Map extends Base {
         }
         points = new THREE.Points(geometry, material);
         points.position.set(Scene.Map.current.camera.target.position.x, Scene.Map.current.camera.target.position.y, Scene.Map.current.camera.target.position.z);
-        points.renderOrder = -1;
+        points.renderOrder = 1;
         this.scene.add(points);
         if (current) {
             this.weatherPoints = points;
@@ -943,7 +943,7 @@ class Map extends Base {
                     }
                 }
             }
-            if (Game.current.hero.mesh) {
+            if (Game.current && Game.current.hero.mesh) {
                 Game.current.hero.mesh.material.opacity = opacity;
             }
             this.camera.updateTimer();

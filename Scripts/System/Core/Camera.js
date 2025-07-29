@@ -197,7 +197,7 @@ class Camera {
      *  Update the distance.
      */
     updateDistance() {
-        this.getThreeCamera().position.normalize().multiplyScalar(this.distance);
+        this.distance = this.getThreeCamera().position.distanceTo(this.targetPosition);
     }
     /**
      * Update the three.js camera view.
