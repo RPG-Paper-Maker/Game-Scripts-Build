@@ -27,6 +27,9 @@ class Map extends Base {
         super(false);
         this.previousWeatherPoints = null;
         this.weatherPoints = null;
+        this.overflowSprites = new globalThis.Map();
+        this.overflowMountains = new globalThis.Map();
+        this.overflowObjects3D = new globalThis.Map();
         this.id = id;
         this.isBattleMap = isBattleMap;
         this.mapFilename = Scene.Map.generateMapName(id);

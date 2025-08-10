@@ -24,6 +24,7 @@ declare class Portion {
      *   @returns {number[]}
      */
     static createFromVector3(position: Vector3): Portion;
+    static fromKey(key: string): Portion;
     /**
      *  Test if a portion is equal to another.
      *  @returns {boolean}
@@ -34,5 +35,6 @@ declare class Portion {
      *  @returns {string}
      */
     getFileName(): string;
+    toKey(): string;
 }
 export { Portion };

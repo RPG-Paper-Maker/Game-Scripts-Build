@@ -26,7 +26,6 @@ declare class MapPortion {
     objectsList: MapObject[];
     staticWallsList: THREE.Mesh[];
     staticObjects3DList: THREE.Mesh[];
-    overflowMountains: Position[];
     constructor(portion: Portion);
     /**
      *  Read the JSON associated to the map portion.
@@ -105,7 +104,7 @@ declare class MapPortion {
      *  @param {Position} position - The json position of the sprite
      *  @param {boolean} side - Indicate if collision side
      */
-    updateCollision(boundingBoxes: Record<string, any>[], collisions: StructMapElementCollision[], position: Position, side: boolean): void;
+    updateCollision(boundingBoxes: Record<string, any>[], collisions: StructMapElementCollision[], position: Position, side: boolean, overflowMap: Map<string, Set<string>>): void;
     /**
      *  Get the object collision according to position.
      *  @param {Position} positionSource - The source json position

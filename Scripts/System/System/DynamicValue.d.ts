@@ -1,7 +1,7 @@
 import { Enum } from '../Common/index.js';
-import DynamicValueKind = Enum.DynamicValueKind;
-import { System } from '../index.js';
 import { StructIterator } from '../EventCommand/index.js';
+import { System } from '../index.js';
+import DynamicValueKind = Enum.DynamicValueKind;
 interface StructJSON {
     k: DynamicValueKind;
     v: any;
@@ -201,4 +201,4 @@ declare class DynamicValue extends System.Base {
      */
     createCopy(): System.DynamicValue;
 }
-export { StructJSON, DynamicValue };
+export { DynamicValue, StructJSON };

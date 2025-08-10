@@ -61,7 +61,6 @@ class MapPortion {
         this.objectsList = new Array();
         this.staticWallsList = new Array();
         this.staticObjects3DList = new Array();
-        this.overflowMountains = new Array();
     }
     /**
      *  Read the JSON associated to the map portion.
@@ -355,7 +354,7 @@ class MapPortion {
             }
             if (texture !== null && texture.material !== null) {
                 const objCollision = mountains.updateGeometry(position, mountain, pictureID);
-                this.updateCollision(this.boundingBoxesMountains, objCollision, position, true);
+                this.updateCollision(this.boundingBoxesMountains, objCollision, position, true, Scene.Map.current.overflowMountains);
             }
         }
         // Update all the geometry uvs and put it in the scene
@@ -428,7 +427,7 @@ class MapPortion {
                 if (Manager.GL.getMaterialTexture(material)) {
                     const result = obj3D.updateGeometry(geometry, position, count);
                     obj.c = result[0];
-                    this.updateCollision(this.boundingBoxesObjects3D, result[1], position, datas.shapeKind === ShapeKind.Custom);
+                    this.updateCollision(this.boundingBoxesObjects3D, result[1], position, datas.shapeKind === ShapeKind.Custom, Scene.Map.current.overflowObjects3D);
                 }
             }
         }
@@ -629,7 +628,7 @@ class MapPortion {
      *  @param {Position} position - The json position of the sprite
      *  @param {boolean} side - Indicate if collision side
      */
-    updateCollision(boundingBoxes, collisions, position, side) {
+    updateCollision(boundingBoxes, collisions, position, side, overflowMap) {
         let i, l, objCollision, centeredPosition, minW, maxW, minH, maxH, minD, maxD, a, b, c, positionPlus, objCollisionPlus;
         for (i = 0, l = collisions.length; i < l; i++) {
             objCollision = collisions[i];
@@ -646,7 +645,7 @@ class MapPortion {
                 for (b = minH; b <= maxH; b++) {
                     for (c = minD; c <= maxD; c++) {
                         positionPlus = new Position(centeredPosition.x + a, centeredPosition.y + b, centeredPosition.z + c);
-                        if (Scene.Map.current.isInMap(positionPlus) && this.isPositionIn(positionPlus)) {
+                        if (Scene.Map.current.isInMap(positionPlus)) {
                             if (side) {
                                 objCollisionPlus = {};
                                 objCollisionPlus = Object.assign(objCollisionPlus, objCollision);
@@ -659,6 +658,17 @@ class MapPortion {
                                 objCollisionPlus = objCollision;
                             }
                             boundingBoxes[positionPlus.toIndex()].push(objCollisionPlus);
+                            // Overflowing to another portion
+                            const mapPortion = Scene.Map.current.getMapPortionByPosition(positionPlus);
+                            if (mapPortion && mapPortion !== this) {
+                                const key = mapPortion.portion.toKey();
+                                let portions = overflowMap.get(key);
+                                if (!portions) {
+                                    portions = new Set();
+                                    overflowMap.set(key, portions);
+                                }
+                                portions.add(this.portion.toKey());
+                            }
                         }
                     }
                 }

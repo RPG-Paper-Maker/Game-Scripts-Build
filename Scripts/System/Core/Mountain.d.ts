@@ -1,9 +1,9 @@
+import { Core, System } from '../index.js';
+import { CustomGeometry } from './CustomGeometry.js';
 import { MapElement } from './index.js';
-import { System, Core } from '../index.js';
 import { Position } from './Position.js';
 import { TextureBundle } from './TextureBundle.js';
 import { Vector3 } from './Vector3.js';
-import { CustomGeometry } from './CustomGeometry.js';
 /**
  * A mountain in the map.
  *
@@ -19,6 +19,9 @@ declare class Mountain extends MapElement {
     static Y_MID_OFFSET: number;
     static Y_BOT_OFFSET: number;
     static Y_MIX_OFFSET: number;
+    static Y_MID_TOP_OFFSET: number;
+    static Y_MID_MID_OFFSET: number;
+    static Y_MID_BOT_OFFSET: number;
     mountainID: number;
     widthSquares: number;
     widthPixels: number;

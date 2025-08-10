@@ -8,12 +8,11 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { MapElement } from './index.js';
-import { Sprite } from './index.js';
-import { Utils, Constants } from '../Common/index.js';
+import { Utils } from '../Common/index.js';
 import { Datas } from '../index.js';
-import { Vector3 } from './Vector3.js';
+import { MapElement, Sprite } from './index.js';
 import { Vector2 } from './Vector2.js';
+import { Vector3 } from './Vector3.js';
 /**
  * A mountain in the map.
  *
@@ -44,8 +43,7 @@ class Mountain extends MapElement {
         this.right = Utils.defaultValue(json.r, false);
         // Calculate angle
         let width = this.getWidthTotalPixels();
-        this.angle = width === 0 ? 90 : Math.atan(this.getHeightTotalPixels() /
-            width) * 180 / Math.PI;
+        this.angle = width === 0 ? 90 : (Math.atan(this.getHeightTotalPixels() / width) * 180) / Math.PI;
     }
     /**
      *  Get the total squares width.
@@ -59,38 +57,35 @@ class Mountain extends MapElement {
      *  @returns {number}
      */
     getTotalSquaresHeight(yPlus) {
-        return this.heightSquares + (this.getHeightOnlyPixelsPlus() + yPlus > 0
-            ? 1 : 0);
+        return this.heightSquares + (this.getHeightOnlyPixelsPlus() + yPlus > 0 ? 1 : 0);
     }
     /**
      *  Get the squares number width with pixels plus.
      *  @returns {number}
      */
     getWidthOnlyPixelsPlus() {
-        return Math.round(this.widthPixels * Datas.Systems.SQUARE_SIZE / 100);
+        return Math.round((this.widthPixels * Datas.Systems.SQUARE_SIZE) / 100);
     }
     /**
      *  Get the squares number height with pixels plus.
      *  @returns {number}
      */
     getHeightOnlyPixelsPlus() {
-        return Math.round(this.heightPixels * Datas.Systems.SQUARE_SIZE / 100);
+        return Math.round((this.heightPixels * Datas.Systems.SQUARE_SIZE) / 100);
     }
     /**
      *  Get the total width in pixels.
      *  @returns {number}
      */
     getWidthTotalPixels() {
-        return this.widthSquares * Datas.Systems.SQUARE_SIZE + this
-            .getWidthOnlyPixelsPlus();
+        return this.widthSquares * Datas.Systems.SQUARE_SIZE + this.getWidthOnlyPixelsPlus();
     }
     /**
      *  Get the total height in pixels.
      *  @returns {number}
      */
     getHeightTotalPixels() {
-        return this.heightSquares * Datas.Systems.SQUARE_SIZE + this
-            .getHeightOnlyPixelsPlus();
+        return this.heightSquares * Datas.Systems.SQUARE_SIZE + this.getHeightOnlyPixelsPlus();
     }
     /**
      *  Get the System special element mountain.
@@ -144,36 +139,32 @@ class Mountain extends MapElement {
             xKind = Mountain.X_MIX_OFFSET;
         }
         // Draw all faces
-        if (faceHeight === Datas.Systems.SQUARE_SIZE) { // 1 Mix sprite
+        if (faceHeight === Datas.Systems.SQUARE_SIZE) {
+            // 1 Mix sprite
             // Mix
             count = this.drawSideCorner(xKind, Mountain.Y_MIX_OFFSET, angle, center, width, height, w, faceHeight, wp, xLeft, xRight, vecBackA.x, vecBackB.x, vecFrontA.x, vecBackB.x, yTop, yBot, zFront, zBack, vecFrontA.z, vecFrontB.z, vecBackA.z, vecBackB.z, yOffset, geometry, count, 0, vecFrontA.distanceTo(vecFrontB));
         }
-        else if (faceHeight <= (2 * Datas.Systems.SQUARE_SIZE)) { // 2 B / T sprites
+        else if (faceHeight <= 2 * Datas.Systems.SQUARE_SIZE) {
+            // 2 B / T sprites
             // Bottom
-            count = this.drawSideCorner(xKind, Mountain.Y_BOT_OFFSET, angle, center, width, height, w, Math.floor(faceHeight / 2), wp, xLeft, xRight, vecCenterA.x, vecCenterB.x, vecFrontA.x, vecFrontB.x, vecCenterB.y, yBot, zFront, vecCenterB.z, vecFrontA.z, vecFrontB
-                .z, vecCenterA.z, vecCenterB.z, yOffset, geometry, count, vecCenterA.distanceTo(vecCenterB), vecFrontA.distanceTo(vecFrontB));
+            count = this.drawSideCorner(xKind, Mountain.Y_BOT_OFFSET, angle, center, width, height, w, Math.floor(faceHeight / 2), wp, xLeft, xRight, vecCenterA.x, vecCenterB.x, vecFrontA.x, vecFrontB.x, vecCenterB.y, yBot, zFront, vecCenterB.z, vecFrontA.z, vecFrontB.z, vecCenterA.z, vecCenterB.z, yOffset, geometry, count, vecCenterA.distanceTo(vecCenterB), vecFrontA.distanceTo(vecFrontB));
             // Top
-            count = this.drawSideCorner(xKind, Mountain.Y_TOP_OFFSET, angle, center, width, height, w, Math.ceil(faceHeight / 2), wp, xLeft, xRight, vecBackA.x, vecBackB.x, vecCenterA.x, vecCenterB.x, yTop, vecCenterB.y, vecCenterB.z, zBack, vecCenterA.z, vecCenterB.z, vecBackA.z, vecBackB.z, yOffset, geometry, count, 0, vecCenterA
-                .distanceTo(vecCenterB));
+            count = this.drawSideCorner(xKind, Mountain.Y_TOP_OFFSET, angle, center, width, height, w, Math.ceil(faceHeight / 2), wp, xLeft, xRight, vecBackA.x, vecBackB.x, vecCenterA.x, vecCenterB.x, yTop, vecCenterB.y, vecCenterB.z, zBack, vecCenterA.z, vecCenterB.z, vecBackA.z, vecBackB.z, yOffset, geometry, count, 0, vecCenterA.distanceTo(vecCenterB));
         }
-        else { // 3 B / M / T sprites
+        else {
+            // 3 B / M / T sprites
             // Bottom
-            let vecStepLeftB = vecFrontA.clone().addScaledVector(vecBackA
-                .clone().sub(vecFrontA), 1 / nbSteps);
-            let vecStepRightB = vecFrontB.clone().addScaledVector(vecBackB
-                .clone().sub(vecFrontB), 1 / nbSteps);
+            let vecStepLeftB = vecFrontA.clone().addScaledVector(vecBackA.clone().sub(vecFrontA), 1 / nbSteps);
+            let vecStepRightB = vecFrontB.clone().addScaledVector(vecBackB.clone().sub(vecFrontB), 1 / nbSteps);
             count = this.drawSideCorner(xKind, Mountain.Y_BOT_OFFSET, angle, center, width, height, w, Math.floor(faceHeight / nbSteps), wp, xLeft, xRight, vecStepLeftB.x, vecStepRightB.x, vecFrontA.x, vecFrontB.x, vecStepRightB.y, yBot, zFront, vecStepRightB.z, vecFrontA.z, vecFrontB.z, vecStepLeftB.z, vecStepRightB.z, yOffset, geometry, count, vecStepLeftB.distanceTo(vecStepRightB), vecFrontA.distanceTo(vecFrontB));
             // Middle: add as many as middle blocks as possible
             let vecStepLeftA, vecStepRightA;
             for (let i = 2; i <= nbSteps - 1; i++) {
                 vecStepLeftA = vecStepLeftB;
                 vecStepRightA = vecStepRightB;
-                vecStepLeftB = vecFrontA.clone().addScaledVector(vecBackA
-                    .clone().sub(vecFrontA), i / nbSteps);
-                vecStepRightB = vecFrontB.clone().addScaledVector(vecBackB
-                    .clone().sub(vecFrontB), i / nbSteps);
-                count = this.drawSideCorner(xKind, Mountain.Y_MID_OFFSET, angle, center, width, height, w, Math.floor(faceHeight / nbSteps), wp, xLeft, xRight, vecStepLeftB.x, vecStepRightB.x, vecStepLeftA.x, vecStepRightA.x, vecStepRightB.y, vecStepRightA.y, vecStepRightA.z, vecStepRightB.z, vecStepLeftA.z, vecStepRightA.z, vecStepLeftB.z, vecStepRightB.z, yOffset, geometry, count, vecStepLeftB
-                    .distanceTo(vecStepRightB), vecStepLeftA.distanceTo(vecStepRightA));
+                vecStepLeftB = vecFrontA.clone().addScaledVector(vecBackA.clone().sub(vecFrontA), i / nbSteps);
+                vecStepRightB = vecFrontB.clone().addScaledVector(vecBackB.clone().sub(vecFrontB), i / nbSteps);
+                count = this.drawSideCorner(xKind, Mountain.Y_MID_OFFSET, angle, center, width, height, w, Math.floor(faceHeight / nbSteps), wp, xLeft, xRight, vecStepLeftB.x, vecStepRightB.x, vecStepLeftA.x, vecStepRightA.x, vecStepRightB.y, vecStepRightA.y, vecStepRightA.z, vecStepRightB.z, vecStepLeftA.z, vecStepRightA.z, vecStepLeftB.z, vecStepRightB.z, yOffset, geometry, count, vecStepLeftB.distanceTo(vecStepRightB), vecStepLeftA.distanceTo(vecStepRightA));
             }
             // Top
             count = this.drawSideCorner(xKind, Mountain.Y_TOP_OFFSET, angle, center, width, height, w, Math.ceil(faceHeight / nbSteps), wp, xLeft, xRight, vecBackA.x, vecBackB.x, vecStepLeftB.x, vecStepRightB.x, yTop, vecStepRightB.y, vecStepRightB.z, zBack, vecStepLeftB.z, vecStepRightB.z, vecBackA.z, vecBackB.z, yOffset, geometry, count, 0, vecStepLeftB.distanceTo(vecStepRightB));
@@ -251,46 +242,45 @@ class Mountain extends MapElement {
     drawFace(xKind, yKind, angle, center, width, height, w, faceHeight, xLeftTop, xRightTop, xLeftBot, xRightBot, yTop, yBot, zFrontLeft, zFrontRight, zBackLeft, zBackRight, yOffset, geometry, count, xCornerOffsetTop, xCornerOffsetBot, isCorner) {
         // Textures coordinates
         let x = (xKind * Datas.Systems.SQUARE_SIZE) / width;
-        let y = ((yKind * Datas.Systems.SQUARE_SIZE) + (yKind === Mountain
-            .Y_BOT_OFFSET ? Datas.Systems.SQUARE_SIZE - faceHeight : 0) +
-            yOffset) / height;
+        let y = ((isCorner ? yKind + 4 : yKind) * Datas.Systems.SQUARE_SIZE +
+            (yKind === Mountain.Y_BOT_OFFSET ? Datas.Systems.SQUARE_SIZE - faceHeight : 0)) /
+            height;
         let h = faceHeight / height;
         let coefX = MapElement.COEF_TEX / width;
         let coefY = MapElement.COEF_TEX / height;
         x += coefX;
         y += coefY;
-        w -= (coefX * 2);
-        h -= (coefY * 2);
+        w -= coefX * 2;
+        h -= coefY * 2;
         // Textures and vertices
         let texA, texB, texC, texD;
         if (isCorner) {
-            texA = new Vector2(((xKind * Datas.Systems.SQUARE_SIZE) + ((Datas.Systems.SQUARE_SIZE - xCornerOffsetTop) / 2)) / width +
+            texA = new Vector2((Mountain.X_MID_OFFSET * Datas.Systems.SQUARE_SIZE +
+                (Datas.Systems.SQUARE_SIZE - xCornerOffsetTop) / 2) /
+                width +
                 coefX, y);
-            texB = new Vector2((((xKind + 1) * Datas.Systems.SQUARE_SIZE)
-                - ((Datas.Systems.SQUARE_SIZE - xCornerOffsetTop) / 2)) / width
-                - coefX, y);
-            texC = new Vector2((((xKind + 1) * Datas.Systems.SQUARE_SIZE)
-                - ((Datas.Systems.SQUARE_SIZE - xCornerOffsetBot) / 2)) / width
-                - coefX, y + h);
-            texD = new Vector2((((xKind) * Datas.Systems.SQUARE_SIZE) + ((Datas.Systems.SQUARE_SIZE - xCornerOffsetBot) / 2)) / width +
+            texB = new Vector2(((Mountain.X_MID_OFFSET + 1) * Datas.Systems.SQUARE_SIZE -
+                (Datas.Systems.SQUARE_SIZE - xCornerOffsetTop) / 2) /
+                width -
+                coefX, y);
+            texC = new Vector2(((Mountain.X_MID_OFFSET + 1) * Datas.Systems.SQUARE_SIZE -
+                (Datas.Systems.SQUARE_SIZE - xCornerOffsetBot) / 2) /
+                width -
+                coefX, y + h);
+            texD = new Vector2((Mountain.X_MID_OFFSET * Datas.Systems.SQUARE_SIZE +
+                (Datas.Systems.SQUARE_SIZE - xCornerOffsetBot) / 2) /
+                width +
                 coefX, y + h);
         }
-        else { // Triangle form for corners
+        else {
+            // Triangle form for corners
             texA = new Vector2(x, y);
             texB = new Vector2(x + w, y);
             texC = new Vector2(x + w, y + h);
             texD = new Vector2(x, y + h);
         }
-        let texFaceA = [
-            new Vector2(texA.x, texA.y),
-            new Vector2(texB.x, texB.y),
-            new Vector2(texC.x, texC.y)
-        ];
-        let texFaceB = [
-            new Vector2(texA.x, texA.y),
-            new Vector2(texC.x, texC.y),
-            new Vector2(texD.x, texD.y)
-        ];
+        let texFaceA = [new Vector2(texA.x, texA.y), new Vector2(texB.x, texB.y), new Vector2(texC.x, texC.y)];
+        let texFaceB = [new Vector2(texA.x, texA.y), new Vector2(texC.x, texC.y), new Vector2(texD.x, texD.y)];
         let vecA = new Vector3(xLeftTop, yTop, zBackLeft);
         let vecB = new Vector3(xRightTop, yTop, zBackRight);
         let vecC = new Vector3(xRightBot, yBot, zFrontRight);
@@ -311,17 +301,15 @@ class Mountain extends MapElement {
      */
     updateGeometry(geometry, texture, position, pictureID, count) {
         // General configurations
-        let yOffset = texture.getOffset(pictureID, null) * 4 * Datas.Systems
-            .SQUARE_SIZE;
+        let yOffset = texture.getOffset(pictureID, null) * 4 * Datas.Systems.SQUARE_SIZE;
         let wp = this.getWidthTotalPixels();
         let hp = this.getHeightTotalPixels();
         let width = 4 * Datas.Systems.SQUARE_SIZE;
-        let height = Constants.MAX_PICTURE_SIZE;
-        let faceHeight = Math.sqrt((wp * wp) + (hp * hp));
+        let height = 7 * Datas.Systems.SQUARE_SIZE;
+        let faceHeight = Math.sqrt(wp * wp + hp * hp);
         let w = Datas.Systems.SQUARE_SIZE / width;
         let localPosition = position.toVector3(false);
-        let center = new Vector3(localPosition.x + (Datas.Systems
-            .SQUARE_SIZE / 2), localPosition.y + (Datas.Systems.SQUARE_SIZE / 2), localPosition.z + (Datas.Systems.SQUARE_SIZE / 2));
+        let center = new Vector3(localPosition.x + Datas.Systems.SQUARE_SIZE / 2, localPosition.y + Datas.Systems.SQUARE_SIZE / 2, localPosition.z + Datas.Systems.SQUARE_SIZE / 2);
         let xLeft = localPosition.x;
         let xRight = localPosition.x + Datas.Systems.SQUARE_SIZE;
         let yTop = localPosition.y + hp;
@@ -354,27 +342,16 @@ class Mountain extends MapElement {
             {
                 p: position,
                 l: localPosition,
-                b: [
-                    center.x,
-                    center.y,
-                    center.z,
-                    wp,
-                    hp,
-                    wp,
-                    0,
-                    0,
-                    0
-                ],
+                b: [center.x, center.y, center.z, wp, hp, wp, 0, 0, 0],
                 w: this.getTotalSquaresWidth(),
                 h: this.getTotalSquaresHeight(position[2]),
                 d: this.getTotalSquaresWidth(),
                 rw: this.getWidthTotalPixels(),
                 rh: this.getHeightTotalPixels(),
-                m: Math.max(this.getTotalSquaresWidth(), this
-                    .getTotalSquaresHeight(position[2])),
+                m: Math.max(this.getTotalSquaresWidth(), this.getTotalSquaresHeight(position[2])),
                 t: this,
-                k: true
-            }
+                k: true,
+            },
         ];
         return [count, objCollision];
     }
@@ -387,4 +364,7 @@ Mountain.Y_TOP_OFFSET = 0;
 Mountain.Y_MID_OFFSET = 1;
 Mountain.Y_BOT_OFFSET = 2;
 Mountain.Y_MIX_OFFSET = 3;
+Mountain.Y_MID_TOP_OFFSET = 4;
+Mountain.Y_MID_MID_OFFSET = 5;
+Mountain.Y_MID_BOT_OFFSET = 6;
 export { Mountain };

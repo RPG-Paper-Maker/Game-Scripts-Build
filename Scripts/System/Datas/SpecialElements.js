@@ -10,8 +10,8 @@
 */
 import { Constants, Enum, Paths, Platform, Utils } from '../Common/index.js';
 import { Autotiles, Game, Picture2D, TextureBundle } from '../Core/index.js';
-import { System, Datas, Manager, Scene } from '../index.js';
 import { THREE } from '../Globals.js';
+import { Datas, Manager, Scene, System } from '../index.js';
 /** @class
  *  All the special elements datas.
  *  @static
@@ -320,7 +320,7 @@ class SpecialElements {
             let texture = new THREE.Texture();
             Platform.ctxr.clearRect(0, 0, Platform.canvasRendering.width, Platform.canvasRendering.height);
             Platform.canvasRendering.width = 4 * Datas.Systems.SQUARE_SIZE;
-            Platform.canvasRendering.height = Constants.MAX_PICTURE_SIZE;
+            Platform.canvasRendering.height = 7 * Datas.Systems.SQUARE_SIZE;
             this.texturesMountains = new Array();
             let picture = mountain ? Datas.Pictures.get(Enum.PictureKind.Mountains, pictureID) : null;
             result = await this.loadTextureMountain(textureMountain, texture, picture, offset, id);
@@ -408,6 +408,12 @@ class SpecialElements {
             Platform.ctxr.drawImage(img, sourceSize - sDiv, 0, sDiv, sDiv, sourceSize + sDiv, y + sourceSize, sDiv, sDiv);
             Platform.ctxr.drawImage(img, 0, sourceSize - sDiv, sDiv, sDiv, sourceSize, y + sourceSize + sDiv, sDiv, sDiv);
             Platform.ctxr.drawImage(img, sourceSize - sDiv, sourceSize - sDiv, sDiv, sDiv, sourceSize + sDiv, y + sourceSize + sDiv, sDiv, sDiv);
+            // Repeated mid (for corners)
+            for (let i = 0, l = 3; i < l; i++) {
+                for (let j = 0, m = 4; j < m; j++) {
+                    Platform.ctxr.drawImage(img, Datas.Systems.SQUARE_SIZE, i * Datas.Systems.SQUARE_SIZE, Datas.Systems.SQUARE_SIZE, Datas.Systems.SQUARE_SIZE, j * Datas.Systems.SQUARE_SIZE, (4 + i) * Datas.Systems.SQUARE_SIZE, Datas.Systems.SQUARE_SIZE, Datas.Systems.SQUARE_SIZE);
+                }
+            }
         }
         catch (e) {
             Platform.showErrorMessage('Error: Wrong mountain (with ID:' + id + ') parsing. Please verify that you have a 3 x 3 picture.');

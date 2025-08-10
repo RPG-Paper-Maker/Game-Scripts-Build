@@ -38,25 +38,28 @@ class Portion {
      *   @returns {number[]}
      */
     static createFromVector3(position) {
-        return new Portion(Math.floor(position.x / Datas.Systems.SQUARE_SIZE /
-            Constants.PORTION_SIZE), Math.floor(position.y / Datas.Systems
-            .SQUARE_SIZE / Constants.PORTION_SIZE), Math.floor(position.z /
-            Datas.Systems.SQUARE_SIZE / Constants.PORTION_SIZE));
+        return new Portion(Math.floor(position.x / Datas.Systems.SQUARE_SIZE / Constants.PORTION_SIZE), Math.floor(position.y / Datas.Systems.SQUARE_SIZE / Constants.PORTION_SIZE), Math.floor(position.z / Datas.Systems.SQUARE_SIZE / Constants.PORTION_SIZE));
+    }
+    static fromKey(key) {
+        const [x, y, z] = key.split('_').map(Number);
+        return new Portion(x, y, z);
     }
     /**
      *  Test if a portion is equal to another.
      *  @returns {boolean}
      */
     equals(portion) {
-        return this.x === portion.x && this.y === portion.y && this.z ===
-            portion.z;
+        return this.x === portion.x && this.y === portion.y && this.z === portion.z;
     }
     /**
      *  Get the portion file name.
      *  @returns {string}
      */
     getFileName() {
-        return (this.x + "_" + this.y + "_" + this.z + Constants.EXTENSION_JSON);
+        return this.toKey() + Constants.EXTENSION_JSON;
+    }
+    toKey() {
+        return [this.x, this.y, this.z].join('_');
     }
 }
 export { Portion };

@@ -9,9 +9,9 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Enum, Platform, Utils } from '../Common/index.js';
+import { Game, ReactionInterpreter, Vector2, Vector3 } from '../Core/index.js';
+import { Datas, System } from '../index.js';
 var DynamicValueKind = Enum.DynamicValueKind;
-import { System, Datas } from '../index.js';
-import { ReactionInterpreter, Game, Vector2, Vector3 } from '../Core/index.js';
 /** @class
  *  The class who handle dynamic value.
  *  @extends {System.Base}
@@ -39,7 +39,17 @@ class DynamicValue extends System.Base {
                 systemValue.value = Utils.numToString(v);
                 break;
             case DynamicValueKind.Switch:
-                systemValue.value = Utils.numToBool(v);
+                switch (v) {
+                    case 1:
+                        systemValue.value = true;
+                        break;
+                    case 0:
+                        systemValue.value = false;
+                        break;
+                    default:
+                        systemValue.value = v;
+                        break;
+                }
                 break;
             default:
                 systemValue.value = v;
@@ -147,10 +157,10 @@ class DynamicValue extends System.Base {
      *  @returns {System.DynamicValue[]}
      */
     static mapWithParametersProperties(parameters) {
-        return parameters.map(value => {
-            return value.kind === Enum.DynamicValueKind
-                .Parameter || Enum.DynamicValueKind.Property ? System.DynamicValue
-                .create(Enum.DynamicValueKind.Unknown, value.getValue()) : value;
+        return parameters.map((value) => {
+            return value.kind === Enum.DynamicValueKind.Parameter || Enum.DynamicValueKind.Property
+                ? System.DynamicValue.create(Enum.DynamicValueKind.Unknown, value.getValue())
+                : value;
         });
     }
     /**
@@ -161,8 +171,7 @@ class DynamicValue extends System.Base {
      *  @returns {System.DynamicValue}
      */
     static readOrDefaultVariable(json) {
-        return Utils.isUndefined(json) ? System.DynamicValue.createVariable(1) :
-            System.DynamicValue.readFromJSON(json);
+        return Utils.isUndefined(json) ? System.DynamicValue.createVariable(1) : System.DynamicValue.readFromJSON(json);
     }
     /**
      *  Try to read a number value, if not possible put default value.
@@ -172,8 +181,7 @@ class DynamicValue extends System.Base {
      *  @returns {System.DynamicValue}
      */
     static readOrDefaultNumber(json, n = 0) {
-        return Utils.isUndefined(json) ? System.DynamicValue.createNumber(n) :
-            System.DynamicValue.readFromJSON(json);
+        return Utils.isUndefined(json) ? System.DynamicValue.createNumber(n) : System.DynamicValue.readFromJSON(json);
     }
     /**
      *  Try to read a double number value, if not possible put default value.
@@ -183,7 +191,9 @@ class DynamicValue extends System.Base {
      *  @returns {System.DynamicValue}
      */
     static readOrDefaultNumberDouble(json, n = 0) {
-        return Utils.isUndefined(json) ? System.DynamicValue.createNumberDouble(n) : System.DynamicValue.readFromJSON(json);
+        return Utils.isUndefined(json)
+            ? System.DynamicValue.createNumberDouble(n)
+            : System.DynamicValue.readFromJSON(json);
     }
     /**
      *  Try to read a database value, if not possible put default value.
@@ -193,7 +203,9 @@ class DynamicValue extends System.Base {
      *  @returns {System.DynamicValue}
      */
     static readOrDefaultDatabase(json, id = 1) {
-        return Utils.isUndefined(json) ? System.DynamicValue.create(DynamicValueKind.DataBase, id) : System.DynamicValue.readFromJSON(json);
+        return Utils.isUndefined(json)
+            ? System.DynamicValue.create(DynamicValueKind.DataBase, id)
+            : System.DynamicValue.readFromJSON(json);
     }
     /**
      *  Try to read a message value, if not possible put default value.
@@ -202,8 +214,10 @@ class DynamicValue extends System.Base {
      *  @param {string} [m=""] - The default value
      *  @returns {System.DynamicValue}
      */
-    static readOrDefaultMessage(json, m = "") {
-        return Utils.isUndefined(json) ? System.DynamicValue.create(DynamicValueKind.Message, m) : System.DynamicValue.readFromJSON(json);
+    static readOrDefaultMessage(json, m = '') {
+        return Utils.isUndefined(json)
+            ? System.DynamicValue.create(DynamicValueKind.Message, m)
+            : System.DynamicValue.readFromJSON(json);
     }
     /**
      *  Try to read a switch value, if not possible put default value.
@@ -213,8 +227,7 @@ class DynamicValue extends System.Base {
      *  @returns {System.DynamicValue}
      */
     static readOrDefaultSwitch(json, s = true) {
-        return Utils.isUndefined(json) ? System.DynamicValue.createSwitch(s) :
-            System.DynamicValue.readFromJSON(json);
+        return Utils.isUndefined(json) ? System.DynamicValue.createSwitch(s) : System.DynamicValue.readFromJSON(json);
     }
     /**
      *  Try to read a value, if not possible put none value.
@@ -223,8 +236,7 @@ class DynamicValue extends System.Base {
      *  @returns {System.DynamicValue}
      */
     static readOrNone(json) {
-        return Utils.isUndefined(json) ? System.DynamicValue.createNone() :
-            System.DynamicValue.readFromJSON(json);
+        return Utils.isUndefined(json) ? System.DynamicValue.createNone() : System.DynamicValue.readFromJSON(json);
     }
     /**
      *  Read a value of any kind and return it.
@@ -247,8 +259,7 @@ class DynamicValue extends System.Base {
         switch (this.kind) {
             case DynamicValueKind.CustomStructure:
                 this.customStructure = {};
-                let jsonList = Utils.defaultValue(json.customStructure
-                    .properties, []);
+                let jsonList = Utils.defaultValue(json.customStructure.properties, []);
                 let parameter, jsonParameter;
                 for (let i = 0, l = jsonList.length; i < l; i++) {
                     jsonParameter = jsonList[i];
@@ -258,10 +269,12 @@ class DynamicValue extends System.Base {
                 break;
             case DynamicValueKind.CustomList:
                 this.customList = [];
-                Utils.readJSONSystemList({ list: Utils.defaultValue(json
-                        .customList.list, []), listIndexes: this.customList, func: (jsonParameter) => {
+                Utils.readJSONSystemList({
+                    list: Utils.defaultValue(json.customList.list, []),
+                    listIndexes: this.customList,
+                    func: (jsonParameter) => {
                         return System.DynamicValue.readOrDefaultNumber(jsonParameter.value);
-                    }
+                    },
                 });
                 break;
             case DynamicValueKind.Vector2:
@@ -295,12 +308,11 @@ class DynamicValue extends System.Base {
         switch (this.kind) {
             case DynamicValueKind.Variable:
                 if (!Game.current) {
-                    Platform.showErrorMessage("Trying to access a variable value without any game loaded.");
+                    Platform.showErrorMessage('Trying to access a variable value without any game loaded.');
                 }
                 return forceVariable ? this.value : Game.current.variables[this.value];
             case DynamicValueKind.Parameter:
-                return ReactionInterpreter.currentParameters[this.value]
-                    .getValue();
+                return ReactionInterpreter.currentParameters[this.value].getValue();
             case DynamicValueKind.Property:
                 return ReactionInterpreter.currentObject.properties[this.value];
             case DynamicValueKind.Class:
@@ -438,16 +450,13 @@ class DynamicValue extends System.Base {
      */
     isEqual(value) {
         // If keyBoard
-        if (this.kind === DynamicValueKind.KeyBoard && value.kind !==
-            DynamicValueKind.KeyBoard) {
+        if (this.kind === DynamicValueKind.KeyBoard && value.kind !== DynamicValueKind.KeyBoard) {
             return Datas.Keyboards.isKeyEqual(value.value, Datas.Keyboards.get(this.value));
         }
-        else if (value.kind === DynamicValueKind.KeyBoard && this.kind !==
-            DynamicValueKind.KeyBoard) {
+        else if (value.kind === DynamicValueKind.KeyBoard && this.kind !== DynamicValueKind.KeyBoard) {
             return Datas.Keyboards.isKeyEqual(this.value, Datas.Keyboards.get(value.value));
         }
-        else if (this.kind === DynamicValueKind.Anything || value.kind ===
-            DynamicValueKind.Anything) {
+        else if (this.kind === DynamicValueKind.Anything || value.kind === DynamicValueKind.Anything) {
             return true;
         }
         // If any other value, compare the direct values

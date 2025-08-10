@@ -1,4 +1,4 @@
-import { System, Graphic } from '../index.js';
+import { Graphic, System } from '../index.js';
 /** @class
  *  All the titlescreen and gameover datas.
  *  @static

@@ -12,7 +12,6 @@ import { Constants, Enum, Mathf } from '../Common/index.js';
 import { CustomGeometry, Game, MapObject, Portion, Position, Vector2, Vector3, } from '../Core/index.js';
 import { THREE } from '../Globals.js';
 import { Datas, Manager, Scene } from '../index.js';
-var ElementMapKind = Enum.ElementMapKind;
 /** @class
  *  The collisions manager.
  *  @static
@@ -932,38 +931,23 @@ class Collisions {
      */
     static checkMountains(mapPortion, jpositionAfter, positionAfter, testedCollisions, object) {
         let yMountain = null;
-        let mountains = mapPortion.boundingBoxesMountains[jpositionAfter.toIndex()];
-        let block = false;
-        let i, l, result;
-        if (mountains !== null) {
-            for (i = 0, l = mountains.length; i < l; i++) {
-                result = this.checkMountain(mapPortion, jpositionAfter, positionAfter, testedCollisions, object, mountains[i], yMountain, block);
-                if (result[0]) {
-                    return [result[1], result[2]];
-                }
-                else {
-                    block = result[1];
-                    yMountain = result[2];
-                }
+        const mountains = [...(mapPortion.boundingBoxesMountains[jpositionAfter.toIndex()] ?? [])];
+        const overflowPortions = Scene.Map.current.overflowMountains.get(jpositionAfter.getGlobalPortion().toKey()) ?? new Set();
+        for (const portion of overflowPortions) {
+            const overflowMapPortion = Scene.Map.current.getMapPortionFromPortion(Portion.fromKey(portion));
+            if (overflowMapPortion) {
+                mountains.push(...(overflowMapPortion.boundingBoxesMountains[jpositionAfter.toIndex()] ?? []));
             }
         }
-        let j, m, objCollision, position, mapPortionOverflow;
-        for (i = 0, l = mapPortion.overflowMountains.length; i < l; i++) {
-            position = mapPortion.overflowMountains[i];
-            mapPortionOverflow = Scene.Map.current.getMapPortionFromPortion(Scene.Map.current.getLocalPortion(position.getGlobalPortion()));
-            if (!mapPortionOverflow) {
-                continue;
+        let block = false;
+        for (const mountain of mountains) {
+            const result = this.checkMountain(mapPortion, jpositionAfter, positionAfter, testedCollisions, object, mountain, yMountain, block);
+            if (result[0]) {
+                return [result[1], result[2]];
             }
-            objCollision = mapPortionOverflow.getObjectCollisionAt(position, jpositionAfter, ElementMapKind.Mountains);
-            for (j = 0, m = objCollision.length; j < m; j++) {
-                result = this.checkMountain(mapPortion, jpositionAfter, positionAfter, testedCollisions, object, objCollision[j], yMountain, block);
-                if (result[0]) {
-                    return [result[1], result[2]];
-                }
-                else {
-                    block = result[1];
-                    yMountain = result[2];
-                }
+            else {
+                block = result[1];
+                yMountain = result[2];
             }
         }
         return [block && yMountain === null, yMountain];

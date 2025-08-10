@@ -48,6 +48,9 @@ declare class Map extends Base {
     weatherRotationsAngle: number[];
     weatherRotationsPoint: Vector3[];
     sunLight: THREE.DirectionalLight;
+    overflowSprites: globalThis.Map<string, Set<string>>;
+    overflowMountains: globalThis.Map<string, Set<string>>;
+    overflowObjects3D: globalThis.Map<string, Set<string>>;
     constructor(id: number, isBattleMap?: boolean, minimal?: boolean, heroOrientation?: Enum.Orientation);
     /**
      *  Load async stuff.
