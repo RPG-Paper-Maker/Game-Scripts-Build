@@ -921,7 +921,7 @@ class Map extends Base {
         this.mapProperties.startupObject.update();
         super.update();
         // Update camera hiding
-        if (Datas.Systems.moveCameraOnBlockView.getValue()) {
+        if (Game.current !== null && Datas.Systems.moveCameraOnBlockView.getValue()) {
             this.camera.forceNoHide = false;
             this.camera.hidingDistance = -1;
             let pointer = Manager.GL.toScreenPosition(this.camera.target.position

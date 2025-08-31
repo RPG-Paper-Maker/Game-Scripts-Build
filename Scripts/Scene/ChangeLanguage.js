@@ -173,7 +173,7 @@ class ChangeLanguage extends Base {
                 if (Datas.Keyboards.checkActionMenu(key)) {
                     this.action();
                 }
-                else if (Datas.Keyboards.checkCancelMenu) {
+                else if (Datas.Keyboards.checkCancelMenu(key)) {
                     this.cancel();
                 }
                 break;
