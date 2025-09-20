@@ -411,7 +411,7 @@ export class SpecialElements {
         const json = (await Platform.parseFileJSON(Paths.FILE_SPECIAL_ELEMENTS));
         this.autotiles = Utils.readJSONMap(json.autotiles, Autotile);
         this.walls = Utils.readJSONMap(json.walls, SpecialElement);
-        this.mountains = Utils.readJSONMap(json.ms, Mountain);
+        this.mountains = Utils.readJSONMap(json.m, Mountain);
         this.objects = Utils.readJSONMap(json.o, Object3D);
     }
 }
