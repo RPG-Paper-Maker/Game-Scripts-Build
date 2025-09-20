@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -20,13 +20,11 @@ class Base extends Bitmap {
      *  @param {number} w - The width dimention to draw graphic
      *  @param {number} h - The height dimention to draw graphic
      */
-    drawBehind(x, y, w, h) {
-    }
+    drawBehind(x, y, w, h) { }
     /**
      *  Update the content.
      */
-    update() {
-    }
+    update() { }
     /**
      *  Drawing the graphic.
      *  @param {number} x - The x position to draw graphic

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Datas } from "../index.js";
+import { Data } from "../index.js";
 import { ScreenResolution } from '../Common/index.js';
 import { Stack } from '../Manager/index.js';
 /** @class
@@ -34,8 +34,7 @@ class Bitmap {
      */
     setX(x, min = false) {
         this.oX = x;
-        this.x = min ? ScreenResolution.getScreenMinXY(x) : ScreenResolution
-            .getScreenX(x);
+        this.x = min ? ScreenResolution.getScreenMinXY(x) : ScreenResolution.getScreenX(x);
         Stack.requestPaintHUD = true;
     }
     /**
@@ -46,8 +45,7 @@ class Bitmap {
      */
     setY(y, min = false) {
         this.oY = y;
-        this.y = min ? ScreenResolution.getScreenMinXY(y) : ScreenResolution
-            .getScreenY(y);
+        this.y = min ? ScreenResolution.getScreenMinXY(y) : ScreenResolution.getScreenY(y);
         Stack.requestPaintHUD = true;
     }
     /**
@@ -58,8 +56,7 @@ class Bitmap {
      */
     setW(w, min = false) {
         this.oW = w;
-        this.w = min ? ScreenResolution.getScreenMinXY(w) : ScreenResolution
-            .getScreenX(w);
+        this.w = min ? ScreenResolution.getScreenMinXY(w) : ScreenResolution.getScreenX(w);
         Stack.requestPaintHUD = true;
     }
     /**
@@ -70,8 +67,7 @@ class Bitmap {
      */
     setH(h, min = false) {
         this.oH = h;
-        this.h = min ? ScreenResolution.getScreenMinXY(h) : ScreenResolution
-            .getScreenY(h);
+        this.h = min ? ScreenResolution.getScreenMinXY(h) : ScreenResolution.getScreenY(h);
         Stack.requestPaintHUD = true;
     }
     /**
@@ -90,19 +86,17 @@ class Bitmap {
      *  Set the position to the right.
      */
     setRight(faceset = false, offset = 0) {
-        this.oX = ScreenResolution.SCREEN_X - offset - (faceset ? Datas.Systems
-            .facesetScalingWidth : this.oW);
-        this.x = ScreenResolution.getScreenX(ScreenResolution.SCREEN_X - offset)
-            - ScreenResolution.getScreenMinXY(faceset ? Datas.Systems
-                .facesetScalingWidth : this.oW);
+        this.oX = ScreenResolution.SCREEN_X - offset - (faceset ? Data.Systems.facesetScalingWidth : this.oW);
+        this.x =
+            ScreenResolution.getScreenX(ScreenResolution.SCREEN_X - offset) -
+                ScreenResolution.getScreenMinXY(faceset ? Data.Systems.facesetScalingWidth : this.oW);
         Stack.requestPaintHUD = true;
     }
     /**
      *  Set the position to the bot.
      */
     setBot(faceset = false, offset = 0) {
-        this.setY(ScreenResolution.SCREEN_Y - (faceset ? Datas.Systems
-            .facesetScalingHeight : this.oH) - offset);
+        this.setY(ScreenResolution.SCREEN_Y - (faceset ? Data.Systems.facesetScalingHeight : this.oH) - offset);
     }
     /**
      *  Set all the coords values.
@@ -124,7 +118,7 @@ class Bitmap {
      *  @returns {boolean}
      */
     isInside(x, y) {
-        return x >= this.x && x <= (this.x + this.w) && y >= this.y && y <= (this.y + this.h);
+        return x >= this.x && x <= this.x + this.w && y >= this.y && y <= this.y + this.h;
     }
 }
 export { Bitmap };

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
 import { Utils } from '../Common/index.js';
-import { System, Datas } from '../index.js';
+import { Data, Model } from '../index.js';
+import { Base } from './Base.js';
 /** @class
  *  An event command for setting the dialog box options.
  *  @extends EventCommand.Base
@@ -19,62 +19,62 @@ import { System, Datas } from '../index.js';
 class SetDialogBoxOptions extends Base {
     constructor(command) {
         super();
-        let iterator = {
-            i: 0
+        const iterator = {
+            i: 0,
         };
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.windowSkinID = System.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.windowSkinID = Model.DynamicValue.createValueCommand(command, iterator);
         }
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.x = System.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.x = Model.DynamicValue.createValueCommand(command, iterator);
         }
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.y = System.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.y = Model.DynamicValue.createValueCommand(command, iterator);
         }
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.w = System.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.w = Model.DynamicValue.createValueCommand(command, iterator);
         }
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.h = System.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.h = Model.DynamicValue.createValueCommand(command, iterator);
         }
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.pLeft = System.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.pLeft = Model.DynamicValue.createValueCommand(command, iterator);
         }
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.pTop = System.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.pTop = Model.DynamicValue.createValueCommand(command, iterator);
         }
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.pRight = System.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.pRight = Model.DynamicValue.createValueCommand(command, iterator);
         }
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.pBottom = System.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.pBottom = Model.DynamicValue.createValueCommand(command, iterator);
         }
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.fPosAbove = Utils.numToBool(command[iterator.i++]);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.fPosAbove = Utils.numberToBool(command[iterator.i++]);
         }
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.fX = System.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.fX = Model.DynamicValue.createValueCommand(command, iterator);
         }
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.fY = System.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.fY = Model.DynamicValue.createValueCommand(command, iterator);
         }
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.tOutline = !Utils.numToBool(command[iterator.i++]);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.tOutline = !Utils.numberToBool(command[iterator.i++]);
         }
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.tcText = System.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.tcText = Model.DynamicValue.createValueCommand(command, iterator);
         }
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.tcOutline = System.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.tcOutline = Model.DynamicValue.createValueCommand(command, iterator);
         }
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.tcBackground = System.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.tcBackground = Model.DynamicValue.createValueCommand(command, iterator);
         }
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.tSize = System.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.tSize = Model.DynamicValue.createValueCommand(command, iterator);
         }
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.tFont = System.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.tFont = Model.DynamicValue.createValueCommand(command, iterator);
         }
     }
     /**
@@ -85,64 +85,59 @@ class SetDialogBoxOptions extends Base {
      *  @returns {number} The number of node to pass
      */
     update(currentState, object, state) {
-        if (!Utils.isUndefined(this.windowSkinID)) {
-            Datas.Systems.dbOptions.v_windowSkin = Datas.Systems.getWindowSkin(this.windowSkinID.getValue());
+        if (this.windowSkinID !== undefined) {
+            Data.Systems.dbOptions.v_windowSkin = Data.Systems.getWindowSkin(this.windowSkinID.getValue());
         }
-        if (!Utils.isUndefined(this.x)) {
-            Datas.Systems.dbOptions.v_x = this.x.getValue();
+        if (this.x !== undefined) {
+            Data.Systems.dbOptions.v_x = this.x.getValue();
         }
-        if (!Utils.isUndefined(this.y)) {
-            Datas.Systems.dbOptions.v_y = this.y.getValue();
+        if (this.y !== undefined) {
+            Data.Systems.dbOptions.v_y = this.y.getValue();
         }
-        if (!Utils.isUndefined(this.w)) {
-            Datas.Systems.dbOptions.v_w = this.w.getValue();
+        if (this.w !== undefined) {
+            Data.Systems.dbOptions.v_w = this.w.getValue();
         }
-        if (!Utils.isUndefined(this.h)) {
-            Datas.Systems.dbOptions.v_h = this.h.getValue();
+        if (this.h !== undefined) {
+            Data.Systems.dbOptions.v_h = this.h.getValue();
         }
-        if (!Utils.isUndefined(this.pLeft)) {
-            Datas.Systems.dbOptions.v_pLeft = this.pLeft.getValue();
+        if (this.pLeft !== undefined) {
+            Data.Systems.dbOptions.v_pLeft = this.pLeft.getValue();
         }
-        if (!Utils.isUndefined(this.pTop)) {
-            Datas.Systems.dbOptions.v_pTop = this.pTop.getValue();
+        if (this.pTop !== undefined) {
+            Data.Systems.dbOptions.v_pTop = this.pTop.getValue();
         }
-        if (!Utils.isUndefined(this.pRight)) {
-            Datas.Systems.dbOptions.v_pRight = this.pRight.getValue();
+        if (this.pRight !== undefined) {
+            Data.Systems.dbOptions.v_pRight = this.pRight.getValue();
         }
-        if (!Utils.isUndefined(this.pBottom)) {
-            Datas.Systems.dbOptions.v_pBottom = this.pBottom.getValue();
+        if (this.pBottom !== undefined) {
+            Data.Systems.dbOptions.v_pBottom = this.pBottom.getValue();
         }
-        if (!Utils.isUndefined(this.fPosAbove)) {
-            Datas.Systems.dbOptions.v_fPosAbove = this.fPosAbove;
+        if (this.fPosAbove !== undefined) {
+            Data.Systems.dbOptions.v_fPosAbove = this.fPosAbove;
         }
-        if (!Utils.isUndefined(this.fX)) {
-            Datas.Systems.dbOptions.v_fX = this.fX.getValue();
+        if (this.fX !== undefined) {
+            Data.Systems.dbOptions.v_fX = this.fX.getValue();
         }
-        if (!Utils.isUndefined(this.fY)) {
-            Datas.Systems.dbOptions.v_fY = this.fY.getValue();
+        if (this.fY !== undefined) {
+            Data.Systems.dbOptions.v_fY = this.fY.getValue();
         }
-        if (!Utils.isUndefined(this.tOutline)) {
-            Datas.Systems.dbOptions.v_tOutline = this.tOutline;
+        if (this.tOutline !== undefined) {
+            Data.Systems.dbOptions.v_tOutline = this.tOutline;
         }
-        if (!Utils.isUndefined(this.tcText)) {
-            Datas.Systems.dbOptions.v_tcText = Datas.Systems.getColor(this.tcText
-                .getValue());
+        if (this.tcText !== undefined) {
+            Data.Systems.dbOptions.v_tcText = Data.Systems.getColor(this.tcText.getValue());
         }
-        if (!Utils.isUndefined(this.tcOutline)) {
-            Datas.Systems.dbOptions.v_tcOutline = Datas.Systems.getColor(this
-                .tcOutline.getValue());
+        if (this.tcOutline !== undefined) {
+            Data.Systems.dbOptions.v_tcOutline = Data.Systems.getColor(this.tcOutline.getValue());
         }
-        if (!Utils.isUndefined(this.tcBackground)) {
-            Datas.Systems.dbOptions.v_tcBackground = Datas.Systems.getColor(this
-                .tcBackground.getValue());
+        if (this.tcBackground !== undefined) {
+            Data.Systems.dbOptions.v_tcBackground = Data.Systems.getColor(this.tcBackground.getValue());
         }
-        if (!Utils.isUndefined(this.tSize)) {
-            Datas.Systems.dbOptions.v_tSize = Datas.Systems.getFontSize(this
-                .tSize.getValue()).getValue();
+        if (this.tSize !== undefined) {
+            Data.Systems.dbOptions.v_tSize = Data.Systems.getFontSize(this.tSize.getValue()).getValue();
         }
-        if (!Utils.isUndefined(this.tFont)) {
-            Datas.Systems.dbOptions.v_tFont = Datas.Systems.getFontName(this
-                .tFont.getValue()).getName();
+        if (this.tFont !== undefined) {
+            Data.Systems.dbOptions.v_tFont = Data.Systems.getFontName(this.tFont.getValue()).getName();
         }
         return 1;
     }

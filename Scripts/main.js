@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -9,8 +9,8 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import * as THREE from 'three';
-import { Inputs, Platform, Utils } from './Common/index.js';
-import { Datas, Manager } from './index.js';
+import { Inputs, Platform } from './Common/index.js';
+import { Data, Manager } from './index.js';
 /**
  * The main class who boot and loop everything's
  *
@@ -22,7 +22,7 @@ export class Main {
         throw new Error('This is a static class');
     }
     static async initialize() {
-        await Datas.Settings.checkIsProtected();
+        await Data.Settings.checkIsProtected();
         await Manager.Plugins.load();
         Inputs.initialize();
         Manager.Stack.loadingDelay = 0;
@@ -37,36 +37,36 @@ export class Main {
      * @memberof Main
      */
     static async load() {
-        await Datas.Languages.read();
-        await Datas.Settings.read();
-        await Datas.Systems.read();
-        await Datas.Variables.read();
-        await Datas.Pictures.read();
-        await Datas.Songs.read();
-        await Datas.Videos.read();
-        await Datas.Shapes.read();
-        Manager.GL.load();
+        await Data.Languages.read();
+        await Data.Settings.read();
+        await Data.Systems.read();
+        await Data.Variables.read();
+        await Data.Pictures.read();
+        await Data.Songs.read();
+        await Data.Videos.read();
+        await Data.Shapes.read();
+        await Manager.GL.load();
         Manager.GL.initialize();
         Manager.GL.resize();
         Manager.Collisions.initialize();
-        await Datas.SpecialElements.read();
-        await Datas.Tilesets.read();
-        await Datas.Status.read();
-        await Datas.Items.read();
-        await Datas.Skills.read();
-        await Datas.Weapons.read();
-        await Datas.Armors.read();
-        await Datas.Classes.read();
-        await Datas.Heroes.read();
-        await Datas.Monsters.read();
-        await Datas.Troops.read();
-        await Datas.BattleSystems.read();
-        await Datas.TitlescreenGameover.read();
-        await Datas.Keyboards.read();
-        await Datas.Animations.read();
-        await Datas.CommonEvents.read();
-        Datas.Systems.getModelHero();
-        await Datas.Systems.loadWindowSkins();
+        await Data.SpecialElements.read();
+        await Data.Tilesets.read();
+        await Data.Status.read();
+        await Data.Items.read();
+        await Data.Skills.read();
+        await Data.Weapons.read();
+        await Data.Armors.read();
+        await Data.Classes.read();
+        await Data.Heroes.read();
+        await Data.Monsters.read();
+        await Data.Troops.read();
+        await Data.BattleSystems.read();
+        await Data.TitlescreenGameover.read();
+        await Data.Keyboards.read();
+        await Data.Animations.read();
+        await Data.CommonEvents.read();
+        Data.Systems.getModelHero();
+        await Data.Systems.loadWindowSkins();
         await Main.onEndLoading();
     }
     /**
@@ -134,7 +134,7 @@ Main.time = 0;
 // INITIALIZATION
 //
 // -------------------------------------------------------
-Utils.tryCatch(Main.initialize);
+Main.initialize().catch(console.error);
 // -------------------------------------------------------
 //
 // START LOOP

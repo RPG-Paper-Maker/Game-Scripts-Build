@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
-import { System, Scene, Graphic } from '../index.js';
-import { Enum } from '../Common/index.js';
+import { CHARACTER_KIND } from '../Common/index.js';
 import { Battler, Game, Player } from '../Core/index.js';
+import { Graphic, Model, Scene } from '../index.js';
+import { Base } from './Base.js';
 /** @class
  *  An event command for transforming a battler.
  *  @extends EventCommand.Base
@@ -20,8 +20,8 @@ import { Battler, Game, Player } from '../Core/index.js';
 class TransformABattler extends Base {
     constructor(command) {
         super();
-        let iterator = {
-            i: 0
+        const iterator = {
+            i: 0,
         };
         this.battlerKind = command[iterator.i++];
         switch (this.battlerKind) {
@@ -29,12 +29,11 @@ class TransformABattler extends Base {
                 this.battlerEnemyIndex = command[iterator.i++];
                 break;
             case 1:
-                this.battlerHeroEnemyInstanceID = System.DynamicValue
-                    .createValueCommand(command, iterator);
+                this.battlerHeroEnemyInstanceID = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
         }
-        this.monsterID = System.DynamicValue.createValueCommand(command, iterator);
-        this.level = System.DynamicValue.createValueCommand(command, iterator);
+        this.monsterID = Model.DynamicValue.createValueCommand(command, iterator);
+        this.level = Model.DynamicValue.createValueCommand(command, iterator);
     }
     /**
      *  Initialize the current state.
@@ -52,42 +51,40 @@ class TransformABattler extends Base {
      */
     update(currentState, object, state) {
         if (Scene.Map.current.isBattleMap) {
-            let map = Scene.Map.current;
+            const map = Scene.Map.current;
             let battler = null;
             let index = 0;
-            let side = Enum.CharacterKind.Hero;
+            let side = CHARACTER_KIND.HERO;
             switch (this.battlerKind) {
                 case 0: // Enemy
-                    battler = map.battlers[Enum.CharacterKind.Monster][this.battlerEnemyIndex];
+                    battler = map.battlers[CHARACTER_KIND.MONSTER][this.battlerEnemyIndex];
                     index = this.battlerEnemyIndex;
-                    side = Enum.CharacterKind.Monster;
+                    side = CHARACTER_KIND.MONSTER;
                     break;
                 case 1: // Hero instance ID
-                    let id = this.battlerHeroEnemyInstanceID.getValue();
-                    for (let [i, b] of map.battlers[Enum.CharacterKind.Hero].entries()) {
+                    const id = this.battlerHeroEnemyInstanceID.getValue();
+                    for (const [i, b] of map.battlers[CHARACTER_KIND.HERO].entries()) {
                         if (b.player.instid === id) {
                             battler = b;
                             index = i;
-                            side = Enum.CharacterKind.Hero;
+                            side = CHARACTER_KIND.HERO;
                             break;
                         }
                     }
-                    for (let [i, b] of map.battlers[Enum.CharacterKind.Monster].entries()) {
+                    for (const [i, b] of map.battlers[CHARACTER_KIND.MONSTER].entries()) {
                         if (b.player.instid === id) {
                             battler = b;
                             index = i;
-                            side = Enum.CharacterKind.Monster;
+                            side = CHARACTER_KIND.MONSTER;
                             break;
                         }
                     }
                     break;
             }
             if (battler) {
-                let player = new Player(battler.player.kind, this.monsterID
-                    .getValue(), Game.current.charactersInstances++, [], []);
+                const player = new Player(battler.player.kind, this.monsterID.getValue(), Game.current.charactersInstances++, [], []);
                 player.instanciate(this.level.getValue());
-                let newBattler = new Battler(player, battler.isEnemy, battler
-                    .initialPosition, battler.position, map.camera);
+                const newBattler = new Battler(player, battler.isEnemy, battler.initialPosition, battler.position, map.camera);
                 map.battlers[side][index].removeFromScene();
                 newBattler.addToScene();
                 map.battlers[side][index] = newBattler;

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
-import { Graphic, Datas } from '../index.js';
 import { Constants, Mathf, ScreenResolution } from '../Common/index.js';
 import { Game } from '../Core/index.js';
+import { Data, Graphic } from '../index.js';
+import { Base } from './Base.js';
 /** @class
  *  The graphic displaying all currencies when in shop menu.
  *  @extends Graphic.Base
@@ -37,8 +37,8 @@ class ShopCurrencies extends Base {
     update() {
         this.currencies = [];
         let graphic;
-        for (let id in Game.current.currencies) {
-            graphic = Graphic.TextIcon.createFromSystem(Mathf.numberWithCommas(Game.current.currencies[id]), Datas.Systems.getCurrency(parseInt(id)));
+        for (const [id, currency] of Game.current.currencies.entries()) {
+            graphic = Graphic.TextIcon.createFromSystem(Mathf.numberWithCommas(currency), Data.Systems.getCurrency(id));
             this.currencies.push(graphic);
         }
     }
@@ -48,7 +48,7 @@ class ShopCurrencies extends Base {
      *  @param {number} y - The y position to draw graphic
      *  @param {number} w - The width dimention to draw graphic
      *  @param {number} h - The height dimention to draw graphic
-    */
+     */
     drawChoice(x, y, w, h) {
         this.draw(x, y, w, h);
     }
@@ -58,7 +58,7 @@ class ShopCurrencies extends Base {
      *  @param {number} y - The y position to draw graphic
      *  @param {number} w - The width dimention to draw graphic
      *  @param {number} h - The height dimention to draw graphic
-    */
+     */
     draw(x, y, w, h) {
         let offset = 0;
         let currency;

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,8 +8,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Datas, Manager, Scene } from "../index.js";
-import { Constants, Enum, ScreenResolution } from '../Common/index.js';
+import { Data, Manager, Scene } from "../index.js";
+import { Constants, PICTURE_KIND, ScreenResolution } from '../Common/index.js';
 import { Game, Picture2D, WindowBox, WindowChoices } from '../Core/index.js';
 import { Base } from './Base.js';
 /**
@@ -40,20 +40,20 @@ class GameOver extends Base {
         Manager.Videos.stop();
         Manager.Songs.stopAll();
         // Creating background
-        if (Datas.TitlescreenGameover.isGameOverBackgroundImage) {
-            this.pictureBackground = await Picture2D.createWithID(Datas.TitlescreenGameover.gameOverBackgroundImageID, Enum.PictureKind.GameOver, { cover: true });
+        if (Data.TitlescreenGameover.isGameOverBackgroundImage) {
+            this.pictureBackground = await Picture2D.createWithID(Data.TitlescreenGameover.gameOverBackgroundImageID, PICTURE_KIND.GAME_OVER, { cover: true });
         }
         else {
-            await Manager.Videos.play(Datas.Videos.get(Datas.TitlescreenGameover.gameOverBackgroundVideoID).getPath());
+            await Manager.Videos.play(Data.Videos.get(Data.TitlescreenGameover.gameOverBackgroundVideoID).getPath());
         }
         // Windows
-        let commandsNb = Datas.TitlescreenGameover.gameOverCommands.length;
-        this.windowChoicesCommands = new WindowChoices(ScreenResolution.SCREEN_X / 2 - WindowBox.MEDIUM_SLOT_WIDTH / 2, ScreenResolution.SCREEN_Y - Constants.HUGE_SPACE - commandsNb * WindowBox.MEDIUM_SLOT_HEIGHT, WindowBox.MEDIUM_SLOT_WIDTH, WindowBox.MEDIUM_SLOT_HEIGHT, Datas.TitlescreenGameover.getGameOverCommandsNames(), {
+        const commandsNb = Data.TitlescreenGameover.gameOverCommands.length;
+        this.windowChoicesCommands = new WindowChoices(ScreenResolution.SCREEN_X / 2 - WindowBox.MEDIUM_SLOT_WIDTH / 2, ScreenResolution.SCREEN_Y - Constants.HUGE_SPACE - commandsNb * WindowBox.MEDIUM_SLOT_HEIGHT, WindowBox.MEDIUM_SLOT_WIDTH, WindowBox.MEDIUM_SLOT_HEIGHT, Data.TitlescreenGameover.getGameOverCommandsNames(), {
             nbItemsMax: commandsNb,
-            listCallbacks: Datas.TitlescreenGameover.getGameOverCommandsActions(),
+            listCallbacks: Data.TitlescreenGameover.getGameOverCommandsActions(),
         });
         // Play game over song
-        Datas.TitlescreenGameover.gameOverMusic.playMusic();
+        Data.TitlescreenGameover.gameOverMusic.playMusic();
         this.loading = false;
     }
     /**
@@ -66,7 +66,7 @@ class GameOver extends Base {
         // Initialize properties for hero
         Game.current.hero.initializeProperties();
         // Stop video if existing
-        if (!Datas.TitlescreenGameover.isGameOverBackgroundImage) {
+        if (!Data.TitlescreenGameover.isGameOverBackgroundImage) {
             Manager.Videos.stop();
         }
         // Load map
@@ -110,7 +110,7 @@ class GameOver extends Base {
      *  @inheritdoc
      */
     drawHUD() {
-        if (Datas.TitlescreenGameover.isGameOverBackgroundImage) {
+        if (Data.TitlescreenGameover.isGameOverBackgroundImage) {
             this.pictureBackground.draw();
         }
         this.windowChoicesCommands.draw();

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -9,12 +9,11 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import * as THREE from 'three';
-import { Enum } from '../Common/index.js';
-import { Datas } from '../index.js';
+import { Mathf, OBJECT_COLLISION_KIND } from '../Common/index.js';
+import { Data } from '../index.js';
 import { CustomGeometry } from './CustomGeometry.js';
 import { Object3D } from './Object3D.js';
 import { Sprite } from './Sprite.js';
-var ObjectCollisionKind = Enum.ObjectCollisionKind;
 /**
  * A 3D object box in the map.
  *
@@ -36,7 +35,7 @@ class Object3DBox extends Object3D {
      *  @returns {Core.Object3DBox}
      */
     static create(datas) {
-        let object = new Object3DBox(undefined, datas);
+        const object = new Object3DBox(undefined, datas);
         object.id = datas.id;
         return object;
     }
@@ -64,29 +63,29 @@ class Object3DBox extends Object3D {
      *  @return {number[]}
      */
     updateGeometry(geometry, position, count) {
-        let coef = 0.01;
-        let localPosition = position.toVector3(false);
+        const coef = 0.01;
+        const localPosition = position.toVector3(false);
         if (this.datas.isTopLeft) {
-            localPosition.setX(localPosition.x - Math.floor(Datas.Systems.SQUARE_SIZE / 2) + position.getPixelsCenterX() + coef);
-            localPosition.setZ(localPosition.z - Math.floor(Datas.Systems.SQUARE_SIZE / 2) + position.getPixelsCenterZ() + coef);
+            localPosition.setX(localPosition.x - Math.floor(Data.Systems.SQUARE_SIZE / 2) + position.getPixelsCenterX() + coef);
+            localPosition.setZ(localPosition.z - Math.floor(Data.Systems.SQUARE_SIZE / 2) + position.getPixelsCenterZ() + coef);
         }
         else {
             localPosition.setX(localPosition.x + position.getPixelsCenterX() + coef);
             localPosition.setZ(localPosition.z + position.getPixelsCenterZ() + coef);
         }
         localPosition.setY(localPosition.y + coef);
-        let size = this.datas.getSizeVector().multiply(position.toScaleVector());
+        const size = this.datas.getSizeVector().multiply(position.toScaleVector());
         size.setX(size.x - 2 * coef);
         size.setY(size.y - 2 * coef);
         size.setZ(size.z - 2 * coef);
-        let w = this.datas.widthPixels();
-        let h = this.datas.heightPixels();
-        let d = this.datas.depthPixels();
+        const w = this.datas.widthPixels();
+        const h = this.datas.heightPixels();
+        const d = this.datas.depthPixels();
         // Textures
-        let textures = Object3DBox.TEXTURES_VALUES.slice(0);
+        const textures = Object3DBox.TEXTURES_VALUES.slice(0);
         if (!this.datas.stretch) {
-            let totalX = d * 2 + w * 2;
-            let totalY = d * 2 + h;
+            const totalX = d * 2 + w * 2;
+            const totalY = d * 2 + h;
             textures[1] = d / totalX;
             textures[2] = (d + w) / totalX;
             textures[3] = (2 * d + w) / totalX;
@@ -96,7 +95,7 @@ class Object3DBox extends Object3D {
         // Vertices + faces / indexes
         let vecA, vecB, vecC, vecD, tA, tB, tC, tD, texA, texB, texC, texD;
         for (let i = 0; i < Object3DBox.NB_VERTICES; i += 4) {
-            let vertices = this.datas.isTopLeft ? Object3DBox.VERTICES : Object3DBox.VERTICES_CENTER;
+            const vertices = this.datas.isTopLeft ? Object3DBox.VERTICES : Object3DBox.VERTICES_CENTER;
             vecA = vertices[i].clone();
             vecB = vertices[i + 1].clone();
             vecC = vertices[i + 2].clone();
@@ -117,15 +116,15 @@ class Object3DBox extends Object3D {
             texB = new THREE.Vector2(textures[tB[0]], textures[tB[1]]);
             texC = new THREE.Vector2(textures[tC[0]], textures[tC[1]]);
             texD = new THREE.Vector2(textures[tD[0]], textures[tD[1]]);
-            Sprite.rotateQuadEuler(vecA, vecB, vecC, vecD, localPosition, position.toRotationEuler());
+            Mathf.rotateQuadEuler(vecA, vecB, vecC, vecD, localPosition, position.toRotationEuler());
             count = Sprite.addStaticSpriteToGeometry(geometry, vecA, vecB, vecC, vecD, texA, texB, texC, texD, count);
         }
         // Collisions
-        let objCollision = new Array();
-        if (this.datas.collisionKind === ObjectCollisionKind.Perfect) {
-            let ws = Math.floor(this.datas.width() * position.scaleX);
-            let hs = Math.floor(this.datas.height() * position.scaleY);
-            let ds = Math.floor(this.datas.depth() * position.scaleZ);
+        const objCollision = [];
+        if (this.datas.collisionKind === OBJECT_COLLISION_KIND.PERFECT) {
+            const ws = Math.floor(this.datas.width() * position.scaleX);
+            const hs = Math.floor(this.datas.height() * position.scaleY);
+            const ds = Math.floor(this.datas.depth() * position.scaleZ);
             objCollision.push({
                 p: position,
                 l: localPosition,
@@ -160,8 +159,8 @@ class Object3DBox extends Object3D {
      *  @return {[Core.CustomGeometry, [number, StructMapElementCollision[]]]}
      */
     createGeometry(position) {
-        let geometry = new CustomGeometry();
-        let collisions = this.updateGeometry(geometry, position, 0);
+        const geometry = new CustomGeometry();
+        const collisions = this.updateGeometry(geometry, position, 0);
         geometry.updateAttributes();
         return [geometry, collisions];
     }

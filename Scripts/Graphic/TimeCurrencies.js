@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,11 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
-import { Graphic, Datas } from '../index.js';
-import { Utils, Enum, Mathf, Constants, ScreenResolution } from '../Common/index.js';
-var Align = Enum.Align;
+import { ALIGN, Constants, Mathf, ScreenResolution, Utils } from '../Common/index.js';
 import { Game } from '../Core/index.js';
+import { Data, Graphic } from '../index.js';
+import { Base } from './Base.js';
 /** @class
  *  The graphic displaying all currencies and play time in scene menu.
  *  @extends Graphic.Base
@@ -23,12 +22,12 @@ class TimeCurrencies extends Base {
         // Currencies
         this.currencies = [];
         let graphic, systemCurrency;
-        for (let id in Game.current.currencies) {
-            systemCurrency = Datas.Systems.getCurrency(parseInt(id));
+        for (const [id, currency] of Game.current.currencies.entries()) {
+            systemCurrency = Data.Systems.getCurrency(id);
             if (systemCurrency.displayInMenu.getValue()) {
-                graphic = Graphic.TextIcon.createFromSystem(Mathf.numberWithCommas(Game.current.currencies[id]), systemCurrency, {
-                    side: Align.Right,
-                    align: Align.Right
+                graphic = Graphic.TextIcon.createFromSystem(Mathf.numberWithCommas(currency), systemCurrency, {
+                    side: ALIGN.RIGHT,
+                    align: ALIGN.RIGHT,
                 });
                 this.currencies.push(graphic);
             }
@@ -36,15 +35,14 @@ class TimeCurrencies extends Base {
         // Time
         this.time = Game.current.playTime.getSeconds();
         this.graphicPlayTime = new Graphic.Text(Utils.getStringDate(this.time), {
-            align: Align.Right
+            align: ALIGN.RIGHT,
         });
         // Calculate height
-        var currency;
+        let currency;
         this.height = 0;
         for (let i = 0, l = this.currencies.length; i < l; i++) {
             currency = this.currencies[i];
-            this.height = i * (Math.max(currency.graphicText.oFontSize, Datas
-                .Systems.iconsSize + Constants.MEDIUM_SPACE));
+            this.height = i * Math.max(currency.graphicText.oFontSize, Data.Systems.iconsSize + Constants.MEDIUM_SPACE);
         }
         this.height += Constants.HUGE_SPACE + this.graphicPlayTime.oFontSize;
         this.offset = 0;
@@ -54,8 +52,7 @@ class TimeCurrencies extends Base {
      */
     update() {
         if (Game.current.playTime.getSeconds() !== this.time) {
-            this.graphicPlayTime.setText(Utils.getStringDate(Game.current
-                .playTime.getSeconds()));
+            this.graphicPlayTime.setText(Utils.getStringDate(Game.current.playTime.getSeconds()));
         }
     }
     /**
@@ -64,7 +61,7 @@ class TimeCurrencies extends Base {
      *  @param {number} y - The y position to draw graphic
      *  @param {number} w - The width dimention to draw graphic
      *  @param {number} h - The height dimention to draw graphic
-    */
+     */
     drawChoice(x, y, w, h) {
         this.draw(x, y, w, h);
     }
@@ -74,15 +71,17 @@ class TimeCurrencies extends Base {
      *  @param {number} y - The y position to draw graphic
      *  @param {number} w - The width dimention to draw graphic
      *  @param {number} h - The height dimention to draw graphic
-    */
+     */
     draw(x, y, w, h) {
         let previousCurrency = null;
         let currency;
         for (let i = 0, l = this.currencies.length; i < l; i++) {
             currency = this.currencies[i];
-            this.offset = i * (previousCurrency ? previousCurrency
-                .getMaxHeight() + ScreenResolution.getScreenMinXY(Constants
-                .MEDIUM_SPACE) : 0);
+            this.offset =
+                i *
+                    (previousCurrency
+                        ? previousCurrency.getMaxHeight() + ScreenResolution.getScreenMinXY(Constants.MEDIUM_SPACE)
+                        : 0);
             currency.draw(x, y + this.offset, w, 0);
             previousCurrency = currency;
         }

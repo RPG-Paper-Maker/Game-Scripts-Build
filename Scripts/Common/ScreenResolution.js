@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -9,82 +9,79 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 /**
- * A static class for having a quick access to screen resolution variables and functions;
+ * Provides quick access to screen resolution variables and transformation
+ * functions.
  *
- * @class ScreenResolution
+ * This class is static-only and is responsible for converting normalized
+ * coordinates to screen pixels (and vice versa).
  */
-class ScreenResolution {
-    constructor() {
-        throw new Error("This is a static class");
-    }
-    /** Get the pixel position transformation according to screen size
-     *   @static
-     *   @param {number} x - The position on screen
-     *   @returns {number}
+export class ScreenResolution {
+    // -------------------------------------------------------------------------
+    // Conversion methods
+    // -------------------------------------------------------------------------
+    /**
+     * Convert a normalized X coordinate to screen pixels (rounded up).
+     * @param x - Normalized X position.
      */
     static getScreenX(x) {
         return Math.ceil(ScreenResolution.getDoubleScreenX(x));
     }
-    /** Get the pixel position transformation according to screen size
-     *   @static
-     *   @param {number} y - The position on screen
-     *   @returns {number}
+    /**
+     * Convert a normalized Y coordinate to screen pixels (rounded up).
+     * @param y - Normalized Y position.
      */
     static getScreenY(y) {
         return Math.ceil(ScreenResolution.getDoubleScreenY(y));
     }
-    /** Get the pixel position transformation according to screen size (reverse)
-     *   @static
-     *   @param {number} x - The position on screen
-     *   @returns {number}
+    /**
+     * Convert a screen X coordinate back to normalized value.
+     * @param x - Screen X position in pixels.
      */
     static getScreenXReverse(x) {
         return Math.floor(x / ScreenResolution.WINDOW_X);
     }
-    /** Get the pixel position transformation according to screen size (reverse)
-     *   @static
-     *   @param {number} y - The position on screen
-     *   @returns {number}
+    /**
+     * Convert a screen Y coordinate back to normalized value.
+     * @param y - Screen Y position in pixels.
      */
     static getScreenYReverse(y) {
         return Math.floor(y / ScreenResolution.WINDOW_Y);
     }
-    /** Get the pixel position transformation according to screen size
-     *   @static
-     *   @param {number} xy - The position on screen
-     *   @returns {number}
+    /**
+     * Convert a normalized XY value using the average of width and height
+     * scaling factors.
+     * @param xy - Normalized coordinate.
      */
     static getScreenXY(xy) {
-        return (ScreenResolution.WINDOW_X + ScreenResolution.WINDOW_Y)
-            / 2 * xy;
+        return ((ScreenResolution.WINDOW_X + ScreenResolution.WINDOW_Y) / 2) * xy;
     }
-    /** Get the min pixel position transformation according to screen size
-     *   @static
-     *   @param {number} xy - The position on screen
-     *   @returns {number}
+    /**
+     * Convert a normalized XY value using the smaller of width and height
+     * scaling factors.
+     * @param xy - Normalized coordinate.
      */
     static getScreenMinXY(xy) {
         return xy * Math.min(ScreenResolution.WINDOW_X, ScreenResolution.WINDOW_Y);
     }
-    /** Get the pixel position transformation according to screen size, but
-     *   without rounding it
-     *   @static
-     *   @param {number} x - The position on screen
-     *   @returns {number}
+    /**
+     * Convert a normalized X coordinate to screen pixels (without rounding).
+     * @param x - Normalized X position.
      */
     static getDoubleScreenX(x) {
         return ScreenResolution.WINDOW_X * x;
     }
-    /** Get the pixel position transformation according to screen size, but
-     *   without rounding it
-     *   @static
-     *   @param {number} y - The position on screen
-     *   @returns {number}
+    /**
+     * Convert a normalized Y coordinate to screen pixels (without rounding).
+     * @param y - Normalized Y position.
      */
     static getDoubleScreenY(y) {
         return ScreenResolution.WINDOW_Y * y;
     }
 }
+// -------------------------------------------------------------------------
+// Base resolution
+// -------------------------------------------------------------------------
+/** Default screen width in pixels. */
 ScreenResolution.SCREEN_X = 640;
+/** Default screen height in pixels. */
 ScreenResolution.SCREEN_Y = 480;
-export { ScreenResolution };

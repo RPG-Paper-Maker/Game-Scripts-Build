@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,8 +8,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { Model } from "../index.js";
 import { Base } from './Base.js';
-import { System } from '../index.js';
 /** @class
  *  An event command for label.
  *  @extends EventCommand.Base
@@ -18,10 +18,10 @@ import { System } from '../index.js';
 class Label extends Base {
     constructor(command) {
         super();
-        let iterator = {
-            i: 0
+        const iterator = {
+            i: 0,
         };
-        this.name = System.DynamicValue.createValueCommand(command, iterator);
+        this.name = Model.DynamicValue.createValueCommand(command, iterator);
     }
 }
 export { Label };

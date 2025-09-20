@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Datas, Manager, System } from "../index.js";
+import { Data, Manager, Model } from "../index.js";
 import { Utils } from '../Common/index.js';
 import { Base } from './Base.js';
 /** @class
@@ -20,17 +20,17 @@ class PlayAVideo extends Base {
     constructor(command) {
         super();
         this.isWaitEnd = true;
-        let iterator = {
-            i: 0
+        const iterator = {
+            i: 0,
         };
         this.operation = command[iterator.i++];
         if (this.operation === 0) {
             this.videoID = command[iterator.i++];
-            this.isStart = Utils.numToBool(command[iterator.i++]);
+            this.isStart = Utils.numberToBool(command[iterator.i++]);
             if (this.isStart) {
-                this.start = System.DynamicValue.createValueCommand(command, iterator);
+                this.start = Model.DynamicValue.createValueCommand(command, iterator);
             }
-            this.isWaitEnd = Utils.numToBool(command[iterator.i++]);
+            this.isWaitEnd = Utils.numberToBool(command[iterator.i++]);
         }
         this.parallel = !this.isWaitEnd;
     }
@@ -42,7 +42,7 @@ class PlayAVideo extends Base {
         return {
             parallel: this.isWaitEnd,
             started: false,
-            finished: false
+            finished: false,
         };
     }
     /**
@@ -51,15 +51,14 @@ class PlayAVideo extends Base {
      *  @param {MapObject} object - The current object reacting
      *  @param {number} state - The state ID
      *  @returns {number} The number of node to pass
-    */
+     */
     update(currentState, object, state) {
         if (currentState.parallel) {
             if (!currentState.started) {
                 switch (this.operation) {
                     case 0:
-                        Manager.Videos.play(Datas.Videos.get(this.videoID)
-                            .getPath() + (this.isStart ? "#t=" + this.start
-                            .getValue() : ""), () => {
+                        Manager.Videos.play(Data.Videos.get(this.videoID).getPath() +
+                            (this.isStart ? '#t=' + this.start.getValue() : ''), () => {
                             Manager.Videos.stop();
                             currentState.finished = true;
                         });

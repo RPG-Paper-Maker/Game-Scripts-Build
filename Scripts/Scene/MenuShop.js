@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,8 +8,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Datas, Graphic, Manager, Scene } from "../index.js";
-import { Constants, Enum, ScreenResolution } from '../Common/index.js';
+import { Data, Graphic, Manager, Scene } from "../index.js";
+import { ALIGN, Constants, ORIENTATION_WINDOW, ScreenResolution } from '../Common/index.js';
 import { Game, Item, Rectangle, WindowBox, WindowChoices } from '../Core/index.js';
 import { SpinBox } from '../Core/SpinBox.js';
 import { MenuBase } from './MenuBase.js';
@@ -64,8 +64,8 @@ class MenuShop extends MenuBase {
      */
     createWindowBoxTop() {
         const rect = new Rectangle(Constants.HUGE_SPACE, Constants.HUGE_SPACE, WindowBox.MEDIUM_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
-        const graphic = new Graphic.Text(Datas.Languages.extras.shop.name(), {
-            align: Enum.Align.Center,
+        const graphic = new Graphic.Text(Data.Languages.extras.shop.name(), {
+            align: ALIGN.CENTER,
         });
         const options = {
             content: graphic,
@@ -77,12 +77,12 @@ class MenuShop extends MenuBase {
      */
     createWindowChoicesBuySell() {
         const rect = new Rectangle(ScreenResolution.SCREEN_X - Constants.HUGE_SPACE - WindowBox.SMALL_SLOT_WIDTH * 2, Constants.HUGE_SPACE, WindowBox.SMALL_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
-        const list = [new Graphic.Text(Datas.Languages.extras.buy.name(), { align: Enum.Align.Center })];
+        const list = [new Graphic.Text(Data.Languages.extras.buy.name(), { align: ALIGN.CENTER })];
         if (!this.buyOnly) {
-            list.push(new Graphic.Text(Datas.Languages.extras.sell.name(), { align: Enum.Align.Center }));
+            list.push(new Graphic.Text(Data.Languages.extras.sell.name(), { align: ALIGN.CENTER }));
         }
         const options = {
-            orientation: Enum.OrientationWindow.Horizontal,
+            orientation: ORIENTATION_WINDOW.HORIZONTAL,
             nbItemsMax: list.length,
             padding: WindowBox.NONE_PADDING,
         };
@@ -93,14 +93,14 @@ class MenuShop extends MenuBase {
      */
     createWindowChoicesItemsKind() {
         const rect = new Rectangle(Constants.MEDIUM_SPACE, Constants.HUGE_SPACE + WindowBox.SMALL_SLOT_HEIGHT + Constants.LARGE_SPACE, WindowBox.SMALL_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
-        let l = Datas.Systems.inventoryFilters.length;
-        let list = new Array();
+        let l = Data.Systems.inventoryFilters.length;
+        const list = [];
         let i;
-        for (i = 0, l = Datas.Systems.inventoryFilters.length; i < l; i++) {
-            list[i] = new Graphic.Text(Datas.Systems.inventoryFilters[i].name(), { align: Enum.Align.Center });
+        for (i = 0, l = Data.Systems.inventoryFilters.length; i < l; i++) {
+            list[i] = new Graphic.Text(Data.Systems.inventoryFilters[i].name(), { align: ALIGN.CENTER });
         }
         const options = {
-            orientation: Enum.OrientationWindow.Horizontal,
+            orientation: ORIENTATION_WINDOW.HORIZONTAL,
             nbItemsMax: list.length,
             padding: [0, 0, 0, 0],
         };
@@ -142,8 +142,8 @@ class MenuShop extends MenuBase {
      */
     createWindowBoxEmpty() {
         const rect = new Rectangle(Constants.LARGE_SPACE, WindowBox.SMALL_SLOT_WIDTH, ScreenResolution.SCREEN_X - Constants.HUGE_SPACE, WindowBox.SMALL_SLOT_HEIGHT);
-        const graphic = new Graphic.Text(Datas.Languages.extras.empty.name(), {
-            align: Enum.Align.Center,
+        const graphic = new Graphic.Text(Data.Languages.extras.empty.name(), {
+            align: ALIGN.CENTER,
         });
         const options = {
             content: graphic,
@@ -170,7 +170,7 @@ class MenuShop extends MenuBase {
      */
     createWindowBoxOwned() {
         const rect = new Rectangle(Constants.LARGE_SPACE, ScreenResolution.SCREEN_Y - WindowBox.SMALL_SLOT_HEIGHT - Constants.LARGE_SPACE, WindowBox.SMALL_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
-        const graphic = new Graphic.Text('', { align: Enum.Align.Center });
+        const graphic = new Graphic.Text('', { align: ALIGN.CENTER });
         const options = {
             content: graphic,
             padding: WindowBox.SMALL_SLOT_PADDING,
@@ -205,7 +205,7 @@ class MenuShop extends MenuBase {
         const width = 300;
         const height = 100;
         const rect = new Rectangle((ScreenResolution.SCREEN_X - width) / 2, (ScreenResolution.SCREEN_Y - height) / 2, width, height);
-        const graphic = new Graphic.Text(Datas.Languages.extras.equipQuestion.name(), { align: Enum.Align.Center });
+        const graphic = new Graphic.Text(Data.Languages.extras.equipQuestion.name(), { align: ALIGN.CENTER });
         const options = {
             content: graphic,
             padding: WindowBox.SMALL_SLOT_PADDING,
@@ -218,8 +218,8 @@ class MenuShop extends MenuBase {
     createWindowChoicesConfirmEquip() {
         const rect = new Rectangle((ScreenResolution.SCREEN_X - WindowBox.SMALL_SLOT_WIDTH) / 2, this.windowBoxConfirmEquip.oY + this.windowBoxConfirmEquip.oH, WindowBox.SMALL_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
         const list = [
-            new Graphic.Text(Datas.Languages.extras.yes.name(), { align: Enum.Align.Center }),
-            new Graphic.Text(Datas.Languages.extras.no.name(), { align: Enum.Align.Center }),
+            new Graphic.Text(Data.Languages.extras.yes.name(), { align: ALIGN.CENTER }),
+            new Graphic.Text(Data.Languages.extras.no.name(), { align: ALIGN.CENTER }),
         ];
         const options = {
             nbItemsMax: list.length,
@@ -245,15 +245,15 @@ class MenuShop extends MenuBase {
      *  Update items list.
      */
     updateItemsList() {
-        let listToSort = this.isBuy() ? this.stock : Game.current.items;
-        let indexTab = this.windowChoicesItemsKind.currentSelectedIndex;
-        let list = [];
+        const listToSort = this.isBuy() ? this.stock : Game.current.items;
+        const indexTab = this.windowChoicesItemsKind.currentSelectedIndex;
+        const list = [];
         let item;
         for (let i = 0, l = listToSort.length; i < l; i++) {
             item = listToSort[i];
             if (item.nb !== 0 &&
                 (this.isBuy() || item.system.canBeSold.getValue()) &&
-                Datas.Systems.inventoryFilters[indexTab].getFilter()(item)) {
+                Data.Systems.inventoryFilters[indexTab].getFilter()(item)) {
                 list.push(this.isBuy()
                     ? new Graphic.Item(item, { nbItem: item.nb, possible: item.shop.isPossiblePrice() })
                     : new Graphic.Item(item, { showSellPrice: true }));
@@ -279,7 +279,7 @@ class MenuShop extends MenuBase {
                     break;
                 }
             }
-            this.windowBoxOwned.content.setText(Datas.Languages.extras.owned.name() + ': ' + owned);
+            this.windowBoxOwned.content.setText(Data.Languages.extras.owned.name() + ': ' + owned);
         }
         this.windowBoxUseItem.content.updateGraphicCharactersEquip(this.windowBoxInformation.content.item);
     }
@@ -303,7 +303,7 @@ class MenuShop extends MenuBase {
         }
         // Update stats short if weapon / armor
         if (this.windowChoicesList.getCurrentContent()) {
-            let system = this.windowChoicesList.getCurrentContent().item.system;
+            const system = this.windowChoicesList.getCurrentContent().item.system;
             if (system.isWeaponArmor()) {
                 this.windowBoxUseItem.content.updateStatShort(system);
             }
@@ -313,7 +313,7 @@ class MenuShop extends MenuBase {
         }
         // Update position
         if (this.windowChoicesList.currentSelectedIndex !== -1) {
-            let position = this.positionChoice[this.windowChoicesItemsKind.currentSelectedIndex];
+            const position = this.positionChoice[this.windowChoicesItemsKind.currentSelectedIndex];
             position.index = this.windowChoicesList.currentSelectedIndex;
             position.offset = this.windowChoicesList.offsetSelectedIndex;
         }
@@ -322,8 +322,8 @@ class MenuShop extends MenuBase {
      *  Update the equipments stats when selecting a player.
      */
     updateEquipmentStats() {
-        let player = this.getCurrentPlayer();
-        let result = player.getBestWeaponArmorToReplace(this.windowChoicesList.getCurrentContent().item.system);
+        const player = this.getCurrentPlayer();
+        const result = player.getBestWeaponArmorToReplace(this.windowChoicesList.getCurrentContent().item.system);
         this.windowBoxInformation.content = new Graphic.EquipStats(player, result[2][0], false);
         this.currentEquipmentID = result[1];
         this.currentList = result[2][0];
@@ -333,9 +333,9 @@ class MenuShop extends MenuBase {
      *  Equip the selected equipment.
      */
     equip(shopItem) {
-        let player = this.getCurrentPlayer();
-        let item = Item.findItem(shopItem.kind, shopItem.system.id);
-        let prev = player.equip[this.currentEquipmentID];
+        const player = this.getCurrentPlayer();
+        const item = Item.findItem(shopItem.kind, shopItem.system.id);
+        const prev = player.equip[this.currentEquipmentID];
         player.equip[this.currentEquipmentID] = item;
         item.remove(1);
         if (prev) {
@@ -349,17 +349,17 @@ class MenuShop extends MenuBase {
      *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     action(isKey, options = {}) {
-        let graphic = this.windowChoicesList.getCurrentContent();
+        const graphic = this.windowChoicesList.getCurrentContent();
         switch (this.step) {
             case 0:
                 if (Scene.MenuBase.checkActionMenu(isKey, options)) {
-                    Datas.Systems.soundConfirmation.playSound();
+                    Data.Systems.soundConfirmation.playSound();
                     this.updateItemsList();
                     this.step = 1;
                     Manager.Stack.requestPaintHUD = true;
                 }
                 else if (Scene.MenuBase.checkCancelMenu(isKey, options)) {
-                    Datas.Systems.soundCancel.playSound();
+                    Data.Systems.soundCancel.playSound();
                     Scene.Map.current.user = null;
                     Manager.Stack.pop();
                 }
@@ -371,7 +371,7 @@ class MenuShop extends MenuBase {
                     }
                     if (this.isBuy()) {
                         if (graphic.item.shop.isPossiblePrice()) {
-                            Datas.Systems.soundConfirmation.playSound();
+                            Data.Systems.soundConfirmation.playSound();
                             if (graphic.item.system.isWeaponArmor() &&
                                 this.windowBoxUseItem.content.graphicCharacters.length > 0) {
                                 this.windowBoxUseItem.content.hideArrow = false;
@@ -388,11 +388,11 @@ class MenuShop extends MenuBase {
                             Manager.Stack.requestPaintHUD = true;
                         }
                         else {
-                            Datas.Systems.soundImpossible.playSound();
+                            Data.Systems.soundImpossible.playSound();
                         }
                     }
                     else {
-                        Datas.Systems.soundConfirmation.playSound();
+                        Data.Systems.soundConfirmation.playSound();
                         this.spinBox.max = graphic.item.nb;
                         this.spinBox.updateValue(1);
                         this.step = 2;
@@ -400,15 +400,15 @@ class MenuShop extends MenuBase {
                     }
                 }
                 else if (Scene.MenuBase.checkCancelMenu(isKey, options)) {
-                    Datas.Systems.soundCancel.playSound();
+                    Data.Systems.soundCancel.playSound();
                     this.step = 0;
                 }
                 break;
             case 2:
             case 4:
                 if (Scene.MenuBase.checkActionMenu(isKey, options)) {
-                    Datas.Systems.soundConfirmation.playSound();
-                    let shopItem = graphic.item;
+                    Data.Systems.soundConfirmation.playSound();
+                    const shopItem = graphic.item;
                     if (this.isBuy()) {
                         if (this.step === 2 &&
                             graphic.item.system.isWeaponArmor() &&
@@ -445,21 +445,21 @@ class MenuShop extends MenuBase {
                     Manager.Stack.requestPaintHUD = true;
                 }
                 else if (Scene.MenuBase.checkCancelMenu(isKey, options)) {
-                    Datas.Systems.soundCancel.playSound();
+                    Data.Systems.soundCancel.playSound();
                     this.step = graphic.item.system.isWeaponArmor() ? 3 : 1;
                     Manager.Stack.requestPaintHUD = true;
                 }
                 break;
             case 3:
                 if (Scene.MenuBase.checkActionMenu(isKey, options)) {
-                    Datas.Systems.soundConfirmation.playSound();
+                    Data.Systems.soundConfirmation.playSound();
                     this.spinBox.max = graphic.item.nb;
                     this.spinBox.updateValue(1);
                     this.step = 2;
                     Manager.Stack.requestPaintHUD = true;
                 }
                 else if (Scene.MenuBase.checkCancelMenu(isKey, options)) {
-                    Datas.Systems.soundCancel.playSound();
+                    Data.Systems.soundCancel.playSound();
                     this.windowBoxUseItem.content.hideArrow = true;
                     this.synchronize();
                     this.step = 1;
@@ -518,7 +518,7 @@ class MenuShop extends MenuBase {
      *  @returns {boolean}
      */
     onKeyPressedAndRepeat(key) {
-        let res = super.onKeyPressedAndRepeat(key);
+        const res = super.onKeyPressedAndRepeat(key);
         this.move(true, { key: key });
         return res;
     }

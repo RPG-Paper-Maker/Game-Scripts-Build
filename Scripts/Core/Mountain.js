@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -10,7 +10,7 @@
 */
 import * as THREE from 'three';
 import { Utils } from '../Common/index.js';
-import { Datas } from '../index.js';
+import { Data } from '../index.js';
 import { MapElement, Sprite } from './index.js';
 /**
  * A mountain in the map.
@@ -31,17 +31,17 @@ class Mountain extends MapElement {
      */
     read(json) {
         super.read(json);
-        this.mountainID = Utils.defaultValue(json.sid, -1);
-        this.widthSquares = Utils.defaultValue(json.ws, 0);
-        this.widthPixels = Utils.defaultValue(json.wp, 0);
-        this.heightSquares = Utils.defaultValue(json.hs, 1);
-        this.heightPixels = Utils.defaultValue(json.hp, 0);
-        this.top = Utils.defaultValue(json.t, false);
-        this.bot = Utils.defaultValue(json.b, false);
-        this.left = Utils.defaultValue(json.l, false);
-        this.right = Utils.defaultValue(json.r, false);
+        this.mountainID = Utils.valueOrDefault(json.sid, -1);
+        this.widthSquares = Utils.valueOrDefault(json.ws, 0);
+        this.widthPixels = Utils.valueOrDefault(json.wp, 0);
+        this.heightSquares = Utils.valueOrDefault(json.hs, 1);
+        this.heightPixels = Utils.valueOrDefault(json.hp, 0);
+        this.top = Utils.valueOrDefault(json.t, false);
+        this.bot = Utils.valueOrDefault(json.b, false);
+        this.left = Utils.valueOrDefault(json.l, false);
+        this.right = Utils.valueOrDefault(json.r, false);
         // Calculate angle
-        let width = this.getWidthTotalPixels();
+        const width = this.getWidthTotalPixels();
         this.angle = width === 0 ? 90 : (Math.atan(this.getHeightTotalPixels() / width) * 180) / Math.PI;
     }
     /**
@@ -63,35 +63,35 @@ class Mountain extends MapElement {
      *  @returns {number}
      */
     getWidthOnlyPixelsPlus() {
-        return Math.round((this.widthPixels * Datas.Systems.SQUARE_SIZE) / 100);
+        return Math.round((this.widthPixels * Data.Systems.SQUARE_SIZE) / 100);
     }
     /**
      *  Get the squares number height with pixels plus.
      *  @returns {number}
      */
     getHeightOnlyPixelsPlus() {
-        return Math.round((this.heightPixels * Datas.Systems.SQUARE_SIZE) / 100);
+        return Math.round((this.heightPixels * Data.Systems.SQUARE_SIZE) / 100);
     }
     /**
      *  Get the total width in pixels.
      *  @returns {number}
      */
     getWidthTotalPixels() {
-        return this.widthSquares * Datas.Systems.SQUARE_SIZE + this.getWidthOnlyPixelsPlus();
+        return this.widthSquares * Data.Systems.SQUARE_SIZE + this.getWidthOnlyPixelsPlus();
     }
     /**
      *  Get the total height in pixels.
      *  @returns {number}
      */
     getHeightTotalPixels() {
-        return this.heightSquares * Datas.Systems.SQUARE_SIZE + this.getHeightOnlyPixelsPlus();
+        return this.heightSquares * Data.Systems.SQUARE_SIZE + this.getHeightOnlyPixelsPlus();
     }
     /**
      *  Get the System special element mountain.
      *  @returns {System.SpecialElement}
      */
     getSystem() {
-        return Datas.SpecialElements.getMountain(this.mountainID);
+        return Data.SpecialElements.getMountain(this.mountainID);
     }
     /**
      *  Draw the entire faces.
@@ -121,9 +121,9 @@ class Mountain extends MapElement {
      */
     drawEntireFaces(left, right, angle, center, width, height, w, faceHeight, wp, xLeft, xRight, yTop, yBot, zFront, zBack, yOffset, vecFrontA, vecBackA, vecFrontB, vecBackB, geometry, count) {
         let xKind = Mountain.X_LEFT_OFFSET;
-        let nbSteps = Math.ceil(faceHeight / Datas.Systems.SQUARE_SIZE);
-        let vecCenterA = vecFrontA.clone().addScaledVector(vecBackA.clone().sub(vecFrontA), 0.5);
-        let vecCenterB = vecFrontB.clone().addScaledVector(vecBackB.clone().sub(vecFrontB), 0.5);
+        const nbSteps = Math.ceil(faceHeight / Data.Systems.SQUARE_SIZE);
+        const vecCenterA = vecFrontA.clone().addScaledVector(vecBackA.clone().sub(vecFrontA), 0.5);
+        const vecCenterB = vecFrontB.clone().addScaledVector(vecBackB.clone().sub(vecFrontB), 0.5);
         // Define x offset according to left / right stuff
         if (!left && right) {
             xKind = Mountain.X_LEFT_OFFSET;
@@ -138,12 +138,12 @@ class Mountain extends MapElement {
             xKind = Mountain.X_MIX_OFFSET;
         }
         // Draw all faces
-        if (faceHeight === Datas.Systems.SQUARE_SIZE) {
+        if (faceHeight === Data.Systems.SQUARE_SIZE) {
             // 1 Mix sprite
             // Mix
             count = this.drawSideCorner(xKind, Mountain.Y_MIX_OFFSET, angle, center, width, height, w, faceHeight, wp, xLeft, xRight, vecBackA.x, vecBackB.x, vecFrontA.x, vecBackB.x, yTop, yBot, zFront, zBack, vecFrontA.z, vecFrontB.z, vecBackA.z, vecBackB.z, yOffset, geometry, count, 0, vecFrontA.distanceTo(vecFrontB));
         }
-        else if (faceHeight <= 2 * Datas.Systems.SQUARE_SIZE) {
+        else if (faceHeight <= 2 * Data.Systems.SQUARE_SIZE) {
             // 2 B / T sprites
             // Bottom
             count = this.drawSideCorner(xKind, Mountain.Y_BOT_OFFSET, angle, center, width, height, w, Math.floor(faceHeight / 2), wp, xLeft, xRight, vecCenterA.x, vecCenterB.x, vecFrontA.x, vecFrontB.x, vecCenterB.y, yBot, zFront, vecCenterB.z, vecFrontA.z, vecFrontB.z, vecCenterA.z, vecCenterB.z, yOffset, geometry, count, vecCenterA.distanceTo(vecCenterB), vecFrontA.distanceTo(vecFrontB));
@@ -240,13 +240,13 @@ class Mountain extends MapElement {
      */
     drawFace(xKind, yKind, angle, center, width, height, w, faceHeight, xLeftTop, xRightTop, xLeftBot, xRightBot, yTop, yBot, zFrontLeft, zFrontRight, zBackLeft, zBackRight, yOffset, geometry, count, xCornerOffsetTop, xCornerOffsetBot, isCorner) {
         // Textures coordinates
-        let x = (xKind * Datas.Systems.SQUARE_SIZE) / width;
-        let y = ((isCorner ? yKind + 4 : yKind) * Datas.Systems.SQUARE_SIZE +
-            (yKind === Mountain.Y_BOT_OFFSET ? Datas.Systems.SQUARE_SIZE - faceHeight : 0)) /
+        let x = (xKind * Data.Systems.SQUARE_SIZE) / width;
+        let y = ((isCorner ? yKind + 4 : yKind) * Data.Systems.SQUARE_SIZE +
+            (yKind === Mountain.Y_BOT_OFFSET ? Data.Systems.SQUARE_SIZE - faceHeight : 0)) /
             height;
         let h = faceHeight / height;
-        let coefX = MapElement.COEF_TEX / width;
-        let coefY = MapElement.COEF_TEX / height;
+        const coefX = MapElement.COEF_TEX / width;
+        const coefY = MapElement.COEF_TEX / height;
         x += coefX;
         y += coefY;
         w -= coefX * 2;
@@ -254,20 +254,18 @@ class Mountain extends MapElement {
         // Textures and vertices
         let texA, texB, texC, texD;
         if (isCorner) {
-            texA = new THREE.Vector2((Mountain.X_MID_OFFSET * Datas.Systems.SQUARE_SIZE +
-                (Datas.Systems.SQUARE_SIZE - xCornerOffsetTop) / 2) /
+            texA = new THREE.Vector2((Mountain.X_MID_OFFSET * Data.Systems.SQUARE_SIZE + (Data.Systems.SQUARE_SIZE - xCornerOffsetTop) / 2) /
                 width +
                 coefX, y);
-            texB = new THREE.Vector2(((Mountain.X_MID_OFFSET + 1) * Datas.Systems.SQUARE_SIZE -
-                (Datas.Systems.SQUARE_SIZE - xCornerOffsetTop) / 2) /
+            texB = new THREE.Vector2(((Mountain.X_MID_OFFSET + 1) * Data.Systems.SQUARE_SIZE -
+                (Data.Systems.SQUARE_SIZE - xCornerOffsetTop) / 2) /
                 width -
                 coefX, y);
-            texC = new THREE.Vector2(((Mountain.X_MID_OFFSET + 1) * Datas.Systems.SQUARE_SIZE -
-                (Datas.Systems.SQUARE_SIZE - xCornerOffsetBot) / 2) /
+            texC = new THREE.Vector2(((Mountain.X_MID_OFFSET + 1) * Data.Systems.SQUARE_SIZE -
+                (Data.Systems.SQUARE_SIZE - xCornerOffsetBot) / 2) /
                 width -
                 coefX, y + h);
-            texD = new THREE.Vector2((Mountain.X_MID_OFFSET * Datas.Systems.SQUARE_SIZE +
-                (Datas.Systems.SQUARE_SIZE - xCornerOffsetBot) / 2) /
+            texD = new THREE.Vector2((Mountain.X_MID_OFFSET * Data.Systems.SQUARE_SIZE + (Data.Systems.SQUARE_SIZE - xCornerOffsetBot) / 2) /
                 width +
                 coefX, y + h);
         }
@@ -278,20 +276,20 @@ class Mountain extends MapElement {
             texC = new THREE.Vector2(x + w, y + h);
             texD = new THREE.Vector2(x, y + h);
         }
-        let texFaceA = [
+        const texFaceA = [
             new THREE.Vector2(texA.x, texA.y),
             new THREE.Vector2(texB.x, texB.y),
             new THREE.Vector2(texC.x, texC.y),
         ];
-        let texFaceB = [
+        const texFaceB = [
             new THREE.Vector2(texA.x, texA.y),
             new THREE.Vector2(texC.x, texC.y),
             new THREE.Vector2(texD.x, texD.y),
         ];
-        let vecA = new THREE.Vector3(xLeftTop, yTop, zBackLeft);
-        let vecB = new THREE.Vector3(xRightTop, yTop, zBackRight);
-        let vecC = new THREE.Vector3(xRightBot, yBot, zFrontRight);
-        let vecD = new THREE.Vector3(xLeftBot, yBot, zFrontLeft);
+        const vecA = new THREE.Vector3(xLeftTop, yTop, zBackLeft);
+        const vecB = new THREE.Vector3(xRightTop, yTop, zBackRight);
+        const vecC = new THREE.Vector3(xRightBot, yBot, zFrontRight);
+        const vecD = new THREE.Vector3(xLeftBot, yBot, zFrontLeft);
         // Rotate and draw sprite side
         Sprite.rotateSprite(vecA, vecB, vecC, vecD, center, angle, Sprite.Y_AXIS);
         count = Sprite.addStaticSpriteToGeometry(geometry, vecA, vecB, vecC, vecD, texA, texB, texC, texD, count);
@@ -308,25 +306,25 @@ class Mountain extends MapElement {
      */
     updateGeometry(geometry, texture, position, pictureID, count) {
         // General configurations
-        let yOffset = texture.getOffset(pictureID, null) * 4 * Datas.Systems.SQUARE_SIZE;
+        const yOffset = texture.getOffset(pictureID, null) * 4 * Data.Systems.SQUARE_SIZE;
         let wp = this.getWidthTotalPixels();
-        let hp = this.getHeightTotalPixels();
-        let width = 4 * Datas.Systems.SQUARE_SIZE;
-        let height = 7 * Datas.Systems.SQUARE_SIZE;
-        let faceHeight = Math.sqrt(wp * wp + hp * hp);
-        let w = Datas.Systems.SQUARE_SIZE / width;
-        let localPosition = position.toVector3(false);
-        let center = new THREE.Vector3(localPosition.x + Datas.Systems.SQUARE_SIZE / 2, localPosition.y + Datas.Systems.SQUARE_SIZE / 2, localPosition.z + Datas.Systems.SQUARE_SIZE / 2);
-        let xLeft = localPosition.x;
-        let xRight = localPosition.x + Datas.Systems.SQUARE_SIZE;
-        let yTop = localPosition.y + hp;
-        let yBot = localPosition.y;
-        let zFront = localPosition.z + Datas.Systems.SQUARE_SIZE + wp;
-        let zBack = zFront - wp;
-        let vecFrontB = new THREE.Vector3(xLeft, yBot, zFront);
-        let vecBackB = new THREE.Vector3(xLeft, yTop, zBack);
-        let vecFrontA = new THREE.Vector3(xLeft - wp, yBot, zBack);
-        let vecBackA = new THREE.Vector3(xLeft, yTop, zBack);
+        const hp = this.getHeightTotalPixels();
+        const width = 4 * Data.Systems.SQUARE_SIZE;
+        const height = 7 * Data.Systems.SQUARE_SIZE;
+        const faceHeight = Math.sqrt(wp * wp + hp * hp);
+        const w = Data.Systems.SQUARE_SIZE / width;
+        const localPosition = position.toVector3(false);
+        const center = new THREE.Vector3(localPosition.x + Data.Systems.SQUARE_SIZE / 2, localPosition.y + Data.Systems.SQUARE_SIZE / 2, localPosition.z + Data.Systems.SQUARE_SIZE / 2);
+        const xLeft = localPosition.x;
+        const xRight = localPosition.x + Data.Systems.SQUARE_SIZE;
+        const yTop = localPosition.y + hp;
+        const yBot = localPosition.y;
+        const zFront = localPosition.z + Data.Systems.SQUARE_SIZE + wp;
+        const zBack = zFront - wp;
+        const vecFrontB = new THREE.Vector3(xLeft, yBot, zFront);
+        const vecBackB = new THREE.Vector3(xLeft, yTop, zBack);
+        const vecFrontA = new THREE.Vector3(xLeft - wp, yBot, zBack);
+        const vecBackA = new THREE.Vector3(xLeft, yTop, zBack);
         // Bot
         if (!this.bot) {
             count = this.drawEntireFaces(this.left, this.right, 0, center, width, height, w, faceHeight, wp, xLeft, xRight, yTop, yBot, zFront, zBack, yOffset, vecFrontA, vecBackA, vecFrontB, vecBackB, geometry, count);
@@ -344,8 +342,8 @@ class Mountain extends MapElement {
             count = this.drawEntireFaces(this.bot, this.top, 90, center, width, height, w, faceHeight, wp, xLeft, xRight, yTop, yBot, zFront, zBack, yOffset, vecFrontA, vecBackA, vecFrontB, vecBackB, geometry, count);
         }
         // Collisions
-        wp = wp * 2 + Datas.Systems.SQUARE_SIZE;
-        let objCollision = [
+        wp = wp * 2 + Data.Systems.SQUARE_SIZE;
+        const objCollision = [
             {
                 p: position,
                 l: localPosition,

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,11 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Constants, Enum, ScreenResolution } from '../Common/index.js';
+import { ALIGN, ScreenResolution } from '../Common/index.js';
 import { WindowBox, WindowChoices } from '../Core/index.js';
-import { Datas, Graphic, Scene, System } from '../index.js';
+import { Data, Graphic, Model, Scene } from '../index.js';
 import { Base } from './Base.js';
-var Align = Enum.Align;
 /** @class
  *  An event command for displaying a choice.
  *  @extends EventCommand.Base
@@ -21,23 +20,23 @@ var Align = Enum.Align;
 class DisplayChoice extends Base {
     constructor(command) {
         super();
-        let iterator = {
+        const iterator = {
             i: 0,
         };
-        this.cancelAutoIndex = System.DynamicValue.createValueCommand(command, iterator);
-        this.maxNumberChoices = System.DynamicValue.createValueCommand(command, iterator);
+        this.cancelAutoIndex = Model.DynamicValue.createValueCommand(command, iterator);
+        this.maxNumberChoices = Model.DynamicValue.createValueCommand(command, iterator);
         this.choices = [];
         let l = command.length;
         let lang = null;
         let next;
         while (iterator.i < l) {
             next = command[iterator.i];
-            if (next === Constants.STRING_DASH) {
+            if (next === '-') {
                 iterator.i++;
                 if (lang !== null) {
                     this.choices.push(lang.name());
                 }
-                lang = new System.Translatable();
+                lang = new Model.Localization();
             }
             else {
                 lang.getCommand(command, iterator);
@@ -52,7 +51,7 @@ class DisplayChoice extends Base {
         this.maxWidth = WindowBox.MEDIUM_SLOT_WIDTH;
         let graphic;
         for (let i = 0; i < l; i++) {
-            graphic = new Graphic.Text(this.choices[i], { align: Align.Center });
+            graphic = new Graphic.Text(this.choices[i], { align: ALIGN.CENTER });
             this.graphics[i] = graphic;
             if (graphic.textWidth > this.maxWidth) {
                 this.maxWidth = graphic.textWidth;
@@ -75,11 +74,11 @@ class DisplayChoice extends Base {
      */
     action(currentState, isKey, options = {}) {
         if (Scene.MenuBase.checkActionMenu(isKey, options)) {
-            Datas.Systems.soundConfirmation.playSound();
+            Data.Systems.soundConfirmation.playSound();
             currentState.index = this.windowChoices.currentSelectedIndex;
         }
         else if (Scene.MenuBase.checkCancel(isKey, options)) {
-            Datas.Systems.soundCancel.playSound();
+            Data.Systems.soundCancel.playSound();
             currentState.index = this.cancelAutoIndex.getValue() - 1;
         }
     }
@@ -97,7 +96,7 @@ class DisplayChoice extends Base {
      *  @returns {Record<string, any>} The current state
      */
     initialize() {
-        let maxItems = this.maxNumberChoices.getValue();
+        const maxItems = this.maxNumberChoices.getValue();
         this.windowChoices = new WindowChoices((ScreenResolution.SCREEN_X - this.maxWidth) / 2, ScreenResolution.SCREEN_Y -
             10 -
             150 -

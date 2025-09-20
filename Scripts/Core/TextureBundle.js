@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -44,11 +44,11 @@ class TextureBundle {
         if (!rect) {
             return true;
         }
-        if (rect[1] > point[1]) {
+        if (rect.y > point[1]) {
             return true;
         }
-        else if (rect[1] === point[1]) {
-            return rect[0] >= point[0];
+        else if (rect.y === point[1]) {
+            return rect.x >= point[0];
         }
         return false;
     }
@@ -62,11 +62,11 @@ class TextureBundle {
         if (!rect) {
             return true;
         }
-        if (rect[1] < point[1]) {
+        if (rect.y < point[1]) {
             return true;
         }
-        else if (rect[1] === point[1]) {
-            return rect[0] <= point[0];
+        else if (rect.y === point[1]) {
+            return rect.x <= point[0];
         }
         return false;
     }
@@ -111,7 +111,7 @@ class TextureBundle {
         for (let i = 0, l = this.list.length; i < l; i++) {
             pair = this.list[i];
             point = pair[1];
-            if (id === pair[0] && (rect === null || (point[0] === rect[0] && point[1] === rect[1]))) {
+            if (id === pair[0] && (rect === null || (point[0] === rect.x && point[1] === rect.y))) {
                 return i;
             }
         }

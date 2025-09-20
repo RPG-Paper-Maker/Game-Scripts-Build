@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,13 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum, Interpreter } from '../Common/index.js';
+import { ALIGN, CHARACTERISTIC_KIND, Interpreter, ITEM_KIND, ORIENTATION_WINDOW } from '../Common/index.js';
 import { Game, Item, Player, Rectangle, WindowBox, WindowChoices } from '../Core/index.js';
-import { Datas, Graphic, Manager, Scene } from '../index.js';
+import { Data, Graphic, Manager, Scene } from '../index.js';
 import { MenuBase } from './MenuBase.js';
-var Align = Enum.Align;
-var OrientationWindow = Enum.OrientationWindow;
-var ItemKind = Enum.ItemKind;
 /**
  * The menu scene displaying heroes equipments
  *
@@ -48,7 +45,7 @@ class MenuEquip extends MenuBase {
     createWindowTop() {
         const rect = new Rectangle(20, 20, 200, 30);
         this.windowTop = new WindowBox(rect.x, rect.y, rect.width, rect.height, {
-            content: new Graphic.Text(this.title, { align: Align.Center }),
+            content: new Graphic.Text(this.title, { align: ALIGN.CENTER }),
         });
     }
     /**
@@ -58,12 +55,12 @@ class MenuEquip extends MenuBase {
      */
     createWindowChoiceTabs() {
         const rect = new Rectangle(50, 60, 110, WindowBox.SMALL_SLOT_HEIGHT);
-        let listHeroes = [];
+        const listHeroes = [];
         for (let i = 0; i < this.party().length; i++) {
             listHeroes[i] = new Graphic.PlayerDescription(this.party()[i]);
         }
         const options = {
-            orientation: OrientationWindow.Horizontal,
+            orientation: ORIENTATION_WINDOW.HORIZONTAL,
             nbItemMax: 4,
             padding: [0, 0, 0, 0],
         };
@@ -76,7 +73,7 @@ class MenuEquip extends MenuBase {
      */
     createWindowChoiceEquipment() {
         const rect = new Rectangle(20, 100, 290, WindowBox.SMALL_SLOT_HEIGHT);
-        const nbEquipments = Datas.BattleSystems.equipmentsOrder.length;
+        const nbEquipments = Data.BattleSystems.equipmentsIDs.length;
         const options = {
             nbItemsMax: Math.min(Scene.MenuEquip.MAX_SLOTS_EQUIPMENTS, nbEquipments),
         };
@@ -88,7 +85,7 @@ class MenuEquip extends MenuBase {
      * @memberof MenuEquip
      */
     createWindowChoiceList() {
-        const nbEquips = Math.min(Scene.MenuEquip.MAX_SLOTS_EQUIPMENTS, Datas.BattleSystems.equipmentsOrder.length);
+        const nbEquips = Math.min(Scene.MenuEquip.MAX_SLOTS_EQUIPMENTS, Data.BattleSystems.equipmentsIDs.length);
         const nbEquipChoice = MenuBase.SLOTS_TO_DISPLAY - nbEquips - 1;
         const y = 100 + (nbEquips + 1) * WindowBox.SMALL_SLOT_HEIGHT;
         const rect = new Rectangle(20, y, 290, WindowBox.SMALL_SLOT_HEIGHT);
@@ -115,23 +112,23 @@ class MenuEquip extends MenuBase {
      */
     updateForTab() {
         // update equipment
-        let equipLength = Player.getEquipmentLength();
-        let l = Datas.BattleSystems.equipmentsOrder.length;
-        let player = Game.current.teamHeroes[this.windowChoicesTabs.currentSelectedIndex];
-        let characteristics = player.getCharacteristics();
-        let list = new Array(l);
+        const equipLength = Player.getEquipmentLength();
+        const l = Data.BattleSystems.equipmentsIDs.length;
+        const player = Game.current.teamHeroes[this.windowChoicesTabs.currentSelectedIndex];
+        const characteristics = player.getCharacteristics();
+        const list = new Array(l);
         let j, m, characteristic, isPossible;
         for (let i = 0; i < l; i++) {
             // Check if is possible because of characteristics
             isPossible = true;
             for (j = 0, m = characteristics.length; j < m; j++) {
                 characteristic = characteristics[j];
-                if (characteristic.kind === Enum.CharacteristicKind.AllowForbidChange &&
-                    characteristic.changeEquipmentID.getValue() === Datas.BattleSystems.equipmentsOrder[i]) {
+                if (characteristic.kind === CHARACTERISTIC_KIND.ALLOW_FORBID_CHANGE &&
+                    characteristic.changeEquipmentID.getValue() === Data.BattleSystems.equipmentsIDs[i]) {
                     isPossible = characteristic.isAllowChangeEquipment;
                 }
             }
-            list[i] = new Graphic.Equip(player, Datas.BattleSystems.equipmentsOrder[i], equipLength, isPossible);
+            list[i] = new Graphic.Equip(player, Data.BattleSystems.equipmentsIDs[i], equipLength, isPossible);
         }
         this.windowChoicesEquipment.setContents(list);
         this.selectedEquipment = -1;
@@ -146,15 +143,15 @@ class MenuEquip extends MenuBase {
      */
     updateEquipmentList() {
         const currentIndex = this.windowChoicesEquipment.currentSelectedIndex;
-        let idEquipment = Datas.BattleSystems.equipmentsOrder[currentIndex];
-        let list = [new Graphic.Text('  [' + Datas.Languages.extras.remove.name() + ']')];
+        const idEquipment = Data.BattleSystems.equipmentsIDs[currentIndex];
+        const list = [new Graphic.Text('  [' + Data.Languages.extras.remove.name() + ']')];
         let item, systemItem;
         let type, nbItem;
-        let player = Game.current.teamHeroes[this.windowChoicesTabs.currentSelectedIndex];
+        const player = Game.current.teamHeroes[this.windowChoicesTabs.currentSelectedIndex];
         let j, m, characteristic, allow, characteristics;
         for (let i = 0, l = Game.current.items.length; i < l; i++) {
             item = Game.current.items[i];
-            if (item.kind !== ItemKind.Item) {
+            if (item.kind !== ITEM_KIND.ITEM) {
                 systemItem = item.system;
                 type = systemItem.getType();
                 if (type.equipments[idEquipment]) {
@@ -179,15 +176,15 @@ class MenuEquip extends MenuBase {
      * @memberof MenuEquip
      */
     updateInformations() {
-        let player = Game.current.teamHeroes[this.windowChoicesTabs.currentSelectedIndex];
+        const player = Game.current.teamHeroes[this.windowChoicesTabs.currentSelectedIndex];
         if (this.selectedEquipment === -1) {
             this.list = [];
         }
         else {
-            let item = this.windowChoicesList.getCurrentContent();
-            let equipmentID = Datas.BattleSystems.equipmentsOrder[this.windowChoicesEquipment.currentSelectedIndex];
-            let system = item.item ? item.item.system : null;
-            let result = player.getEquipmentStatsAndBonus(system, equipmentID);
+            const item = this.windowChoicesList.getCurrentContent();
+            const equipmentID = Data.BattleSystems.equipmentsIDs[this.windowChoicesEquipment.currentSelectedIndex];
+            const system = item.item ? item.item.system : null;
+            const result = player.getEquipmentStatsAndBonus(system, equipmentID);
             this.list = result[0];
             this.bonus = result[1];
         }
@@ -200,7 +197,7 @@ class MenuEquip extends MenuBase {
      */
     moveTabKey(isKey, options = {}) {
         // Tab
-        let indexTab = this.windowChoicesTabs.currentSelectedIndex;
+        const indexTab = this.windowChoicesTabs.currentSelectedIndex;
         if (isKey) {
             this.windowChoicesTabs.onKeyPressedAndRepeat(options.key);
         }
@@ -212,7 +209,7 @@ class MenuEquip extends MenuBase {
         }
         // Equipment
         if (this.selectedEquipment === -1) {
-            let indexEquipment = this.windowChoicesEquipment.currentSelectedIndex;
+            const indexEquipment = this.windowChoicesEquipment.currentSelectedIndex;
             if (isKey) {
                 this.windowChoicesEquipment.onKeyPressedAndRepeat(options.key);
             }
@@ -224,7 +221,7 @@ class MenuEquip extends MenuBase {
             }
         }
         else {
-            let indexList = this.windowChoicesList.currentSelectedIndex;
+            const indexList = this.windowChoicesList.currentSelectedIndex;
             if (isKey) {
                 this.windowChoicesList.onKeyPressedAndRepeat(options.key);
             }
@@ -240,18 +237,18 @@ class MenuEquip extends MenuBase {
      *  Remove the selected equipment.
      */
     remove() {
-        this.removeAnEquipment(Datas.BattleSystems.equipmentsOrder[this.windowChoicesEquipment.currentSelectedIndex]);
+        this.removeAnEquipment(Data.BattleSystems.equipmentsIDs[this.windowChoicesEquipment.currentSelectedIndex]);
     }
     /**
      *  Remove an equipment according to ID.
      *  @param {number} id
      */
     removeAnEquipment(id) {
-        let player = this.party()[this.windowChoicesTabs.currentSelectedIndex];
-        let prev = player.equip[id];
+        const player = this.party()[this.windowChoicesTabs.currentSelectedIndex];
+        const prev = player.equip[id];
         player.equip[id] = null;
         if (prev) {
-            let item = Item.findItem(prev.kind, prev.system.id);
+            const item = Item.findItem(prev.kind, prev.system.id);
             if (item === null) {
                 prev.add(1);
             }
@@ -265,19 +262,19 @@ class MenuEquip extends MenuBase {
      *  Equip the selected equipment.
      */
     equip() {
-        let index = this.windowChoicesTabs.currentSelectedIndex;
-        let character = Game.current.teamHeroes[index];
-        let gameItem = this.windowChoicesList.getCurrentContent().item;
-        let id = Datas.BattleSystems.equipmentsOrder[this.windowChoicesEquipment.currentSelectedIndex];
-        let prev = character.equip[id];
+        const index = this.windowChoicesTabs.currentSelectedIndex;
+        const character = Game.current.teamHeroes[index];
+        const gameItem = this.windowChoicesList.getCurrentContent().item;
+        const id = Data.BattleSystems.equipmentsIDs[this.windowChoicesEquipment.currentSelectedIndex];
+        const prev = character.equip[id];
         character.equip[id] = gameItem;
         // If "don't allow weapon/armor" characteristic now active, remove equipment
-        for (let characteristic of gameItem.system.characteristics) {
-            if (characteristic.kind === Enum.CharacteristicKind.AllowForbidEquip && !characteristic.isAllowEquip) {
-                let weaponArmor = characteristic.isAllowEquipWeapon
-                    ? Datas.BattleSystems.getWeaponKind(characteristic.equipWeaponTypeID.getValue())
-                    : Datas.BattleSystems.getArmorKind(characteristic.equipArmorTypeID.getValue());
-                for (let [id, equipment] of weaponArmor.equipments.entries()) {
+        for (const characteristic of gameItem.system.characteristics) {
+            if (characteristic.kind === CHARACTERISTIC_KIND.ALLOW_FORBID_EQUIP && !characteristic.isAllowEquip) {
+                const weaponArmor = characteristic.isAllowEquipWeapon
+                    ? Data.BattleSystems.getWeaponKind(characteristic.equipWeaponTypeID.getValue())
+                    : Data.BattleSystems.getArmorKind(characteristic.equipArmorTypeID.getValue());
+                for (const [id, equipment] of weaponArmor.equipments.entries()) {
                     if (equipment) {
                         this.removeAnEquipment(id);
                     }
@@ -294,7 +291,7 @@ class MenuEquip extends MenuBase {
             }
         }
         if (prev) {
-            let item = Item.findItem(prev.kind, prev.system.id);
+            const item = Item.findItem(prev.kind, prev.system.id);
             if (item === null) {
                 prev.add(1);
             }
@@ -321,12 +318,12 @@ class MenuEquip extends MenuBase {
     action(isKey, options = {}) {
         if (this.selectedEquipment === -1) {
             if (Scene.MenuBase.checkCancelMenu(isKey, options)) {
-                Datas.Systems.soundCancel.playSound();
+                Data.Systems.soundCancel.playSound();
                 Manager.Stack.pop();
             }
             else if (Scene.MenuBase.checkActionMenu(isKey, options)) {
                 if (this.windowChoicesEquipment.getCurrentContent().isPossible) {
-                    Datas.Systems.soundConfirmation.playSound();
+                    Data.Systems.soundConfirmation.playSound();
                     this.selectedEquipment = this.windowChoicesEquipment.currentSelectedIndex;
                     this.windowChoicesList.currentSelectedIndex = 0;
                     if (this.windowChoicesList.listContents.length > 1) {
@@ -336,20 +333,20 @@ class MenuEquip extends MenuBase {
                     this.windowChoicesList.selectCurrent();
                 }
                 else {
-                    Datas.Systems.soundCancel.playSound();
+                    Data.Systems.soundCancel.playSound();
                 }
             }
         }
         else {
             if (Scene.MenuBase.checkCancelMenu(isKey, options)) {
-                Datas.Systems.soundCancel.playSound();
+                Data.Systems.soundCancel.playSound();
                 this.selectedEquipment = -1;
                 this.windowChoicesList.unselect();
                 this.updateInformations();
             }
             else if (Scene.MenuBase.checkActionMenu(isKey, options)) {
                 if (this.windowChoicesList.getCurrentContent() !== null) {
-                    Datas.Systems.soundConfirmation.playSound();
+                    Data.Systems.soundConfirmation.playSound();
                     if (this.windowChoicesList.currentSelectedIndex === 0) {
                         this.remove();
                     }
@@ -361,7 +358,7 @@ class MenuEquip extends MenuBase {
                     this.updateForTab();
                 }
                 else {
-                    Datas.Systems.soundImpossible.playSound();
+                    Data.Systems.soundImpossible.playSound();
                 }
             }
         }
@@ -412,7 +409,7 @@ class MenuEquip extends MenuBase {
      *  @returns {boolean}
      */
     onKeyPressedAndRepeat(key) {
-        let res = Scene.Base.prototype.onKeyPressedAndRepeat.call(Scene.Map.current, key);
+        const res = Scene.Base.prototype.onKeyPressedAndRepeat.call(Scene.Map.current, key);
         this.move(true, { key: key });
         return res;
     }

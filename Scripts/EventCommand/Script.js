@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { Model } from "../index.js";
+import { Interpreter, Utils } from '../Common/index.js';
 import { Base } from './Base.js';
-import { System } from '../index.js';
-import { Utils, Interpreter } from '../Common/index.js';
 /** @class
  *  An event command for script.
  *  @extends EventCommand.Base
@@ -19,12 +19,13 @@ import { Utils, Interpreter } from '../Common/index.js';
 class Script extends Base {
     constructor(command) {
         super();
-        let iterator = {
-            i: 0
+        const iterator = {
+            i: 0,
         };
-        this.isDynamic = Utils.numToBool(command[iterator.i++]);
-        this.script = this.isDynamic ? System.DynamicValue.createValueCommand(command, iterator) : System.DynamicValue.createMessage(Utils
-            .numToString(command[iterator.i]));
+        this.isDynamic = Utils.numberToBool(command[iterator.i++]);
+        this.script = this.isDynamic
+            ? Model.DynamicValue.createValueCommand(command, iterator)
+            : Model.DynamicValue.createMessage(String(command[iterator.i]));
     }
     /**
      *  Update and check if the event is finished.
@@ -32,10 +33,13 @@ class Script extends Base {
      *  @param {MapObject} object - The current object reacting
      *  @param {number} state - The state ID
      *  @returns {number} The number of node to pass
-    */
+     */
     update(currentState, object, state) {
-        let res = Interpreter.evaluate(this.script.getValue(), { thisObject: object, addReturn: false });
-        return Utils.isUndefined(res) ? 1 : res;
+        const res = Interpreter.evaluate(this.script.getValue(), {
+            thisObject: object,
+            addReturn: false,
+        });
+        return res === undefined ? 1 : res;
     }
 }
 export { Script };

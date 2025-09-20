@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,8 +8,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Datas, Graphic, Manager } from "../index.js";
-import { Constants, Enum, Inputs, ScreenResolution } from '../Common/index.js';
+import { Data, Graphic, Manager } from "../index.js";
+import { ALIGN, Constants, Inputs, PICTURE_KIND, ScreenResolution } from '../Common/index.js';
 import { Picture2D, Rectangle, WindowBox, WindowChoices } from '../Core/index.js';
 import { Base } from './Base.js';
 /** @class
@@ -43,7 +43,7 @@ class ChangeLanguage extends Base {
      */
     createWindowBoxLanguage() {
         const rect = new Rectangle(Constants.HUGE_SPACE, Constants.HUGE_SPACE, WindowBox.MEDIUM_SLOT_WIDTH, WindowBox.LARGE_SLOT_HEIGHT);
-        const graphic = new Graphic.Text(Datas.Languages.extras.language.name(), { align: Enum.Align.Center });
+        const graphic = new Graphic.Text(Data.Languages.extras.language.name(), { align: ALIGN.CENTER });
         const options = {
             content: graphic,
         };
@@ -54,8 +54,8 @@ class ChangeLanguage extends Base {
      */
     createWindowBoxTop() {
         const rect = new Rectangle(Constants.HUGE_SPACE + WindowBox.MEDIUM_SLOT_WIDTH + Constants.LARGE_SPACE, Constants.HUGE_SPACE, ScreenResolution.SCREEN_X - 2 * Constants.HUGE_SPACE - WindowBox.MEDIUM_SLOT_WIDTH - Constants.LARGE_SPACE, WindowBox.LARGE_SLOT_HEIGHT);
-        const graphic = new Graphic.Text(Datas.Languages.extras.languageSelectedDescription.name(), {
-            align: Enum.Align.Center,
+        const graphic = new Graphic.Text(Data.Languages.extras.languageSelectedDescription.name(), {
+            align: ALIGN.CENTER,
         });
         const options = {
             content: graphic,
@@ -69,11 +69,11 @@ class ChangeLanguage extends Base {
         const rect = new Rectangle(Constants.HUGE_SPACE, Constants.HUGE_SPACE + WindowBox.LARGE_SLOT_HEIGHT + Constants.LARGE_SPACE, ScreenResolution.SCREEN_X - 2 * Constants.HUGE_SPACE, WindowBox.MEDIUM_SLOT_HEIGHT);
         const options = {
             nbItemsMax: 9,
-            listCallbacks: Datas.Languages.getCommandsCallbacks(),
+            listCallbacks: Data.Languages.getCommandsCallbacks(),
         };
-        this.windowChoicesMain = new WindowChoices(rect.x, rect.y, rect.width, rect.height, Datas.Languages.getCommandsGraphics(), options);
+        this.windowChoicesMain = new WindowChoices(rect.x, rect.y, rect.width, rect.height, Data.Languages.getCommandsGraphics(), options);
         this.windowChoicesMain.unselect();
-        this.windowChoicesMain.select(Datas.Languages.getIndexByID(Datas.Settings.currentLanguage));
+        this.windowChoicesMain.select(Data.Languages.getIndexByID(Data.Settings.currentLanguage));
     }
     /**
      *  Create the window confirmation.
@@ -82,7 +82,7 @@ class ChangeLanguage extends Base {
         const width = 200;
         const height = 75;
         const rect = new Rectangle((ScreenResolution.SCREEN_X - width) / 2, (ScreenResolution.SCREEN_Y - height) / 2, width, height);
-        const graphic = new Graphic.Text(Datas.Languages.extras.confirm.name(), { align: Enum.Align.Center });
+        const graphic = new Graphic.Text(Data.Languages.extras.confirm.name(), { align: ALIGN.CENTER });
         const options = {
             content: graphic,
         };
@@ -97,7 +97,7 @@ class ChangeLanguage extends Base {
             listCallbacks: [
                 () => {
                     // YES
-                    Datas.Settings.updateCurrentLanguage(Datas.Languages.listOrder[this.windowChoicesMain.currentSelectedIndex]);
+                    Data.Settings.updateCurrentLanguage(Data.Languages.listIDs[this.windowChoicesMain.currentSelectedIndex]).catch(console.error);
                     Manager.Stack.translateAll();
                     this.step = 0;
                     Manager.Stack.requestPaintHUD = true;
@@ -112,8 +112,8 @@ class ChangeLanguage extends Base {
             ],
         };
         const graphics = [
-            new Graphic.Text(Datas.Languages.extras.yes.name(), { align: Enum.Align.Center }),
-            new Graphic.Text(Datas.Languages.extras.no.name(), { align: Enum.Align.Center }),
+            new Graphic.Text(Data.Languages.extras.yes.name(), { align: ALIGN.CENTER }),
+            new Graphic.Text(Data.Languages.extras.no.name(), { align: ALIGN.CENTER }),
         ];
         this.windowChoicesConfirm = new WindowChoices(rect.x, rect.y, rect.width, rect.height, graphics, options);
     }
@@ -128,11 +128,11 @@ class ChangeLanguage extends Base {
      *  Create background stuff.
      */
     async createBackground() {
-        if (Datas.TitlescreenGameover.isTitleBackgroundImage) {
-            this.pictureBackground = await Picture2D.createWithID(Datas.TitlescreenGameover.titleBackgroundImageID, Enum.PictureKind.TitleScreen, { cover: true });
+        if (Data.TitlescreenGameover.isTitleBackgroundImage) {
+            this.pictureBackground = await Picture2D.createWithID(Data.TitlescreenGameover.titleBackgroundImageID, PICTURE_KIND.TITLE_SCREEN, { cover: true });
         }
         else {
-            await Manager.Videos.play(Datas.Videos.get(Datas.TitlescreenGameover.titleBackgroundVideoID).getPath());
+            await Manager.Videos.play(Data.Videos.get(Data.TitlescreenGameover.titleBackgroundVideoID).getPath());
         }
     }
     /**
@@ -147,7 +147,7 @@ class ChangeLanguage extends Base {
      *  Cancel the scene.
      */
     cancel() {
-        Datas.Systems.soundCancel.playSound();
+        Data.Systems.soundCancel.playSound();
         Manager.Stack.pop();
     }
     /**
@@ -157,6 +157,7 @@ class ChangeLanguage extends Base {
         switch (this.step) {
             case 0:
                 this.windowChoicesMain.update();
+                break;
             case 1:
                 this.windowChoicesConfirm.update();
                 break;
@@ -170,10 +171,10 @@ class ChangeLanguage extends Base {
         switch (this.step) {
             case 0:
                 this.windowChoicesMain.onKeyPressed(key, this);
-                if (Datas.Keyboards.checkActionMenu(key)) {
+                if (Data.Keyboards.checkActionMenu(key)) {
                     this.action();
                 }
-                else if (Datas.Keyboards.checkCancelMenu(key)) {
+                else if (Data.Keyboards.checkCancelMenu(key)) {
                     this.cancel();
                 }
                 break;
@@ -238,7 +239,7 @@ class ChangeLanguage extends Base {
      *  Draw the HUD scene
      */
     drawHUD() {
-        if (Datas.TitlescreenGameover.isTitleBackgroundImage) {
+        if (Data.TitlescreenGameover.isTitleBackgroundImage) {
             this.pictureBackground.draw();
         }
         this.windowBoxLanguage.draw();

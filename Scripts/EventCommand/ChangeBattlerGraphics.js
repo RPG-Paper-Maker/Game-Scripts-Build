@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum } from '../Common/index.js';
+import { CHARACTER_KIND } from '../Common/index.js';
 import { Battler, Game } from '../Core/index.js';
-import { Graphic, Scene, System } from '../index.js';
+import { Graphic, Model, Scene } from '../index.js';
 import { Base } from './Base.js';
 /** @class
  *  An event command for changing a battler graphics.
@@ -24,7 +24,7 @@ class ChangeBattlerGraphics extends Base {
         this.facesetIndexX = 0;
         this.facesetIndexY = 0;
         this.battlerID = null;
-        let iterator = {
+        const iterator = {
             i: 0,
         };
         this.battlerKind = command[iterator.i++];
@@ -33,17 +33,17 @@ class ChangeBattlerGraphics extends Base {
                 this.battlerEnemyIndex = command[iterator.i++];
                 break;
             case 1:
-                this.battlerHeroEnemyInstanceID = System.DynamicValue.createValueCommand(command, iterator);
+                this.battlerHeroEnemyInstanceID = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
         }
         if (command[iterator.i++]) {
-            this.facesetID = System.DynamicValue.createValueCommand(command, iterator);
+            this.facesetID = Model.DynamicValue.createValueCommand(command, iterator);
             iterator.i++;
             this.facesetIndexX = command[iterator.i++];
             this.facesetIndexY = command[iterator.i++];
         }
         if (command[iterator.i++]) {
-            this.battlerID = System.DynamicValue.createValueCommand(command, iterator);
+            this.battlerID = Model.DynamicValue.createValueCommand(command, iterator);
         }
     }
     /**
@@ -61,48 +61,48 @@ class ChangeBattlerGraphics extends Base {
      *  @returns {number} The number of node to pass
      */
     update(currentState, object, state) {
-        let map = Scene.Map.current;
+        const map = Scene.Map.current;
         let player = null;
         let battler = null;
         let index = 0;
-        let side = Enum.CharacterKind.Hero;
+        let side = CHARACTER_KIND.HERO;
         switch (this.battlerKind) {
             case 0: // Enemy
                 if (Scene.Map.current.isBattleMap) {
-                    battler = map.battlers[Enum.CharacterKind.Monster][this.battlerEnemyIndex];
+                    battler = map.battlers[CHARACTER_KIND.MONSTER][this.battlerEnemyIndex];
                     player = battler.player;
                     index = this.battlerEnemyIndex;
-                    side = Enum.CharacterKind.Monster;
+                    side = CHARACTER_KIND.MONSTER;
                 }
                 break;
             case 1: // Hero instance ID
-                let id = this.battlerHeroEnemyInstanceID.getValue();
+                const id = this.battlerHeroEnemyInstanceID.getValue();
                 if (Scene.Map.current.isBattleMap) {
-                    for (const [i, b] of map.battlers[Enum.CharacterKind.Hero].entries()) {
+                    for (const [i, b] of map.battlers[CHARACTER_KIND.HERO].entries()) {
                         if (b.player.instid === id) {
                             battler = b;
                             player = b.player;
                             index = i;
-                            side = Enum.CharacterKind.Hero;
+                            side = CHARACTER_KIND.HERO;
                             break;
                         }
                     }
-                    for (let [i, b] of map.battlers[Enum.CharacterKind.Monster].entries()) {
+                    for (const [i, b] of map.battlers[CHARACTER_KIND.MONSTER].entries()) {
                         if (b.player.instid === id) {
                             battler = b;
                             player = b.player;
                             index = i;
-                            side = Enum.CharacterKind.Monster;
+                            side = CHARACTER_KIND.MONSTER;
                             break;
                         }
                     }
                 }
                 else {
-                    for (let [i, p] of Game.current.teamHeroes.entries()) {
+                    for (const [i, p] of Game.current.teamHeroes.entries()) {
                         if (p.instid === id) {
                             player = p;
                             index = i;
-                            side = Enum.CharacterKind.Hero;
+                            side = CHARACTER_KIND.HERO;
                             break;
                         }
                     }
@@ -119,7 +119,7 @@ class ChangeBattlerGraphics extends Base {
                 player.facesetIndexY = this.facesetIndexY;
             }
             if (Scene.Map.current.isBattleMap) {
-                let newBattler = new Battler(player, battler.isEnemy, battler.initialPosition, battler.position, map.camera);
+                const newBattler = new Battler(player, battler.isEnemy, battler.initialPosition, battler.position, map.camera);
                 map.battlers[side][index].removeFromScene();
                 newBattler.addToScene();
                 map.battlers[side][index] = newBattler;

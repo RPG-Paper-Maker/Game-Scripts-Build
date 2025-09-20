@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -13,7 +13,7 @@ import { Base } from './Base.js';
  *  An event command for leaving while event command.
  *  @extends EventCommand.Base
  *  @param {any[]} command - Direct JSON command to parse
-*/
+ */
 class WhileBreak extends Base {
     constructor(command) {
         super();

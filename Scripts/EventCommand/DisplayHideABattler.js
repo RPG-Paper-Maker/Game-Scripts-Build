@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { CHARACTER_KIND } from '../Common/index.js';
+import { Model, Scene } from '../index.js';
 import { Base } from './Base.js';
-import { System, Scene } from '../index.js';
-import { Enum } from '../Common/index.js';
 /** @class
  *  An event command for displaying or hidding a battler.
  *  @extends EventCommand.Base
@@ -19,8 +19,8 @@ import { Enum } from '../Common/index.js';
 class DisplayHideABattler extends Base {
     constructor(command) {
         super();
-        let iterator = {
-            i: 0
+        const iterator = {
+            i: 0,
         };
         this.battlerKind = command[iterator.i++];
         switch (this.battlerKind) {
@@ -28,11 +28,10 @@ class DisplayHideABattler extends Base {
                 this.battlerEnemyIndex = command[iterator.i++];
                 break;
             case 1:
-                this.battlerHeroEnemyInstanceID = System.DynamicValue
-                    .createValueCommand(command, iterator);
+                this.battlerHeroEnemyInstanceID = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
         }
-        this.hidden = System.DynamicValue.createValueCommand(command, iterator);
+        this.hidden = Model.DynamicValue.createValueCommand(command, iterator);
     }
     /**
      *  Initialize the current state.
@@ -50,21 +49,21 @@ class DisplayHideABattler extends Base {
      */
     update(currentState, object, state) {
         if (Scene.Map.current.isBattleMap) {
-            let map = Scene.Map.current;
+            const map = Scene.Map.current;
             let battler = null;
             switch (this.battlerKind) {
                 case 0: // Enemy
-                    battler = map.battlers[Enum.CharacterKind.Monster][this.battlerEnemyIndex];
+                    battler = map.battlers[CHARACTER_KIND.MONSTER][this.battlerEnemyIndex];
                     break;
                 case 1: // Hero instance ID
-                    let id = this.battlerHeroEnemyInstanceID.getValue();
-                    for (let b of map.battlers[Enum.CharacterKind.Hero]) {
+                    const id = this.battlerHeroEnemyInstanceID.getValue();
+                    for (const b of map.battlers[CHARACTER_KIND.HERO]) {
                         if (b.player.instid === id) {
                             battler = b;
                             break;
                         }
                     }
-                    for (let b of map.battlers[Enum.CharacterKind.Monster]) {
+                    for (const b of map.battlers[CHARACTER_KIND.MONSTER]) {
                         if (b.player.instid === id) {
                             battler = b;
                             break;

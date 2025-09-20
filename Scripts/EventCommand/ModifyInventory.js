@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
-import { System } from '../index.js';
+import { Model } from "../index.js";
 import { Item } from '../Core/index.js';
+import { Base } from './Base.js';
 /** @class
  *  An event command for modifying the inventory.
  *  @extends EventCommand.Base
@@ -19,13 +19,13 @@ import { Item } from '../Core/index.js';
 class ModifyInventory extends Base {
     constructor(command) {
         super();
-        let iterator = {
-            i: 0
+        const iterator = {
+            i: 0,
         };
-        this.itemKind = command[iterator.i++];
-        this.itemID = System.DynamicValue.createValueCommand(command, iterator);
+        this.ITEM_KIND = command[iterator.i++];
+        this.itemID = Model.DynamicValue.createValueCommand(command, iterator);
         this.operation = command[iterator.i++];
-        this.value = System.DynamicValue.createValueCommand(command, iterator);
+        this.value = Model.DynamicValue.createValueCommand(command, iterator);
     }
     /**
      *  Update and check if the event is finished.
@@ -33,10 +33,9 @@ class ModifyInventory extends Base {
      *  @param {MapObject} object - The current object reacting
      *  @param {number} state - The state ID
      *  @returns {number} The number of node to pass
-    */
+     */
     update(currentState, object, state) {
-        let item = new Item(this.itemKind, this.itemID.getValue(), this.value
-            .getValue());
+        const item = new Item(this.ITEM_KIND, this.itemID.getValue(), this.value.getValue());
         // Doing the coresponding operation
         switch (this.operation) {
             case 0:

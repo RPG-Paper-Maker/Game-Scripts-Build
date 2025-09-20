@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Graphic, Datas } from '../index.js';
+import { PICTURE_KIND, ScreenResolution } from '../Common/index.js';
+import { Data, Graphic } from '../index.js';
 import { Base } from './Base.js';
-import { Utils, Constants, Enum, ScreenResolution } from '../Common/index.js';
 /** @class
  *  The graphic displaying the player minimal stats informations.
  *  @extends Graphic.Base
@@ -22,10 +22,9 @@ class Statistic extends Base {
         super();
         this.player = player;
         this.statistic = statistic;
-        this.graphicName = new Graphic.Text(statistic.name() + Constants
-            .STRING_COLON);
+        this.graphicName = new Graphic.Text(statistic.name() + ':');
         this.maxStatNamesLength = 0;
-        if (Utils.isUndefined(offsetStat)) {
+        if (offsetStat === undefined) {
             this.graphicName.measureText();
             if (this.graphicName.textWidth > this.maxStatNamesLength) {
                 this.maxStatNamesLength = this.graphicName.textWidth;
@@ -34,11 +33,10 @@ class Statistic extends Base {
         else {
             this.maxStatNamesLength = offsetStat;
         }
-        let txt = Utils.numToString(this.player[statistic.abbreviation]);
+        let txt = String(this.player[statistic.abbreviation]);
         if (!statistic.isFix) {
-            txt += Constants.STRING_SLASH + this.player[statistic.getMaxAbbreviation()];
-            this.pictureBar = Datas.Pictures.get(Enum.PictureKind.Bars, this
-                .statistic.pictureBarID);
+            txt += '/' + this.player[statistic.getMaxAbbreviation()];
+            this.pictureBar = Data.Pictures.get(PICTURE_KIND.BARS, this.statistic.pictureBarID);
         }
         this.graphicValue = new Graphic.Text(txt);
     }
@@ -54,9 +52,9 @@ class Statistic extends Base {
      *  Update the graphics
      */
     update() {
-        let txt = Utils.numToString(this.player[this.statistic.abbreviation]);
+        let txt = String(this.player[this.statistic.abbreviation]);
         if (!this.statistic.isFix) {
-            txt += Constants.STRING_SLASH + this.player[this.statistic.getMaxAbbreviation()];
+            txt += '/' + this.player[this.statistic.getMaxAbbreviation()];
         }
         this.graphicValue.setText(txt);
     }
@@ -66,7 +64,7 @@ class Statistic extends Base {
      *  @param {number} y - The y position to draw graphic
      *  @param {number} w - The width dimention to draw graphic
      *  @param {number} h - The height dimention to draw graphic
-    */
+     */
     drawChoice(x, y, w, h) {
         this.draw(x, y, w, h);
     }
@@ -76,27 +74,33 @@ class Statistic extends Base {
      *  @param {number} y - The y position to draw graphic
      *  @param {number} w - The width dimention to draw graphic
      *  @param {number} h - The height dimention to draw graphic
-    */
+     */
     draw(x, y, w, h) {
         let height = 0;
         let offset = 0;
         if (this.pictureBar && this.pictureBar.picture) {
-            this.pictureBar.picture.draw({ x: x, y: y, sw: this.pictureBar.picture
-                    .oW / 2, w: this.pictureBar.picture.oW / 2 });
-            let percent = this.player[this.statistic.abbreviation] / this.player[this.statistic.getMaxAbbreviation()];
-            this.pictureBar.picture.draw({ x: x + ScreenResolution.getScreenMinXY(this.pictureBar.borderLeft), y: y, sx: (this.pictureBar.picture
-                    .oW / 2) + this.pictureBar.borderLeft, sw: Math.ceil(((this
-                    .pictureBar.picture.oW / 2) - (this.pictureBar.borderLeft + this
-                    .pictureBar.borderRight)) * percent), w: Math.ceil(((this
-                    .pictureBar.picture.oW / 2) - (this.pictureBar.borderLeft + this
-                    .pictureBar.borderRight)) * percent) });
+            this.pictureBar.picture.draw({
+                x: x,
+                y: y,
+                sw: this.pictureBar.picture.oW / 2,
+                w: this.pictureBar.picture.oW / 2,
+            });
+            const percent = this.player[this.statistic.abbreviation] / this.player[this.statistic.getMaxAbbreviation()];
+            this.pictureBar.picture.draw({
+                x: x + ScreenResolution.getScreenMinXY(this.pictureBar.borderLeft),
+                y: y,
+                sx: this.pictureBar.picture.oW / 2 + this.pictureBar.borderLeft,
+                sw: Math.ceil((this.pictureBar.picture.oW / 2 - (this.pictureBar.borderLeft + this.pictureBar.borderRight)) *
+                    percent),
+                w: Math.ceil((this.pictureBar.picture.oW / 2 - (this.pictureBar.borderLeft + this.pictureBar.borderRight)) *
+                    percent),
+            });
             height = this.pictureBar.picture.h;
             offset = ScreenResolution.getScreenY(-5);
         }
-        y += (height / 2) + offset;
+        y += height / 2 + offset;
         this.graphicName.draw(x, y, 0, 0);
-        this.graphicValue.draw(x + this.maxStatNamesLength + ScreenResolution
-            .getScreenMinXY(10), y, 0, 0);
+        this.graphicValue.draw(x + this.maxStatNamesLength + ScreenResolution.getScreenMinXY(10), y, 0, 0);
     }
 }
 export { Statistic };

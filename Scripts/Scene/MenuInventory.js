@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,14 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Constants, Enum, ScreenResolution } from '../Common/index.js';
+import { ALIGN, AVAILABLE_KIND, Constants, ORIENTATION_WINDOW, ScreenResolution, TARGET_KIND } from '../Common/index.js';
 import { Game, Rectangle, WindowBox, WindowChoices } from '../Core/index.js';
-import { Datas, Graphic, Manager, Scene } from '../index.js';
+import { Data, Graphic, Manager, Scene } from '../index.js';
 import { Base } from './Base.js';
-var Align = Enum.Align;
-var OrientationWindow = Enum.OrientationWindow;
-var TargetKind = Enum.TargetKind;
-var AvailableKind = Enum.AvailableKind;
 /** @class
  *  A scene in the menu for describing inventory.
  *  @extends Scene.Base
@@ -27,24 +23,24 @@ class MenuInventory extends Base {
         Scene.Map.current.user = null;
         Scene.Map.current.targets = [];
         // Initializing the top menu for item kinds
-        let l = Datas.Systems.inventoryFilters.length;
-        let menuKind = new Array();
+        let l = Data.Systems.inventoryFilters.length;
+        const menuKind = [];
         let i;
-        for (i = 0, l = Datas.Systems.inventoryFilters.length; i < l; i++) {
-            menuKind[i] = new Graphic.Text(Datas.Systems.inventoryFilters[i].name(), { align: Align.Center });
+        for (i = 0, l = Data.Systems.inventoryFilters.length; i < l; i++) {
+            menuKind[i] = new Graphic.Text(Data.Systems.inventoryFilters[i].name(), { align: ALIGN.CENTER });
         }
         // All the windows
         this.windowTop = new WindowBox(20, 20, 200, 30, {
-            content: new Graphic.Text(this.title, { align: Align.Center }),
+            content: new Graphic.Text(this.title, { align: ALIGN.CENTER }),
         });
         this.windowChoicesTabs = new WindowChoices(5, 60, 100, WindowBox.SMALL_SLOT_HEIGHT, menuKind, {
-            orientation: OrientationWindow.Horizontal,
+            orientation: ORIENTATION_WINDOW.HORIZONTAL,
             nbItemsMax: 6,
         });
         this.createWindowChoicesList();
         this.createWindowBoxInformation();
         this.windowEmpty = new WindowBox(10, 100, ScreenResolution.SCREEN_X - 20, WindowBox.SMALL_SLOT_HEIGHT, {
-            content: new Graphic.Text('Empty', { align: Align.Center }),
+            content: new Graphic.Text('Empty', { align: ALIGN.CENTER }),
             padding: WindowBox.SMALL_SLOT_PADDING,
         });
         this.createWindowBoxUseItem();
@@ -107,13 +103,13 @@ class MenuInventory extends Base {
      *  Update tab.
      */
     updateForTab() {
-        let indexTab = this.windowChoicesTabs.currentSelectedIndex;
-        let nbItems = Game.current.items.length;
-        let list = [];
+        const indexTab = this.windowChoicesTabs.currentSelectedIndex;
+        const nbItems = Game.current.items.length;
+        const list = [];
         let ownedItem;
         for (let i = 0; i < nbItems; i++) {
             ownedItem = Game.current.items[i];
-            if (Datas.Systems.inventoryFilters[indexTab].getFilter()(ownedItem)) {
+            if (Data.Systems.inventoryFilters[indexTab].getFilter()(ownedItem)) {
                 list.push(new Graphic.Item(ownedItem));
             }
         }
@@ -126,7 +122,7 @@ class MenuInventory extends Base {
      *  Use the current item.
      */
     useItem() {
-        let graphic = this.windowBoxInformation.content;
+        const graphic = this.windowBoxInformation.content;
         if (graphic.item.system.consumable) {
             Game.current.useItem(graphic.item);
         }
@@ -147,7 +143,7 @@ class MenuInventory extends Base {
      */
     moveTabKey(isKey, options = {}) {
         // Tab
-        let indexTab = this.windowChoicesTabs.currentSelectedIndex;
+        const indexTab = this.windowChoicesTabs.currentSelectedIndex;
         if (isKey) {
             this.windowChoicesTabs.onKeyPressedAndRepeat(options.key);
         }
@@ -164,7 +160,7 @@ class MenuInventory extends Base {
         else {
             this.windowChoicesList.onMouseMove(options.x, options.y);
         }
-        let position = this.positionChoice[this.windowChoicesTabs.currentSelectedIndex];
+        const position = this.positionChoice[this.windowChoicesTabs.currentSelectedIndex];
         position.index = this.windowChoicesList.currentSelectedIndex;
         position.offset = this.windowChoicesList.offsetSelectedIndex;
         this.synchronize();
@@ -175,59 +171,59 @@ class MenuInventory extends Base {
      *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     action(isKey, options = {}) {
-        let graphic = this.windowBoxInformation.content;
-        let graphicUse = this.windowBoxUseItem.content;
+        const graphic = this.windowBoxInformation.content;
+        const graphicUse = this.windowBoxUseItem.content;
         switch (this.substep) {
             case 0:
                 if (Scene.MenuBase.checkActionMenu(isKey, options)) {
                     if (this.windowBoxInformation.content === null) {
                         return;
                     }
-                    let targetKind = graphic.item.system.targetKind;
-                    let availableKind = graphic.item.system.availableKind;
+                    const targetKind = graphic.item.system.targetKind;
+                    const availableKind = graphic.item.system.availableKind;
                     if (graphic.item.system.isPossible() &&
-                        (availableKind === AvailableKind.Always || availableKind === AvailableKind.MainMenu)) {
-                        if (targetKind === TargetKind.Ally || targetKind === TargetKind.AllAllies) {
-                            Datas.Systems.soundConfirmation.playSound();
+                        (availableKind === AVAILABLE_KIND.ALWAYS || availableKind === AVAILABLE_KIND.MAIN_MENU)) {
+                        if (targetKind === TARGET_KIND.ALLY || targetKind === TARGET_KIND.ALL_ALLIES) {
+                            Data.Systems.soundConfirmation.playSound();
                             this.substep = 1;
                             graphicUse.setSkillItem(graphic.item.system);
-                            graphicUse.setAll(targetKind === TargetKind.AllAllies);
+                            graphicUse.setAll(targetKind === TARGET_KIND.ALL_ALLIES);
                         }
-                        else if (targetKind === TargetKind.None) {
+                        else if (targetKind === TARGET_KIND.NONE) {
                             if (graphic.item.system.use()) {
-                                Datas.Systems.soundConfirmation.playSound();
+                                Data.Systems.soundConfirmation.playSound();
                                 this.useItem();
                             }
                             else {
-                                Datas.Systems.soundImpossible.playSound();
+                                Data.Systems.soundImpossible.playSound();
                             }
                         }
                         else {
-                            Datas.Systems.soundImpossible.playSound();
+                            Data.Systems.soundImpossible.playSound();
                         }
                         Manager.Stack.requestPaintHUD = true;
                     }
                     else {
-                        Datas.Systems.soundImpossible.playSound();
+                        Data.Systems.soundImpossible.playSound();
                     }
                 }
                 else if (Scene.MenuBase.checkCancelMenu(isKey, options)) {
-                    Datas.Systems.soundCancel.playSound();
+                    Data.Systems.soundCancel.playSound();
                     Manager.Stack.pop();
                 }
                 break;
             case 1:
                 if (Scene.MenuBase.checkActionMenu(isKey, options)) {
                     if (graphic.item.system.isPossible() && graphic.item.system.use()) {
-                        Datas.Systems.soundConfirmation.playSound();
+                        Data.Systems.soundConfirmation.playSound();
                         this.useItem();
                     }
                     else {
-                        Datas.Systems.soundCancel.playSound();
+                        Data.Systems.soundCancel.playSound();
                     }
                 }
                 else if (Scene.MenuBase.checkCancelMenu(isKey, options)) {
-                    Datas.Systems.soundCancel.playSound();
+                    Data.Systems.soundCancel.playSound();
                     this.substep = 0;
                     Manager.Stack.requestPaintHUD = true;
                 }
@@ -296,7 +292,7 @@ class MenuInventory extends Base {
      *  @returns {boolean}
      */
     onKeyPressedAndRepeat(key) {
-        let res = super.onKeyPressedAndRepeat(key);
+        const res = super.onKeyPressedAndRepeat(key);
         if (this.reactionInterpreters.length === 0) {
             this.move(true, { key: key });
         }

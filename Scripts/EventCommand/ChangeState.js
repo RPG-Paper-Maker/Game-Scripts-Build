@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
-import { System, EventCommand, Scene } from '../index.js';
-import { MapObject, Game } from '../Core/index.js';
 import { Platform } from '../Common/index.js';
+import { Game, MapObject } from '../Core/index.js';
+import { EventCommand, Model, Scene } from '../index.js';
+import { Base } from './Base.js';
 /** @class
  *  An event command for changing an object state.
  *  @extends EventCommand.Base
@@ -20,63 +20,63 @@ import { Platform } from '../Common/index.js';
 class ChangeState extends Base {
     constructor(command) {
         super();
-        let iterator = {
+        const iterator = {
             i: 0,
         };
-        this.mapID = System.DynamicValue.createValueCommand(command, iterator);
-        this.objectID = System.DynamicValue.createValueCommand(command, iterator);
-        this.idState = System.DynamicValue.createValueCommand(command, iterator);
+        this.mapID = Model.DynamicValue.createValueCommand(command, iterator);
+        this.objectID = Model.DynamicValue.createValueCommand(command, iterator);
+        this.idState = Model.DynamicValue.createValueCommand(command, iterator);
         this.operationKind = command[iterator.i++];
     }
     /**
      *  Add a state to an object.
      *  @static
-     *  @param {Record<string, any>} - portionDatas Datas inside a portion
+     *  @param {Record<string, any>} - portionData Data inside a portion
      *  @param {number} index - Index in the portion datas
      *  @param {number} state - ID of the state
      */
-    static addState(portionDatas, index, state) {
-        let states = portionDatas.s[index];
+    static addState(portionData, index, state) {
+        const states = portionData.s[index];
         if (states.indexOf(state) === -1) {
             states.push(state);
         }
-        EventCommand.ChangeState.removeFromDatas(portionDatas, index, states);
+        EventCommand.ChangeState.removeFromData(portionData, index, states);
     }
     /**
      *  Remove a state from an object.
      *  @static
-     *  @param {Record<string, any>} - portionDatas Datas inside a portion
+     *  @param {Record<string, any>} - portionData Data inside a portion
      *  @param {number} index - Index in the portion datas
      *  @param {number} state - ID of the state
      */
-    static removeState(portionDatas, index, state) {
-        let states = portionDatas.s[index];
-        let indexState = states.indexOf(state);
+    static removeState(portionData, index, state) {
+        const states = portionData.s[index];
+        const indexState = states.indexOf(state);
         if (states.indexOf(state) !== -1) {
             states.splice(indexState, 1);
         }
-        EventCommand.ChangeState.removeFromDatas(portionDatas, index, states);
+        EventCommand.ChangeState.removeFromData(portionData, index, states);
     }
     /**
      *  Remove all the states from an object.
      *  @static
-     *  @param {Record<string, any>} - portionDatas Datas inside a portion
+     *  @param {Record<string, any>} - portionData Data inside a portion
      *  @param {number} index - Index in the portion datas
      */
-    static removeAll(portionDatas, index) {
-        portionDatas.s[index] = [];
+    static removeAll(portionData, index) {
+        portionData.s[index] = [];
     }
     /**
      *  Remove states from datas.
      *  @static
-     *  @param {Record<string, any>} - portionDatas Datas inside a portion
+     *  @param {Record<string, any>} - portionData Data inside a portion
      *  @param {number} index - Index in the portion datas
      *  @param {number[]} states
      */
-    static removeFromDatas(portionDatas, index, states) {
+    static removeFromData(portionData, index, states) {
         if (states.length === 1 && states[0] === 1) {
-            portionDatas.si.splice(index, 1);
-            portionDatas.s.splice(index, 1);
+            portionData.si.splice(index, 1);
+            portionData.s.splice(index, 1);
         }
     }
     /**
@@ -97,7 +97,7 @@ class ChangeState extends Base {
      *  @param {number} state - ID of the state
      */
     static removeStateSpecial(states, state) {
-        let indexState = states.indexOf(state);
+        const indexState = states.indexOf(state);
         if (indexState !== -1) {
             states.splice(indexState, 1);
         }
@@ -176,32 +176,32 @@ class ChangeState extends Base {
                 }
             }
             else {
-                let objectID = currentState.objectID === -1 ? object.system.id : currentState.objectID;
-                let position = currentState.map.mapProperties.allObjects[objectID];
+                const objectID = currentState.objectID === -1 ? object.system.id : currentState.objectID;
+                const position = currentState.map.mapProperties.allObjects.get(objectID);
                 if (!position) {
                     Platform.showErrorMessage('Change state command: the object ID ' +
                         objectID +
                         " selected doesn't exist in the map " +
                         currentState.map.name);
                 }
-                let portion = position.getGlobalPortion();
-                let portionDatas = Game.current.getPortionDatas(currentState.map.id, portion);
-                let indexState = portionDatas.si.indexOf(objectID);
+                const portion = position.getGlobalPortion();
+                const portionData = Game.current.getPortionData(currentState.map.id, portion);
+                let indexState = portionData.si.indexOf(objectID);
                 if (indexState === -1) {
-                    indexState = portionDatas.si.length;
-                    portionDatas.si.push(objectID);
-                    portionDatas.s.push([1]);
+                    indexState = portionData.si.length;
+                    portionData.si.push(objectID);
+                    portionData.s.push([1]);
                 }
                 switch (this.operationKind) {
                     case 0: // Replacing
-                        EventCommand.ChangeState.removeAll(portionDatas, indexState);
-                        EventCommand.ChangeState.addState(portionDatas, indexState, this.idState.getValue());
+                        EventCommand.ChangeState.removeAll(portionData, indexState);
+                        EventCommand.ChangeState.addState(portionData, indexState, this.idState.getValue());
                         break;
                     case 1: // Adding
-                        EventCommand.ChangeState.addState(portionDatas, indexState, this.idState.getValue());
+                        EventCommand.ChangeState.addState(portionData, indexState, this.idState.getValue());
                         break;
                     case 2: // Deleting
-                        EventCommand.ChangeState.removeState(portionDatas, indexState, this.idState.getValue());
+                        EventCommand.ChangeState.removeState(portionData, indexState, this.idState.getValue());
                         break;
                 }
             }

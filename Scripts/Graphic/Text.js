@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,12 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Constants, Enum, Platform, ScreenResolution, Utils } from '../Common/index.js';
-import { Datas, System } from '../index.js';
+import { ALIGN, ALIGN_VERTICAL, Constants, Platform, ScreenResolution, Utils } from '../Common/index.js';
+import { Data, Model } from '../index.js';
 import { Stack } from '../Manager/index.js';
 import { Base } from './Base.js';
-var Align = Enum.Align;
-var AlignVertical = Enum.AlignVertical;
 /** @class
  *  A class for all the texts to display in HUD.
  *  @extends Bitmap
@@ -23,12 +21,12 @@ var AlignVertical = Enum.AlignVertical;
  *  @param {number} [opts.y=0] - The y coords of the text
  *  @param {number} [opts.w=0] - The w coords of the text
  *  @param {number} [opts.h=0] - The h coords of the text
- *  @param {Align} [opts.align=Align.Left] - Alignement of the text
+ *  @param {Align} [opts.align=ALIGN.LEFT] - Alignement of the text
  *  @param {number} [opts.fontSize=RPM.defaultValue(RPM.datasGame.System.dbOptions.vtSize, - RPM.fontSize)]
  *  The font height used for the text
  *  @param {string} [opts.fontName=RPM.defaultValue(RPM.datasGame.System.dbOptions.vtFont, - RPM.fontName)]
  *  The font name used for the text
- *  @param {AlignVertical} [opts.verticalAlign=AlignVertical.Center] - Vertical
+ *  @param {ALIGN_VERTICAL} [opts.verticalAlign=ALIGN_VERTICAL.Center] - Vertical
  *  alignement of the text
  *  @param {SystemColor} [opts.color=RPM.defaultValue(RPM.datasGame.System.dbOptions.vtcText]
  *  The color used for the text
@@ -40,8 +38,8 @@ var AlignVertical = Enum.AlignVertical;
  *  The stroke color of the text
  */
 class Text extends Base {
-    constructor(text = '', { x = 0, y = 0, w = 0, h = 0, align = Align.Left, fontSize = Utils.defaultValue(Datas.Systems.dbOptions.v_tSize, Constants.DEFAULT_FONT_SIZE), fontName = Utils.defaultValue(Datas.Systems.dbOptions.v_tFont, Constants.DEFAULT_FONT_NAME), verticalAlign = AlignVertical.Center, color = Utils.defaultValue(Datas.Systems.dbOptions.v_tcText, System.Color.WHITE), bold = false, italic = false, backColor = Utils.defaultValue(Datas.Systems.dbOptions.v_tcBackground, null), strokeColor = Utils.defaultValue(Datas.Systems.dbOptions.tOutline, false)
-        ? Utils.defaultValue(Datas.Systems.dbOptions.v_tcOutline, null)
+    constructor(text = '', { x = 0, y = 0, w = 0, h = 0, align = ALIGN.LEFT, fontSize = Utils.valueOrDefault(Data.Systems.dbOptions.v_tSize, Constants.DEFAULT_FONT_SIZE), fontName = Utils.valueOrDefault(Data.Systems.dbOptions.v_tFont, Constants.DEFAULT_FONT_NAME), verticalAlign = ALIGN_VERTICAL.CENTER, color = Utils.valueOrDefault(Data.Systems.dbOptions.v_tcText, Model.Color.WHITE), bold = false, italic = false, backColor = Utils.valueOrDefault(Data.Systems.dbOptions.v_tcBackground, null), strokeColor = Utils.valueOrDefault(Data.Systems.dbOptions.tOutline, false)
+        ? Utils.valueOrDefault(Data.Systems.dbOptions.v_tcOutline, null)
         : null, } = {}) {
         super(x, y, w, h);
         this.lastW = 0;
@@ -55,12 +53,12 @@ class Text extends Base {
         this.backColor = backColor;
         this.strokeColor = strokeColor;
         this.setFontSize(fontSize);
-        this.setText(Utils.defaultValue(text, ''));
+        this.setText(Utils.valueOrDefault(text, ''));
     }
     wrapText(maxWidth) {
-        let text = this.text.replace('\\n', Constants.STRING_NEW_LINE);
-        let lines = text.split(Constants.STRING_NEW_LINE);
-        let words = [];
+        const text = this.text.replace('\\n', '\n');
+        const lines = text.split('\n');
+        const words = [];
         let i, j, l, m, tempWords;
         for (i = 0, l = lines.length; i < l; i++) {
             tempWords = lines[i].split(' ');
@@ -68,19 +66,19 @@ class Text extends Base {
                 words.push(tempWords[j]);
             }
             if (i < l - 1) {
-                words.push(Constants.STRING_NEW_LINE);
+                words.push('\n');
             }
         }
         this.lines = [];
         let currentLine = words[0];
         for (let i = 1, l = words.length; i < l; i++) {
-            let word = words[i];
-            if (word === Constants.STRING_NEW_LINE) {
+            const word = words[i];
+            if (word === '\n') {
                 this.lines.push(currentLine);
                 currentLine = words[++i];
                 continue;
             }
-            let width = Platform.ctx.measureText(currentLine + ' ' + word).width + (this.strokeColor === null ? 0 : 2);
+            const width = Platform.ctx.measureText(currentLine + ' ' + word).width + (this.strokeColor === null ? 0 : 2);
             if (width < maxWidth) {
                 currentLine += ' ' + word;
             }
@@ -115,7 +113,7 @@ class Text extends Base {
         text += ''; // Be sure that it's string type
         if (this.text !== text) {
             this.text = text;
-            this.lines = this.text.split(Constants.STRING_NEW_LINE);
+            this.lines = this.text.split('\n');
             this.measureText();
             Stack.requestPaintHUD = true;
         }
@@ -132,7 +130,7 @@ class Text extends Base {
     measureText() {
         this.updateContextFont();
         this.textWidth = 0;
-        let l = this.lines.length;
+        const l = this.lines.length;
         let size;
         for (let i = 0; i < l; i++) {
             size =
@@ -165,29 +163,29 @@ class Text extends Base {
             this.updateContextFont();
             this.wrapText(w);
         }
-        let textWidth = this.textWidth;
-        let textHeight = this.fontSize + ScreenResolution.getScreenMinXY(this.strokeColor === null ? 0 : 2);
+        const textWidth = this.textWidth;
+        const textHeight = this.fontSize + ScreenResolution.getScreenMinXY(this.strokeColor === null ? 0 : 2);
         switch (this.align) {
-            case Align.Left:
+            case ALIGN.LEFT:
                 x += ScreenResolution.getScreenMinXY(1);
                 break;
-            case Align.Right:
+            case ALIGN.RIGHT:
                 x += w - ScreenResolution.getScreenMinXY(1);
                 xBack = x - textWidth;
                 break;
-            case Align.Center:
+            case ALIGN.CENTER:
                 x += w / 2;
                 xBack = x - textWidth / 2;
                 break;
         }
         switch (this.verticalAlign) {
-            case AlignVertical.Bot:
+            case ALIGN_VERTICAL.BOT:
                 y += this.fontSize / 3 + h;
                 break;
-            case AlignVertical.Top:
+            case ALIGN_VERTICAL.TOP:
                 y += this.fontSize;
                 break;
-            case AlignVertical.Center:
+            case ALIGN_VERTICAL.CENTER:
                 y += this.fontSize / 3 + h / 2;
                 break;
         }
@@ -199,7 +197,7 @@ class Text extends Base {
         // Set context options
         Platform.ctx.font = this.font;
         Platform.ctx.textAlign = this.align;
-        let lineHeight = this.fontSize * 2;
+        const lineHeight = this.fontSize * 2;
         let i, l = this.lines.length;
         // Stroke text
         let yOffset;

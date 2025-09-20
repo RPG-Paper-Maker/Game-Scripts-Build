@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Datas, Manager, Scene, System } from "../index.js";
+import { Data, Manager, Model, Scene } from "../index.js";
 import { Mathf, ScreenResolution } from '../Common/index.js';
 import { Game, WindowChoices } from '../Core/index.js';
 import { SpinBox } from '../Core/SpinBox.js';
@@ -21,11 +21,11 @@ import { Base } from './Base.js';
 class InputNumber extends Base {
     constructor(command) {
         super();
-        let iterator = {
+        const iterator = {
             i: 0,
         };
-        this.stockVariableID = System.DynamicValue.createValueCommand(command, iterator);
-        this.digits = System.DynamicValue.createValueCommand(command, iterator);
+        this.stockVariableID = Model.DynamicValue.createValueCommand(command, iterator);
+        this.digits = Model.DynamicValue.createValueCommand(command, iterator);
     }
     /**
      *  Set the show text property.
@@ -54,19 +54,19 @@ class InputNumber extends Base {
     move(currentState, isKey, options = {}) {
         currentState.spinBoxes[currentState.index].move(isKey, options);
         // Wait for a slower update
-        let t = new Date().getTime();
+        const t = new Date().getTime();
         if (!isKey || (isKey && t - currentState.startTime >= WindowChoices.TIME_WAIT_PRESS)) {
             currentState.startTime = t;
             currentState.spinBoxes[currentState.index].setActive(false);
             if (isKey) {
-                if (Datas.Keyboards.isKeyEqual(options.key, Datas.Keyboards.menuControls.Right)) {
+                if (Data.Keyboards.isKeyEqual(options.key, Data.Keyboards.menuControls.Right)) {
                     currentState.index = Mathf.mod(currentState.index + 1, currentState.digits);
-                    Datas.Systems.soundCursor.playSound();
+                    Data.Systems.soundCursor.playSound();
                     Manager.Stack.requestPaintHUD = true;
                 }
-                else if (Datas.Keyboards.isKeyEqual(options.key, Datas.Keyboards.menuControls.Left)) {
+                else if (Data.Keyboards.isKeyEqual(options.key, Data.Keyboards.menuControls.Left)) {
                     currentState.index = Mathf.mod(currentState.index - 1, currentState.digits);
-                    Datas.Systems.soundCursor.playSound();
+                    Data.Systems.soundCursor.playSound();
                     Manager.Stack.requestPaintHUD = true;
                 }
             }
@@ -74,7 +74,7 @@ class InputNumber extends Base {
                 for (let i = 0; i < currentState.digits; i++) {
                     if (currentState.index !== i && currentState.spinBoxes[i].isInside(options.x, options.y)) {
                         currentState.index = i;
-                        Datas.Systems.soundCursor.playSound();
+                        Data.Systems.soundCursor.playSound();
                         Manager.Stack.requestPaintHUD = true;
                     }
                 }
@@ -87,13 +87,13 @@ class InputNumber extends Base {
      *  @returns {Record<string, any>} The current state
      */
     initialize() {
-        let spinBoxes = [];
-        let digits = this.digits.getValue();
-        let w = 50;
-        let h = 50;
-        let totalWidth = w * digits;
-        let x = (ScreenResolution.SCREEN_X - totalWidth) / 2;
-        let y = (ScreenResolution.SCREEN_Y - h) / 2;
+        const spinBoxes = [];
+        const digits = this.digits.getValue();
+        const w = 50;
+        const h = 50;
+        const totalWidth = w * digits;
+        const x = (ScreenResolution.SCREEN_X - totalWidth) / 2;
+        const y = (ScreenResolution.SCREEN_Y - h) / 2;
         for (let i = 0; i < digits; i++) {
             spinBoxes.push(new SpinBox(x + i * w, y, {
                 w: w,
@@ -124,15 +124,15 @@ class InputNumber extends Base {
      *  @returns {number} The number of node to pass
      */
     update(currentState, object, state) {
-        for (let spinbox of currentState.spinBoxes) {
+        for (const spinbox of currentState.spinBoxes) {
             spinbox.update();
         }
         if (currentState.confirmed) {
             let value = '';
-            for (let spinbox of currentState.spinBoxes) {
+            for (const spinbox of currentState.spinBoxes) {
                 value += spinbox.value;
             }
-            Game.current.variables[this.stockVariableID.getValue(true)] = parseInt(value);
+            Game.current.variables.set(this.stockVariableID.getValue(true), parseInt(value));
             return 1;
         }
         return 0;

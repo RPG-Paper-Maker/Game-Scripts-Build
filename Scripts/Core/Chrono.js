@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Graphic } from "../index.js";
-import { Enum, ScreenResolution, Utils } from '../Common/index.js';
+import { ALIGN, ALIGN_VERTICAL, ScreenResolution, Utils } from '../Common/index.js';
 /** @class
  *  A chrono in the game.
  *  @param {number} start - The start time of the chrono (in milliseconds)
@@ -21,8 +21,12 @@ class Chrono {
         this.id = id;
         this.reverse = reverse;
         this.time = start;
-        this.graphic = displayOnScreen ? new Graphic.Text(Utils.getStringDate(this.getSeconds()), { align: Enum.Align.Right, verticalAlign: Enum
-                .AlignVertical.Top }) : null;
+        this.graphic = displayOnScreen
+            ? new Graphic.Text(Utils.getStringDate(this.getSeconds()), {
+                align: ALIGN.RIGHT,
+                verticalAlign: ALIGN_VERTICAL.TOP,
+            })
+            : null;
         this.lastTime = new Date().getTime();
     }
     /**
@@ -30,8 +34,7 @@ class Chrono {
      *  @returns {number}
      */
     getSeconds() {
-        return this.reverse ? Math.ceil(this.time / 1000) : Math.floor(this.time
-            / 1000);
+        return this.reverse ? Math.ceil(this.time / 1000) : Math.floor(this.time / 1000);
     }
     /**
      *  Pause the chrono.
@@ -54,7 +57,7 @@ class Chrono {
         if (this.paused || this.finished) {
             return false;
         }
-        let date = new Date().getTime();
+        const date = new Date().getTime();
         this.time += (this.reverse ? -1 : 1) * (date - this.lastTime);
         this.time = Math.max(0, this.time);
         this.lastTime = date;
@@ -69,8 +72,7 @@ class Chrono {
      */
     drawHUD() {
         if (this.graphic !== null) {
-            this.graphic.draw(0, 0, ScreenResolution.getScreenX(ScreenResolution
-                .SCREEN_X), ScreenResolution.getScreenY(ScreenResolution.SCREEN_Y));
+            this.graphic.draw(0, 0, ScreenResolution.getScreenX(ScreenResolution.SCREEN_X), ScreenResolution.getScreenY(ScreenResolution.SCREEN_Y));
         }
     }
 }

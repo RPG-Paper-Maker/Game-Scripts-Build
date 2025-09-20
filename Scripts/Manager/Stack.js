@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum, Inputs, Paths, Platform, ScreenResolution, Utils } from '../Common/index.js';
+import { CHARACTER_KIND, GROUP_KIND, Inputs, Paths, Platform, ScreenResolution, Utils } from '../Common/index.js';
 import { Game, MapObject } from '../Core/index.js';
-import { Common, Datas, Manager, Scene, System } from '../index.js';
+import { Common, Data, Manager, Model, Scene } from '../index.js';
 /** @class
  *  The game stack that is organizing the game scenes.
  *  @static
@@ -35,7 +35,7 @@ class Stack {
      *  @returns {Scene.Base} The last scene that is removed
      */
     static pop() {
-        let scene = this.content.pop();
+        const scene = this.content.pop();
         this.top = this.at(this.content.length - 1);
         this.subTop = this.at(this.content.length - 2);
         this.bot = this.at(0);
@@ -65,7 +65,7 @@ class Stack {
      *  @returns {SceneGame} The last scene that is replaced
      */
     static replace(scene) {
-        let pop = this.pop();
+        const pop = this.pop();
         this.push(scene);
         return pop;
     }
@@ -76,7 +76,7 @@ class Stack {
      *  @returns {SceneGame} The scene in the index of the stack
      */
     static at(i) {
-        return Utils.defaultValue(this.content[i], null);
+        return Utils.valueOrDefault(this.content[i], null);
     }
     /**
      *  Check if the stack is empty.
@@ -97,7 +97,7 @@ class Stack {
      *  @returns {Scene.TitleScreen}
      */
     static pushTitleScreen() {
-        let scene = new Scene.TitleScreen();
+        const scene = new Scene.TitleScreen();
         this.push(scene);
         return scene;
     }
@@ -106,7 +106,7 @@ class Stack {
      *  @returns {Scene.GameOver}
      */
     static pushGameOver() {
-        let scene = new Scene.GameOver();
+        const scene = new Scene.GameOver();
         this.push(scene);
         return scene;
     }
@@ -114,25 +114,20 @@ class Stack {
      *  Push a battle scene for testing troop.
      */
     static async pushBattleTest() {
-        let json = await Common.Platform.parseFileJSON(Paths.FILE_TEST);
-        let troopID = json.troopID;
-        let battleMap = Datas.BattleSystems.getBattleMap(json.battleTroopTestBattleMapID);
-        let heroes = [];
-        Utils.readJSONSystemList({
-            list: json.battleTroopTestHeroes,
-            listIndexes: heroes,
-            cons: System.HeroTroopBattleTest,
-        });
+        const json = (await Common.Platform.parseFileJSON(Paths.FILE_TEST));
+        const troopID = json.troopID;
+        const battleMap = Data.BattleSystems.getBattleMap(json.battleTroopTestBattleMapID);
+        const heroes = Utils.readJSONList(json.battleTroopTestHeroes, Model.HeroTroopBattleTest);
         Game.current = new Game();
         Game.current.initializeDefault();
         Game.current.heroBattle = new MapObject(Game.current.hero.system, battleMap.position.toVector3(), true);
         let player;
         Game.current.teamHeroes = [];
-        for (let hero of heroes) {
-            player = Game.current.instanciateTeam(Enum.GroupKind.Team, Enum.CharacterKind.Hero, hero.heroID, hero.level, 1);
+        for (const hero of heroes) {
+            player = Game.current.instanciateTeam(GROUP_KIND.TEAM, CHARACTER_KIND.HERO, hero.heroID, hero.level, 1);
             hero.equip(player);
         }
-        let scene = new Scene.Battle(troopID, true, true, battleMap, 0, 0, null, null);
+        const scene = new Scene.Battle(troopID, true, true, battleMap, 0, 0, null, null);
         this.push(scene);
     }
     static async pushShowTextPreview() {
@@ -150,7 +145,7 @@ class Stack {
      *  Translate all the current scenes.
      */
     static translateAll() {
-        for (let scene of this.content) {
+        for (const scene of this.content) {
             scene.translate();
         }
     }
@@ -166,8 +161,8 @@ class Stack {
         Manager.Songs.update();
         // Repeat keypress as long as not blocking
         let continuePressed;
-        for (let i = 0, l = Inputs.keysPressed.length; i < l; i++) {
-            continuePressed = this.onKeyPressedRepeat(Inputs.keysPressed[i]);
+        for (const keyPressed of Inputs.keysPressed) {
+            continuePressed = this.onKeyPressedRepeat(keyPressed);
             if (!continuePressed) {
                 break;
             }

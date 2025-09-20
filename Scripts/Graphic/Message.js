@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,12 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Picture2D, Tree, Game } from '../Core/index.js';
-import { Datas, System, Graphic } from '../index.js';
-import { Enum, Constants, Utils, ScreenResolution } from '../Common/index.js';
-var PictureKind = Enum.PictureKind;
-var TagKind = Enum.TagKind;
-var Align = Enum.Align;
+import { ALIGN, Constants, PICTURE_KIND, ScreenResolution, TAG_KIND, Utils } from '../Common/index.js';
+import { Game, Picture2D, Tree } from '../Core/index.js';
+import { Data, Graphic, Model } from '../index.js';
 /** @class
  *  A class for message show text command.
  *  @extends Graphic.Base
@@ -24,7 +21,7 @@ class Message extends Graphic.Base {
     constructor(message, facesetID, facesetIndexX, facesetIndexY) {
         super();
         this.message = message;
-        this.faceset = Datas.Pictures.getPictureCopy(PictureKind.Facesets, facesetID);
+        this.faceset = Data.Pictures.getPictureCopy(PICTURE_KIND.FACESETS, facesetID);
         this.facesetIndexX = facesetIndexX;
         this.facesetIndexY = facesetIndexY;
         this.graphics = [];
@@ -37,102 +34,100 @@ class Message extends Graphic.Base {
      */
     setMessage(message) {
         this.tree = new Tree(null);
-        let root = this.tree.root;
+        const root = this.tree.root;
         let currentNode = root;
         let lastC = 0;
-        let notClosed = [];
+        const notClosed = [];
         let c, l, ch, open, cr, tag, tagKind, split;
         for (c = 0, l = message.length; c < l; c++) {
             ch = message.charAt(c);
-            if (ch === Constants.STRING_NEW_LINE) {
+            if (ch === '\n') {
                 // If text before..
                 if (c > lastC) {
-                    currentNode = this.updateTag(currentNode, TagKind.Text, message.substring(lastC, c), true, notClosed);
+                    currentNode = this.updateTag(currentNode, TAG_KIND.TEXT, message.substring(lastC, c), true, notClosed);
                 }
                 lastC = c + 1;
-                currentNode = this.updateTag(currentNode, TagKind.NewLine, null, true, notClosed);
+                currentNode = this.updateTag(currentNode, TAG_KIND.NEW_LINE, null, true, notClosed);
             }
-            else if (ch === Constants.STRING_BRACKET_LEFT) {
-                open = message.charAt(c + 1) !== Constants.STRING_SLASH;
+            else if (ch === '[') {
+                open = message.charAt(c + 1) !== '/';
                 // If text before..
                 if (c > lastC) {
-                    currentNode = this.updateTag(currentNode, TagKind.Text, message.substring(lastC, c), true, notClosed);
+                    currentNode = this.updateTag(currentNode, TAG_KIND.TEXT, message.substring(lastC, c), true, notClosed);
                 }
                 cr = c;
                 do {
                     cr++;
                     ch = message.charAt(cr);
-                } while (cr < l && ch !== Constants.STRING_BRACKET_RIGHT);
+                } while (cr < l && ch !== ']');
                 tag = message.substring(c + (open ? 1 : 2), cr);
                 if (tag === Message.TAG_BOLD) {
-                    tagKind = TagKind.Bold;
+                    tagKind = TAG_KIND.BOLD;
                 }
                 else if (tag === Message.TAG_ITALIC) {
-                    tagKind = TagKind.Italic;
+                    tagKind = TAG_KIND.ITALIC;
                 }
                 else if (tag === Message.TAG_LEFT) {
-                    tagKind = TagKind.Left;
+                    tagKind = TAG_KIND.LEFT;
                 }
                 else if (tag === Message.TAG_CENTER) {
-                    tagKind = TagKind.Center;
+                    tagKind = TAG_KIND.CENTER;
                 }
                 else if (tag === Message.TAG_RIGHT) {
-                    tagKind = TagKind.Right;
+                    tagKind = TAG_KIND.RIGHT;
                 }
                 else if (tag.includes(Message.TAG_SIZE)) {
-                    tagKind = TagKind.Size;
+                    tagKind = TAG_KIND.SIZE;
                 }
                 else if (tag.includes(Message.TAG_FONT)) {
-                    tagKind = TagKind.Font;
+                    tagKind = TAG_KIND.FONT;
                 }
                 else if (tag.includes(Message.TAG_TEXT_COLOR)) {
-                    tagKind = TagKind.TextColor;
+                    tagKind = TAG_KIND.TEXT_COLOR;
                 }
                 else if (tag.includes(Message.TAG_BACK_COLOR)) {
-                    tagKind = TagKind.BackColor;
+                    tagKind = TAG_KIND.BACK_COLOR;
                 }
                 else if (tag.includes(Message.TAG_STROKE_COLOR)) {
-                    tagKind = TagKind.StrokeColor;
+                    tagKind = TAG_KIND.STROKE_COLOR;
                 }
                 else if (tag.includes(Message.TAG_VARIABLE)) {
-                    tagKind = TagKind.Variable;
+                    tagKind = TAG_KIND.VARIABLE;
                 }
                 else if (tag.includes(Message.TAG_PARAMETER)) {
-                    tagKind = TagKind.Parameter;
+                    tagKind = TAG_KIND.PARAMETER;
                 }
                 else if (tag.includes(Message.TAG_PROPERTY)) {
-                    tagKind = TagKind.Property;
+                    tagKind = TAG_KIND.PROPERTY;
                 }
                 else if (tag.includes(Message.TAG_HERO_NAME)) {
-                    tagKind = TagKind.HeroName;
+                    tagKind = TAG_KIND.HERO_NAME;
                 }
                 else if (tag.includes(Message.TAG_ICON)) {
-                    tagKind = TagKind.Icon;
+                    tagKind = TAG_KIND.ICON;
                 }
                 else {
-                    tagKind = TagKind.Text;
+                    tagKind = TAG_KIND.TEXT;
                 }
-                if (tagKind === TagKind.Text) {
-                    currentNode = this.updateTag(currentNode, TagKind.Text, message.substring(c, cr + 1), true, notClosed);
+                if (tagKind === TAG_KIND.TEXT) {
+                    currentNode = this.updateTag(currentNode, TAG_KIND.TEXT, message.substring(c, cr + 1), true, notClosed);
                 }
                 else {
-                    split = tag.split(Constants.STRING_EQUAL);
-                    currentNode = this.updateTag(currentNode, tagKind, open &&
-                        split.length > 1 ? split[1] : null, open, notClosed);
+                    split = tag.split('=');
+                    currentNode = this.updateTag(currentNode, tagKind, open && split.length > 1 ? split[1] : null, open, notClosed);
                 }
                 lastC = cr + 1;
                 c = cr;
             }
         }
         if (l === 0 || c > lastC) {
-            currentNode = this.updateTag(currentNode, TagKind.Text, message
-                .substring(lastC, c), true, notClosed);
+            currentNode = this.updateTag(currentNode, TAG_KIND.TEXT, message.substring(lastC, c), true, notClosed);
         }
     }
     /**
      *  Update tag.
      *  @param {Node} currentNode - The current node
-     *  @param {TagKind} tag - The tag kind
+     *  @param {TAG_KIND} tag - The tag kind
      *  @param {string} value - The tag value
      *  @param {boolean} open - Indicate if open tag
      *  @param {Node[]} notClosed - List of unclosed nodes
@@ -146,28 +141,30 @@ class Message extends Graphic.Base {
             }
             let nodeValue = value;
             switch (tag) {
-                case TagKind.Variable:
-                case TagKind.HeroName:
-                    nodeValue = System.DynamicValue.createVariable(parseInt(value));
+                case TAG_KIND.VARIABLE:
+                case TAG_KIND.HERO_NAME:
+                    nodeValue = Model.DynamicValue.createVariable(parseInt(value));
                     break;
-                case TagKind.Parameter:
-                    nodeValue = System.DynamicValue.createParameter(parseInt(value));
+                case TAG_KIND.PARAMETER:
+                    nodeValue = Model.DynamicValue.createParameter(parseInt(value));
                     break;
-                case TagKind.Property:
-                    nodeValue = System.DynamicValue.createProperty(parseInt(value));
+                case TAG_KIND.PROPERTY:
+                    nodeValue = Model.DynamicValue.createProperty(parseInt(value));
                     break;
             }
             currentNode.add([tag, nodeValue]);
-            if (tag !== TagKind.Text && tag !== TagKind.NewLine && tag !==
-                TagKind.Variable && tag !== TagKind.Icon && tag !== TagKind
-                .Property && tag !== TagKind.Parameter && tag !== TagKind
-                .HeroName) {
+            if (tag !== TAG_KIND.TEXT &&
+                tag !== TAG_KIND.NEW_LINE &&
+                tag !== TAG_KIND.VARIABLE &&
+                tag !== TAG_KIND.ICON &&
+                tag !== TAG_KIND.PROPERTY &&
+                tag !== TAG_KIND.PARAMETER &&
+                tag !== TAG_KIND.HERO_NAME) {
                 currentNode = currentNode.lastChild;
             }
         }
         else {
-            while (currentNode !== null && currentNode.data !== null &&
-                currentNode.data[0] !== tag) {
+            while (currentNode !== null && currentNode.data !== null && currentNode.data[0] !== tag) {
                 notClosed.push(currentNode.data);
                 currentNode = currentNode.parent;
             }
@@ -184,24 +181,21 @@ class Message extends Graphic.Base {
         this.heights = [];
         this.aligns = [];
         this.heights.push(0);
-        let result = {
+        const result = {
             g: this.graphics,
             p: this.positions,
             a: this.aligns,
             h: this.heights,
-            ca: Align.Left,
+            ca: ALIGN.LEFT,
             cb: false,
             ci: false,
-            cs: Utils.defaultValue(Datas.Systems.dbOptions.v_tSize, Constants
-                .DEFAULT_FONT_SIZE),
-            cf: Utils.defaultValue(Datas.Systems.dbOptions.v_tFont, Constants
-                .DEFAULT_FONT_NAME),
-            ctc: Utils.defaultValue(Datas.Systems.dbOptions.v_tcText, System
-                .Color.WHITE),
-            cbc: Utils.defaultValue(Datas.Systems.dbOptions.v_tcBackground, null),
-            csc: Utils.defaultValue(Datas.Systems.dbOptions.v_tOutline, false) ?
-                Utils.defaultValue(Datas.Systems.dbOptions.v_tcOutline, null) :
-                null
+            cs: Utils.valueOrDefault(Data.Systems.dbOptions.v_tSize, Constants.DEFAULT_FONT_SIZE),
+            cf: Utils.valueOrDefault(Data.Systems.dbOptions.v_tFont, Constants.DEFAULT_FONT_NAME),
+            ctc: Utils.valueOrDefault(Data.Systems.dbOptions.v_tcText, Model.Color.WHITE),
+            cbc: Utils.valueOrDefault(Data.Systems.dbOptions.v_tcBackground, null),
+            csc: Utils.valueOrDefault(Data.Systems.dbOptions.v_tOutline, false)
+                ? Utils.valueOrDefault(Data.Systems.dbOptions.v_tcOutline, null)
+                : null,
         };
         // Update nodes
         this.updateNodes(this.tree.root.firstChild, result);
@@ -230,11 +224,11 @@ class Message extends Graphic.Base {
      *  @param {Record<string, any>} - result The result object
      */
     updateNodes(node, result) {
-        let tag = node.data[0];
-        let value = node.data[1];
+        const tag = node.data[0];
+        const value = node.data[1];
         let bold, italic, align, size, font, textColor, backColor, strokeColor;
         switch (tag) {
-            case TagKind.NewLine:
+            case TAG_KIND.NEW_LINE:
                 result.g.push(null);
                 result.p.push(0);
                 result.a.push(-1);
@@ -243,38 +237,37 @@ class Message extends Graphic.Base {
                 }
                 result.h.unshift(0);
                 break;
-            case TagKind.Text:
-            case TagKind.Variable:
-            case TagKind.Parameter:
-            case TagKind.Property:
-            case TagKind.HeroName: {
+            case TAG_KIND.TEXT:
+            case TAG_KIND.VARIABLE:
+            case TAG_KIND.PARAMETER:
+            case TAG_KIND.PROPERTY:
+            case TAG_KIND.HERO_NAME: {
                 let text;
                 switch (node.data[0]) {
-                    case TagKind.Text:
+                    case TAG_KIND.TEXT:
                         text = value;
                         break;
-                    case TagKind.Variable:
-                        text = Utils.numToString(value.getValue());
+                    case TAG_KIND.VARIABLE:
+                        text = String(value.getValue());
                         break;
-                    case TagKind.Parameter:
-                        text = Utils.numToString(value.getValue());
+                    case TAG_KIND.PARAMETER:
+                        text = String(value.getValue());
                         break;
-                    case TagKind.Property:
-                        text = Utils.numToString(value.getValue());
+                    case TAG_KIND.PROPERTY:
+                        text = String(value.getValue());
                         break;
-                    case TagKind.HeroName:
-                        text = Game.current.getHeroByInstanceID(value.getValue())
-                            .name;
+                    case TAG_KIND.HERO_NAME:
+                        text = Game.current.getHeroByInstanceID(value.getValue()).name;
                         break;
                 }
-                let graphic = new Graphic.Text(text, {
+                const graphic = new Graphic.Text(text, {
                     bold: result.cb,
                     italic: result.ci,
                     fontSize: result.cs,
                     fontName: result.cf,
                     color: result.ctc,
                     backColor: result.cbc,
-                    strokeColor: result.csc
+                    strokeColor: result.csc,
                 });
                 result.g.push(graphic);
                 graphic.measureText();
@@ -285,64 +278,64 @@ class Message extends Graphic.Base {
                 }
                 break;
             }
-            case TagKind.Icon: {
-                let args = value.split(";");
-                let graphic = Datas.Pictures.getPictureCopy(PictureKind.Icons, parseInt(args[0]));
-                graphic.sx = parseInt(args[1]) * Datas.Systems.iconsSize;
+            case TAG_KIND.ICON: {
+                const args = value.split(';');
+                const graphic = Data.Pictures.getPictureCopy(PICTURE_KIND.ICONS, parseInt(args[0]));
+                graphic.sx = parseInt(args[1]) * Data.Systems.iconsSize;
                 if (isNaN(graphic.sx)) {
                     graphic.sx = 0;
                 }
-                graphic.sy = parseInt(args[2]) * Datas.Systems.iconsSize;
+                graphic.sy = parseInt(args[2]) * Data.Systems.iconsSize;
                 if (isNaN(graphic.sy)) {
                     graphic.sy = 0;
                 }
                 result.g.push(graphic);
-                result.p.push(ScreenResolution.getScreenMinXY(Datas.Systems.iconsSize));
+                result.p.push(ScreenResolution.getScreenMinXY(Data.Systems.iconsSize));
                 result.a.push(result.ca);
                 if (Constants.DEFAULT_FONT_SIZE > result.h[0]) {
                     result.h[0] = Constants.DEFAULT_FONT_SIZE;
                 }
                 break;
             }
-            case TagKind.Bold:
+            case TAG_KIND.BOLD:
                 bold = result.cb;
                 result.cb = true;
                 break;
-            case TagKind.Italic:
+            case TAG_KIND.ITALIC:
                 italic = result.ci;
                 result.ci = true;
                 break;
-            case TagKind.Left:
+            case TAG_KIND.LEFT:
                 align = result.ca;
-                result.ca = Align.Left;
+                result.ca = ALIGN.LEFT;
                 break;
-            case TagKind.Center:
+            case TAG_KIND.CENTER:
                 align = result.ca;
-                result.ca = Align.Center;
+                result.ca = ALIGN.CENTER;
                 break;
-            case TagKind.Right:
+            case TAG_KIND.RIGHT:
                 align = result.ca;
-                result.ca = Align.Right;
+                result.ca = ALIGN.RIGHT;
                 break;
-            case TagKind.Size:
+            case TAG_KIND.SIZE:
                 size = result.cs;
-                result.cs = Datas.Systems.getFontSize(value).getValue();
+                result.cs = Data.Systems.getFontSize(value).getValue();
                 break;
-            case TagKind.Font:
+            case TAG_KIND.FONT:
                 font = result.cf;
-                result.cf = Datas.Systems.getFontName(value).getName();
+                result.cf = Data.Systems.getFontName(value).getName();
                 break;
-            case TagKind.TextColor:
+            case TAG_KIND.TEXT_COLOR:
                 textColor = result.ctc;
-                result.ctc = Datas.Systems.getColor(value);
+                result.ctc = Data.Systems.getColor(value);
                 break;
-            case TagKind.BackColor:
+            case TAG_KIND.BACK_COLOR:
                 backColor = result.cbc;
-                result.cbc = Datas.Systems.getColor(value);
+                result.cbc = Data.Systems.getColor(value);
                 break;
-            case TagKind.StrokeColor:
+            case TAG_KIND.STROKE_COLOR:
                 strokeColor = result.csc;
-                result.csc = Datas.Systems.getColor(value);
+                result.csc = Data.Systems.getColor(value);
                 break;
         }
         if (node.firstChild !== null) {
@@ -350,30 +343,30 @@ class Message extends Graphic.Base {
         }
         // Handle closures
         switch (node.data[0]) {
-            case TagKind.Bold:
+            case TAG_KIND.BOLD:
                 result.cb = bold;
                 break;
-            case TagKind.Italic:
+            case TAG_KIND.ITALIC:
                 result.ci = italic;
                 break;
-            case TagKind.Left:
-            case TagKind.Center:
-            case TagKind.Right:
+            case TAG_KIND.LEFT:
+            case TAG_KIND.CENTER:
+            case TAG_KIND.RIGHT:
                 result.ca = align;
                 break;
-            case TagKind.Size:
+            case TAG_KIND.SIZE:
                 result.cs = size;
                 break;
-            case TagKind.Font:
+            case TAG_KIND.FONT:
                 result.cf = font;
                 break;
-            case TagKind.TextColor:
+            case TAG_KIND.TEXT_COLOR:
                 result.ctc = textColor;
                 break;
-            case TagKind.BackColor:
+            case TAG_KIND.BACK_COLOR:
                 result.cbc = backColor;
                 break;
-            case TagKind.StrokeColor:
+            case TAG_KIND.STROKE_COLOR:
                 result.csc = strokeColor;
                 break;
         }
@@ -390,7 +383,7 @@ class Message extends Graphic.Base {
      *  @param {number} h - The height dimention to draw graphic
      */
     drawBehind(x, y, w, h) {
-        if (!Datas.Systems.dbOptions.v_fPosAbove) {
+        if (!Data.Systems.dbOptions.v_fPosAbove) {
             this.drawFaceset(x, y, w, h);
         }
     }
@@ -402,15 +395,18 @@ class Message extends Graphic.Base {
      *  @param {number} h - The height dimention to draw graphic
      */
     drawFaceset(x, y, w, h) {
-        this.faceset.draw({ x: x + Utils.defaultValue(ScreenResolution
-                .getScreenMinXY(Datas.Systems.dbOptions.v_fX), 0), y: y -
-                ((ScreenResolution.getScreenMinXY(Datas.Systems.facesetScalingHeight)
-                    - h) / 2) + Utils.defaultValue(ScreenResolution.getScreenMinXY(Datas
-                .Systems.dbOptions.v_fY), 0), w: Datas.Systems.facesetScalingWidth,
-            h: Datas.Systems.facesetScalingHeight, sx: this.facesetIndexX * Datas
-                .Systems.facesetsSize, sy: this.facesetIndexY * Datas.Systems
-                .facesetsSize, sw: Datas.Systems.facesetsSize, sh: Datas.Systems
-                .facesetsSize });
+        this.faceset.draw({
+            x: x + Utils.valueOrDefault(ScreenResolution.getScreenMinXY(Data.Systems.dbOptions.v_fX), 0),
+            y: y -
+                (ScreenResolution.getScreenMinXY(Data.Systems.facesetScalingHeight) - h) / 2 +
+                Utils.valueOrDefault(ScreenResolution.getScreenMinXY(Data.Systems.dbOptions.v_fY), 0),
+            w: Data.Systems.facesetScalingWidth,
+            h: Data.Systems.facesetScalingHeight,
+            sx: this.facesetIndexX * Data.Systems.facesetsSize,
+            sy: this.facesetIndexY * Data.Systems.facesetsSize,
+            sw: Data.Systems.facesetsSize,
+            sh: Data.Systems.facesetsSize,
+        });
     }
     /**
      *  Drawing the message box.
@@ -432,13 +428,13 @@ class Message extends Graphic.Base {
      *  according to screen resolution
      */
     draw(x = this.oX, y = this.oY, w = this.oW, h = this.oH) {
-        if (Datas.Systems.dbOptions.v_fPosAbove) {
+        if (Data.Systems.dbOptions.v_fPosAbove) {
             this.drawFaceset(x, y, w, h);
         }
-        let newX = x + (this.faceset.empty ? 0 : ScreenResolution.getScreenX(Datas.Systems.facesetScalingWidth));
-        let newY = y + ScreenResolution.getScreenMinXY(Constants.HUGE_SPACE);
+        const newX = x + (this.faceset.empty ? 0 : ScreenResolution.getScreenX(Data.Systems.facesetScalingWidth));
+        const newY = y + ScreenResolution.getScreenMinXY(Constants.HUGE_SPACE);
         let offsetY = 0;
-        let align = Align.None;
+        let align = ALIGN.NONE;
         let c = this.heights.length - 1;
         // Draw each graphics
         let offsetX = 0;
@@ -448,30 +444,34 @@ class Message extends Graphic.Base {
             // New line
             if (graphic === null) {
                 offsetY += this.heights[c--] * 2;
-                align = Align.None;
+                align = ALIGN.NONE;
                 j++;
             }
             else {
                 if (align !== this.aligns[i]) {
                     align = this.aligns[i];
                     switch (align) {
-                        case Align.Left:
+                        case ALIGN.LEFT:
                             offsetX = 0;
                             break;
-                        case Align.Center:
+                        case ALIGN.CENTER:
                             offsetX = (w - this.totalWidths[j]) / 2;
                             break;
-                        case Align.Right:
+                        case ALIGN.RIGHT:
                             offsetX = w - this.totalWidths[j];
                             break;
                     }
                     j++;
                 }
                 if (graphic instanceof Picture2D) {
-                    graphic.draw({ x: newX + offsetX, y: newY - (ScreenResolution
-                            .getScreenMinXY(Datas.Systems.iconsSize) / 2) + offsetY,
-                        sw: Datas.Systems.iconsSize, sh: Datas.Systems.iconsSize,
-                        w: Datas.Systems.iconsSize, h: Datas.Systems.iconsSize });
+                    graphic.draw({
+                        x: newX + offsetX,
+                        y: newY - ScreenResolution.getScreenMinXY(Data.Systems.iconsSize) / 2 + offsetY,
+                        sw: Data.Systems.iconsSize,
+                        sh: Data.Systems.iconsSize,
+                        w: Data.Systems.iconsSize,
+                        h: Data.Systems.iconsSize,
+                    });
                 }
                 else {
                     graphic.draw(newX + offsetX, newY + offsetY, graphic.oW, graphic.oH);
@@ -481,19 +481,19 @@ class Message extends Graphic.Base {
         }
     }
 }
-Message.TAG_BOLD = "b";
-Message.TAG_ITALIC = "i";
-Message.TAG_LEFT = "l";
-Message.TAG_CENTER = "c";
-Message.TAG_RIGHT = "r";
-Message.TAG_SIZE = "size";
-Message.TAG_FONT = "font";
-Message.TAG_TEXT_COLOR = "textcolor";
-Message.TAG_BACK_COLOR = "backcolor";
-Message.TAG_STROKE_COLOR = "strokecolor";
-Message.TAG_VARIABLE = "var";
-Message.TAG_PARAMETER = "par";
-Message.TAG_PROPERTY = "pro";
-Message.TAG_HERO_NAME = "hname";
-Message.TAG_ICON = "ico";
+Message.TAG_BOLD = 'b';
+Message.TAG_ITALIC = 'i';
+Message.TAG_LEFT = 'l';
+Message.TAG_CENTER = 'c';
+Message.TAG_RIGHT = 'r';
+Message.TAG_SIZE = 'size';
+Message.TAG_FONT = 'font';
+Message.TAG_TEXT_COLOR = 'textcolor';
+Message.TAG_BACK_COLOR = 'backcolor';
+Message.TAG_STROKE_COLOR = 'strokecolor';
+Message.TAG_VARIABLE = 'var';
+Message.TAG_PARAMETER = 'par';
+Message.TAG_PROPERTY = 'pro';
+Message.TAG_HERO_NAME = 'hname';
+Message.TAG_ICON = 'ico';
 export { Message };

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum, ScreenResolution } from '../Common/index.js';
+import { ALIGN, ScreenResolution } from '../Common/index.js';
 import { Rectangle, WindowBox, WindowChoices } from '../Core/index.js';
-import { Datas, Graphic, Manager, Scene } from '../index.js';
+import { Data, Graphic, Manager, Scene } from '../index.js';
 import { MenuBase } from './MenuBase.js';
 /**
  * The class who handle the scene menu in game.
@@ -25,7 +25,7 @@ class Menu extends MenuBase {
         // Initializing order index
         this.selectedOrder = -1;
         // Play a sound when opening the menu
-        Datas.Systems.soundCursor.playSound();
+        Data.Systems.soundCursor.playSound();
     }
     /**
      * @inheritdoc
@@ -52,13 +52,13 @@ class Menu extends MenuBase {
      * @memberof Menu
      */
     createCommandWindow() {
-        let graphics = [];
-        let actions = [];
+        const graphics = [];
+        const actions = [];
         let command;
-        for (let i = 0, l = Datas.Systems.mainMenuCommands.length; i < l; i++) {
-            command = Datas.Systems.mainMenuCommands[i];
-            graphics[i] = new Graphic.Text(command.name(), { align: Enum.Align.Center });
-            actions[i] = command.getCallback();
+        for (let i = 0, l = Data.Systems.mainMenuCommands.length; i < l; i++) {
+            command = Data.Systems.mainMenuCommands[i];
+            graphics[i] = new Graphic.Text(command.name(), { align: ALIGN.CENTER });
+            actions[i] = command.getCallback(this);
         }
         const rect = new Rectangle(20, 20, 150, WindowBox.MEDIUM_SLOT_HEIGHT);
         const options = {
@@ -94,7 +94,7 @@ class Menu extends MenuBase {
             content: new Graphic.TimeCurrencies(),
             padding: WindowBox.HUGE_PADDING_BOX,
         });
-        let h = this.windowTimeCurrencies.content.height +
+        const h = this.windowTimeCurrencies.content.height +
             this.windowTimeCurrencies.padding[1] +
             this.windowTimeCurrencies.padding[3];
         this.windowTimeCurrencies.setY(ScreenResolution.SCREEN_Y - 20 - h);
@@ -127,7 +127,7 @@ class Menu extends MenuBase {
      * @memberof Menu
      */
     onQuitMenu() {
-        Datas.Systems.soundCancel.playSound();
+        Data.Systems.soundCancel.playSound();
         Manager.Stack.pop();
     }
     /**
@@ -136,7 +136,7 @@ class Menu extends MenuBase {
      * @memberof Menu
      */
     onTeamUnselect() {
-        Datas.Systems.soundCancel.playSound();
+        Data.Systems.soundCancel.playSound();
         this.windowChoicesTeam.unselect();
     }
     /**
@@ -147,8 +147,8 @@ class Menu extends MenuBase {
      * @memberof Menu
      */
     swapHeroOrder(id1, id2) {
-        let hero1 = this.party()[id1];
-        let hero2 = this.party()[id2];
+        const hero1 = this.party()[id1];
+        const hero2 = this.party()[id2];
         this.party()[id1] = hero2;
         this.party()[id2] = hero1;
     }
@@ -158,7 +158,7 @@ class Menu extends MenuBase {
      * @memberof Menu
      */
     onTeamSelect() {
-        Datas.Systems.soundConfirmation.playSound();
+        Data.Systems.soundConfirmation.playSound();
         const winTeam = this.windowChoicesTeam;
         const currentSelectedHero = winTeam.currentSelectedIndex;
         // If selecting the first hero to interchange
@@ -167,8 +167,8 @@ class Menu extends MenuBase {
         }
         else {
             this.swapHeroOrder(this.selectedOrder, currentSelectedHero);
-            let graphic1 = winTeam.getContent(this.selectedOrder);
-            let graphic2 = winTeam.getContent(currentSelectedHero);
+            const graphic1 = winTeam.getContent(this.selectedOrder);
+            const graphic2 = winTeam.getContent(currentSelectedHero);
             winTeam.setContent(this.selectedOrder, graphic2);
             winTeam.setContent(currentSelectedHero, graphic1);
             // Change background color

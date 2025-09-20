@@ -1,0 +1,27 @@
+/*
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
+
+    RPG Paper Maker engine is under proprietary license.
+    This source code is also copyrighted.
+
+    Use Commercial edition for commercial use of your games.
+    See RPG Paper Maker EULA here:
+        http://rpg-paper-maker.com/index.php/eula.
+*/
+import { Utils } from '../Common/index.js';
+import { Base } from './Base.js';
+/**
+ * Represents a special element in the game.
+ * A special element is a visual component like an autotile, wall, 3D object, or mountain.
+ */
+export class SpecialElement extends Base {
+    constructor(json) {
+        super(json);
+    }
+    /**
+     * Reads the JSON data describing the special element.
+     */
+    read(json) {
+        this.pictureID = Utils.valueOrDefault(json.pic, -1);
+    }
+}

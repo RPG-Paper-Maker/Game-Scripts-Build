@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,10 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
-import { Enum, ScreenResolution } from '../Common/index.js';
-var LootKind = Enum.LootKind;
 import { Graphic } from "../index.js";
+import { LOOT_KIND, ScreenResolution } from '../Common/index.js';
+import { Base } from './Base.js';
 /** @class
  *  The graphic displaying all the items dropped at the end of a battle.
  *  @extends Graphic.Base
@@ -19,7 +18,7 @@ import { Graphic } from "../index.js";
 class Loots extends Base {
     constructor(loots, nb) {
         super();
-        let order = [LootKind.Weapon, LootKind.Armor, LootKind.Item];
+        const order = [LOOT_KIND.WEAPON, LOOT_KIND.ARMOR, LOOT_KIND.ITEM];
         this.graphicsLoots = new Array(nb);
         let list, id;
         for (let i = 0, j = 0, l = order.length; i < l; i++) {
@@ -49,8 +48,7 @@ class Loots extends Base {
      */
     draw(x, y, w, h) {
         for (let i = 0, l = this.graphicsLoots.length; i < l; i++) {
-            this.graphicsLoots[i].drawChoice(x, y + (i * ScreenResolution
-                .getScreenMinXY(30)), w, ScreenResolution.getScreenMinXY(30));
+            this.graphicsLoots[i].drawChoice(x, y + i * ScreenResolution.getScreenMinXY(30), w, ScreenResolution.getScreenMinXY(30));
         }
     }
 }

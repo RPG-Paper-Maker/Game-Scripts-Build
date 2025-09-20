@@ -1,0 +1,49 @@
+/*
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
+
+    RPG Paper Maker engine is under proprietary license.
+    This source code is also copyrighted.
+
+    Use Commercial edition for commercial use of your games.
+    See RPG Paper Maker EULA here:
+        http://rpg-paper-maker.com/index.php/eula.
+*/
+import * as THREE from 'three';
+import { PICTURE_KIND, Utils } from '../Common/index.js';
+import { Data, Manager } from '../index.js';
+import { Base } from './Base.js';
+/**
+ * A skybox of the game.
+ */
+export class Skybox extends Base {
+    constructor(json) {
+        super(json);
+    }
+    /**
+     * Create the textures for the skybox.
+     */
+    createTextures() {
+        return [this.left, this.right, this.top, this.bot, this.front, this.back].map((side) => {
+            const texture = Manager.GL.textureLoader.load(Data.Pictures.get(PICTURE_KIND.SKYBOXES, side).getPath());
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.repeat.x = -1;
+            return Manager.GL.createMaterial({
+                texture: texture,
+                side: THREE.BackSide,
+                shadows: false,
+                flipY: true,
+            });
+        });
+    }
+    /**
+     *  Read the JSON associated to the skybox.
+     */
+    read(json) {
+        this.front = Utils.valueOrDefault(json.fid, 1);
+        this.back = Utils.valueOrDefault(json.bid, 1);
+        this.top = Utils.valueOrDefault(json.tid, 1);
+        this.bot = Utils.valueOrDefault(json.boid, 1);
+        this.left = Utils.valueOrDefault(json.lid, 1);
+        this.right = Utils.valueOrDefault(json.rid, 1);
+    }
+}

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -26,8 +26,8 @@ class ShowTextPreview extends Base {
     }
     async updateCommand() {
         this.isLoading = true;
-        let json = await Common.Platform.parseFileJSON(Paths.FILE_TEST);
-        let eventCommand = Manager.Events.getEventCommand(json);
+        const json = (await Common.Platform.parseFileJSON(Paths.FILE_TEST));
+        const eventCommand = Manager.Events.getEventCommand(json);
         if (eventCommand !== null &&
             (this.eventCommand === null ||
                 this.eventCommand.windowInterlocutor.content.text !==

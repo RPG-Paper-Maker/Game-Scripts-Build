@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,12 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Constants, Enum, Inputs, ScreenResolution } from '../Common/index.js';
+import { ALIGN, Constants, Inputs, PICTURE_KIND, ScreenResolution } from '../Common/index.js';
 import { Picture2D, WindowBox, WindowChoices } from '../Core/index.js';
-import { Datas, Graphic, Manager } from '../index.js';
+import { Data, Graphic, Manager } from '../index.js';
 import { Base } from './Base.js';
-var PictureKind = Enum.PictureKind;
-var Align = Enum.Align;
 /** @class
  *  A scene for the title screen settings.
  *  @extends Scene.Base
@@ -28,20 +26,20 @@ class TitleSettings extends Base {
      */
     async load() {
         // Creating background
-        if (Datas.TitlescreenGameover.isTitleBackgroundImage) {
-            this.pictureBackground = await Picture2D.createWithID(Datas.TitlescreenGameover.titleBackgroundImageID, PictureKind.TitleScreen, { cover: true });
+        if (Data.TitlescreenGameover.isTitleBackgroundImage) {
+            this.pictureBackground = await Picture2D.createWithID(Data.TitlescreenGameover.titleBackgroundImageID, PICTURE_KIND.TITLE_SCREEN, { cover: true });
         }
         // Creating windows
         this.windowSettings = new WindowBox(Constants.HUGE_SPACE, Constants.HUGE_SPACE, WindowBox.MEDIUM_SLOT_WIDTH, WindowBox.LARGE_SLOT_HEIGHT, {
-            content: new Graphic.Text(this.title, { align: Align.Center }),
+            content: new Graphic.Text(this.title, { align: ALIGN.CENTER }),
             padding: WindowBox.SMALL_SLOT_PADDING,
         });
         this.windowInformations = new WindowBox(Constants.HUGE_SPACE + WindowBox.MEDIUM_SLOT_WIDTH + Constants.LARGE_SPACE, Constants.HUGE_SPACE, ScreenResolution.SCREEN_X - 2 * Constants.HUGE_SPACE - WindowBox.MEDIUM_SLOT_WIDTH - Constants.LARGE_SPACE, WindowBox.LARGE_SLOT_HEIGHT, {
             padding: WindowBox.SMALL_SLOT_PADDING,
         });
-        this.windowChoicesMain = new WindowChoices(Constants.HUGE_SPACE, Constants.HUGE_SPACE + WindowBox.LARGE_SLOT_HEIGHT + Constants.LARGE_SPACE, ScreenResolution.SCREEN_X - 2 * Constants.HUGE_SPACE, WindowBox.MEDIUM_SLOT_HEIGHT, Datas.TitlescreenGameover.getTitleSettingsCommandsContent(), {
+        this.windowChoicesMain = new WindowChoices(Constants.HUGE_SPACE, Constants.HUGE_SPACE + WindowBox.LARGE_SLOT_HEIGHT + Constants.LARGE_SPACE, ScreenResolution.SCREEN_X - 2 * Constants.HUGE_SPACE, WindowBox.MEDIUM_SLOT_HEIGHT, Data.TitlescreenGameover.getTitleSettingsCommandsContent(), {
             nbItemsMax: 9,
-            listCallbacks: Datas.TitlescreenGameover.getTitleSettingsCommandsActions(),
+            listCallbacks: Data.TitlescreenGameover.getTitleSettingsCommandsActions(),
             bordersInsideVisible: false,
         });
         this.windowInformations.content = this.windowChoicesMain.getCurrentContent();
@@ -51,7 +49,7 @@ class TitleSettings extends Base {
      *  Cancel the scene.
      */
     cancel() {
-        Datas.Systems.soundCancel.playSound();
+        Data.Systems.soundCancel.playSound();
         Manager.Stack.pop();
     }
     /**
@@ -70,7 +68,7 @@ class TitleSettings extends Base {
      */
     onKeyPressed(key) {
         this.windowChoicesMain.onKeyPressed(key);
-        if (Datas.Keyboards.checkCancelMenu(key)) {
+        if (Data.Keyboards.checkCancelMenu(key)) {
             this.cancel();
         }
     }
@@ -103,7 +101,7 @@ class TitleSettings extends Base {
      *  Draw the HUD scene.
      */
     drawHUD() {
-        if (Datas.TitlescreenGameover.isTitleBackgroundImage) {
+        if (Data.TitlescreenGameover.isTitleBackgroundImage) {
             this.pictureBackground.draw();
         }
         this.windowSettings.draw();

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Base } from "./index.js";
-import { Datas, Graphic, Scene } from "../index.js";
+import { Data, Graphic, Scene } from "../index.js";
 import { Inputs } from '../Common/index.js';
 import { Game } from '../Core/index.js';
 /**
@@ -28,21 +28,21 @@ class MenuBase extends Base {
      *  @static
      */
     static checkActionMenu(isKey, options = {}) {
-        return (isKey && Datas.Keyboards.checkActionMenu(options.key)) || (!isKey && Inputs.mouseLeftPressed);
+        return (isKey && Data.Keyboards.checkActionMenu(options.key)) || (!isKey && Inputs.mouseLeftPressed);
     }
     /**
      *  Check is canceling menu input (for keyboard and mouse).
      *  @static
      */
     static checkCancelMenu(isKey, options = {}) {
-        return (isKey && Datas.Keyboards.checkCancelMenu(options.key)) || (!isKey && Inputs.mouseRightPressed);
+        return (isKey && Data.Keyboards.checkCancelMenu(options.key)) || (!isKey && Inputs.mouseRightPressed);
     }
     /**
      *  Check is canceling input (for keyboard and mouse).
      *  @static
      */
     static checkCancel(isKey, options = {}) {
-        return (isKey && Datas.Keyboards.checkCancel(options.key)) || (!isKey && Inputs.mouseRightPressed);
+        return (isKey && Data.Keyboards.checkCancel(options.key)) || (!isKey && Inputs.mouseRightPressed);
     }
     /**
      * Return the whole party array.
@@ -105,7 +105,7 @@ class MenuBase extends Base {
      * @memberof MenuBase
      */
     partyGraphics() {
-        let array = [];
+        const array = [];
         for (let i = 0; i < this.party().length; i++) {
             array[i] = new Graphic.Player(this.party()[i], { isMainMenu: true });
         }
@@ -121,7 +121,7 @@ class MenuBase extends Base {
      * @memberof MenuBase
      */
     heroGraphics() {
-        let id = this._activeHero;
+        const id = this._activeHero;
         return this.partyGraphics()[id];
     }
     /**

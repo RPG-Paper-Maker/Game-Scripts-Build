@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
-import { Manager, System } from '../index.js';
 import { Utils } from '../Common/index.js';
 import { Chrono, Game } from '../Core/index.js';
+import { Manager, Model } from '../index.js';
+import { Base } from './Base.js';
 /** @class
  *  An event command for changing chronometer.
  *  @extends EventCommand.Base
@@ -20,19 +20,19 @@ import { Chrono, Game } from '../Core/index.js';
 class ChangeChronometer extends Base {
     constructor(command) {
         super();
-        let iterator = {
-            i: 0
+        const iterator = {
+            i: 0,
         };
-        this.chronometerID = System.DynamicValue.createValueCommand(command, iterator);
+        this.chronometerID = Model.DynamicValue.createValueCommand(command, iterator);
         this.operation = command[iterator.i++];
         if (this.operation === 0) {
-            this.time = System.DynamicValue.createValueCommand(command, iterator);
-            this.diplayOnScreen = Utils.numToBool(command[iterator.i++]);
+            this.time = Model.DynamicValue.createValueCommand(command, iterator);
+            this.diplayOnScreen = Utils.numberToBool(command[iterator.i++]);
         }
         else {
-            this.stockValue = Utils.numToBool(command[iterator.i++]);
+            this.stockValue = Utils.numberToBool(command[iterator.i++]);
             if (this.stockValue) {
-                this.stockID = System.DynamicValue.createValueCommand(command, iterator);
+                this.stockID = Model.DynamicValue.createValueCommand(command, iterator);
             }
         }
     }
@@ -44,15 +44,14 @@ class ChangeChronometer extends Base {
      *  @returns {number} The number of node to pass
      */
     update(currentState, object, state) {
-        let chronometerID = this.chronometerID.getValue(this.operation === 0);
-        let index = Utils.indexOfProp(Game.current.chronometers, "id", chronometerID);
-        let chrono = index === -1 ? null : Game.current.chronometers[index];
+        const chronometerID = this.chronometerID.getValue(this.operation === 0);
+        const index = Utils.indexOfProp(Game.current.chronometers, 'id', chronometerID);
+        const chrono = index === -1 ? null : Game.current.chronometers[index];
         switch (this.operation) {
             case 0: // Start
-                let time = this.time.getValue() * 1000;
+                const time = this.time.getValue() * 1000;
                 if (chrono === null) {
-                    Game.current.chronometers.push(new Chrono(time, Game.current
-                        .getNewChronoID(), true, this.diplayOnScreen));
+                    Game.current.chronometers.push(new Chrono(time, Game.current.getNewChronoID(), true, this.diplayOnScreen));
                 }
                 Manager.Stack.requestPaintHUD = true;
                 break;
@@ -76,7 +75,7 @@ class ChangeChronometer extends Base {
         }
         // Stock value
         if (this.operation !== 0 && this.stockValue && chrono !== null) {
-            Game.current.variables[this.stockID.getValue(true)] = chrono.getSeconds();
+            Game.current.variables.set(this.stockID.getValue(true), chrono.getSeconds());
         }
         return 1;
     }

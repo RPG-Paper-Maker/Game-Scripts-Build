@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,14 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Constants, Enum, ScreenResolution } from '../Common/index.js';
+import { ALIGN, AVAILABLE_KIND, Constants, ORIENTATION_WINDOW, ScreenResolution, TARGET_KIND } from '../Common/index.js';
 import { Battler, Game, Rectangle, WindowBox, WindowChoices } from '../Core/index.js';
-import { Datas, Graphic, Manager, Scene } from '../index.js';
+import { Data, Graphic, Manager, Scene } from '../index.js';
 import { Base } from './Base.js';
-var Align = Enum.Align;
-var OrientationWindow = Enum.OrientationWindow;
-var TargetKind = Enum.TargetKind;
-var AvailableKind = Enum.AvailableKind;
 /** @class
  *  A scene in the menu for describing players skills.
  *  @extends Scene.Base
@@ -25,8 +21,8 @@ class MenuSkills extends Base {
         super(false);
         this.title = title;
         // Tab heroes
-        let nbHeroes = Game.current.teamHeroes.length;
-        let listHeroes = new Array(nbHeroes);
+        const nbHeroes = Game.current.teamHeroes.length;
+        const listHeroes = new Array(nbHeroes);
         this.positionChoice = new Array(nbHeroes);
         for (let i = 0; i < nbHeroes; i++) {
             listHeroes[i] = new Graphic.PlayerDescription(Game.current.teamHeroes[i]);
@@ -37,17 +33,17 @@ class MenuSkills extends Base {
         }
         // All the windows
         this.windowTop = new WindowBox(20, 20, 200, 30, {
-            content: new Graphic.Text(this.title, { align: Align.Center }),
+            content: new Graphic.Text(this.title, { align: ALIGN.CENTER }),
         });
         this.windowChoicesTabs = new WindowChoices(50, 60, 110, WindowBox.SMALL_SLOT_HEIGHT, listHeroes, {
-            orientation: OrientationWindow.Horizontal,
+            orientation: ORIENTATION_WINDOW.HORIZONTAL,
             nbItemsMax: 4,
             padding: [0, 0, 0, 0],
         });
         this.createWindowChoicesList();
         this.createWindowBoxInformation();
         this.windowEmpty = new WindowBox(10, 100, ScreenResolution.SCREEN_X - 20, WindowBox.SMALL_SLOT_HEIGHT, {
-            content: new Graphic.Text(Datas.Languages.extras.empty.name(), { align: Align.Center }),
+            content: new Graphic.Text(Data.Languages.extras.empty.name(), { align: ALIGN.CENTER }),
             padding: WindowBox.SMALL_SLOT_PADDING,
         });
         this.windowBoxUseSkill = new WindowBox(240, 320, 360, 140, {
@@ -91,11 +87,11 @@ class MenuSkills extends Base {
      *  Update tab
      */
     updateForTab() {
-        let indexTab = this.windowChoicesTabs.currentSelectedIndex;
+        const indexTab = this.windowChoicesTabs.currentSelectedIndex;
         Scene.Map.current.user = new Battler(Game.current.teamHeroes[indexTab]);
-        let skills = Scene.Map.current.user.player.skills;
+        const skills = Scene.Map.current.user.player.skills;
         // Get the first skills of the hero
-        let list = [];
+        const list = [];
         for (let i = 0, l = skills.length; i < l; i++) {
             list.push(new Graphic.Skill(skills[i]));
         }
@@ -113,7 +109,7 @@ class MenuSkills extends Base {
      */
     moveTabKey(isKey, options = {}) {
         // Tab
-        let indexTab = this.windowChoicesTabs.currentSelectedIndex;
+        const indexTab = this.windowChoicesTabs.currentSelectedIndex;
         if (isKey) {
             this.windowChoicesTabs.onKeyPressedAndRepeat(options.key);
         }
@@ -130,7 +126,7 @@ class MenuSkills extends Base {
         else {
             this.windowChoicesList.onMouseMove(options.x, options.y);
         }
-        let position = this.positionChoice[this.windowChoicesTabs.currentSelectedIndex];
+        const position = this.positionChoice[this.windowChoicesTabs.currentSelectedIndex];
         position.index = this.windowChoicesList.currentSelectedIndex;
         position.offset = this.windowChoicesList.offsetSelectedIndex;
         this.synchronize();
@@ -141,31 +137,31 @@ class MenuSkills extends Base {
      *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     action(isKey, options = {}) {
-        let graphic = this.windowBoxInformation.content;
-        let graphicUse = this.windowBoxUseSkill.content;
+        const graphic = this.windowBoxInformation.content;
+        const graphicUse = this.windowBoxUseSkill.content;
         switch (this.substep) {
             case 0:
                 if (Scene.MenuBase.checkActionMenu(isKey, options)) {
                     if (this.windowBoxInformation.content === null) {
                         return;
                     }
-                    let targetKind = graphic.system.targetKind;
-                    let availableKind = graphic.system.availableKind;
+                    const targetKind = graphic.system.targetKind;
+                    const availableKind = graphic.system.availableKind;
                     if (graphic.system.isPossible() &&
-                        (targetKind === TargetKind.Ally || targetKind === TargetKind.AllAllies) &&
-                        (availableKind === AvailableKind.Always || availableKind === AvailableKind.MainMenu)) {
-                        Datas.Systems.soundConfirmation.playSound();
+                        (targetKind === TARGET_KIND.ALLY || targetKind === TARGET_KIND.ALL_ALLIES) &&
+                        (availableKind === AVAILABLE_KIND.ALWAYS || availableKind === AVAILABLE_KIND.MAIN_MENU)) {
+                        Data.Systems.soundConfirmation.playSound();
                         this.substep = 1;
                         graphicUse.setSkillItem(graphic.system);
-                        graphicUse.setAll(targetKind === TargetKind.AllAllies);
+                        graphicUse.setAll(targetKind === TARGET_KIND.ALL_ALLIES);
                         Manager.Stack.requestPaintHUD = true;
                     }
                     else {
-                        Datas.Systems.soundImpossible.playSound();
+                        Data.Systems.soundImpossible.playSound();
                     }
                 }
                 else if (Scene.MenuBase.checkCancelMenu(isKey, options)) {
-                    Datas.Systems.soundCancel.playSound();
+                    Data.Systems.soundCancel.playSound();
                     Scene.Map.current.user = null;
                     Manager.Stack.pop();
                 }
@@ -182,7 +178,7 @@ class MenuSkills extends Base {
                     }
                 }
                 else if (Scene.MenuBase.checkCancelMenu(isKey, options)) {
-                    Datas.Systems.soundCancel.playSound();
+                    Data.Systems.soundCancel.playSound();
                     this.substep = 0;
                     Manager.Stack.requestPaintHUD = true;
                 }
@@ -251,7 +247,7 @@ class MenuSkills extends Base {
      *  @returns {boolean}
      */
     onKeyPressedAndRepeat(key) {
-        let res = super.onKeyPressedAndRepeat(key);
+        const res = super.onKeyPressedAndRepeat(key);
         if (this.reactionInterpreters.length === 0) {
             this.move(true, { key: key });
         }

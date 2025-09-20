@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -9,14 +9,12 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import * as THREE from 'three';
-import { Constants, Enum, Paths, Platform, Utils } from '../Common/index.js';
-import { Datas, Manager, Scene, System } from '../index.js';
+import { CHARACTER_KIND, GROUP_KIND, Paths, Platform, Utils } from '../Common/index.js';
+import { Data, Manager, Model, Scene } from '../index.js';
 import { Chrono } from './Chrono.js';
 import { Item } from './Item.js';
 import { MapObject } from './MapObject.js';
 import { Player } from './Player.js';
-var GroupKind = Enum.GroupKind;
-var CharacterKind = Enum.CharacterKind;
 /** @class
  *  All the global informations of a particular game.
  *  @param {number} slot - The number of the slot to load
@@ -27,9 +25,9 @@ class Game {
         this.previousWeatherOptions = null;
         this.currentWeatherOptions = null;
         this.slot = slot;
-        this.hero = new MapObject(Datas.Systems.modelHero.system, Datas.Systems.modelHero.position.clone(), true);
-        this.battleMusic = Datas.BattleSystems.battleMusic;
-        this.victoryMusic = Datas.BattleSystems.battleVictory;
+        this.hero = new MapObject(Data.Systems.modelHero.system, Data.Systems.modelHero.position.clone(), true);
+        this.battleMusic = Data.BattleSystems.battleMusic;
+        this.victoryMusic = Data.BattleSystems.battleVictory;
         this.textures = {};
         this.textures.tilesets = {};
         this.textures.autotiles = {};
@@ -60,85 +58,42 @@ class Game {
      *  @async
      */
     async load() {
-        let path = this.getPathSave();
-        let json = await Platform.loadSave(this.slot, path);
+        const path = this.getPathSave();
+        const json = (await Platform.loadSave(this.slot, path));
         if (json === null) {
             return;
         }
         this.playTime = new Chrono(json.t);
         this.charactersInstances = json.inst;
-        this.variables = json.vars;
+        this.variables = Utils.arrayToMap(json.vars);
         this.shops = json.shops;
-        this.steps = Utils.defaultValue(json.steps, 0);
-        this.saves = Utils.defaultValue(json.saves, 0);
-        this.battles = Utils.defaultValue(json.battles, 0);
-        this.chronometers = Utils.defaultValue(json.chronos, []).map((chrono) => {
+        this.steps = Utils.valueOrDefault(json.steps, 0);
+        this.saves = Utils.valueOrDefault(json.saves, 0);
+        this.battles = Utils.valueOrDefault(json.battles, 0);
+        this.chronometers = Utils.valueOrDefault(json.chronos, []).map((chrono) => {
             return new Chrono(chrono.t, chrono.id, true, chrono.d);
         });
         // Items
-        this.items = [];
-        Utils.readJSONSystemList({
-            list: json.itm,
-            listIndexes: this.items,
-            func: (json) => {
-                return new Item(json.kind, json.id, json.nb);
-            },
-        });
+        this.items = Utils.readJSONList(json.itm, (element) => new Item(element.kind, element.id, element.nb));
         // Currencies
-        this.currencies = [];
-        for (let id in json.cur) {
-            if (json.cur[id] !== null) {
-                this.currencies[id] = json.cur[id];
-            }
-        }
-        this.currenciesEarned = [];
-        for (let id in json.cure) {
-            if (json.cure[id] !== null) {
-                this.currenciesEarned[id] = json.cure[id];
-            }
-        }
-        this.currenciesUsed = [];
-        for (let id in json.curu) {
-            if (json.curu[id] !== null) {
-                this.currenciesUsed[id] = json.curu[id];
-            }
-        }
+        this.currencies = Utils.arrayToMap(json.cur);
+        this.currenciesEarned = Utils.arrayToMap(json.cure);
+        this.currenciesUsed = Utils.arrayToMap(json.curu);
         // Heroes
-        this.teamHeroes = [];
-        Utils.readJSONSystemList({
-            list: json.th,
-            listIndexes: this.teamHeroes,
-            func: (json) => {
-                return new Player(json.kind, json.id, json.instid, json.sk, json.status, json.name, json);
-            },
-        });
-        this.reserveHeroes = [];
-        Utils.readJSONSystemList({
-            list: json.sh,
-            listIndexes: this.reserveHeroes,
-            func: (json) => {
-                return new Player(json.kind, json.id, json.instid, json.sk, json.status, json.name, json);
-            },
-        });
-        this.hiddenHeroes = [];
-        Utils.readJSONSystemList({
-            list: json.hh,
-            listIndexes: this.hiddenHeroes,
-            func: (json) => {
-                return new Player(json.kind, json.id, json.instid, json.sk, json.status, json.name, json);
-            },
-        });
+        this.teamHeroes = Utils.readJSONList(json.th, (element) => new Player(element.kind, element.id, element.instid, element.sk, element.status, element.name, element));
+        this.reserveHeroes = Utils.readJSONList(json.sh, (element) => new Player(element.kind, element.id, element.instid, element.sk, element.status, element.name, element));
+        this.hiddenHeroes = Utils.readJSONList(json.hh, (element) => new Player(element.kind, element.id, element.instid, element.sk, element.status, element.name, element));
         // Map infos
         this.currentMapID = json.currentMapId;
-        var positionHero = json.heroPosition;
+        const positionHero = json.heroPosition;
         this.hero.position.set(positionHero[0], positionHero[1], positionHero[2]);
         this.heroStates = json.heroStates;
         this.heroProperties = json.heroProp;
         this.heroStatesOptions = json.heroStatesOpts;
         this.startupStates = json.startS;
         this.startupProperties = json.startP;
-        this.mapsProperties = Utils.defaultValue(json.mapsP, {});
-        this.mapsDatas = json.mapsDatas;
+        this.mapsProperties = Utils.valueOrDefault(json.mapsP, {});
+        this.mapsData = json.mapsData;
         if (json.textures) {
             this.textures = json.textures;
         }
@@ -149,27 +104,27 @@ class Game {
      *  @async
      */
     async save(slot) {
-        if (!Utils.isUndefined(slot)) {
+        if (slot !== undefined) {
             this.slot = slot;
         }
         let l = this.teamHeroes.length;
-        let teamHeroes = new Array(l);
+        const teamHeroes = new Array(l);
         let i;
         for (i = 0; i < l; i++) {
             teamHeroes[i] = this.teamHeroes[i].getSaveCharacter();
         }
         l = this.reserveHeroes.length;
-        let reserveHeroes = new Array(l);
+        const reserveHeroes = new Array(l);
         for (i = 0; i < l; i++) {
             reserveHeroes[i] = this.reserveHeroes[i].getSaveCharacter();
         }
         l = this.hiddenHeroes.length;
-        let hiddenHeroes = new Array(l);
+        const hiddenHeroes = new Array(l);
         for (i = 0; i < l; i++) {
             hiddenHeroes[i] = this.hiddenHeroes[i].getSaveCharacter();
         }
         l = this.items.length;
-        let items = new Array(l);
+        const items = new Array(l);
         for (i = 0; i < l; i++) {
             items[i] = this.items[i].getSave();
         }
@@ -180,11 +135,11 @@ class Game {
             sh: reserveHeroes,
             hh: hiddenHeroes,
             itm: items,
-            cur: this.currencies,
-            cure: this.currenciesEarned,
-            curu: this.currenciesUsed,
+            cur: Utils.mapToArray(this.currencies),
+            cure: Utils.mapToArray(this.currenciesEarned),
+            curu: Utils.mapToArray(this.currenciesUsed),
             inst: this.charactersInstances,
-            vars: this.variables,
+            vars: Utils.mapToArray(this.variables),
             currentMapId: this.currentMapID,
             heroPosition: [this.hero.position.x, this.hero.position.y, this.hero.position.z],
             heroStates: this.heroStates,
@@ -205,7 +160,7 @@ class Game {
                 };
             }),
             textures: this.textures,
-            mapsDatas: this.getCompressedMapsDatas(),
+            mapsData: this.getCompressedMapsData(),
         });
     }
     /**
@@ -214,13 +169,13 @@ class Game {
     async loadPositions() {
         let i, l, jp, j, k, w, h, id, objPortion, inf, datas, map, objectMap, movedObjects, objectMapMinMout;
         objectMap = objectMap = async (t) => {
-            let obj = (await MapObject.searchOutMap(t[0])).object;
+            const obj = (await MapObject.searchOutMap(t[0])).object;
             obj.position = new THREE.Vector3(t[1], t[2], t[3]);
             obj.previousPosition = obj.position;
             return obj;
         };
-        for (id in this.mapsDatas) {
-            l = this.mapsDatas[id].length;
+        for (id in this.mapsData) {
+            l = this.mapsData[id].length;
             map = null;
             // First initialize all moved objects
             movedObjects = [];
@@ -228,14 +183,14 @@ class Game {
             for (i = 0; i < l; i++) {
                 objPortion[i] = new Array(2);
                 for (jp = 0; jp < 2; jp++) {
-                    h = this.mapsDatas[id][i][jp].length;
+                    h = this.mapsData[id][i][jp].length;
                     objPortion[i][jp] = new Array(h);
                     for (j = jp === 0 ? 1 : 0; j < h; j++) {
-                        w = this.mapsDatas[id][i][jp][j].length;
+                        w = this.mapsData[id][i][jp][j].length;
                         objPortion[i][jp][j] = new Array(w);
                         for (k = 0; k < w; k++) {
                             inf = {};
-                            datas = this.mapsDatas[id][i][jp][j][k];
+                            datas = this.mapsData[id][i][jp][j][k];
                             if (datas) {
                                 if (datas.m && datas.m.length) {
                                     if (!map) {
@@ -258,14 +213,14 @@ class Game {
             for (i = 0; i < l; i++) {
                 objPortion[i] = new Array(2);
                 for (jp = 0; jp < 2; jp++) {
-                    h = this.mapsDatas[id][i][jp].length;
+                    h = this.mapsData[id][i][jp].length;
                     objPortion[i][jp] = new Array(h);
                     for (j = jp === 0 ? 1 : 0; j < h; j++) {
-                        w = this.mapsDatas[id][i][jp][j].length;
+                        w = this.mapsData[id][i][jp][j].length;
                         objPortion[i][jp][j] = new Array(w);
                         for (k = 0; k < w; k++) {
                             inf = {};
-                            datas = this.mapsDatas[id][i][jp][j][k];
+                            datas = this.mapsData[id][i][jp][j][k];
                             if (datas) {
                                 if (datas.min && datas.min.length) {
                                     datas.min = datas.min.map(objectMapMinMout);
@@ -281,26 +236,26 @@ class Game {
         }
     }
     /**
-     *  Get a compressed version of mapsDatas (don't retain meshs).
+     *  Get a compressed version of mapsData (don't retain meshs).
      *  @returns {Object}
      */
-    getCompressedMapsDatas() {
-        let obj = {};
+    getCompressedMapsData() {
+        const obj = {};
         let i, l, jp, j, k, w, h, id, objPortion, inf, datas, o, tab;
-        for (id in this.mapsDatas) {
-            l = this.mapsDatas[id].length;
+        for (id in this.mapsData) {
+            l = this.mapsData[id].length;
             objPortion = new Array(l);
             for (i = 0; i < l; i++) {
                 objPortion[i] = new Array(2);
                 for (jp = 0; jp < 2; jp++) {
-                    h = this.mapsDatas[id][i][jp].length;
+                    h = this.mapsData[id][i][jp].length;
                     objPortion[i][jp] = new Array(h);
                     for (j = jp === 0 ? 1 : 0; j < h; j++) {
-                        w = this.mapsDatas[id][i][jp][j].length;
+                        w = this.mapsData[id][i][jp][j].length;
                         objPortion[i][jp][j] = new Array(w);
                         for (k = 0; k < w; k++) {
                             inf = {};
-                            datas = this.mapsDatas[id][i][jp][j][k];
+                            datas = this.mapsData[id][i][jp][j][k];
                             if (datas) {
                                 if (datas.min && datas.min.length) {
                                     tab = [];
@@ -371,22 +326,22 @@ class Game {
         this.reserveHeroes = [];
         this.hiddenHeroes = [];
         this.items = [];
-        this.currencies = Datas.Systems.getDefaultCurrencies();
-        this.currenciesEarned = Datas.Systems.getDefaultCurrencies();
-        this.currenciesUsed = Datas.Systems.getDefaultCurrencies();
+        this.currencies = Data.Systems.getDefaultCurrencies();
+        this.currenciesEarned = Data.Systems.getDefaultCurrencies();
+        this.currenciesUsed = Data.Systems.getDefaultCurrencies();
         this.charactersInstances = 0;
         this.initializeVariables();
-        this.currentMapID = Datas.Systems.ID_MAP_START_HERO;
+        this.currentMapID = Data.Systems.ID_MAP_START_HERO;
         this.heroStates = [1];
         this.heroProperties = [];
         this.heroStatesOptions = [];
         this.startupStates = {};
         this.startupProperties = {};
         this.mapsProperties = {};
-        for (let member of Datas.Systems.initialPartyMembers) {
+        for (const member of Data.Systems.initialPartyMembers) {
             this.instanciateTeam(member.teamKind, member.characterKind, member.heroID.getValue(), member.level.getValue(), member.variableInstanceID.getValue(true));
         }
-        this.mapsDatas = {};
+        this.mapsData = {};
         this.hero.initializeProperties();
         this.playTime = new Chrono(0);
         this.shops = {};
@@ -399,15 +354,12 @@ class Game {
      *  Initialize the default variables.
      */
     initializeVariables() {
-        this.variables = new Array(Datas.Variables.variablesNumbers);
-        for (let i = 0; i < Datas.Variables.variablesNumbers; i++) {
-            this.variables[i] = 0;
-        }
+        this.variables = new Map(Data.Variables.names.keys().map((id) => [id, 0]));
     }
     /**
      *  Instanciate a new character in a group in the game.
-     *  @param {GroupKind} groupKind - In which group we should instanciate
-     *  @param {CharacterKind} type - The type of character to instanciate
+     *  @param {GROUP_KIND} groupKind - In which group we should instanciate
+     *  @param {CHARACTER_KIND} type - The type of character to instanciate
      *  @param {number} id - The ID of the character to instanciate
      *  @param {number} level - The player level
      *  @param {number} stockID - The ID of the variable where we will stock the
@@ -416,9 +368,9 @@ class Game {
      */
     instanciateTeam(groupKind, type, id, level, stockID) {
         // Stock the instanciation id in a variable
-        this.variables[stockID] = this.charactersInstances;
+        this.variables.set(stockID, this.charactersInstances);
         // Adding the instanciated character in the right group
-        let player = new Player(type, id, this.charactersInstances++, [], []);
+        const player = new Player(type, id, this.charactersInstances++, [], []);
         player.instanciate(level);
         this.getTeam(groupKind).push(player);
         return player;
@@ -436,10 +388,7 @@ class Game {
      *  @returns {string}
      */
     getPathSave(slot) {
-        return (Paths.SAVES +
-            Constants.STRING_SLASH +
-            (Utils.isUndefined(slot) ? this.slot : slot) +
-            Constants.EXTENSION_JSON);
+        return Paths.SAVES + '/' + (slot === undefined ? this.slot : slot) + '.json';
     }
     /**
      *  Get the variable by ID.
@@ -447,7 +396,7 @@ class Game {
      *  @returns {any}
      */
     getVariable(id) {
-        return Datas.Base.get(id, this.variables, 'variable');
+        return Data.Base.get(id, this.variables, 'variable');
     }
     /**
      *  Get the currency by ID.
@@ -455,7 +404,21 @@ class Game {
      *  @returns {any}
      */
     getCurrency(id) {
-        return Datas.Base.get(id, this.currencies, 'currency');
+        return Data.Base.get(id, this.currencies, 'currency');
+    }
+    setCurrency(id, value) {
+        const before = this.getCurrency(id) ?? 0;
+        this.currencies.set(id, value);
+        const dif = Math.abs(value - before);
+        if (value > before) {
+            Game.current.currenciesEarned.set(id, Game.current.currenciesEarned.get(id) + dif);
+        }
+        else {
+            Game.current.currenciesUsed.set(id, Game.current.currenciesUsed.get(id) + dif);
+        }
+    }
+    addCurrency(id, value) {
+        this.currencies.set(id, this.getCurrency(id) + value);
     }
     /**
      *  Get the currency earned by ID.
@@ -463,7 +426,7 @@ class Game {
      *  @returns {any}
      */
     getCurrencyEarned(id) {
-        return Datas.Base.get(id, this.currenciesEarned, 'currency earned');
+        return Data.Base.get(id, this.currenciesEarned, 'currency earned');
     }
     /**
      *  Get the currency used by ID.
@@ -471,7 +434,7 @@ class Game {
      *  @returns {any}
      */
     getCurrencyUsed(id) {
-        return Datas.Base.get(id, this.currenciesUsed, 'currency used');
+        return Data.Base.get(id, this.currenciesUsed, 'currency used');
     }
     /**
      *  Get the hero with instance ID.
@@ -492,7 +455,7 @@ class Game {
             return hero;
         }
         if (Scene.Map.current.isBattleMap) {
-            return Game.getHeroInstanceInTab(Scene.Map.current.players[Enum.CharacterKind.Monster], id);
+            return Game.getHeroInstanceInTab(Scene.Map.current.players[CHARACTER_KIND.MONSTER], id);
         }
         return null;
     }
@@ -507,19 +470,19 @@ class Game {
     }
     /**
      *  Get the team according to group kind.
-     *  @param {GroupKind} kind - The group kind
+     *  @param {GROUP_KIND} kind - The group kind
      *  @returns {Player[]}
      */
     getTeam(kind) {
         switch (kind) {
-            case GroupKind.Team:
+            case GROUP_KIND.TEAM:
                 return this.teamHeroes;
-            case GroupKind.Reserve:
+            case GROUP_KIND.RESERVE:
                 return this.reserveHeroes;
-            case GroupKind.Hidden:
+            case GROUP_KIND.HIDDEN:
                 return this.hiddenHeroes;
-            case GroupKind.Troop:
-                return Scene.Map.current.players[CharacterKind.Monster];
+            case GROUP_KIND.TROOP:
+                return Scene.Map.current.players[CHARACTER_KIND.MONSTER];
         }
     }
     /**
@@ -528,8 +491,8 @@ class Game {
      *  @param {Portion} portion - The portion
      *  @returns {Record<string, any>}
      */
-    getPortionDatas(id, portion) {
-        return this.getPortionPosDatas(id, portion.x, portion.y, portion.z);
+    getPortionData(id, portion) {
+        return this.getPortionPosData(id, portion.x, portion.y, portion.z);
     }
     /**
      *  Get the portions datas according to id and position.
@@ -539,25 +502,25 @@ class Game {
      *  @param {number} k
      *  @returns {Record<string, any>}
      */
-    getPortionPosDatas(id, i, j, k) {
-        let datas = this.mapsDatas[id];
-        if (Utils.isUndefined(datas)) {
+    getPortionPosData(id, i, j, k) {
+        let datas = this.mapsData[id];
+        if (datas === undefined) {
             return {};
         }
         datas = datas[i];
-        if (Utils.isUndefined(datas)) {
+        if (datas === undefined) {
             return {};
         }
         datas = datas[j < 0 ? 0 : 1];
-        if (Utils.isUndefined(datas)) {
+        if (datas === undefined) {
             return {};
         }
         datas = datas[Math.abs(j)];
-        if (Utils.isUndefined(datas)) {
+        if (datas === undefined) {
             return {};
         }
         datas = datas[k];
-        if (Utils.isUndefined(datas)) {
+        if (datas === undefined) {
             return {};
         }
         return datas;
@@ -587,9 +550,9 @@ class Game {
      */
     update() {
         this.playTime.update();
-        for (let chrono of this.chronometers) {
+        for (const chrono of this.chronometers) {
             if (chrono.update()) {
-                Manager.Events.sendEvent(null, 0, 1, true, 2, [null, System.DynamicValue.createNumber(chrono.id)], true, false);
+                Manager.Events.sendEvent(null, 0, 1, true, 2, Utils.arrayToMap([Model.DynamicValue.createNumber(chrono.id)]), true, false);
             }
         }
     }
@@ -597,7 +560,7 @@ class Game {
      *  Draw the HUD.
      */
     drawHUD() {
-        for (let chrono of this.chronometers) {
+        for (const chrono of this.chronometers) {
             chrono.drawHUD();
         }
     }

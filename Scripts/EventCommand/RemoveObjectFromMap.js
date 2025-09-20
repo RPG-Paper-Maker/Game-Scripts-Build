@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { Game, MapObject, Portion } from '../Core/index.js';
+import { Model, Scene } from '../index.js';
 import { Base } from './Base.js';
-import { System, Scene } from '../index.js';
-import { MapObject, Portion, Game } from '../Core/index.js';
 /** @class
  *  An event command for removing a specific object from map.
  *  @extends EventCommand.Base
@@ -19,10 +19,10 @@ import { MapObject, Portion, Game } from '../Core/index.js';
 class RemoveObjectFromMap extends Base {
     constructor(command) {
         super();
-        let iterator = {
-            i: 0
+        const iterator = {
+            i: 0,
         };
-        this.objectID = System.DynamicValue.createValueCommand(command, iterator);
+        this.objectID = Model.DynamicValue.createValueCommand(command, iterator);
     }
     /**
      *  Initialize the current state.
@@ -31,7 +31,7 @@ class RemoveObjectFromMap extends Base {
     initialize() {
         return {
             started: false,
-            finished: false
+            finished: false,
         };
     }
     /**
@@ -40,9 +40,9 @@ class RemoveObjectFromMap extends Base {
      *  @param {MapObject} object - The current object reacting
      *  @param {number} state - The state ID
      *  @returns {number} The number of node to pass
-    */
+     */
     update(currentState, object, state) {
-        let objectID = this.objectID.getValue();
+        const objectID = this.objectID.getValue();
         if (!currentState.started) {
             currentState.started = true;
             MapObject.search(objectID, (result) => {
@@ -51,12 +51,10 @@ class RemoveObjectFromMap extends Base {
                         switch (result.kind) {
                             case 0:
                                 result.datas.m.splice(result.index, 1);
-                                let index = result.datas.min.indexOf(result.object);
+                                const index = result.datas.min.indexOf(result.object);
                                 if (index === -1) {
-                                    result.datas = Game.current.getPortionDatas(Scene.Map.current.id, Portion
-                                        .createFromVector3(result.object.position));
-                                    result.datas.mout.splice(result.datas.mout
-                                        .indexOf(result.object), 1);
+                                    result.datas = Game.current.getPortionData(Scene.Map.current.id, Portion.createFromVector3(result.object.position));
+                                    result.datas.mout.splice(result.datas.mout.indexOf(result.object), 1);
                                 }
                                 else {
                                     result.datas.min.splice(index, 1);

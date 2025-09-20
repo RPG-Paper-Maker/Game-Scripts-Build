@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Scene, System } from "../index.js";
+import { Model, Scene } from "../index.js";
 import { Utils } from '../Common/index.js';
 import { Game } from '../Core/index.js';
 import { Base } from './Base.js';
@@ -20,37 +20,37 @@ import { Base } from './Base.js';
 class SwitchTexture extends Base {
     constructor(command) {
         super();
-        let iterator = {
-            i: 0
+        const iterator = {
+            i: 0,
         };
-        this.isTilesetID = Utils.numToBool(command[iterator.i++]);
+        this.isTilesetID = Utils.numberToBool(command[iterator.i++]);
         if (this.isTilesetID) {
-            this.tilesetID = System.DynamicValue.createValueCommand(command, iterator);
-            this.tilesetPictureID = System.DynamicValue.createValueCommand(command, iterator);
+            this.tilesetID = Model.DynamicValue.createValueCommand(command, iterator);
+            this.tilesetPictureID = Model.DynamicValue.createValueCommand(command, iterator);
             iterator.i++;
         }
-        this.isAutotileID = Utils.numToBool(command[iterator.i++]);
+        this.isAutotileID = Utils.numberToBool(command[iterator.i++]);
         if (this.isAutotileID) {
-            this.autotileID = System.DynamicValue.createValueCommand(command, iterator);
-            this.autotilePictureID = System.DynamicValue.createValueCommand(command, iterator);
+            this.autotileID = Model.DynamicValue.createValueCommand(command, iterator);
+            this.autotilePictureID = Model.DynamicValue.createValueCommand(command, iterator);
             iterator.i++;
         }
-        this.isWallID = Utils.numToBool(command[iterator.i++]);
+        this.isWallID = Utils.numberToBool(command[iterator.i++]);
         if (this.isWallID) {
-            this.wallID = System.DynamicValue.createValueCommand(command, iterator);
-            this.wallPictureID = System.DynamicValue.createValueCommand(command, iterator);
+            this.wallID = Model.DynamicValue.createValueCommand(command, iterator);
+            this.wallPictureID = Model.DynamicValue.createValueCommand(command, iterator);
             iterator.i++;
         }
-        this.isObject3DID = Utils.numToBool(command[iterator.i++]);
+        this.isObject3DID = Utils.numberToBool(command[iterator.i++]);
         if (this.isObject3DID) {
-            this.object3DID = System.DynamicValue.createValueCommand(command, iterator);
-            this.object3DPictureID = System.DynamicValue.createValueCommand(command, iterator);
+            this.object3DID = Model.DynamicValue.createValueCommand(command, iterator);
+            this.object3DPictureID = Model.DynamicValue.createValueCommand(command, iterator);
             iterator.i++;
         }
-        this.isMountainID = Utils.numToBool(command[iterator.i++]);
+        this.isMountainID = Utils.numberToBool(command[iterator.i++]);
         if (this.isMountainID) {
-            this.mountainID = System.DynamicValue.createValueCommand(command, iterator);
-            this.mountainPictureID = System.DynamicValue.createValueCommand(command, iterator);
+            this.mountainID = Model.DynamicValue.createValueCommand(command, iterator);
+            this.mountainPictureID = Model.DynamicValue.createValueCommand(command, iterator);
             iterator.i++;
         }
     }
@@ -61,7 +61,7 @@ class SwitchTexture extends Base {
     initialize() {
         return {
             loading: false,
-            loaded: false
+            loaded: false,
         };
     }
     /**
@@ -70,29 +70,28 @@ class SwitchTexture extends Base {
      *  @param {MapObject} object - The current object reacting
      *  @param {number} state - The state ID
      *  @returns {number} The number of node to pass
-    */
+     */
     update(currentState, object, state) {
         if (!currentState.loading) {
             currentState.loading = true;
             if (this.isTilesetID) {
-                Game.current.textures.tilesets[this.tilesetID.getValue()] = this
-                    .tilesetPictureID.getValue();
+                Game.current.textures.tilesets[this.tilesetID.getValue()] =
+                    this.tilesetPictureID.getValue();
             }
             if (this.isAutotileID) {
-                Game.current.textures.autotiles[this.autotileID.getValue()] = this
-                    .autotilePictureID.getValue();
+                Game.current.textures.autotiles[this.autotileID.getValue()] =
+                    this.autotilePictureID.getValue();
             }
             if (this.isWallID) {
-                Game.current.textures.walls[this.wallID.getValue()] = this
-                    .wallPictureID.getValue();
+                Game.current.textures.walls[this.wallID.getValue()] = this.wallPictureID.getValue();
             }
             if (this.isObject3DID) {
-                Game.current.textures.objects3D[this.object3DID.getValue()] = this
-                    .object3DPictureID.getValue();
+                Game.current.textures.objects3D[this.object3DID.getValue()] =
+                    this.object3DPictureID.getValue();
             }
             if (this.isMountainID) {
-                Game.current.textures.mountains[this.mountainID.getValue()] = this
-                    .mountainPictureID.getValue();
+                Game.current.textures.mountains[this.mountainID.getValue()] =
+                    this.mountainPictureID.getValue();
             }
             //Scene.Map.current.close();
             Scene.Map.current.loading = true;

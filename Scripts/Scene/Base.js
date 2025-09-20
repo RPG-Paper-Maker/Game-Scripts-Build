@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum, Utils } from '../Common/index.js';
+import { ALIGN_VERTICAL } from '../Common/index.js';
 import { ReactionInterpreter } from '../Core/index.js';
-import { Datas, Graphic, Manager, Scene } from '../index.js';
+import { Data, Graphic, Manager, Scene } from '../index.js';
 import { Main } from '../main.js';
 /**
  *  The superclass who shape the structure of a scene.
@@ -23,17 +23,17 @@ class Base {
      */
     constructor(loading = true, ...args) {
         this.graphicFPS = null;
-        this.reactionInterpreters = new Array();
-        this.reactionInterpretersEffects = new Array();
-        this.parallelCommands = new Array();
+        this.reactionInterpreters = [];
+        this.reactionInterpretersEffects = [];
+        this.parallelCommands = [];
         this.initialize(...args);
         if (loading) {
             this.loading = true;
-            Utils.tryCatch(this.load, this);
+            this.load().catch(console.error);
         }
         this.create();
-        if (Datas.Systems.showFPS) {
-            this.graphicFPS = new Graphic.Text('', { verticalAlign: Enum.AlignVertical.Top });
+        if (Data.Systems.showFPS) {
+            this.graphicFPS = new Graphic.Text('', { verticalAlign: ALIGN_VERTICAL.TOP });
         }
     }
     initialize(...args) { }
@@ -66,7 +66,7 @@ class Base {
      */
     updateInterpreters() {
         // Index of all the finished parallel reactions
-        let endingReactions = new Array();
+        const endingReactions = [];
         // Updating blocking hero
         ReactionInterpreter.blockingHero = false;
         let reaction;
@@ -103,7 +103,7 @@ class Base {
      *  Update all the parallel commands from the scenes.
      */
     updateParallelCommands() {
-        let endingCommands = new Array(); // Index of all the finished commands
+        const endingCommands = []; // Index of all the finished commands
         let i, l, previousCommand, command;
         for (i = 0, l = this.parallelCommands.length; i < l; i++) {
             previousCommand = this.parallelCommands[i].currentCommand;
@@ -123,8 +123,8 @@ class Base {
      * @param {System.Reaction} reaction - The reaction to add
      * @param {MapObject} object - The object reacting
      * @param {number} state - the state ID
-     * @param {System.DynamicValue[]} parameters - All the parameters coming with this reaction
-     * @param {[System.Event, number]} - event the time events values
+     * @param {Model.DynamicValue[]} parameters - All the parameters coming with this reaction
+     * @param {[Model.Event, number]} - event the time events values
      * @param {boolean} [moving=false] - indicate if the command is of type moving.
      * @return {ReactionInterpreter}
      */
@@ -170,7 +170,7 @@ class Base {
      *  @param {number} key - the key ID
      */
     onKeyPressed(key) {
-        for (let reaction of this.reactionInterpreters) {
+        for (const reaction of this.reactionInterpreters) {
             reaction.onKeyPressed(key);
         }
     }
@@ -179,7 +179,7 @@ class Base {
      *  @param {number} key - the key ID
      */
     onKeyReleased(key) {
-        for (let reaction of this.reactionInterpreters) {
+        for (const reaction of this.reactionInterpreters) {
             reaction.onKeyReleased(key);
         }
     }
@@ -189,7 +189,7 @@ class Base {
      *  @return {boolean}
      */
     onKeyPressedRepeat(key) {
-        for (let reaction of this.reactionInterpreters) {
+        for (const reaction of this.reactionInterpreters) {
             reaction.onKeyPressedRepeat(key);
         }
         return true;
@@ -200,7 +200,7 @@ class Base {
      *  @return {boolean}
      */
     onKeyPressedAndRepeat(key) {
-        for (let reaction of this.reactionInterpreters) {
+        for (const reaction of this.reactionInterpreters) {
             reaction.onKeyPressedAndRepeat(key);
         }
         return true;
@@ -211,7 +211,7 @@ class Base {
      *  @param {number} y - The y mouse position on screen
      */
     onMouseDown(x, y) {
-        for (let reaction of this.reactionInterpreters) {
+        for (const reaction of this.reactionInterpreters) {
             reaction.onMouseDown(x, y);
         }
     }
@@ -221,7 +221,7 @@ class Base {
      *  @param {number} y - The y mouse position on screen
      */
     onMouseMove(x, y) {
-        for (let reaction of this.reactionInterpreters) {
+        for (const reaction of this.reactionInterpreters) {
             reaction.onMouseMove(x, y);
         }
     }
@@ -231,7 +231,7 @@ class Base {
      *  @param {number} y - The y mouse position on screen
      */
     onMouseUp(x, y) {
-        for (let reaction of this.reactionInterpreters) {
+        for (const reaction of this.reactionInterpreters) {
             reaction.onMouseUp(x, y);
         }
     }
@@ -243,10 +243,10 @@ class Base {
      *  Draw the HUD contents on the scene.
      */
     drawHUD() {
-        for (let reaction of this.reactionInterpreters) {
+        for (const reaction of this.reactionInterpreters) {
             reaction.drawHUD();
         }
-        for (let command of this.parallelCommands) {
+        for (const command of this.parallelCommands) {
             command.drawHUD();
         }
         // Draw FPS

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -9,12 +9,10 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import * as THREE from 'three';
-import { Enum, Mathf } from '../Common/index.js';
-import { Datas } from '../index.js';
+import { CUSTOM_SHAPE_KIND, Mathf, OBJECT_COLLISION_KIND } from '../Common/index.js';
+import { Data } from '../index.js';
 import { CustomGeometry } from './CustomGeometry.js';
 import { Object3D } from './Object3D.js';
-var CustomShapeKind = Enum.CustomShapeKind;
-var ObjectCollisionKind = Enum.ObjectCollisionKind;
 /** @class
  *  A 3D object custom in the map.
  *  @extends Object3D
@@ -36,7 +34,7 @@ class Object3DCustom extends Object3D {
      *  @returns {Core.Object3DBox}
      */
     static create(datas) {
-        let object = new Object3DCustom(undefined, datas);
+        const object = new Object3DCustom(undefined, datas);
         object.id = datas.id;
         return object;
     }
@@ -54,7 +52,7 @@ class Object3DCustom extends Object3D {
      *  @returns {Vector3}
      */
     getCenterVector() {
-        return Datas.Shapes.get(Enum.CustomShapeKind.OBJ, this.datas.objID).geometry.center.clone();
+        return Data.Shapes.get(CUSTOM_SHAPE_KIND.OBJ, this.datas.objID).geometry.center.clone();
     }
     /**
      *  Update the geometry of a group of objects 3D cutom with the same
@@ -65,12 +63,12 @@ class Object3DCustom extends Object3D {
      *  @return {any[]}
      */
     updateGeometry(geometry, position, count) {
-        let localPosition = position.toVector3();
-        let modelGeometry = Datas.Shapes.get(CustomShapeKind.OBJ, this.datas.objID).geometry;
-        let vertices = modelGeometry.vertices;
-        let uvs = modelGeometry.uvs;
-        let scale = this.datas.scale;
-        let scaleVec = new THREE.Vector3(scale * position.scaleX, scale * position.scaleY, scale * position.scaleZ);
+        const localPosition = position.toVector3();
+        const modelGeometry = Data.Shapes.get(CUSTOM_SHAPE_KIND.OBJ, this.datas.objID).geometry;
+        const vertices = modelGeometry.vertices;
+        const uvs = modelGeometry.uvs;
+        const scale = this.datas.scale;
+        const scaleVec = new THREE.Vector3(scale * position.scaleX, scale * position.scaleY, scale * position.scaleZ);
         const center = new THREE.Vector3();
         center.multiply(scaleVec);
         let vecA, vecB, vecC;
@@ -93,13 +91,13 @@ class Object3DCustom extends Object3D {
             count += 3;
         }
         // Collisions
-        let objCollision = new Array();
-        if (this.datas.collisionKind === ObjectCollisionKind.Simplified) {
-            let obj = this.datas.getObj().geometry;
-            let w = obj.w * scale * position.scaleX;
-            let h = obj.h * scale * position.scaleY;
-            let d = obj.d * scale * position.scaleZ;
-            let minPos = obj.minVertex.clone();
+        const objCollision = [];
+        if (this.datas.collisionKind === OBJECT_COLLISION_KIND.SIMPLIFIED) {
+            const obj = this.datas.getObj().geometry;
+            const w = obj.w * scale * position.scaleX;
+            const h = obj.h * scale * position.scaleY;
+            const d = obj.d * scale * position.scaleZ;
+            const minPos = obj.minVertex.clone();
             minPos.multiply(scaleVec);
             objCollision.push({
                 p: position,
@@ -116,20 +114,20 @@ class Object3DCustom extends Object3D {
                     position.angleZ,
                 ],
                 c: center,
-                w: Math.ceil(w / 2 / Datas.Systems.SQUARE_SIZE),
-                h: Math.ceil(h / 2 / Datas.Systems.SQUARE_SIZE),
+                w: Math.ceil(w / 2 / Data.Systems.SQUARE_SIZE),
+                h: Math.ceil(h / 2 / Data.Systems.SQUARE_SIZE),
                 cr: [-minPos.x - w / 2, -minPos.y - h / 2, -minPos.z - d / 2],
-                d: Math.ceil(d / 2 / Datas.Systems.SQUARE_SIZE),
-                m: Math.max(Math.max(Math.ceil(w / 2 / Datas.Systems.SQUARE_SIZE), Math.ceil(h / 2 / Datas.Systems.SQUARE_SIZE)), Math.ceil(d / 2 / Datas.Systems.SQUARE_SIZE)),
+                d: Math.ceil(d / 2 / Data.Systems.SQUARE_SIZE),
+                m: Math.max(Math.max(Math.ceil(w / 2 / Data.Systems.SQUARE_SIZE), Math.ceil(h / 2 / Data.Systems.SQUARE_SIZE)), Math.ceil(d / 2 / Data.Systems.SQUARE_SIZE)),
                 k: true,
             });
         }
-        else if (this.datas.collisionKind === ObjectCollisionKind.Custom) {
-            let obj = Datas.Shapes.get(CustomShapeKind.Collisions, this.datas.collisionCustomID).geometry;
-            let w = obj.w * scale * position.scaleX;
-            let h = obj.h * scale * position.scaleY;
-            let d = obj.d * scale * position.scaleZ;
-            let minPos = obj.minVertex.clone();
+        else if (this.datas.collisionKind === OBJECT_COLLISION_KIND.CUSTOM) {
+            const obj = Data.Shapes.get(CUSTOM_SHAPE_KIND.COLLISIONS, this.datas.collisionCustomID).geometry;
+            const w = obj.w * scale * position.scaleX;
+            const h = obj.h * scale * position.scaleY;
+            const d = obj.d * scale * position.scaleZ;
+            const minPos = obj.minVertex.clone();
             minPos.multiply(scaleVec);
             objCollision.push({
                 id: this.datas.collisionCustomID,
@@ -147,12 +145,12 @@ class Object3DCustom extends Object3D {
                     position.angleZ,
                 ],
                 c: center,
-                w: Math.ceil(w / 2 / Datas.Systems.SQUARE_SIZE),
-                h: Math.ceil(h / 2 / Datas.Systems.SQUARE_SIZE),
+                w: Math.ceil(w / 2 / Data.Systems.SQUARE_SIZE),
+                h: Math.ceil(h / 2 / Data.Systems.SQUARE_SIZE),
                 rw: w,
                 rh: h,
-                d: Math.ceil(d / 2 / Datas.Systems.SQUARE_SIZE),
-                m: Math.max(Math.max(Math.ceil(w / 2 / Datas.Systems.SQUARE_SIZE), Math.ceil(h / 2 / Datas.Systems.SQUARE_SIZE)), Math.ceil(d / 2 / Datas.Systems.SQUARE_SIZE)),
+                d: Math.ceil(d / 2 / Data.Systems.SQUARE_SIZE),
+                m: Math.max(Math.max(Math.ceil(w / 2 / Data.Systems.SQUARE_SIZE), Math.ceil(h / 2 / Data.Systems.SQUARE_SIZE)), Math.ceil(d / 2 / Data.Systems.SQUARE_SIZE)),
                 k: true,
             });
         }
@@ -164,8 +162,8 @@ class Object3DCustom extends Object3D {
      *  @return {[Core.CustomGeometry, [number, StructMapElementCollision[]]]}
      */
     createGeometry(position) {
-        let geometry = new CustomGeometry();
-        let collisions = this.updateGeometry(geometry, position, 0);
+        const geometry = new CustomGeometry();
+        const collisions = this.updateGeometry(geometry, position, 0);
         geometry.updateAttributes();
         return [geometry, collisions];
     }

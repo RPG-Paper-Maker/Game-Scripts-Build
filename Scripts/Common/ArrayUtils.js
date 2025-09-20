@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,18 +8,39 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-class ArrayUtils {
-    constructor() {
-        throw new Error("This is a static class!");
-    }
+/**
+ * Utility methods for working with arrays.
+ */
+export class ArrayUtils {
+    /**
+     * Removes an element at the given index.
+     *
+     * @param array - The array to modify.
+     * @param index - The index of the element to remove.
+     */
     static removeAt(array, index) {
         array.splice(index, 1);
     }
+    /**
+     * Removes the first occurrence of a value from the array, if found.
+     *
+     * @param array - The array to modify.
+     * @param value - The value to search for and remove.
+     */
     static removeElement(array, value) {
-        this.removeAt(array, array.indexOf(value));
+        const idx = array.indexOf(value);
+        if (idx !== -1) {
+            this.removeAt(array, idx);
+        }
     }
+    /**
+     * Inserts a value at the given index.
+     *
+     * @param array - The array to modify.
+     * @param index - The index where the value should be inserted.
+     * @param value - The value to insert.
+     */
     static insert(array, index, value) {
         array.splice(index, 0, value);
     }
 }
-export { ArrayUtils };

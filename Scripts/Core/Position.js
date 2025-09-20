@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -10,7 +10,7 @@
 */
 import * as THREE from 'three';
 import { Constants, Mathf } from '../Common/index.js';
-import { Datas } from '../index.js';
+import { Data } from '../index.js';
 import { Portion } from './Portion.js';
 /** @class
  *  The data class for position.
@@ -59,7 +59,7 @@ class Position extends Portion {
      *  @returns {Position}
      */
     static createFromVector3(position) {
-        return new Position(Math.floor(position.x / Datas.Systems.SQUARE_SIZE), Math.floor(position.y / Datas.Systems.SQUARE_SIZE), Math.floor(position.z / Datas.Systems.SQUARE_SIZE));
+        return new Position(Math.floor(position.x / Data.Systems.SQUARE_SIZE), Math.floor(position.y / Data.Systems.SQUARE_SIZE), Math.floor(position.z / Data.Systems.SQUARE_SIZE));
     }
     /**
      *  Test if a position is equal to another.
@@ -83,21 +83,21 @@ class Position extends Portion {
      *   @returns {number}
      */
     getTotalY() {
-        return this.y * Datas.Systems.SQUARE_SIZE + (this.yPixels * Datas.Systems.SQUARE_SIZE) / 100;
+        return this.y * Data.Systems.SQUARE_SIZE + (this.yPixels * Data.Systems.SQUARE_SIZE) / 100;
     }
     /**
      *  Get the complete number of pixels for x center.
      *  @returns {number}
      */
     getPixelsCenterX() {
-        return Math.floor((this.centerX * Datas.Systems.SQUARE_SIZE) / 100);
+        return Math.floor((this.centerX * Data.Systems.SQUARE_SIZE) / 100);
     }
     /**
      *  Get the complete number of pixels for z center.
      *  @returns {number}
      */
     getPixelsCenterZ() {
-        return Math.floor((this.centerZ * Datas.Systems.SQUARE_SIZE) / 100);
+        return Math.floor((this.centerZ * Data.Systems.SQUARE_SIZE) / 100);
     }
     /**
      *  Get the global portion of a json position.
@@ -111,7 +111,7 @@ class Position extends Portion {
      *  @returns {Vector3}
      */
     toVector3(center = true) {
-        return new THREE.Vector3(this.x * Datas.Systems.SQUARE_SIZE + (center ? (this.centerX / 100) * Datas.Systems.SQUARE_SIZE : 0), this.y * Datas.Systems.SQUARE_SIZE + (this.yPixels * Datas.Systems.SQUARE_SIZE) / 100, this.z * Datas.Systems.SQUARE_SIZE + (center ? (this.centerZ / 100) * Datas.Systems.SQUARE_SIZE : 0));
+        return new THREE.Vector3(this.x * Data.Systems.SQUARE_SIZE + (center ? (this.centerX / 100) * Data.Systems.SQUARE_SIZE : 0), this.y * Data.Systems.SQUARE_SIZE + (this.yPixels * Data.Systems.SQUARE_SIZE) / 100, this.z * Data.Systems.SQUARE_SIZE + (center ? (this.centerZ / 100) * Data.Systems.SQUARE_SIZE : 0));
     }
     toRotationEuler() {
         return new THREE.Euler(Mathf.degreesToRadians(this.angleX), Mathf.degreesToRadians(this.angleY), Mathf.degreesToRadians(this.angleZ));

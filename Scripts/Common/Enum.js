@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,822 +8,630 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-var Enum;
-(function (Enum) {
-    /**
-     *   Enum for the different command moves kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let CommandMoveKind;
-    (function (CommandMoveKind) {
-        CommandMoveKind[CommandMoveKind["MoveNorth"] = 0] = "MoveNorth";
-        CommandMoveKind[CommandMoveKind["MoveSouth"] = 1] = "MoveSouth";
-        CommandMoveKind[CommandMoveKind["MoveWest"] = 2] = "MoveWest";
-        CommandMoveKind[CommandMoveKind["MoveEast"] = 3] = "MoveEast";
-        CommandMoveKind[CommandMoveKind["MoveNorthWest"] = 4] = "MoveNorthWest";
-        CommandMoveKind[CommandMoveKind["MoveNorthEast"] = 5] = "MoveNorthEast";
-        CommandMoveKind[CommandMoveKind["MoveSouthWest"] = 6] = "MoveSouthWest";
-        CommandMoveKind[CommandMoveKind["MoveSouthEast"] = 7] = "MoveSouthEast";
-        CommandMoveKind[CommandMoveKind["MoveRandom"] = 8] = "MoveRandom";
-        CommandMoveKind[CommandMoveKind["MoveHero"] = 9] = "MoveHero";
-        CommandMoveKind[CommandMoveKind["MoveOppositeHero"] = 10] = "MoveOppositeHero";
-        CommandMoveKind[CommandMoveKind["MoveFront"] = 11] = "MoveFront";
-        CommandMoveKind[CommandMoveKind["MoveBack"] = 12] = "MoveBack";
-        CommandMoveKind[CommandMoveKind["ChangeGraphics"] = 13] = "ChangeGraphics";
-        CommandMoveKind[CommandMoveKind["Jump"] = 14] = "Jump";
-        CommandMoveKind[CommandMoveKind["TurnNorth"] = 15] = "TurnNorth";
-        CommandMoveKind[CommandMoveKind["TurnSouth"] = 16] = "TurnSouth";
-        CommandMoveKind[CommandMoveKind["TurnWest"] = 17] = "TurnWest";
-        CommandMoveKind[CommandMoveKind["TurnEast"] = 18] = "TurnEast";
-        CommandMoveKind[CommandMoveKind["Turn90Right"] = 19] = "Turn90Right";
-        CommandMoveKind[CommandMoveKind["Turn90Left"] = 20] = "Turn90Left";
-        CommandMoveKind[CommandMoveKind["LookAtHero"] = 21] = "LookAtHero";
-        CommandMoveKind[CommandMoveKind["LookAtHeroOpposite"] = 22] = "LookAtHeroOpposite";
-        CommandMoveKind[CommandMoveKind["ChangeSpeed"] = 23] = "ChangeSpeed";
-        CommandMoveKind[CommandMoveKind["ChangeFrequency"] = 24] = "ChangeFrequency";
-        CommandMoveKind[CommandMoveKind["MoveAnimation"] = 25] = "MoveAnimation";
-        CommandMoveKind[CommandMoveKind["StopAnimation"] = 26] = "StopAnimation";
-        CommandMoveKind[CommandMoveKind["ClimbAnimation"] = 27] = "ClimbAnimation";
-        CommandMoveKind[CommandMoveKind["FixDirection"] = 28] = "FixDirection";
-        CommandMoveKind[CommandMoveKind["Through"] = 29] = "Through";
-        CommandMoveKind[CommandMoveKind["SetWithCamera"] = 30] = "SetWithCamera";
-        CommandMoveKind[CommandMoveKind["PixelOffset"] = 31] = "PixelOffset";
-        CommandMoveKind[CommandMoveKind["KeepPosition"] = 32] = "KeepPosition";
-        CommandMoveKind[CommandMoveKind["Wait"] = 33] = "Wait";
-        CommandMoveKind[CommandMoveKind["PlaySound"] = 34] = "PlaySound";
-        CommandMoveKind[CommandMoveKind["Script"] = 35] = "Script";
-    })(CommandMoveKind = Enum.CommandMoveKind || (Enum.CommandMoveKind = {}));
-    /**
-     *   Enum for the different event commands kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let EventCommandKind;
-    (function (EventCommandKind) {
-        EventCommandKind[EventCommandKind["None"] = 0] = "None";
-        EventCommandKind[EventCommandKind["ShowText"] = 1] = "ShowText";
-        EventCommandKind[EventCommandKind["ChangeVariables"] = 2] = "ChangeVariables";
-        EventCommandKind[EventCommandKind["GameOver"] = 3] = "GameOver";
-        EventCommandKind[EventCommandKind["While"] = 4] = "While";
-        EventCommandKind[EventCommandKind["EndWhile"] = 5] = "EndWhile";
-        EventCommandKind[EventCommandKind["WhileBreak"] = 6] = "WhileBreak";
-        EventCommandKind[EventCommandKind["InputNumber"] = 7] = "InputNumber";
-        EventCommandKind[EventCommandKind["If"] = 8] = "If";
-        EventCommandKind[EventCommandKind["Else"] = 9] = "Else";
-        EventCommandKind[EventCommandKind["EndIf"] = 10] = "EndIf";
-        EventCommandKind[EventCommandKind["OpenMainMenu"] = 11] = "OpenMainMenu";
-        EventCommandKind[EventCommandKind["OpenSavesMenu"] = 12] = "OpenSavesMenu";
-        EventCommandKind[EventCommandKind["ModifyInventory"] = 13] = "ModifyInventory";
-        EventCommandKind[EventCommandKind["ModifyTeam"] = 14] = "ModifyTeam";
-        EventCommandKind[EventCommandKind["StartBattle"] = 15] = "StartBattle";
-        EventCommandKind[EventCommandKind["IfWin"] = 16] = "IfWin";
-        EventCommandKind[EventCommandKind["IfLose"] = 17] = "IfLose";
-        EventCommandKind[EventCommandKind["ChangeState"] = 18] = "ChangeState";
-        EventCommandKind[EventCommandKind["SendEvent"] = 19] = "SendEvent";
-        EventCommandKind[EventCommandKind["TeleportObject"] = 20] = "TeleportObject";
-        EventCommandKind[EventCommandKind["MoveObject"] = 21] = "MoveObject";
-        EventCommandKind[EventCommandKind["Wait"] = 22] = "Wait";
-        EventCommandKind[EventCommandKind["MoveCamera"] = 23] = "MoveCamera";
-        EventCommandKind[EventCommandKind["PlayMusic"] = 24] = "PlayMusic";
-        EventCommandKind[EventCommandKind["StopMusic"] = 25] = "StopMusic";
-        EventCommandKind[EventCommandKind["PlayBackgroundSound"] = 26] = "PlayBackgroundSound";
-        EventCommandKind[EventCommandKind["StopBackgroundSound"] = 27] = "StopBackgroundSound";
-        EventCommandKind[EventCommandKind["PlaySound"] = 28] = "PlaySound";
-        EventCommandKind[EventCommandKind["PlayMusicEffect"] = 29] = "PlayMusicEffect";
-        EventCommandKind[EventCommandKind["ChangeProperty"] = 30] = "ChangeProperty";
-        EventCommandKind[EventCommandKind["DisplayChoice"] = 31] = "DisplayChoice";
-        EventCommandKind[EventCommandKind["Choice"] = 32] = "Choice";
-        EventCommandKind[EventCommandKind["EndChoice"] = 33] = "EndChoice";
-        EventCommandKind[EventCommandKind["Script"] = 34] = "Script";
-        EventCommandKind[EventCommandKind["DisplayAPicture"] = 35] = "DisplayAPicture";
-        EventCommandKind[EventCommandKind["SetMoveTurnAPicture"] = 36] = "SetMoveTurnAPicture";
-        EventCommandKind[EventCommandKind["RemoveAPicture"] = 37] = "RemoveAPicture";
-        EventCommandKind[EventCommandKind["SetDialogBoxOptions"] = 38] = "SetDialogBoxOptions";
-        EventCommandKind[EventCommandKind["TitleScreen"] = 39] = "TitleScreen";
-        EventCommandKind[EventCommandKind["ChangeScreenTone"] = 40] = "ChangeScreenTone";
-        EventCommandKind[EventCommandKind["RemoveObjectFromMap"] = 41] = "RemoveObjectFromMap";
-        EventCommandKind[EventCommandKind["StopReaction"] = 42] = "StopReaction";
-        EventCommandKind[EventCommandKind["AllowForbidSaves"] = 43] = "AllowForbidSaves";
-        EventCommandKind[EventCommandKind["AllowForbidMainMenu"] = 44] = "AllowForbidMainMenu";
-        EventCommandKind[EventCommandKind["CallACommonReaction"] = 45] = "CallACommonReaction";
-        EventCommandKind[EventCommandKind["Label"] = 46] = "Label";
-        EventCommandKind[EventCommandKind["JumpLabel"] = 47] = "JumpLabel";
-        EventCommandKind[EventCommandKind["Comment"] = 48] = "Comment";
-        EventCommandKind[EventCommandKind["ChangeAStatistic"] = 49] = "ChangeAStatistic";
-        EventCommandKind[EventCommandKind["ChangeASkill"] = 50] = "ChangeASkill";
-        EventCommandKind[EventCommandKind["ChangeName"] = 51] = "ChangeName";
-        EventCommandKind[EventCommandKind["ChangeEquipment"] = 52] = "ChangeEquipment";
-        EventCommandKind[EventCommandKind["ModifyCurrency"] = 53] = "ModifyCurrency";
-        EventCommandKind[EventCommandKind["DisplayAnAnimation"] = 54] = "DisplayAnAnimation";
-        EventCommandKind[EventCommandKind["ShakeScreen"] = 55] = "ShakeScreen";
-        EventCommandKind[EventCommandKind["FlashScreen"] = 56] = "FlashScreen";
-        EventCommandKind[EventCommandKind["Plugin"] = 57] = "Plugin";
-        EventCommandKind[EventCommandKind["StartShopMenu"] = 58] = "StartShopMenu";
-        EventCommandKind[EventCommandKind["RestockShop"] = 59] = "RestockShop";
-        EventCommandKind[EventCommandKind["EnterANameMenu"] = 60] = "EnterANameMenu";
-        EventCommandKind[EventCommandKind["CreateObjectInMap"] = 61] = "CreateObjectInMap";
-        EventCommandKind[EventCommandKind["ChangeStatus"] = 62] = "ChangeStatus";
-        EventCommandKind[EventCommandKind["ResetCamera"] = 63] = "ResetCamera";
-        EventCommandKind[EventCommandKind["ChangeBattleMusic"] = 64] = "ChangeBattleMusic";
-        EventCommandKind[EventCommandKind["ChangeVictoryMusic"] = 65] = "ChangeVictoryMusic";
-        EventCommandKind[EventCommandKind["EndBattle"] = 66] = "EndBattle";
-        EventCommandKind[EventCommandKind["ForceAnAction"] = 67] = "ForceAnAction";
-        EventCommandKind[EventCommandKind["ChangeMapProperties"] = 68] = "ChangeMapProperties";
-        EventCommandKind[EventCommandKind["ChangeExperienceCurve"] = 69] = "ChangeExperienceCurve";
-        EventCommandKind[EventCommandKind["ChangeClass"] = 70] = "ChangeClass";
-        EventCommandKind[EventCommandKind["ChangeChronometer"] = 71] = "ChangeChronometer";
-        EventCommandKind[EventCommandKind["ChangeWeather"] = 72] = "ChangeWeather";
-        EventCommandKind[EventCommandKind["PlayAVideo"] = 73] = "PlayAVideo";
-        EventCommandKind[EventCommandKind["SwitchTexture"] = 74] = "SwitchTexture";
-        EventCommandKind[EventCommandKind["StopASound"] = 75] = "StopASound";
-        EventCommandKind[EventCommandKind["DisplayHideABattler"] = 76] = "DisplayHideABattler";
-        EventCommandKind[EventCommandKind["TransformABattler"] = 77] = "TransformABattler";
-        EventCommandKind[EventCommandKind["ChangeBattlerGraphics"] = 78] = "ChangeBattlerGraphics";
-    })(EventCommandKind = Enum.EventCommandKind || (Enum.EventCommandKind = {}));
-    /**
-     *   Enum for the different items kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let ItemKind;
-    (function (ItemKind) {
-        ItemKind[ItemKind["Item"] = 0] = "Item";
-        ItemKind[ItemKind["Weapon"] = 1] = "Weapon";
-        ItemKind[ItemKind["Armor"] = 2] = "Armor";
-    })(ItemKind = Enum.ItemKind || (Enum.ItemKind = {}));
-    /**
-     *   Enum for the different players kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let CharacterKind;
-    (function (CharacterKind) {
-        CharacterKind[CharacterKind["Hero"] = 0] = "Hero";
-        CharacterKind[CharacterKind["Monster"] = 1] = "Monster";
-    })(CharacterKind = Enum.CharacterKind || (Enum.CharacterKind = {}));
-    /**
-     *   Enum for the different groups kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let GroupKind;
-    (function (GroupKind) {
-        GroupKind[GroupKind["Team"] = 0] = "Team";
-        GroupKind[GroupKind["Reserve"] = 1] = "Reserve";
-        GroupKind[GroupKind["Hidden"] = 2] = "Hidden";
-        GroupKind[GroupKind["Troop"] = 3] = "Troop";
-    })(GroupKind = Enum.GroupKind || (Enum.GroupKind = {}));
-    /**
-     *   Enum for the different horizontal aligns kind.
-     *   @enum {string}
-     *   @readonly
-     */
-    let Align;
-    (function (Align) {
-        Align["None"] = " none";
-        Align["Left"] = "left";
-        Align["Right"] = "right";
-        Align["Center"] = "center";
-    })(Align = Enum.Align || (Enum.Align = {}));
-    /**
-     *   Enum for the different vertical aligns kind.
-     *   @enum {string}
-     *   @readonly
-     */
-    let AlignVertical;
-    (function (AlignVertical) {
-        AlignVertical[AlignVertical["Bot"] = 0] = "Bot";
-        AlignVertical[AlignVertical["Top"] = 1] = "Top";
-        AlignVertical[AlignVertical["Center"] = 2] = "Center";
-    })(AlignVertical = Enum.AlignVertical || (Enum.AlignVertical = {}));
-    /**
-     *   Enum for the different orientations kind.
-     *   @enum {string}
-     *   @readonly
-     */
-    let Orientation;
-    (function (Orientation) {
-        Orientation[Orientation["South"] = 0] = "South";
-        Orientation[Orientation["West"] = 1] = "West";
-        Orientation[Orientation["North"] = 2] = "North";
-        Orientation[Orientation["East"] = 3] = "East";
-        Orientation[Orientation["SouthWest"] = 4] = "SouthWest";
-        Orientation[Orientation["SouthEast"] = 5] = "SouthEast";
-        Orientation[Orientation["NorthWest"] = 6] = "NorthWest";
-        Orientation[Orientation["NorthEast"] = 7] = "NorthEast";
-        Orientation[Orientation["Up"] = 8] = "Up";
-        Orientation[Orientation["Down"] = 9] = "Down";
-        Orientation[Orientation["None"] = 10] = "None";
-    })(Orientation = Enum.Orientation || (Enum.Orientation = {}));
-    /**
-     *   Enum for the different map elements kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let ElementMapKind;
-    (function (ElementMapKind) {
-        ElementMapKind[ElementMapKind["None"] = 0] = "None";
-        ElementMapKind[ElementMapKind["Floors"] = 1] = "Floors";
-        ElementMapKind[ElementMapKind["Autotiles"] = 2] = "Autotiles";
-        ElementMapKind[ElementMapKind["SpritesFace"] = 3] = "SpritesFace";
-        ElementMapKind[ElementMapKind["SpritesFix"] = 4] = "SpritesFix";
-        ElementMapKind[ElementMapKind["SpritesDouble"] = 5] = "SpritesDouble";
-        ElementMapKind[ElementMapKind["SpritesQuadra"] = 6] = "SpritesQuadra";
-        ElementMapKind[ElementMapKind["SpritesWall"] = 7] = "SpritesWall";
-        ElementMapKind[ElementMapKind["Mountains"] = 8] = "Mountains";
-        ElementMapKind[ElementMapKind["Object3D"] = 9] = "Object3D";
-        ElementMapKind[ElementMapKind["Object"] = 10] = "Object";
-        ElementMapKind[ElementMapKind["StartPosition"] = 11] = "StartPosition";
-    })(ElementMapKind = Enum.ElementMapKind || (Enum.ElementMapKind = {}));
-    /**
-     *   Enum for the different sprite walls kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let SpriteWallKind;
-    (function (SpriteWallKind) {
-        SpriteWallKind[SpriteWallKind["Left"] = 0] = "Left";
-        SpriteWallKind[SpriteWallKind["Middle"] = 1] = "Middle";
-        SpriteWallKind[SpriteWallKind["Right"] = 2] = "Right";
-        SpriteWallKind[SpriteWallKind["LeftRight"] = 3] = "LeftRight";
-    })(SpriteWallKind = Enum.SpriteWallKind || (Enum.SpriteWallKind = {}));
-    /**
-     *   Enum for the different pictures kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let PictureKind;
-    (function (PictureKind) {
-        PictureKind[PictureKind["None"] = 0] = "None";
-        PictureKind[PictureKind["Bars"] = 1] = "Bars";
-        PictureKind[PictureKind["Icons"] = 2] = "Icons";
-        PictureKind[PictureKind["Autotiles"] = 3] = "Autotiles";
-        PictureKind[PictureKind["Characters"] = 4] = "Characters";
-        PictureKind[PictureKind["Mountains"] = 5] = "Mountains";
-        PictureKind[PictureKind["Tilesets"] = 6] = "Tilesets";
-        PictureKind[PictureKind["Walls"] = 7] = "Walls";
-        PictureKind[PictureKind["Battlers"] = 8] = "Battlers";
-        PictureKind[PictureKind["Facesets"] = 9] = "Facesets";
-        PictureKind[PictureKind["WindowSkins"] = 10] = "WindowSkins";
-        PictureKind[PictureKind["TitleScreen"] = 11] = "TitleScreen";
-        PictureKind[PictureKind["Objects3D"] = 12] = "Objects3D";
-        PictureKind[PictureKind["Pictures"] = 13] = "Pictures";
-        PictureKind[PictureKind["Animations"] = 14] = "Animations";
-        PictureKind[PictureKind["Skyboxes"] = 15] = "Skyboxes";
-        PictureKind[PictureKind["Particles"] = 16] = "Particles";
-        PictureKind[PictureKind["GameOver"] = 17] = "GameOver";
-    })(PictureKind = Enum.PictureKind || (Enum.PictureKind = {}));
-    /**
-     *   Enum for the different songs kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let SongKind;
-    (function (SongKind) {
-        SongKind[SongKind["None"] = 0] = "None";
-        SongKind[SongKind["Music"] = 1] = "Music";
-        SongKind[SongKind["BackgroundSound"] = 2] = "BackgroundSound";
-        SongKind[SongKind["Sound"] = 3] = "Sound";
-        SongKind[SongKind["MusicEffect"] = 4] = "MusicEffect";
-    })(SongKind = Enum.SongKind || (Enum.SongKind = {}));
-    /** Enum for the different primitive values kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let DynamicValueKind;
-    (function (DynamicValueKind) {
-        DynamicValueKind[DynamicValueKind["Unknown"] = -1] = "Unknown";
-        DynamicValueKind[DynamicValueKind["None"] = 0] = "None";
-        DynamicValueKind[DynamicValueKind["Anything"] = 1] = "Anything";
-        DynamicValueKind[DynamicValueKind["Default"] = 2] = "Default";
-        DynamicValueKind[DynamicValueKind["Number"] = 3] = "Number";
-        DynamicValueKind[DynamicValueKind["Variable"] = 4] = "Variable";
-        DynamicValueKind[DynamicValueKind["Parameter"] = 5] = "Parameter";
-        DynamicValueKind[DynamicValueKind["Property"] = 6] = "Property";
-        DynamicValueKind[DynamicValueKind["DataBase"] = 7] = "DataBase";
-        DynamicValueKind[DynamicValueKind["Message"] = 8] = "Message";
-        DynamicValueKind[DynamicValueKind["Script"] = 9] = "Script";
-        DynamicValueKind[DynamicValueKind["Switch"] = 10] = "Switch";
-        DynamicValueKind[DynamicValueKind["KeyBoard"] = 11] = "KeyBoard";
-        DynamicValueKind[DynamicValueKind["NumberDouble"] = 12] = "NumberDouble";
-        DynamicValueKind[DynamicValueKind["Font"] = 13] = "Font";
-        DynamicValueKind[DynamicValueKind["Class"] = 14] = "Class";
-        DynamicValueKind[DynamicValueKind["Hero"] = 15] = "Hero";
-        DynamicValueKind[DynamicValueKind["Monster"] = 16] = "Monster";
-        DynamicValueKind[DynamicValueKind["Troop"] = 17] = "Troop";
-        DynamicValueKind[DynamicValueKind["Item"] = 18] = "Item";
-        DynamicValueKind[DynamicValueKind["Weapon"] = 19] = "Weapon";
-        DynamicValueKind[DynamicValueKind["Armor"] = 20] = "Armor";
-        DynamicValueKind[DynamicValueKind["Skill"] = 21] = "Skill";
-        DynamicValueKind[DynamicValueKind["Animation"] = 22] = "Animation";
-        DynamicValueKind[DynamicValueKind["Status"] = 23] = "Status";
-        DynamicValueKind[DynamicValueKind["Tileset"] = 24] = "Tileset";
-        DynamicValueKind[DynamicValueKind["FontSize"] = 25] = "FontSize";
-        DynamicValueKind[DynamicValueKind["FontName"] = 26] = "FontName";
-        DynamicValueKind[DynamicValueKind["Color"] = 27] = "Color";
-        DynamicValueKind[DynamicValueKind["WindowSkin"] = 28] = "WindowSkin";
-        DynamicValueKind[DynamicValueKind["Currency"] = 29] = "Currency";
-        DynamicValueKind[DynamicValueKind["Speed"] = 30] = "Speed";
-        DynamicValueKind[DynamicValueKind["Detection"] = 31] = "Detection";
-        DynamicValueKind[DynamicValueKind["CameraProperty"] = 32] = "CameraProperty";
-        DynamicValueKind[DynamicValueKind["Frequency"] = 33] = "Frequency";
-        DynamicValueKind[DynamicValueKind["Skybox"] = 34] = "Skybox";
-        DynamicValueKind[DynamicValueKind["BattleMap"] = 35] = "BattleMap";
-        DynamicValueKind[DynamicValueKind["Element"] = 36] = "Element";
-        DynamicValueKind[DynamicValueKind["CommonStatistic"] = 37] = "CommonStatistic";
-        DynamicValueKind[DynamicValueKind["WeaponsKind"] = 38] = "WeaponsKind";
-        DynamicValueKind[DynamicValueKind["ArmorsKind"] = 39] = "ArmorsKind";
-        DynamicValueKind[DynamicValueKind["CommonBattleCommand"] = 40] = "CommonBattleCommand";
-        DynamicValueKind[DynamicValueKind["CommonEquipment"] = 41] = "CommonEquipment";
-        DynamicValueKind[DynamicValueKind["Event"] = 42] = "Event";
-        DynamicValueKind[DynamicValueKind["State"] = 43] = "State";
-        DynamicValueKind[DynamicValueKind["CommonReaction"] = 44] = "CommonReaction";
-        DynamicValueKind[DynamicValueKind["Model"] = 45] = "Model";
-        DynamicValueKind[DynamicValueKind["CustomStructure"] = 46] = "CustomStructure";
-        DynamicValueKind[DynamicValueKind["CustomList"] = 47] = "CustomList";
-        DynamicValueKind[DynamicValueKind["Vector2"] = 48] = "Vector2";
-        DynamicValueKind[DynamicValueKind["Vector3"] = 49] = "Vector3";
-        DynamicValueKind[DynamicValueKind["Bars"] = 50] = "Bars";
-        DynamicValueKind[DynamicValueKind["Icons"] = 51] = "Icons";
-        DynamicValueKind[DynamicValueKind["Autotiles"] = 52] = "Autotiles";
-        DynamicValueKind[DynamicValueKind["Characters"] = 53] = "Characters";
-        DynamicValueKind[DynamicValueKind["Mountains"] = 54] = "Mountains";
-        DynamicValueKind[DynamicValueKind["Tilesets"] = 55] = "Tilesets";
-        DynamicValueKind[DynamicValueKind["Walls"] = 56] = "Walls";
-        DynamicValueKind[DynamicValueKind["Battlers"] = 57] = "Battlers";
-        DynamicValueKind[DynamicValueKind["Facesets"] = 58] = "Facesets";
-        DynamicValueKind[DynamicValueKind["WindowSkins"] = 59] = "WindowSkins";
-        DynamicValueKind[DynamicValueKind["TitleScreen"] = 60] = "TitleScreen";
-        DynamicValueKind[DynamicValueKind["Object3D"] = 61] = "Object3D";
-        DynamicValueKind[DynamicValueKind["Pictures"] = 62] = "Pictures";
-        DynamicValueKind[DynamicValueKind["Animations"] = 63] = "Animations";
-        DynamicValueKind[DynamicValueKind["SkyBoxes"] = 64] = "SkyBoxes";
-        DynamicValueKind[DynamicValueKind["Enum"] = 65] = "Enum";
-        DynamicValueKind[DynamicValueKind["Music"] = 66] = "Music";
-        DynamicValueKind[DynamicValueKind["BackgroundSound"] = 67] = "BackgroundSound";
-        DynamicValueKind[DynamicValueKind["Sound"] = 68] = "Sound";
-        DynamicValueKind[DynamicValueKind["MusicEffect"] = 69] = "MusicEffect";
-    })(DynamicValueKind = Enum.DynamicValueKind || (Enum.DynamicValueKind = {}));
-    /**
-     *   Enum for the different window orientations.
-     *   @enum {number}
-     *   @readonly
-     */
-    let OrientationWindow;
-    (function (OrientationWindow) {
-        OrientationWindow[OrientationWindow["Vertical"] = 0] = "Vertical";
-        OrientationWindow[OrientationWindow["Horizontal"] = 1] = "Horizontal";
-    })(OrientationWindow = Enum.OrientationWindow || (Enum.OrientationWindow = {}));
-    /**
-     *   Enum for the different battler steps.
-     *   @enum {number}
-     *   @readonly
-     */
-    let BattlerStep;
-    (function (BattlerStep) {
-        BattlerStep[BattlerStep["Normal"] = 0] = "Normal";
-        BattlerStep[BattlerStep["Attack"] = 1] = "Attack";
-        BattlerStep[BattlerStep["Skill"] = 2] = "Skill";
-        BattlerStep[BattlerStep["Item"] = 3] = "Item";
-        BattlerStep[BattlerStep["Escape"] = 4] = "Escape";
-        BattlerStep[BattlerStep["Defense"] = 5] = "Defense";
-        BattlerStep[BattlerStep["Attacked"] = 6] = "Attacked";
-        BattlerStep[BattlerStep["Victory"] = 7] = "Victory";
-        BattlerStep[BattlerStep["Dead"] = 8] = "Dead";
-    })(BattlerStep = Enum.BattlerStep || (Enum.BattlerStep = {}));
-    /**
-     *   Enum for the different loots kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let LootKind;
-    (function (LootKind) {
-        LootKind[LootKind["Item"] = 0] = "Item";
-        LootKind[LootKind["Weapon"] = 1] = "Weapon";
-        LootKind[LootKind["Armor"] = 2] = "Armor";
-    })(LootKind = Enum.LootKind || (Enum.LootKind = {}));
-    /**
-     *   Enum for the different damages kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let DamagesKind;
-    (function (DamagesKind) {
-        DamagesKind[DamagesKind["Stat"] = 0] = "Stat";
-        DamagesKind[DamagesKind["Currency"] = 1] = "Currency";
-        DamagesKind[DamagesKind["Variable"] = 2] = "Variable";
-    })(DamagesKind = Enum.DamagesKind || (Enum.DamagesKind = {}));
-    /**
-     *   Enum for the different effect kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let EffectKind;
-    (function (EffectKind) {
-        EffectKind[EffectKind["Damages"] = 0] = "Damages";
-        EffectKind[EffectKind["Status"] = 1] = "Status";
-        EffectKind[EffectKind["AddRemoveSkill"] = 2] = "AddRemoveSkill";
-        EffectKind[EffectKind["PerformSkill"] = 3] = "PerformSkill";
-        EffectKind[EffectKind["CommonReaction"] = 4] = "CommonReaction";
-        EffectKind[EffectKind["SpecialActions"] = 5] = "SpecialActions";
-        EffectKind[EffectKind["Script"] = 6] = "Script";
-    })(EffectKind = Enum.EffectKind || (Enum.EffectKind = {}));
-    /**
-     *   Enum for the different effect special action kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let EffectSpecialActionKind;
-    (function (EffectSpecialActionKind) {
-        EffectSpecialActionKind[EffectSpecialActionKind["None"] = -1] = "None";
-        EffectSpecialActionKind[EffectSpecialActionKind["ApplyWeapons"] = 0] = "ApplyWeapons";
-        EffectSpecialActionKind[EffectSpecialActionKind["OpenSkills"] = 1] = "OpenSkills";
-        EffectSpecialActionKind[EffectSpecialActionKind["OpenItems"] = 2] = "OpenItems";
-        EffectSpecialActionKind[EffectSpecialActionKind["Escape"] = 3] = "Escape";
-        EffectSpecialActionKind[EffectSpecialActionKind["EndTurn"] = 4] = "EndTurn";
-        EffectSpecialActionKind[EffectSpecialActionKind["DoNothing"] = 5] = "DoNothing";
-    })(EffectSpecialActionKind = Enum.EffectSpecialActionKind || (Enum.EffectSpecialActionKind = {}));
-    /**
-     *   Enum for the different characteristic kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let CharacteristicKind;
-    (function (CharacteristicKind) {
-        CharacteristicKind[CharacteristicKind["IncreaseDecrease"] = 0] = "IncreaseDecrease";
-        CharacteristicKind[CharacteristicKind["Script"] = 1] = "Script";
-        CharacteristicKind[CharacteristicKind["AllowForbidEquip"] = 2] = "AllowForbidEquip";
-        CharacteristicKind[CharacteristicKind["AllowForbidChange"] = 3] = "AllowForbidChange";
-        CharacteristicKind[CharacteristicKind["BeginEquipment"] = 4] = "BeginEquipment";
-        CharacteristicKind[CharacteristicKind["Element"] = 5] = "Element";
-    })(CharacteristicKind = Enum.CharacteristicKind || (Enum.CharacteristicKind = {}));
-    /**
-     *   Enum for the different increase / decrease kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let IncreaseDecreaseKind;
-    (function (IncreaseDecreaseKind) {
-        IncreaseDecreaseKind[IncreaseDecreaseKind["StatValue"] = 0] = "StatValue";
-        IncreaseDecreaseKind[IncreaseDecreaseKind["ElementRes"] = 1] = "ElementRes";
-        IncreaseDecreaseKind[IncreaseDecreaseKind["StatusRes"] = 2] = "StatusRes";
-        IncreaseDecreaseKind[IncreaseDecreaseKind["ExperienceGain"] = 3] = "ExperienceGain";
-        IncreaseDecreaseKind[IncreaseDecreaseKind["CurrencyGain"] = 4] = "CurrencyGain";
-        IncreaseDecreaseKind[IncreaseDecreaseKind["SkillCost"] = 5] = "SkillCost";
-        IncreaseDecreaseKind[IncreaseDecreaseKind["Variable"] = 6] = "Variable";
-    })(IncreaseDecreaseKind = Enum.IncreaseDecreaseKind || (Enum.IncreaseDecreaseKind = {}));
-    /**
-     *   Enum for the different target kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let TargetKind;
-    (function (TargetKind) {
-        TargetKind[TargetKind["None"] = 0] = "None";
-        TargetKind[TargetKind["User"] = 1] = "User";
-        TargetKind[TargetKind["Enemy"] = 2] = "Enemy";
-        TargetKind[TargetKind["Ally"] = 3] = "Ally";
-        TargetKind[TargetKind["AllEnemies"] = 4] = "AllEnemies";
-        TargetKind[TargetKind["AllAllies"] = 5] = "AllAllies";
-    })(TargetKind = Enum.TargetKind || (Enum.TargetKind = {}));
-    /**
-     *   Enum for the different available kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let AvailableKind;
-    (function (AvailableKind) {
-        AvailableKind[AvailableKind["Battle"] = 0] = "Battle";
-        AvailableKind[AvailableKind["MainMenu"] = 1] = "MainMenu";
-        AvailableKind[AvailableKind["Always"] = 2] = "Always";
-        AvailableKind[AvailableKind["Never"] = 3] = "Never";
-    })(AvailableKind = Enum.AvailableKind || (Enum.AvailableKind = {}));
-    /**
-     *   Enum for the different shape kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let ShapeKind;
-    (function (ShapeKind) {
-        ShapeKind[ShapeKind["Box"] = 0] = "Box";
-        ShapeKind[ShapeKind["Sphere"] = 1] = "Sphere";
-        ShapeKind[ShapeKind["Cylinder"] = 2] = "Cylinder";
-        ShapeKind[ShapeKind["Cone"] = 3] = "Cone";
-        ShapeKind[ShapeKind["Capsule"] = 4] = "Capsule";
-        ShapeKind[ShapeKind["Custom"] = 5] = "Custom";
-    })(ShapeKind = Enum.ShapeKind || (Enum.ShapeKind = {}));
-    /**
-     *   Enum for the different custom shape kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let CustomShapeKind;
-    (function (CustomShapeKind) {
-        CustomShapeKind[CustomShapeKind["None"] = 0] = "None";
-        CustomShapeKind[CustomShapeKind["OBJ"] = 1] = "OBJ";
-        CustomShapeKind[CustomShapeKind["MTL"] = 2] = "MTL";
-        CustomShapeKind[CustomShapeKind["Collisions"] = 3] = "Collisions";
-    })(CustomShapeKind = Enum.CustomShapeKind || (Enum.CustomShapeKind = {}));
-    /**
-     *   Enum for the different object collision kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let ObjectCollisionKind;
-    (function (ObjectCollisionKind) {
-        ObjectCollisionKind[ObjectCollisionKind["None"] = 0] = "None";
-        ObjectCollisionKind[ObjectCollisionKind["Perfect"] = 1] = "Perfect";
-        ObjectCollisionKind[ObjectCollisionKind["Simplified"] = 2] = "Simplified";
-        ObjectCollisionKind[ObjectCollisionKind["Custom"] = 3] = "Custom";
-    })(ObjectCollisionKind = Enum.ObjectCollisionKind || (Enum.ObjectCollisionKind = {}));
-    /**
-     *   Enum for the map transitions.
-     *   @enum {number}
-     *   @readonly
-     */
-    let MapTransitionKind;
-    (function (MapTransitionKind) {
-        MapTransitionKind[MapTransitionKind["None"] = 0] = "None";
-        MapTransitionKind[MapTransitionKind["Fade"] = 1] = "Fade";
-        MapTransitionKind[MapTransitionKind["Zoom"] = 2] = "Zoom";
-    })(MapTransitionKind = Enum.MapTransitionKind || (Enum.MapTransitionKind = {}));
-    /**
-     *   Enum for the map transitions.
-     *   @enum {number}
-     *   @readonly
-     */
-    let MountainCollisionKind;
-    (function (MountainCollisionKind) {
-        MountainCollisionKind[MountainCollisionKind["Default"] = 0] = "Default";
-        MountainCollisionKind[MountainCollisionKind["Always"] = 1] = "Always";
-        MountainCollisionKind[MountainCollisionKind["Never"] = 2] = "Never";
-    })(MountainCollisionKind = Enum.MountainCollisionKind || (Enum.MountainCollisionKind = {}));
-    /**
-     *   Enum for the title screen commands.
-     *   @enum {number}
-     *   @readonly
-     */
-    let TitleCommandKind;
-    (function (TitleCommandKind) {
-        TitleCommandKind[TitleCommandKind["NewGame"] = 0] = "NewGame";
-        TitleCommandKind[TitleCommandKind["LoadGame"] = 1] = "LoadGame";
-        TitleCommandKind[TitleCommandKind["Settings"] = 2] = "Settings";
-        TitleCommandKind[TitleCommandKind["Exit"] = 3] = "Exit";
-        TitleCommandKind[TitleCommandKind["Script"] = 4] = "Script";
-    })(TitleCommandKind = Enum.TitleCommandKind || (Enum.TitleCommandKind = {}));
-    /**
-     *   Enum for the game over commands.
-     *   @enum {number}
-     *   @readonly
-     */
-    let GameOverCommandKind;
-    (function (GameOverCommandKind) {
-        GameOverCommandKind[GameOverCommandKind["Continue"] = 0] = "Continue";
-        GameOverCommandKind[GameOverCommandKind["TitleScreen"] = 1] = "TitleScreen";
-        GameOverCommandKind[GameOverCommandKind["Exit"] = 2] = "Exit";
-        GameOverCommandKind[GameOverCommandKind["Script"] = 3] = "Script";
-    })(GameOverCommandKind = Enum.GameOverCommandKind || (Enum.GameOverCommandKind = {}));
-    /**
-     *   Enum for the title settings.
-     *   @enum {number}
-     *   @readonly
-     */
-    let TitleSettingKind;
-    (function (TitleSettingKind) {
-        TitleSettingKind[TitleSettingKind["KeyboardAssigment"] = 0] = "KeyboardAssigment";
-        TitleSettingKind[TitleSettingKind["Language"] = 1] = "Language";
-    })(TitleSettingKind = Enum.TitleSettingKind || (Enum.TitleSettingKind = {}));
-    /**
-     *   Enum for the object moving.
-     *   @enum {number}
-     *   @readonly
-     */
-    let ObjectMovingKind;
-    (function (ObjectMovingKind) {
-        ObjectMovingKind[ObjectMovingKind["Fix"] = 0] = "Fix";
-        ObjectMovingKind[ObjectMovingKind["Random"] = 1] = "Random";
-        ObjectMovingKind[ObjectMovingKind["Route"] = 2] = "Route";
-    })(ObjectMovingKind = Enum.ObjectMovingKind || (Enum.ObjectMovingKind = {}));
-    /**
-     *   Enum for the tags.
-     *   @enum {number}
-     *   @readonly
-     */
-    let TagKind;
-    (function (TagKind) {
-        TagKind[TagKind["NewLine"] = 0] = "NewLine";
-        TagKind[TagKind["Text"] = 1] = "Text";
-        TagKind[TagKind["Bold"] = 2] = "Bold";
-        TagKind[TagKind["Italic"] = 3] = "Italic";
-        TagKind[TagKind["Left"] = 4] = "Left";
-        TagKind[TagKind["Center"] = 5] = "Center";
-        TagKind[TagKind["Right"] = 6] = "Right";
-        TagKind[TagKind["Size"] = 7] = "Size";
-        TagKind[TagKind["Font"] = 8] = "Font";
-        TagKind[TagKind["TextColor"] = 9] = "TextColor";
-        TagKind[TagKind["BackColor"] = 10] = "BackColor";
-        TagKind[TagKind["StrokeColor"] = 11] = "StrokeColor";
-        TagKind[TagKind["Variable"] = 12] = "Variable";
-        TagKind[TagKind["Parameter"] = 13] = "Parameter";
-        TagKind[TagKind["Property"] = 14] = "Property";
-        TagKind[TagKind["HeroName"] = 15] = "HeroName";
-        TagKind[TagKind["Icon"] = 16] = "Icon";
-    })(TagKind = Enum.TagKind || (Enum.TagKind = {}));
-    /**
-     *   Enum for the condition heroes.
-     *   @enum {number}
-     *   @readonly
-     */
-    let ConditionHeroesKind;
-    (function (ConditionHeroesKind) {
-        ConditionHeroesKind[ConditionHeroesKind["AllTheHeroes"] = 0] = "AllTheHeroes";
-        ConditionHeroesKind[ConditionHeroesKind["NoneOfTheHeroes"] = 1] = "NoneOfTheHeroes";
-        ConditionHeroesKind[ConditionHeroesKind["AtLeastOneHero"] = 2] = "AtLeastOneHero";
-        ConditionHeroesKind[ConditionHeroesKind["TheHeroeWithInstanceID"] = 3] = "TheHeroeWithInstanceID";
-    })(ConditionHeroesKind = Enum.ConditionHeroesKind || (Enum.ConditionHeroesKind = {}));
-    /**
-     *   Enum for the variables map object characteristics.
-     *   @enum {number}
-     *   @readonly
-     */
-    let VariableMapObjectCharacteristicKind;
-    (function (VariableMapObjectCharacteristicKind) {
-        VariableMapObjectCharacteristicKind[VariableMapObjectCharacteristicKind["XSquarePosition"] = 0] = "XSquarePosition";
-        VariableMapObjectCharacteristicKind[VariableMapObjectCharacteristicKind["YSquarePosition"] = 1] = "YSquarePosition";
-        VariableMapObjectCharacteristicKind[VariableMapObjectCharacteristicKind["ZSquarePosition"] = 2] = "ZSquarePosition";
-        VariableMapObjectCharacteristicKind[VariableMapObjectCharacteristicKind["XPixelPosition"] = 3] = "XPixelPosition";
-        VariableMapObjectCharacteristicKind[VariableMapObjectCharacteristicKind["YPixelPosition"] = 4] = "YPixelPosition";
-        VariableMapObjectCharacteristicKind[VariableMapObjectCharacteristicKind["ZPixelPosition"] = 5] = "ZPixelPosition";
-        VariableMapObjectCharacteristicKind[VariableMapObjectCharacteristicKind["Orientation"] = 6] = "Orientation";
-        VariableMapObjectCharacteristicKind[VariableMapObjectCharacteristicKind["Terrain"] = 7] = "Terrain";
-    })(VariableMapObjectCharacteristicKind = Enum.VariableMapObjectCharacteristicKind || (Enum.VariableMapObjectCharacteristicKind = {}));
-    /**
-     *   Enum for the animation position kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let AnimationPositionKind;
-    (function (AnimationPositionKind) {
-        AnimationPositionKind[AnimationPositionKind["Top"] = 0] = "Top";
-        AnimationPositionKind[AnimationPositionKind["Middle"] = 1] = "Middle";
-        AnimationPositionKind[AnimationPositionKind["Bottom"] = 2] = "Bottom";
-        AnimationPositionKind[AnimationPositionKind["ScreenCenter"] = 3] = "ScreenCenter";
-    })(AnimationPositionKind = Enum.AnimationPositionKind || (Enum.AnimationPositionKind = {}));
-    /**
-     *   Enum for the animation effect condition kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let AnimationEffectConditionKind;
-    (function (AnimationEffectConditionKind) {
-        AnimationEffectConditionKind[AnimationEffectConditionKind["None"] = 0] = "None";
-        AnimationEffectConditionKind[AnimationEffectConditionKind["Hit"] = 1] = "Hit";
-        AnimationEffectConditionKind[AnimationEffectConditionKind["Miss"] = 2] = "Miss";
-        AnimationEffectConditionKind[AnimationEffectConditionKind["Critical"] = 3] = "Critical";
-    })(AnimationEffectConditionKind = Enum.AnimationEffectConditionKind || (Enum.AnimationEffectConditionKind = {}));
-    /**
-     *   Enum for the monster action kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let MonsterActionKind;
-    (function (MonsterActionKind) {
-        MonsterActionKind[MonsterActionKind["UseSkill"] = 0] = "UseSkill";
-        MonsterActionKind[MonsterActionKind["UseItem"] = 1] = "UseItem";
-        MonsterActionKind[MonsterActionKind["DoNothing"] = 2] = "DoNothing";
-    })(MonsterActionKind = Enum.MonsterActionKind || (Enum.MonsterActionKind = {}));
-    /**
-     *   Enum for the monster action target kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let MonsterActionTargetKind;
-    (function (MonsterActionTargetKind) {
-        MonsterActionTargetKind[MonsterActionTargetKind["Random"] = 0] = "Random";
-        MonsterActionTargetKind[MonsterActionTargetKind["WeakEnemies"] = 1] = "WeakEnemies";
-    })(MonsterActionTargetKind = Enum.MonsterActionTargetKind || (Enum.MonsterActionTargetKind = {}));
-    /**
-     *   Enum for the operation kind.
-     *   @enum {number}
-     *   @readonly
-     */
-    let OperationKind;
-    (function (OperationKind) {
-        OperationKind[OperationKind["EqualTo"] = 0] = "EqualTo";
-        OperationKind[OperationKind["NotEqualTo"] = 1] = "NotEqualTo";
-        OperationKind[OperationKind["GreaterThanOrEqualTo"] = 2] = "GreaterThanOrEqualTo";
-        OperationKind[OperationKind["LesserThanOrEqualTo"] = 3] = "LesserThanOrEqualTo";
-        OperationKind[OperationKind["GreaterThan"] = 4] = "GreaterThan";
-        OperationKind[OperationKind["LesserThan"] = 5] = "LesserThan";
-    })(OperationKind = Enum.OperationKind || (Enum.OperationKind = {}));
-    /**
-     *   Enum for the battle step.
-     *   @enum {number}
-     *   @readonly
-     */
-    let BattleStep;
-    (function (BattleStep) {
-        BattleStep[BattleStep["Initialize"] = 0] = "Initialize";
-        BattleStep[BattleStep["StartTurn"] = 1] = "StartTurn";
-        BattleStep[BattleStep["Selection"] = 2] = "Selection";
-        BattleStep[BattleStep["Animation"] = 3] = "Animation";
-        BattleStep[BattleStep["EnemyAttack"] = 4] = "EnemyAttack";
-        BattleStep[BattleStep["EndTurn"] = 5] = "EndTurn";
-        BattleStep[BattleStep["Victory"] = 6] = "Victory";
-    })(BattleStep = Enum.BattleStep || (Enum.BattleStep = {}));
-    /**
-     * Enum for the screen transition.
-     *
-     * @export
-     * @enum {number}
-     */
-    let FadeType;
-    (function (FadeType) {
-        FadeType[FadeType["FadeIn"] = 0] = "FadeIn";
-        FadeType[FadeType["FadeOut"] = 1] = "FadeOut";
-    })(FadeType = Enum.FadeType || (Enum.FadeType = {}));
-    /**
-     * Enum for the status restrictions kind.
-     *
-     * @export
-     * @enum {number}
-     */
-    let StatusRestrictionsKind;
-    (function (StatusRestrictionsKind) {
-        StatusRestrictionsKind[StatusRestrictionsKind["None"] = 0] = "None";
-        StatusRestrictionsKind[StatusRestrictionsKind["CantDoAnything"] = 1] = "CantDoAnything";
-        StatusRestrictionsKind[StatusRestrictionsKind["CantUseSkills"] = 2] = "CantUseSkills";
-        StatusRestrictionsKind[StatusRestrictionsKind["CantUseItems"] = 3] = "CantUseItems";
-        StatusRestrictionsKind[StatusRestrictionsKind["CantEscape"] = 4] = "CantEscape";
-        StatusRestrictionsKind[StatusRestrictionsKind["AttackRandomTarget"] = 5] = "AttackRandomTarget";
-        StatusRestrictionsKind[StatusRestrictionsKind["AttackRandomAlly"] = 6] = "AttackRandomAlly";
-        StatusRestrictionsKind[StatusRestrictionsKind["AttackRandomEnemy"] = 7] = "AttackRandomEnemy";
-    })(StatusRestrictionsKind = Enum.StatusRestrictionsKind || (Enum.StatusRestrictionsKind = {}));
-    /**
-     *  Enum for the inventory filter kind.
-     *
-     *  @export
-     *  @enum {number}
-     */
-    let InventoryFilterKind;
-    (function (InventoryFilterKind) {
-        InventoryFilterKind[InventoryFilterKind["All"] = 0] = "All";
-        InventoryFilterKind[InventoryFilterKind["Consumables"] = 1] = "Consumables";
-        InventoryFilterKind[InventoryFilterKind["Custom"] = 2] = "Custom";
-        InventoryFilterKind[InventoryFilterKind["Weapons"] = 3] = "Weapons";
-        InventoryFilterKind[InventoryFilterKind["Armors"] = 4] = "Armors";
-        InventoryFilterKind[InventoryFilterKind["WeaponsAndAmors"] = 5] = "WeaponsAndAmors";
-        InventoryFilterKind[InventoryFilterKind["Script"] = 6] = "Script";
-    })(InventoryFilterKind = Enum.InventoryFilterKind || (Enum.InventoryFilterKind = {}));
-    /**
-     *  Enum for the main menu command kind.
-     *  @export
-     *  @enum {number}
-     */
-    let MainMenuCommandKind;
-    (function (MainMenuCommandKind) {
-        MainMenuCommandKind[MainMenuCommandKind["Inventory"] = 0] = "Inventory";
-        MainMenuCommandKind[MainMenuCommandKind["Skills"] = 1] = "Skills";
-        MainMenuCommandKind[MainMenuCommandKind["Equip"] = 2] = "Equip";
-        MainMenuCommandKind[MainMenuCommandKind["States"] = 3] = "States";
-        MainMenuCommandKind[MainMenuCommandKind["Order"] = 4] = "Order";
-        MainMenuCommandKind[MainMenuCommandKind["Save"] = 5] = "Save";
-        MainMenuCommandKind[MainMenuCommandKind["Quit"] = 6] = "Quit";
-        MainMenuCommandKind[MainMenuCommandKind["Script"] = 7] = "Script";
-    })(MainMenuCommandKind = Enum.MainMenuCommandKind || (Enum.MainMenuCommandKind = {}));
-    /**
-     *  Enum for the troop reaction frequency kind.
-     *  @export
-     *  @enum {number}
-     */
-    let TroopReactionFrequencyKind;
-    (function (TroopReactionFrequencyKind) {
-        TroopReactionFrequencyKind[TroopReactionFrequencyKind["OneTime"] = 0] = "OneTime";
-        TroopReactionFrequencyKind[TroopReactionFrequencyKind["EachTurnBegin"] = 1] = "EachTurnBegin";
-        TroopReactionFrequencyKind[TroopReactionFrequencyKind["EachTurnEnd"] = 2] = "EachTurnEnd";
-        TroopReactionFrequencyKind[TroopReactionFrequencyKind["Always"] = 3] = "Always";
-    })(TroopReactionFrequencyKind = Enum.TroopReactionFrequencyKind || (Enum.TroopReactionFrequencyKind = {}));
-    /**
-     *  Enum for the change variables other characteristics kind.
-     *  @export
-     *  @enum {number}
-     */
-    let ChangeVariablesOtherCharacteristics;
-    (function (ChangeVariablesOtherCharacteristics) {
-        ChangeVariablesOtherCharacteristics[ChangeVariablesOtherCharacteristics["CurrentMapID"] = 0] = "CurrentMapID";
-        ChangeVariablesOtherCharacteristics[ChangeVariablesOtherCharacteristics["NumberInTeam"] = 1] = "NumberInTeam";
-        ChangeVariablesOtherCharacteristics[ChangeVariablesOtherCharacteristics["NumberInHidden"] = 2] = "NumberInHidden";
-        ChangeVariablesOtherCharacteristics[ChangeVariablesOtherCharacteristics["NumberInReserve"] = 3] = "NumberInReserve";
-        ChangeVariablesOtherCharacteristics[ChangeVariablesOtherCharacteristics["TotalNumberOfSteps"] = 4] = "TotalNumberOfSteps";
-        ChangeVariablesOtherCharacteristics[ChangeVariablesOtherCharacteristics["TotalNumberOfSeconds"] = 5] = "TotalNumberOfSeconds";
-        ChangeVariablesOtherCharacteristics[ChangeVariablesOtherCharacteristics["TotalNumberOfSavesDone"] = 6] = "TotalNumberOfSavesDone";
-        ChangeVariablesOtherCharacteristics[ChangeVariablesOtherCharacteristics["TotalNumberOfBattles"] = 7] = "TotalNumberOfBattles";
-        ChangeVariablesOtherCharacteristics[ChangeVariablesOtherCharacteristics["CameraXPosition"] = 8] = "CameraXPosition";
-        ChangeVariablesOtherCharacteristics[ChangeVariablesOtherCharacteristics["CameraYPosition"] = 9] = "CameraYPosition";
-        ChangeVariablesOtherCharacteristics[ChangeVariablesOtherCharacteristics["CameraZPosition"] = 10] = "CameraZPosition";
-        ChangeVariablesOtherCharacteristics[ChangeVariablesOtherCharacteristics["TotalSecondsCurrentMusic"] = 11] = "TotalSecondsCurrentMusic";
-        ChangeVariablesOtherCharacteristics[ChangeVariablesOtherCharacteristics["TotalSecondsCurrentBackgroundMusic"] = 12] = "TotalSecondsCurrentBackgroundMusic";
-    })(ChangeVariablesOtherCharacteristics = Enum.ChangeVariablesOtherCharacteristics || (Enum.ChangeVariablesOtherCharacteristics = {}));
-})(Enum || (Enum = {}));
-export { Enum };
+/** Enum for the different command moves kind. */
+export var COMMAND_MOVE_KIND;
+(function (COMMAND_MOVE_KIND) {
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["MOVE_NORTH"] = 0] = "MOVE_NORTH";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["MOVE_SOUTH"] = 1] = "MOVE_SOUTH";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["MOVE_WEST"] = 2] = "MOVE_WEST";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["MOVE_EAST"] = 3] = "MOVE_EAST";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["MOVE_NORTH_WEST"] = 4] = "MOVE_NORTH_WEST";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["MOVE_NORTH_EAST"] = 5] = "MOVE_NORTH_EAST";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["MOVE_SOUTH_WEST"] = 6] = "MOVE_SOUTH_WEST";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["MOVE_SOUTH_EAST"] = 7] = "MOVE_SOUTH_EAST";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["MOVE_RANDOM"] = 8] = "MOVE_RANDOM";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["MOVE_HERO"] = 9] = "MOVE_HERO";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["MOVE_OPPOSITE_HERO"] = 10] = "MOVE_OPPOSITE_HERO";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["MOVE_FRONT"] = 11] = "MOVE_FRONT";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["MOVE_BACK"] = 12] = "MOVE_BACK";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["CHANGE_GRAPHICS"] = 13] = "CHANGE_GRAPHICS";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["JUMP"] = 14] = "JUMP";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["TURN_NORTH"] = 15] = "TURN_NORTH";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["TURN_SOUTH"] = 16] = "TURN_SOUTH";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["TURN_WEST"] = 17] = "TURN_WEST";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["TURN_EAST"] = 18] = "TURN_EAST";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["TURN_90_RIGHT"] = 19] = "TURN_90_RIGHT";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["TURN_90_LEFT"] = 20] = "TURN_90_LEFT";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["LOOK_AT_HERO"] = 21] = "LOOK_AT_HERO";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["LOOK_AT_HERO_OPPOSITE"] = 22] = "LOOK_AT_HERO_OPPOSITE";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["CHANGE_SPEED"] = 23] = "CHANGE_SPEED";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["CHANGE_FREQUENCY"] = 24] = "CHANGE_FREQUENCY";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["MOVE_ANIMATION"] = 25] = "MOVE_ANIMATION";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["STOP_ANIMATION"] = 26] = "STOP_ANIMATION";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["CLIMB_ANIMATION"] = 27] = "CLIMB_ANIMATION";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["FIX_DIRECTION"] = 28] = "FIX_DIRECTION";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["THROUGH"] = 29] = "THROUGH";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["SET_WITH_CAMERA"] = 30] = "SET_WITH_CAMERA";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["PIXEL_OFFSET"] = 31] = "PIXEL_OFFSET";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["KEEP_POSITION"] = 32] = "KEEP_POSITION";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["WAIT"] = 33] = "WAIT";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["PLAY_SOUND"] = 34] = "PLAY_SOUND";
+    COMMAND_MOVE_KIND[COMMAND_MOVE_KIND["SCRIPT"] = 35] = "SCRIPT";
+})(COMMAND_MOVE_KIND || (COMMAND_MOVE_KIND = {}));
+/** Enum for the different event commands kind. */
+export var EVENT_COMMAND_KIND;
+(function (EVENT_COMMAND_KIND) {
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["NONE"] = 0] = "NONE";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["SHOW_TEXT"] = 1] = "SHOW_TEXT";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["CHANGE_VARIABLES"] = 2] = "CHANGE_VARIABLES";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["GAME_OVER"] = 3] = "GAME_OVER";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["WHILE"] = 4] = "WHILE";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["END_WHILE"] = 5] = "END_WHILE";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["WHILE_BREAK"] = 6] = "WHILE_BREAK";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["INPUT_NUMBER"] = 7] = "INPUT_NUMBER";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["IF"] = 8] = "IF";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["ELSE"] = 9] = "ELSE";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["END_IF"] = 10] = "END_IF";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["OPEN_MAIN_MENU"] = 11] = "OPEN_MAIN_MENU";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["OPEN_SAVES_MENU"] = 12] = "OPEN_SAVES_MENU";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["MODIFY_INVENTORY"] = 13] = "MODIFY_INVENTORY";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["MODIFY_TEAM"] = 14] = "MODIFY_TEAM";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["START_BATTLE"] = 15] = "START_BATTLE";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["IF_WIN"] = 16] = "IF_WIN";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["IF_LOSE"] = 17] = "IF_LOSE";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["CHANGE_STATE"] = 18] = "CHANGE_STATE";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["SEND_EVENT"] = 19] = "SEND_EVENT";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["TELEPORT_OBJECT"] = 20] = "TELEPORT_OBJECT";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["MOVE_OBJECT"] = 21] = "MOVE_OBJECT";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["WAIT"] = 22] = "WAIT";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["MOVE_CAMERA"] = 23] = "MOVE_CAMERA";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["PLAY_MUSIC"] = 24] = "PLAY_MUSIC";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["STOP_MUSIC"] = 25] = "STOP_MUSIC";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["PLAY_BACKGROUND_SOUND"] = 26] = "PLAY_BACKGROUND_SOUND";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["STOP_BACKGROUND_SOUND"] = 27] = "STOP_BACKGROUND_SOUND";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["PLAY_SOUND"] = 28] = "PLAY_SOUND";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["PLAY_MUSIC_EFFECT"] = 29] = "PLAY_MUSIC_EFFECT";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["CHANGE_PROPERTY"] = 30] = "CHANGE_PROPERTY";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["DISPLAY_CHOICE"] = 31] = "DISPLAY_CHOICE";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["CHOICE"] = 32] = "CHOICE";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["END_CHOICE"] = 33] = "END_CHOICE";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["SCRIPT"] = 34] = "SCRIPT";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["DISPLAY_A_PICTURE"] = 35] = "DISPLAY_A_PICTURE";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["SET_MOVE_TURN_A_PICTURE"] = 36] = "SET_MOVE_TURN_A_PICTURE";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["REMOVE_A_PICTURE"] = 37] = "REMOVE_A_PICTURE";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["SET_DIALOG_BOX_OPTIONS"] = 38] = "SET_DIALOG_BOX_OPTIONS";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["TITLE_SCREEN"] = 39] = "TITLE_SCREEN";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["CHANGE_SCREEN_TONE"] = 40] = "CHANGE_SCREEN_TONE";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["REMOVE_OBJECT_FROM_MAP"] = 41] = "REMOVE_OBJECT_FROM_MAP";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["STOP_REACTION"] = 42] = "STOP_REACTION";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["ALLOW_FORBID_SAVES"] = 43] = "ALLOW_FORBID_SAVES";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["ALLOW_FORBID_MAIN_MENU"] = 44] = "ALLOW_FORBID_MAIN_MENU";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["CALL_A_COMMON_REACTION"] = 45] = "CALL_A_COMMON_REACTION";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["LABEL"] = 46] = "LABEL";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["JUMP_LABEL"] = 47] = "JUMP_LABEL";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["COMMENT"] = 48] = "COMMENT";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["CHANGE_A_STATISTIC"] = 49] = "CHANGE_A_STATISTIC";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["CHANGE_A_SKILL"] = 50] = "CHANGE_A_SKILL";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["CHANGE_NAME"] = 51] = "CHANGE_NAME";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["CHANGE_EQUIPMENT"] = 52] = "CHANGE_EQUIPMENT";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["MODIFY_CURRENCY"] = 53] = "MODIFY_CURRENCY";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["DISPLAY_AN_ANIMATION"] = 54] = "DISPLAY_AN_ANIMATION";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["SHAKE_SCREEN"] = 55] = "SHAKE_SCREEN";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["FLASH_SCREEN"] = 56] = "FLASH_SCREEN";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["PLUGIN"] = 57] = "PLUGIN";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["START_SHOP_MENU"] = 58] = "START_SHOP_MENU";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["RESTOCK_SHOP"] = 59] = "RESTOCK_SHOP";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["ENTER_A_NAME_MENU"] = 60] = "ENTER_A_NAME_MENU";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["CREATE_OBJECT_IN_MAP"] = 61] = "CREATE_OBJECT_IN_MAP";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["CHANGE_STATUS"] = 62] = "CHANGE_STATUS";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["RESET_CAMERA"] = 63] = "RESET_CAMERA";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["CHANGE_BATTLE_MUSIC"] = 64] = "CHANGE_BATTLE_MUSIC";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["CHANGE_VICTORY_MUSIC"] = 65] = "CHANGE_VICTORY_MUSIC";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["END_BATTLE"] = 66] = "END_BATTLE";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["FORCE_AN_ACTION"] = 67] = "FORCE_AN_ACTION";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["CHANGE_MAP_PROPERTIES"] = 68] = "CHANGE_MAP_PROPERTIES";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["CHANGE_EXPERIENCE_CURVE"] = 69] = "CHANGE_EXPERIENCE_CURVE";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["CHANGE_CLASS"] = 70] = "CHANGE_CLASS";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["CHANGE_CHRONOMETER"] = 71] = "CHANGE_CHRONOMETER";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["CHANGE_WEATHER"] = 72] = "CHANGE_WEATHER";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["PLAY_A_VIDEO"] = 73] = "PLAY_A_VIDEO";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["SWITCH_TEXTURE"] = 74] = "SWITCH_TEXTURE";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["STOP_A_SOUND"] = 75] = "STOP_A_SOUND";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["DISPLAY_HIDE_A_BATTLER"] = 76] = "DISPLAY_HIDE_A_BATTLER";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["TRANSFORM_A_BATTLER"] = 77] = "TRANSFORM_A_BATTLER";
+    EVENT_COMMAND_KIND[EVENT_COMMAND_KIND["CHANGE_BATTLER_GRAPHICS"] = 78] = "CHANGE_BATTLER_GRAPHICS";
+})(EVENT_COMMAND_KIND || (EVENT_COMMAND_KIND = {}));
+/** Enum for the different items kind. */
+export var ITEM_KIND;
+(function (ITEM_KIND) {
+    ITEM_KIND[ITEM_KIND["ITEM"] = 0] = "ITEM";
+    ITEM_KIND[ITEM_KIND["WEAPON"] = 1] = "WEAPON";
+    ITEM_KIND[ITEM_KIND["ARMOR"] = 2] = "ARMOR";
+})(ITEM_KIND || (ITEM_KIND = {}));
+/** Enum for the different players kind. */
+export var CHARACTER_KIND;
+(function (CHARACTER_KIND) {
+    CHARACTER_KIND[CHARACTER_KIND["HERO"] = 0] = "HERO";
+    CHARACTER_KIND[CHARACTER_KIND["MONSTER"] = 1] = "MONSTER";
+})(CHARACTER_KIND || (CHARACTER_KIND = {}));
+/** Enum for the different groups kind. */
+export var GROUP_KIND;
+(function (GROUP_KIND) {
+    GROUP_KIND[GROUP_KIND["TEAM"] = 0] = "TEAM";
+    GROUP_KIND[GROUP_KIND["RESERVE"] = 1] = "RESERVE";
+    GROUP_KIND[GROUP_KIND["HIDDEN"] = 2] = "HIDDEN";
+    GROUP_KIND[GROUP_KIND["TROOP"] = 3] = "TROOP";
+})(GROUP_KIND || (GROUP_KIND = {}));
+/**
+ *   Enum for the different horizontal aligns kind.
+ */
+export var ALIGN;
+(function (ALIGN) {
+    ALIGN["NONE"] = " none";
+    ALIGN["LEFT"] = "left";
+    ALIGN["RIGHT"] = "right";
+    ALIGN["CENTER"] = "center";
+})(ALIGN || (ALIGN = {}));
+/** Enum for the different vertical aligns kind. */
+export var ALIGN_VERTICAL;
+(function (ALIGN_VERTICAL) {
+    ALIGN_VERTICAL[ALIGN_VERTICAL["BOT"] = 0] = "BOT";
+    ALIGN_VERTICAL[ALIGN_VERTICAL["TOP"] = 1] = "TOP";
+    ALIGN_VERTICAL[ALIGN_VERTICAL["CENTER"] = 2] = "CENTER";
+})(ALIGN_VERTICAL || (ALIGN_VERTICAL = {}));
+/** Enum for the different orientations kind. */
+export var ORIENTATION;
+(function (ORIENTATION) {
+    ORIENTATION[ORIENTATION["SOUTH"] = 0] = "SOUTH";
+    ORIENTATION[ORIENTATION["WEST"] = 1] = "WEST";
+    ORIENTATION[ORIENTATION["NORTH"] = 2] = "NORTH";
+    ORIENTATION[ORIENTATION["EAST"] = 3] = "EAST";
+    ORIENTATION[ORIENTATION["SOUTH_WEST"] = 4] = "SOUTH_WEST";
+    ORIENTATION[ORIENTATION["SOUTH_EAST"] = 5] = "SOUTH_EAST";
+    ORIENTATION[ORIENTATION["NORTH_WEST"] = 6] = "NORTH_WEST";
+    ORIENTATION[ORIENTATION["NORTH_EAST"] = 7] = "NORTH_EAST";
+    ORIENTATION[ORIENTATION["UP"] = 8] = "UP";
+    ORIENTATION[ORIENTATION["DOWN"] = 9] = "DOWN";
+    ORIENTATION[ORIENTATION["NONE"] = 10] = "NONE";
+})(ORIENTATION || (ORIENTATION = {}));
+/** Enum for the different map elements kind. */
+export var ELEMENT_MAP_KIND;
+(function (ELEMENT_MAP_KIND) {
+    ELEMENT_MAP_KIND[ELEMENT_MAP_KIND["NONE"] = 0] = "NONE";
+    ELEMENT_MAP_KIND[ELEMENT_MAP_KIND["FLOORS"] = 1] = "FLOORS";
+    ELEMENT_MAP_KIND[ELEMENT_MAP_KIND["AUTOTILES"] = 2] = "AUTOTILES";
+    ELEMENT_MAP_KIND[ELEMENT_MAP_KIND["SPRITES_FACE"] = 3] = "SPRITES_FACE";
+    ELEMENT_MAP_KIND[ELEMENT_MAP_KIND["SPRITES_FIX"] = 4] = "SPRITES_FIX";
+    ELEMENT_MAP_KIND[ELEMENT_MAP_KIND["SPRITES_DOUBLE"] = 5] = "SPRITES_DOUBLE";
+    ELEMENT_MAP_KIND[ELEMENT_MAP_KIND["SPRITES_QUADRA"] = 6] = "SPRITES_QUADRA";
+    ELEMENT_MAP_KIND[ELEMENT_MAP_KIND["SPRITES_WALL"] = 7] = "SPRITES_WALL";
+    ELEMENT_MAP_KIND[ELEMENT_MAP_KIND["MOUNTAINS"] = 8] = "MOUNTAINS";
+    ELEMENT_MAP_KIND[ELEMENT_MAP_KIND["OBJECT_3D"] = 9] = "OBJECT_3D";
+    ELEMENT_MAP_KIND[ELEMENT_MAP_KIND["OBJECT"] = 10] = "OBJECT";
+    ELEMENT_MAP_KIND[ELEMENT_MAP_KIND["START_POSITION"] = 11] = "START_POSITION";
+})(ELEMENT_MAP_KIND || (ELEMENT_MAP_KIND = {}));
+/** Enum for the different sprite walls kind. */
+export var SPRITE_WALL_KIND;
+(function (SPRITE_WALL_KIND) {
+    SPRITE_WALL_KIND[SPRITE_WALL_KIND["LEFT"] = 0] = "LEFT";
+    SPRITE_WALL_KIND[SPRITE_WALL_KIND["MIDDLE"] = 1] = "MIDDLE";
+    SPRITE_WALL_KIND[SPRITE_WALL_KIND["RIGHT"] = 2] = "RIGHT";
+    SPRITE_WALL_KIND[SPRITE_WALL_KIND["LEFT_RIGHT"] = 3] = "LEFT_RIGHT";
+})(SPRITE_WALL_KIND || (SPRITE_WALL_KIND = {}));
+/** Enum for the different pictures kind. */
+export var PICTURE_KIND;
+(function (PICTURE_KIND) {
+    PICTURE_KIND[PICTURE_KIND["NONE"] = 0] = "NONE";
+    PICTURE_KIND[PICTURE_KIND["BARS"] = 1] = "BARS";
+    PICTURE_KIND[PICTURE_KIND["ICONS"] = 2] = "ICONS";
+    PICTURE_KIND[PICTURE_KIND["AUTOTILES"] = 3] = "AUTOTILES";
+    PICTURE_KIND[PICTURE_KIND["CHARACTERS"] = 4] = "CHARACTERS";
+    PICTURE_KIND[PICTURE_KIND["MOUNTAINS"] = 5] = "MOUNTAINS";
+    PICTURE_KIND[PICTURE_KIND["TILESETS"] = 6] = "TILESETS";
+    PICTURE_KIND[PICTURE_KIND["WALLS"] = 7] = "WALLS";
+    PICTURE_KIND[PICTURE_KIND["BATTLERS"] = 8] = "BATTLERS";
+    PICTURE_KIND[PICTURE_KIND["FACESETS"] = 9] = "FACESETS";
+    PICTURE_KIND[PICTURE_KIND["WINDOW_SKINS"] = 10] = "WINDOW_SKINS";
+    PICTURE_KIND[PICTURE_KIND["TITLE_SCREEN"] = 11] = "TITLE_SCREEN";
+    PICTURE_KIND[PICTURE_KIND["OBJECTS_3D"] = 12] = "OBJECTS_3D";
+    PICTURE_KIND[PICTURE_KIND["PICTURES"] = 13] = "PICTURES";
+    PICTURE_KIND[PICTURE_KIND["ANIMATIONS"] = 14] = "ANIMATIONS";
+    PICTURE_KIND[PICTURE_KIND["SKYBOXES"] = 15] = "SKYBOXES";
+    PICTURE_KIND[PICTURE_KIND["PARTICLES"] = 16] = "PARTICLES";
+    PICTURE_KIND[PICTURE_KIND["GAME_OVER"] = 17] = "GAME_OVER";
+})(PICTURE_KIND || (PICTURE_KIND = {}));
+/** Enum for the different songs kind. */
+export var SONG_KIND;
+(function (SONG_KIND) {
+    SONG_KIND[SONG_KIND["NONE"] = 0] = "NONE";
+    SONG_KIND[SONG_KIND["MUSIC"] = 1] = "MUSIC";
+    SONG_KIND[SONG_KIND["BACKGROUND_SOUND"] = 2] = "BACKGROUND_SOUND";
+    SONG_KIND[SONG_KIND["SOUND"] = 3] = "SOUND";
+    SONG_KIND[SONG_KIND["MUSIC_EFFECT"] = 4] = "MUSIC_EFFECT";
+})(SONG_KIND || (SONG_KIND = {}));
+/** Enum for the different primitive values kind. */
+export var DYNAMIC_VALUE_KIND;
+(function (DYNAMIC_VALUE_KIND) {
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["UNKNOWN"] = -1] = "UNKNOWN";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["NONE"] = 0] = "NONE";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["ANYTHING"] = 1] = "ANYTHING";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["DEFAULT"] = 2] = "DEFAULT";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["NUMBER"] = 3] = "NUMBER";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["VARIABLE"] = 4] = "VARIABLE";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["PARAMETER"] = 5] = "PARAMETER";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["PROPERTY"] = 6] = "PROPERTY";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["DATABASE"] = 7] = "DATABASE";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["MESSAGE"] = 8] = "MESSAGE";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["SCRIPT"] = 9] = "SCRIPT";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["SWITCH"] = 10] = "SWITCH";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["KEYBOARD"] = 11] = "KEYBOARD";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["NUMBER_DOUBLE"] = 12] = "NUMBER_DOUBLE";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["FONT"] = 13] = "FONT";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["CLASS"] = 14] = "CLASS";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["HERO"] = 15] = "HERO";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["MONSTER"] = 16] = "MONSTER";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["TROOP"] = 17] = "TROOP";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["ITEM"] = 18] = "ITEM";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["WEAPON"] = 19] = "WEAPON";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["ARMOR"] = 20] = "ARMOR";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["SKILL"] = 21] = "SKILL";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["ANIMATION"] = 22] = "ANIMATION";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["STATUS"] = 23] = "STATUS";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["TILESET"] = 24] = "TILESET";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["FONT_SIZE"] = 25] = "FONT_SIZE";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["FONT_NAME"] = 26] = "FONT_NAME";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["COLOR"] = 27] = "COLOR";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["WINDOW_SKIN"] = 28] = "WINDOW_SKIN";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["CURRENCY"] = 29] = "CURRENCY";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["SPEED"] = 30] = "SPEED";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["DETECTION"] = 31] = "DETECTION";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["CAMERA_PROPERTY"] = 32] = "CAMERA_PROPERTY";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["FREQUENCY"] = 33] = "FREQUENCY";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["SKYBOX"] = 34] = "SKYBOX";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["BATTLE_MAP"] = 35] = "BATTLE_MAP";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["ELEMENT"] = 36] = "ELEMENT";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["COMMON_STATISTIC"] = 37] = "COMMON_STATISTIC";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["WEAPONS_KIND"] = 38] = "WEAPONS_KIND";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["ARMORS_KIND"] = 39] = "ARMORS_KIND";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["COMMON_BATTLE_COMMAND"] = 40] = "COMMON_BATTLE_COMMAND";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["COMMON_EQUIPMENT"] = 41] = "COMMON_EQUIPMENT";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["EVENT"] = 42] = "EVENT";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["STATE"] = 43] = "STATE";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["COMMON_REACTION"] = 44] = "COMMON_REACTION";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["MODEL"] = 45] = "MODEL";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["CUSTOM_STRUCTURE"] = 46] = "CUSTOM_STRUCTURE";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["CUSTOM_LIST"] = 47] = "CUSTOM_LIST";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["VECTOR2"] = 48] = "VECTOR2";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["VECTOR3"] = 49] = "VECTOR3";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["BARS"] = 50] = "BARS";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["ICONS"] = 51] = "ICONS";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["AUTOTILES"] = 52] = "AUTOTILES";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["CHARACTERS"] = 53] = "CHARACTERS";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["MOUNTAINS"] = 54] = "MOUNTAINS";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["TILESETS"] = 55] = "TILESETS";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["WALLS"] = 56] = "WALLS";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["BATTLERS"] = 57] = "BATTLERS";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["FACESETS"] = 58] = "FACESETS";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["WINDOW_SKINS"] = 59] = "WINDOW_SKINS";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["TITLE_SCREEN"] = 60] = "TITLE_SCREEN";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["OBJECT_3D"] = 61] = "OBJECT_3D";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["PICTURES"] = 62] = "PICTURES";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["ANIMATIONS"] = 63] = "ANIMATIONS";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["SKYBOXES"] = 64] = "SKYBOXES";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["ENUM"] = 65] = "ENUM";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["MUSIC"] = 66] = "MUSIC";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["BACKGROUND_SOUND"] = 67] = "BACKGROUND_SOUND";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["SOUND"] = 68] = "SOUND";
+    DYNAMIC_VALUE_KIND[DYNAMIC_VALUE_KIND["MUSIC_EFFECT"] = 69] = "MUSIC_EFFECT";
+})(DYNAMIC_VALUE_KIND || (DYNAMIC_VALUE_KIND = {}));
+/** Enum for the different window orientations. */
+export var ORIENTATION_WINDOW;
+(function (ORIENTATION_WINDOW) {
+    ORIENTATION_WINDOW[ORIENTATION_WINDOW["VERTICAL"] = 0] = "VERTICAL";
+    ORIENTATION_WINDOW[ORIENTATION_WINDOW["HORIZONTAL"] = 1] = "HORIZONTAL";
+})(ORIENTATION_WINDOW || (ORIENTATION_WINDOW = {}));
+/** Enum for the different battler steps. */
+export var BATTLER_STEP;
+(function (BATTLER_STEP) {
+    BATTLER_STEP[BATTLER_STEP["NORMAL"] = 0] = "NORMAL";
+    BATTLER_STEP[BATTLER_STEP["ATTACK"] = 1] = "ATTACK";
+    BATTLER_STEP[BATTLER_STEP["SKILL"] = 2] = "SKILL";
+    BATTLER_STEP[BATTLER_STEP["ITEM"] = 3] = "ITEM";
+    BATTLER_STEP[BATTLER_STEP["ESCAPE"] = 4] = "ESCAPE";
+    BATTLER_STEP[BATTLER_STEP["DEFENSE"] = 5] = "DEFENSE";
+    BATTLER_STEP[BATTLER_STEP["ATTACKED"] = 6] = "ATTACKED";
+    BATTLER_STEP[BATTLER_STEP["VICTORY"] = 7] = "VICTORY";
+    BATTLER_STEP[BATTLER_STEP["DEAD"] = 8] = "DEAD";
+})(BATTLER_STEP || (BATTLER_STEP = {}));
+/** Enum for the different loots kind. */
+export var LOOT_KIND;
+(function (LOOT_KIND) {
+    LOOT_KIND[LOOT_KIND["ITEM"] = 0] = "ITEM";
+    LOOT_KIND[LOOT_KIND["WEAPON"] = 1] = "WEAPON";
+    LOOT_KIND[LOOT_KIND["ARMOR"] = 2] = "ARMOR";
+})(LOOT_KIND || (LOOT_KIND = {}));
+/** Enum for the different damages kind. */
+export var DAMAGES_KIND;
+(function (DAMAGES_KIND) {
+    DAMAGES_KIND[DAMAGES_KIND["STAT"] = 0] = "STAT";
+    DAMAGES_KIND[DAMAGES_KIND["CURRENCY"] = 1] = "CURRENCY";
+    DAMAGES_KIND[DAMAGES_KIND["VARIABLE"] = 2] = "VARIABLE";
+})(DAMAGES_KIND || (DAMAGES_KIND = {}));
+/** Enum for the different effect kind. */
+export var EFFECT_KIND;
+(function (EFFECT_KIND) {
+    EFFECT_KIND[EFFECT_KIND["DAMAGES"] = 0] = "DAMAGES";
+    EFFECT_KIND[EFFECT_KIND["STATUS"] = 1] = "STATUS";
+    EFFECT_KIND[EFFECT_KIND["ADD_REMOVE_SKILL"] = 2] = "ADD_REMOVE_SKILL";
+    EFFECT_KIND[EFFECT_KIND["PERFORM_SKILL"] = 3] = "PERFORM_SKILL";
+    EFFECT_KIND[EFFECT_KIND["COMMON_REACTION"] = 4] = "COMMON_REACTION";
+    EFFECT_KIND[EFFECT_KIND["SPECIAL_ACTIONS"] = 5] = "SPECIAL_ACTIONS";
+    EFFECT_KIND[EFFECT_KIND["SCRIPT"] = 6] = "SCRIPT";
+})(EFFECT_KIND || (EFFECT_KIND = {}));
+/** Enum for the different effect special action kind. */
+export var EFFECT_SPECIAL_ACTION_KIND;
+(function (EFFECT_SPECIAL_ACTION_KIND) {
+    EFFECT_SPECIAL_ACTION_KIND[EFFECT_SPECIAL_ACTION_KIND["NONE"] = -1] = "NONE";
+    EFFECT_SPECIAL_ACTION_KIND[EFFECT_SPECIAL_ACTION_KIND["APPLY_WEAPONS"] = 0] = "APPLY_WEAPONS";
+    EFFECT_SPECIAL_ACTION_KIND[EFFECT_SPECIAL_ACTION_KIND["OPEN_SKILLS"] = 1] = "OPEN_SKILLS";
+    EFFECT_SPECIAL_ACTION_KIND[EFFECT_SPECIAL_ACTION_KIND["OPEN_ITEMS"] = 2] = "OPEN_ITEMS";
+    EFFECT_SPECIAL_ACTION_KIND[EFFECT_SPECIAL_ACTION_KIND["ESCAPE"] = 3] = "ESCAPE";
+    EFFECT_SPECIAL_ACTION_KIND[EFFECT_SPECIAL_ACTION_KIND["END_TURN"] = 4] = "END_TURN";
+    EFFECT_SPECIAL_ACTION_KIND[EFFECT_SPECIAL_ACTION_KIND["DO_NOTHING"] = 5] = "DO_NOTHING";
+})(EFFECT_SPECIAL_ACTION_KIND || (EFFECT_SPECIAL_ACTION_KIND = {}));
+/** Enum for the different characteristic kind. */
+export var CHARACTERISTIC_KIND;
+(function (CHARACTERISTIC_KIND) {
+    CHARACTERISTIC_KIND[CHARACTERISTIC_KIND["INCREASE_DECREASE"] = 0] = "INCREASE_DECREASE";
+    CHARACTERISTIC_KIND[CHARACTERISTIC_KIND["SCRIPT"] = 1] = "SCRIPT";
+    CHARACTERISTIC_KIND[CHARACTERISTIC_KIND["ALLOW_FORBID_EQUIP"] = 2] = "ALLOW_FORBID_EQUIP";
+    CHARACTERISTIC_KIND[CHARACTERISTIC_KIND["ALLOW_FORBID_CHANGE"] = 3] = "ALLOW_FORBID_CHANGE";
+    CHARACTERISTIC_KIND[CHARACTERISTIC_KIND["BEGIN_EQUIPMENT"] = 4] = "BEGIN_EQUIPMENT";
+    CHARACTERISTIC_KIND[CHARACTERISTIC_KIND["ELEMENT"] = 5] = "ELEMENT";
+})(CHARACTERISTIC_KIND || (CHARACTERISTIC_KIND = {}));
+/** Enum for the different increase/decrease kind. */
+export var INCREASE_DECREASE_KIND;
+(function (INCREASE_DECREASE_KIND) {
+    INCREASE_DECREASE_KIND[INCREASE_DECREASE_KIND["STAT_VALUE"] = 0] = "STAT_VALUE";
+    INCREASE_DECREASE_KIND[INCREASE_DECREASE_KIND["ELEMENT_RES"] = 1] = "ELEMENT_RES";
+    INCREASE_DECREASE_KIND[INCREASE_DECREASE_KIND["STATUS_RES"] = 2] = "STATUS_RES";
+    INCREASE_DECREASE_KIND[INCREASE_DECREASE_KIND["EXPERIENCE_GAIN"] = 3] = "EXPERIENCE_GAIN";
+    INCREASE_DECREASE_KIND[INCREASE_DECREASE_KIND["CURRENCY_GAIN"] = 4] = "CURRENCY_GAIN";
+    INCREASE_DECREASE_KIND[INCREASE_DECREASE_KIND["SKILL_COST"] = 5] = "SKILL_COST";
+    INCREASE_DECREASE_KIND[INCREASE_DECREASE_KIND["VARIABLE"] = 6] = "VARIABLE";
+})(INCREASE_DECREASE_KIND || (INCREASE_DECREASE_KIND = {}));
+/** Enum for the different target kind. */
+export var TARGET_KIND;
+(function (TARGET_KIND) {
+    TARGET_KIND[TARGET_KIND["NONE"] = 0] = "NONE";
+    TARGET_KIND[TARGET_KIND["USER"] = 1] = "USER";
+    TARGET_KIND[TARGET_KIND["ENEMY"] = 2] = "ENEMY";
+    TARGET_KIND[TARGET_KIND["ALLY"] = 3] = "ALLY";
+    TARGET_KIND[TARGET_KIND["ALL_ENEMIES"] = 4] = "ALL_ENEMIES";
+    TARGET_KIND[TARGET_KIND["ALL_ALLIES"] = 5] = "ALL_ALLIES";
+})(TARGET_KIND || (TARGET_KIND = {}));
+/** Enum for the different available kind. */
+export var AVAILABLE_KIND;
+(function (AVAILABLE_KIND) {
+    AVAILABLE_KIND[AVAILABLE_KIND["BATTLE"] = 0] = "BATTLE";
+    AVAILABLE_KIND[AVAILABLE_KIND["MAIN_MENU"] = 1] = "MAIN_MENU";
+    AVAILABLE_KIND[AVAILABLE_KIND["ALWAYS"] = 2] = "ALWAYS";
+    AVAILABLE_KIND[AVAILABLE_KIND["NEVER"] = 3] = "NEVER";
+})(AVAILABLE_KIND || (AVAILABLE_KIND = {}));
+/** Enum for the different shape kind. */
+export var SHAPE_KIND;
+(function (SHAPE_KIND) {
+    SHAPE_KIND[SHAPE_KIND["BOX"] = 0] = "BOX";
+    SHAPE_KIND[SHAPE_KIND["SPHERE"] = 1] = "SPHERE";
+    SHAPE_KIND[SHAPE_KIND["CYLINDER"] = 2] = "CYLINDER";
+    SHAPE_KIND[SHAPE_KIND["CONE"] = 3] = "CONE";
+    SHAPE_KIND[SHAPE_KIND["CAPSULE"] = 4] = "CAPSULE";
+    SHAPE_KIND[SHAPE_KIND["CUSTOM"] = 5] = "CUSTOM";
+})(SHAPE_KIND || (SHAPE_KIND = {}));
+/** Enum for the different custom shape kind. */
+export var CUSTOM_SHAPE_KIND;
+(function (CUSTOM_SHAPE_KIND) {
+    CUSTOM_SHAPE_KIND[CUSTOM_SHAPE_KIND["NONE"] = 0] = "NONE";
+    CUSTOM_SHAPE_KIND[CUSTOM_SHAPE_KIND["OBJ"] = 1] = "OBJ";
+    CUSTOM_SHAPE_KIND[CUSTOM_SHAPE_KIND["MTL"] = 2] = "MTL";
+    CUSTOM_SHAPE_KIND[CUSTOM_SHAPE_KIND["COLLISIONS"] = 3] = "COLLISIONS";
+})(CUSTOM_SHAPE_KIND || (CUSTOM_SHAPE_KIND = {}));
+/** Enum for the different object collision kind. */
+export var OBJECT_COLLISION_KIND;
+(function (OBJECT_COLLISION_KIND) {
+    OBJECT_COLLISION_KIND[OBJECT_COLLISION_KIND["NONE"] = 0] = "NONE";
+    OBJECT_COLLISION_KIND[OBJECT_COLLISION_KIND["PERFECT"] = 1] = "PERFECT";
+    OBJECT_COLLISION_KIND[OBJECT_COLLISION_KIND["SIMPLIFIED"] = 2] = "SIMPLIFIED";
+    OBJECT_COLLISION_KIND[OBJECT_COLLISION_KIND["CUSTOM"] = 3] = "CUSTOM";
+})(OBJECT_COLLISION_KIND || (OBJECT_COLLISION_KIND = {}));
+/** Enum for the map transitions. */
+export var MAP_TRANSITION_KIND;
+(function (MAP_TRANSITION_KIND) {
+    MAP_TRANSITION_KIND[MAP_TRANSITION_KIND["NONE"] = 0] = "NONE";
+    MAP_TRANSITION_KIND[MAP_TRANSITION_KIND["FADE"] = 1] = "FADE";
+    MAP_TRANSITION_KIND[MAP_TRANSITION_KIND["ZOOM"] = 2] = "ZOOM";
+})(MAP_TRANSITION_KIND || (MAP_TRANSITION_KIND = {}));
+/** Enum for the mountain collision kind. */
+export var MOUNTAIN_COLLISION_KIND;
+(function (MOUNTAIN_COLLISION_KIND) {
+    MOUNTAIN_COLLISION_KIND[MOUNTAIN_COLLISION_KIND["DEFAULT"] = 0] = "DEFAULT";
+    MOUNTAIN_COLLISION_KIND[MOUNTAIN_COLLISION_KIND["ALWAYS"] = 1] = "ALWAYS";
+    MOUNTAIN_COLLISION_KIND[MOUNTAIN_COLLISION_KIND["NEVER"] = 2] = "NEVER";
+})(MOUNTAIN_COLLISION_KIND || (MOUNTAIN_COLLISION_KIND = {}));
+/** Enum for the title screen commands. */
+export var TITLE_COMMAND_KIND;
+(function (TITLE_COMMAND_KIND) {
+    TITLE_COMMAND_KIND[TITLE_COMMAND_KIND["NEW_GAME"] = 0] = "NEW_GAME";
+    TITLE_COMMAND_KIND[TITLE_COMMAND_KIND["LOAD_GAME"] = 1] = "LOAD_GAME";
+    TITLE_COMMAND_KIND[TITLE_COMMAND_KIND["SETTINGS"] = 2] = "SETTINGS";
+    TITLE_COMMAND_KIND[TITLE_COMMAND_KIND["EXIT"] = 3] = "EXIT";
+    TITLE_COMMAND_KIND[TITLE_COMMAND_KIND["SCRIPT"] = 4] = "SCRIPT";
+})(TITLE_COMMAND_KIND || (TITLE_COMMAND_KIND = {}));
+/** Enum for the game over commands. */
+export var GAME_OVER_COMMAND_KIND;
+(function (GAME_OVER_COMMAND_KIND) {
+    GAME_OVER_COMMAND_KIND[GAME_OVER_COMMAND_KIND["CONTINUE"] = 0] = "CONTINUE";
+    GAME_OVER_COMMAND_KIND[GAME_OVER_COMMAND_KIND["TITLE_SCREEN"] = 1] = "TITLE_SCREEN";
+    GAME_OVER_COMMAND_KIND[GAME_OVER_COMMAND_KIND["EXIT"] = 2] = "EXIT";
+    GAME_OVER_COMMAND_KIND[GAME_OVER_COMMAND_KIND["SCRIPT"] = 3] = "SCRIPT";
+})(GAME_OVER_COMMAND_KIND || (GAME_OVER_COMMAND_KIND = {}));
+/** Enum for the title settings. */
+export var TITLE_SETTING_KIND;
+(function (TITLE_SETTING_KIND) {
+    TITLE_SETTING_KIND[TITLE_SETTING_KIND["KEYBOARD_ASSIGNMENT"] = 0] = "KEYBOARD_ASSIGNMENT";
+    TITLE_SETTING_KIND[TITLE_SETTING_KIND["LANGUAGE"] = 1] = "LANGUAGE";
+})(TITLE_SETTING_KIND || (TITLE_SETTING_KIND = {}));
+/** Enum for the object moving. */
+export var OBJECT_MOVING_KIND;
+(function (OBJECT_MOVING_KIND) {
+    OBJECT_MOVING_KIND[OBJECT_MOVING_KIND["FIX"] = 0] = "FIX";
+    OBJECT_MOVING_KIND[OBJECT_MOVING_KIND["RANDOM"] = 1] = "RANDOM";
+    OBJECT_MOVING_KIND[OBJECT_MOVING_KIND["ROUTE"] = 2] = "ROUTE";
+})(OBJECT_MOVING_KIND || (OBJECT_MOVING_KIND = {}));
+/** Enum for the tags. */
+export var TAG_KIND;
+(function (TAG_KIND) {
+    TAG_KIND[TAG_KIND["NEW_LINE"] = 0] = "NEW_LINE";
+    TAG_KIND[TAG_KIND["TEXT"] = 1] = "TEXT";
+    TAG_KIND[TAG_KIND["BOLD"] = 2] = "BOLD";
+    TAG_KIND[TAG_KIND["ITALIC"] = 3] = "ITALIC";
+    TAG_KIND[TAG_KIND["LEFT"] = 4] = "LEFT";
+    TAG_KIND[TAG_KIND["CENTER"] = 5] = "CENTER";
+    TAG_KIND[TAG_KIND["RIGHT"] = 6] = "RIGHT";
+    TAG_KIND[TAG_KIND["SIZE"] = 7] = "SIZE";
+    TAG_KIND[TAG_KIND["FONT"] = 8] = "FONT";
+    TAG_KIND[TAG_KIND["TEXT_COLOR"] = 9] = "TEXT_COLOR";
+    TAG_KIND[TAG_KIND["BACK_COLOR"] = 10] = "BACK_COLOR";
+    TAG_KIND[TAG_KIND["STROKE_COLOR"] = 11] = "STROKE_COLOR";
+    TAG_KIND[TAG_KIND["VARIABLE"] = 12] = "VARIABLE";
+    TAG_KIND[TAG_KIND["PARAMETER"] = 13] = "PARAMETER";
+    TAG_KIND[TAG_KIND["PROPERTY"] = 14] = "PROPERTY";
+    TAG_KIND[TAG_KIND["HERO_NAME"] = 15] = "HERO_NAME";
+    TAG_KIND[TAG_KIND["ICON"] = 16] = "ICON";
+})(TAG_KIND || (TAG_KIND = {}));
+/** Enum for the condition heroes. */
+export var CONDITION_HEROES_KIND;
+(function (CONDITION_HEROES_KIND) {
+    CONDITION_HEROES_KIND[CONDITION_HEROES_KIND["ALL_THE_HEROES"] = 0] = "ALL_THE_HEROES";
+    CONDITION_HEROES_KIND[CONDITION_HEROES_KIND["NONE_OF_THE_HEROES"] = 1] = "NONE_OF_THE_HEROES";
+    CONDITION_HEROES_KIND[CONDITION_HEROES_KIND["AT_LEAST_ONE_HERO"] = 2] = "AT_LEAST_ONE_HERO";
+    CONDITION_HEROES_KIND[CONDITION_HEROES_KIND["THE_HERO_WITH_INSTANCE_ID"] = 3] = "THE_HERO_WITH_INSTANCE_ID";
+})(CONDITION_HEROES_KIND || (CONDITION_HEROES_KIND = {}));
+/** Enum for the variables map object characteristics. */
+export var VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND;
+(function (VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND) {
+    VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND[VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND["X_SQUARE_POSITION"] = 0] = "X_SQUARE_POSITION";
+    VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND[VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND["Y_SQUARE_POSITION"] = 1] = "Y_SQUARE_POSITION";
+    VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND[VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND["Z_SQUARE_POSITION"] = 2] = "Z_SQUARE_POSITION";
+    VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND[VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND["X_PIXEL_POSITION"] = 3] = "X_PIXEL_POSITION";
+    VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND[VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND["Y_PIXEL_POSITION"] = 4] = "Y_PIXEL_POSITION";
+    VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND[VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND["Z_PIXEL_POSITION"] = 5] = "Z_PIXEL_POSITION";
+    VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND[VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND["ORIENTATION"] = 6] = "ORIENTATION";
+    VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND[VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND["TERRAIN"] = 7] = "TERRAIN";
+})(VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND || (VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND = {}));
+/** Enum for the animation position kind. */
+export var ANIMATION_POSITION_KIND;
+(function (ANIMATION_POSITION_KIND) {
+    ANIMATION_POSITION_KIND[ANIMATION_POSITION_KIND["TOP"] = 0] = "TOP";
+    ANIMATION_POSITION_KIND[ANIMATION_POSITION_KIND["MIDDLE"] = 1] = "MIDDLE";
+    ANIMATION_POSITION_KIND[ANIMATION_POSITION_KIND["BOTTOM"] = 2] = "BOTTOM";
+    ANIMATION_POSITION_KIND[ANIMATION_POSITION_KIND["SCREEN_CENTER"] = 3] = "SCREEN_CENTER";
+})(ANIMATION_POSITION_KIND || (ANIMATION_POSITION_KIND = {}));
+/** Enum for the animation effect condition kind. */
+export var ANIMATION_EFFECT_CONDITION_KIND;
+(function (ANIMATION_EFFECT_CONDITION_KIND) {
+    ANIMATION_EFFECT_CONDITION_KIND[ANIMATION_EFFECT_CONDITION_KIND["NONE"] = 0] = "NONE";
+    ANIMATION_EFFECT_CONDITION_KIND[ANIMATION_EFFECT_CONDITION_KIND["HIT"] = 1] = "HIT";
+    ANIMATION_EFFECT_CONDITION_KIND[ANIMATION_EFFECT_CONDITION_KIND["MISS"] = 2] = "MISS";
+    ANIMATION_EFFECT_CONDITION_KIND[ANIMATION_EFFECT_CONDITION_KIND["CRITICAL"] = 3] = "CRITICAL";
+})(ANIMATION_EFFECT_CONDITION_KIND || (ANIMATION_EFFECT_CONDITION_KIND = {}));
+/** Enum for the monster action kind. */
+export var MONSTER_ACTION_KIND;
+(function (MONSTER_ACTION_KIND) {
+    MONSTER_ACTION_KIND[MONSTER_ACTION_KIND["USE_SKILL"] = 0] = "USE_SKILL";
+    MONSTER_ACTION_KIND[MONSTER_ACTION_KIND["USE_ITEM"] = 1] = "USE_ITEM";
+    MONSTER_ACTION_KIND[MONSTER_ACTION_KIND["DO_NOTHING"] = 2] = "DO_NOTHING";
+})(MONSTER_ACTION_KIND || (MONSTER_ACTION_KIND = {}));
+/** Enum for the monster action target kind. */
+export var MONSTER_ACTION_TARGET_KIND;
+(function (MONSTER_ACTION_TARGET_KIND) {
+    MONSTER_ACTION_TARGET_KIND[MONSTER_ACTION_TARGET_KIND["RANDOM"] = 0] = "RANDOM";
+    MONSTER_ACTION_TARGET_KIND[MONSTER_ACTION_TARGET_KIND["WEAK_ENEMIES"] = 1] = "WEAK_ENEMIES";
+})(MONSTER_ACTION_TARGET_KIND || (MONSTER_ACTION_TARGET_KIND = {}));
+/** Enum for the operation kind. */
+export var OPERATION_KIND;
+(function (OPERATION_KIND) {
+    OPERATION_KIND[OPERATION_KIND["EQUAL_TO"] = 0] = "EQUAL_TO";
+    OPERATION_KIND[OPERATION_KIND["NOT_EQUAL_TO"] = 1] = "NOT_EQUAL_TO";
+    OPERATION_KIND[OPERATION_KIND["GREATER_THAN_OR_EQUAL_TO"] = 2] = "GREATER_THAN_OR_EQUAL_TO";
+    OPERATION_KIND[OPERATION_KIND["LESSER_THAN_OR_EQUAL_TO"] = 3] = "LESSER_THAN_OR_EQUAL_TO";
+    OPERATION_KIND[OPERATION_KIND["GREATER_THAN"] = 4] = "GREATER_THAN";
+    OPERATION_KIND[OPERATION_KIND["LESSER_THAN"] = 5] = "LESSER_THAN";
+})(OPERATION_KIND || (OPERATION_KIND = {}));
+/** Enum for the battle step. */
+export var BATTLE_STEP;
+(function (BATTLE_STEP) {
+    BATTLE_STEP[BATTLE_STEP["INITIALIZE"] = 0] = "INITIALIZE";
+    BATTLE_STEP[BATTLE_STEP["START_TURN"] = 1] = "START_TURN";
+    BATTLE_STEP[BATTLE_STEP["SELECTION"] = 2] = "SELECTION";
+    BATTLE_STEP[BATTLE_STEP["ANIMATION"] = 3] = "ANIMATION";
+    BATTLE_STEP[BATTLE_STEP["ENEMY_ATTACK"] = 4] = "ENEMY_ATTACK";
+    BATTLE_STEP[BATTLE_STEP["END_TURN"] = 5] = "END_TURN";
+    BATTLE_STEP[BATTLE_STEP["VICTORY"] = 6] = "VICTORY";
+})(BATTLE_STEP || (BATTLE_STEP = {}));
+/** Enum for the screen transition. */
+export var FADE_TYPE;
+(function (FADE_TYPE) {
+    FADE_TYPE[FADE_TYPE["FADE_IN"] = 0] = "FADE_IN";
+    FADE_TYPE[FADE_TYPE["FADE_OUT"] = 1] = "FADE_OUT";
+})(FADE_TYPE || (FADE_TYPE = {}));
+/** Enum for the status restrictions kind. */
+export var STATUS_RESTRICTIONS_KIND;
+(function (STATUS_RESTRICTIONS_KIND) {
+    STATUS_RESTRICTIONS_KIND[STATUS_RESTRICTIONS_KIND["NONE"] = 0] = "NONE";
+    STATUS_RESTRICTIONS_KIND[STATUS_RESTRICTIONS_KIND["CANT_DO_ANYTHING"] = 1] = "CANT_DO_ANYTHING";
+    STATUS_RESTRICTIONS_KIND[STATUS_RESTRICTIONS_KIND["CANT_USE_SKILLS"] = 2] = "CANT_USE_SKILLS";
+    STATUS_RESTRICTIONS_KIND[STATUS_RESTRICTIONS_KIND["CANT_USE_ITEMS"] = 3] = "CANT_USE_ITEMS";
+    STATUS_RESTRICTIONS_KIND[STATUS_RESTRICTIONS_KIND["CANT_ESCAPE"] = 4] = "CANT_ESCAPE";
+    STATUS_RESTRICTIONS_KIND[STATUS_RESTRICTIONS_KIND["ATTACK_RANDOM_TARGET"] = 5] = "ATTACK_RANDOM_TARGET";
+    STATUS_RESTRICTIONS_KIND[STATUS_RESTRICTIONS_KIND["ATTACK_RANDOM_ALLY"] = 6] = "ATTACK_RANDOM_ALLY";
+    STATUS_RESTRICTIONS_KIND[STATUS_RESTRICTIONS_KIND["ATTACK_RANDOM_ENEMY"] = 7] = "ATTACK_RANDOM_ENEMY";
+})(STATUS_RESTRICTIONS_KIND || (STATUS_RESTRICTIONS_KIND = {}));
+/** Enum for the inventory filter kind. */
+export var INVENTORY_FILTER_KIND;
+(function (INVENTORY_FILTER_KIND) {
+    INVENTORY_FILTER_KIND[INVENTORY_FILTER_KIND["ALL"] = 0] = "ALL";
+    INVENTORY_FILTER_KIND[INVENTORY_FILTER_KIND["CONSUMABLES"] = 1] = "CONSUMABLES";
+    INVENTORY_FILTER_KIND[INVENTORY_FILTER_KIND["CUSTOM"] = 2] = "CUSTOM";
+    INVENTORY_FILTER_KIND[INVENTORY_FILTER_KIND["WEAPONS"] = 3] = "WEAPONS";
+    INVENTORY_FILTER_KIND[INVENTORY_FILTER_KIND["ARMORS"] = 4] = "ARMORS";
+    INVENTORY_FILTER_KIND[INVENTORY_FILTER_KIND["WEAPONS_AND_ARMORS"] = 5] = "WEAPONS_AND_ARMORS";
+    INVENTORY_FILTER_KIND[INVENTORY_FILTER_KIND["SCRIPT"] = 6] = "SCRIPT";
+})(INVENTORY_FILTER_KIND || (INVENTORY_FILTER_KIND = {}));
+/** Enum for the main menu command kind. */
+export var MAIN_MENU_COMMAND_KIND;
+(function (MAIN_MENU_COMMAND_KIND) {
+    MAIN_MENU_COMMAND_KIND[MAIN_MENU_COMMAND_KIND["INVENTORY"] = 0] = "INVENTORY";
+    MAIN_MENU_COMMAND_KIND[MAIN_MENU_COMMAND_KIND["SKILLS"] = 1] = "SKILLS";
+    MAIN_MENU_COMMAND_KIND[MAIN_MENU_COMMAND_KIND["EQUIP"] = 2] = "EQUIP";
+    MAIN_MENU_COMMAND_KIND[MAIN_MENU_COMMAND_KIND["STATES"] = 3] = "STATES";
+    MAIN_MENU_COMMAND_KIND[MAIN_MENU_COMMAND_KIND["ORDER"] = 4] = "ORDER";
+    MAIN_MENU_COMMAND_KIND[MAIN_MENU_COMMAND_KIND["SAVE"] = 5] = "SAVE";
+    MAIN_MENU_COMMAND_KIND[MAIN_MENU_COMMAND_KIND["QUIT"] = 6] = "QUIT";
+    MAIN_MENU_COMMAND_KIND[MAIN_MENU_COMMAND_KIND["SCRIPT"] = 7] = "SCRIPT";
+})(MAIN_MENU_COMMAND_KIND || (MAIN_MENU_COMMAND_KIND = {}));
+/** Enum for the troop reaction frequency kind. */
+export var TROOP_REACTION_FREQUENCY_KIND;
+(function (TROOP_REACTION_FREQUENCY_KIND) {
+    TROOP_REACTION_FREQUENCY_KIND[TROOP_REACTION_FREQUENCY_KIND["ONE_TIME"] = 0] = "ONE_TIME";
+    TROOP_REACTION_FREQUENCY_KIND[TROOP_REACTION_FREQUENCY_KIND["EACH_TURN_BEGIN"] = 1] = "EACH_TURN_BEGIN";
+    TROOP_REACTION_FREQUENCY_KIND[TROOP_REACTION_FREQUENCY_KIND["EACH_TURN_END"] = 2] = "EACH_TURN_END";
+    TROOP_REACTION_FREQUENCY_KIND[TROOP_REACTION_FREQUENCY_KIND["ALWAYS"] = 3] = "ALWAYS";
+})(TROOP_REACTION_FREQUENCY_KIND || (TROOP_REACTION_FREQUENCY_KIND = {}));
+/** Enum for the change variables other characteristics kind. */
+export var CHANGE_VARIABLES_OTHER_CHARACTERISTICS;
+(function (CHANGE_VARIABLES_OTHER_CHARACTERISTICS) {
+    CHANGE_VARIABLES_OTHER_CHARACTERISTICS[CHANGE_VARIABLES_OTHER_CHARACTERISTICS["CURRENT_MAP_ID"] = 0] = "CURRENT_MAP_ID";
+    CHANGE_VARIABLES_OTHER_CHARACTERISTICS[CHANGE_VARIABLES_OTHER_CHARACTERISTICS["NUMBER_IN_TEAM"] = 1] = "NUMBER_IN_TEAM";
+    CHANGE_VARIABLES_OTHER_CHARACTERISTICS[CHANGE_VARIABLES_OTHER_CHARACTERISTICS["NUMBER_IN_HIDDEN"] = 2] = "NUMBER_IN_HIDDEN";
+    CHANGE_VARIABLES_OTHER_CHARACTERISTICS[CHANGE_VARIABLES_OTHER_CHARACTERISTICS["NUMBER_IN_RESERVE"] = 3] = "NUMBER_IN_RESERVE";
+    CHANGE_VARIABLES_OTHER_CHARACTERISTICS[CHANGE_VARIABLES_OTHER_CHARACTERISTICS["TOTAL_NUMBER_OF_STEPS"] = 4] = "TOTAL_NUMBER_OF_STEPS";
+    CHANGE_VARIABLES_OTHER_CHARACTERISTICS[CHANGE_VARIABLES_OTHER_CHARACTERISTICS["TOTAL_NUMBER_OF_SECONDS"] = 5] = "TOTAL_NUMBER_OF_SECONDS";
+    CHANGE_VARIABLES_OTHER_CHARACTERISTICS[CHANGE_VARIABLES_OTHER_CHARACTERISTICS["TOTAL_NUMBER_OF_SAVES_DONE"] = 6] = "TOTAL_NUMBER_OF_SAVES_DONE";
+    CHANGE_VARIABLES_OTHER_CHARACTERISTICS[CHANGE_VARIABLES_OTHER_CHARACTERISTICS["TOTAL_NUMBER_OF_BATTLES"] = 7] = "TOTAL_NUMBER_OF_BATTLES";
+    CHANGE_VARIABLES_OTHER_CHARACTERISTICS[CHANGE_VARIABLES_OTHER_CHARACTERISTICS["CAMERA_X_POSITION"] = 8] = "CAMERA_X_POSITION";
+    CHANGE_VARIABLES_OTHER_CHARACTERISTICS[CHANGE_VARIABLES_OTHER_CHARACTERISTICS["CAMERA_Y_POSITION"] = 9] = "CAMERA_Y_POSITION";
+    CHANGE_VARIABLES_OTHER_CHARACTERISTICS[CHANGE_VARIABLES_OTHER_CHARACTERISTICS["CAMERA_Z_POSITION"] = 10] = "CAMERA_Z_POSITION";
+    CHANGE_VARIABLES_OTHER_CHARACTERISTICS[CHANGE_VARIABLES_OTHER_CHARACTERISTICS["TOTAL_SECONDS_CURRENT_MUSIC"] = 11] = "TOTAL_SECONDS_CURRENT_MUSIC";
+    CHANGE_VARIABLES_OTHER_CHARACTERISTICS[CHANGE_VARIABLES_OTHER_CHARACTERISTICS["TOTAL_SECONDS_CURRENT_BACKGROUND_MUSIC"] = 12] = "TOTAL_SECONDS_CURRENT_BACKGROUND_MUSIC";
+})(CHANGE_VARIABLES_OTHER_CHARACTERISTICS || (CHANGE_VARIABLES_OTHER_CHARACTERISTICS = {}));

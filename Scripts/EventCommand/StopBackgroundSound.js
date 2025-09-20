@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,10 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
+import { SONG_KIND } from '../Common/index.js';
 import { EventCommand } from '../index.js';
-import { Enum } from '../Common/index.js';
-var SongKind = Enum.SongKind;
+import { Base } from './Base.js';
 /** @class
  *  An event command for stopping the background sound.
  *  @extends EventCommand.Base
@@ -20,7 +19,7 @@ var SongKind = Enum.SongKind;
 class StopBackgroundSound extends Base {
     constructor(command) {
         super();
-        EventCommand.StopMusic.parseStopSong(this, command, Enum.SongKind.BackgroundSound);
+        EventCommand.StopMusic.parseStopSong(this, command, SONG_KIND.BACKGROUND_SOUND);
         this.parallel = true;
     }
     /**
@@ -30,7 +29,7 @@ class StopBackgroundSound extends Base {
     initialize() {
         return {
             parallel: false,
-            time: new Date().getTime()
+            time: new Date().getTime(),
         };
     }
     /**
@@ -39,10 +38,9 @@ class StopBackgroundSound extends Base {
      *  @param {MapObject} object - The current object reacting
      *  @param {number} state - The state ID
      *  @returns {number} The number of node to pass
-    */
+     */
     update(currentState, object, state) {
-        let stopped = EventCommand.StopMusic.stopSong(this, SongKind
-            .BackgroundSound, currentState.time);
+        const stopped = EventCommand.StopMusic.stopSong(this, SONG_KIND.BACKGROUND_SOUND, currentState.time);
         return currentState.parallel ? stopped : 1;
     }
 }

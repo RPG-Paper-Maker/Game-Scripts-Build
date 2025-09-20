@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { CHANGE_VARIABLES_OTHER_CHARACTERISTICS, CHARACTER_KIND, Mathf, Platform, SONG_KIND, VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND, } from '../Common/index.js';
+import { Game, Item, MapObject, Position } from '../Core/index.js';
+import { Data, Manager, Model, Scene } from '../index.js';
 import { Base } from './Base.js';
-import { Datas, Manager, Scene, System } from '../index.js';
-import { MapObject, Position, Game, Item } from '../Core/index.js';
-import { Mathf, Enum, Platform } from '../Common/index.js';
 /** @class
  *  An event command for changing variables values.
  *  @extends EventCommand.Base
@@ -20,8 +20,8 @@ import { Mathf, Enum, Platform } from '../Common/index.js';
 class ChangeVariables extends Base {
     constructor(command) {
         super();
-        let iterator = {
-            i: 2
+        const iterator = {
+            i: 2,
         };
         // Selection
         this.selection = command[1];
@@ -35,39 +35,39 @@ class ChangeVariables extends Base {
         this.valueKind = command[iterator.i++];
         switch (this.valueKind) {
             case 0: // Number
-                this.valueNumber = System.DynamicValue.createValueCommand(command, iterator);
+                this.valueNumber = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
             case 1: // Random number
-                this.valueRandomA = System.DynamicValue.createValueCommand(command, iterator);
-                this.valueRandomB = System.DynamicValue.createValueCommand(command, iterator);
+                this.valueRandomA = Model.DynamicValue.createValueCommand(command, iterator);
+                this.valueRandomB = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
             case 2: // Message
-                this.valueMessage = System.DynamicValue.createValueCommand(command, iterator);
+                this.valueMessage = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
             case 3: // Switch
-                this.valueSwitch = System.DynamicValue.createValueCommand(command, iterator);
+                this.valueSwitch = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
             case 4: // Map object characteristic
-                this.valueMapObject = System.DynamicValue.createValueCommand(command, iterator);
+                this.valueMapObject = Model.DynamicValue.createValueCommand(command, iterator);
                 this.valueMapObjectChar = command[iterator.i++];
                 break;
             case 5: // Number of weapon / armor / item in inventory
-                this.valueItemKind = command[iterator.i++];
-                this.valueItemID = System.DynamicValue.createValueCommand(command, iterator);
+                this.valueITEM_KIND = command[iterator.i++];
+                this.valueItemID = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
             case 6: // Total currency
                 this.valueTotalCurrencyKind = command[iterator.i++];
-                this.valueTotalCurrencyID = System.DynamicValue.createValueCommand(command, iterator);
+                this.valueTotalCurrencyID = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
             case 7: // Hero / enemy stat
-                this.valueHeroEnemyInstanceID = System.DynamicValue.createValueCommand(command, iterator);
-                this.valueStatisticID = System.DynamicValue.createValueCommand(command, iterator);
+                this.valueHeroEnemyInstanceID = Model.DynamicValue.createValueCommand(command, iterator);
+                this.valueStatisticID = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
             case 8: // Enemy instance ID
                 this.valueEnemyIndex = command[iterator.i++];
                 break;
             case 9: // Other characteristics
-                this.valueOtherCharacteristicKind = command[iterator.i++];
+                this.valueOtherCHARACTERISTIC_KIND = command[iterator.i++];
                 break;
         }
     }
@@ -97,8 +97,7 @@ class ChangeVariables extends Base {
                     currentState.value = this.valueNumber.getValue();
                     break;
                 case 1: // Random number
-                    currentState.value = Mathf.random(this.valueRandomA
-                        .getValue(), this.valueRandomB.getValue());
+                    currentState.value = Mathf.random(this.valueRandomA.getValue(), this.valueRandomB.getValue());
                     break;
                 case 2: // Message
                     currentState.value = this.valueMessage.getValue();
@@ -107,37 +106,38 @@ class ChangeVariables extends Base {
                     currentState.value = this.valueSwitch.getValue();
                     break;
                 case 4: // Map object characteristic
-                    let objectID = this.valueMapObject.getValue();
+                    const objectID = this.valueMapObject.getValue();
                     currentState.valid = false;
                     MapObject.search(objectID, (result) => {
-                        let obj = result.object;
+                        const obj = result.object;
                         if (!obj) {
-                            Platform.showErrorMessage("Cannot find object ID " +
-                                objectID + " in change variables for map object characteristics.");
+                            Platform.showErrorMessage('Cannot find object ID ' +
+                                objectID +
+                                ' in change variables for map object characteristics.');
                         }
                         switch (this.valueMapObjectChar) {
-                            case Enum.VariableMapObjectCharacteristicKind.XSquarePosition:
+                            case VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND.X_SQUARE_POSITION:
                                 currentState.value = Position.createFromVector3(obj.position).x;
                                 break;
-                            case Enum.VariableMapObjectCharacteristicKind.YSquarePosition:
+                            case VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND.Y_SQUARE_POSITION:
                                 currentState.value = Position.createFromVector3(obj.position).y;
                                 break;
-                            case Enum.VariableMapObjectCharacteristicKind.ZSquarePosition:
+                            case VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND.Z_SQUARE_POSITION:
                                 currentState.value = Position.createFromVector3(obj.position).z;
                                 break;
-                            case Enum.VariableMapObjectCharacteristicKind.XPixelPosition:
+                            case VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND.X_PIXEL_POSITION:
                                 currentState.value = obj.position.x;
                                 break;
-                            case Enum.VariableMapObjectCharacteristicKind.YPixelPosition:
+                            case VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND.Y_PIXEL_POSITION:
                                 currentState.value = obj.position.y;
                                 break;
-                            case Enum.VariableMapObjectCharacteristicKind.ZPixelPosition:
+                            case VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND.Z_PIXEL_POSITION:
                                 currentState.value = obj.position.z;
                                 break;
-                            case Enum.VariableMapObjectCharacteristicKind.Orientation:
+                            case VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND.ORIENTATION:
                                 currentState.value = obj.orientation;
                                 break;
-                            case Enum.VariableMapObjectCharacteristicKind.Terrain:
+                            case VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND.TERRAIN:
                                 currentState.value = obj.terrain;
                                 break;
                         }
@@ -145,34 +145,29 @@ class ChangeVariables extends Base {
                     }, object);
                     break;
                 case 5: // Number of weapon / armor / item in inventory
-                    let item = Item.findItem(this.valueItemKind, this.valueItemID
-                        .getValue());
+                    const item = Item.findItem(this.valueITEM_KIND, this.valueItemID.getValue());
                     currentState.value = item === null ? 0 : item.nb;
                     break;
                 case 6: // Total currency
                     switch (this.valueTotalCurrencyKind) {
                         case 0: // Owned
-                            currentState.value = Game.current.getCurrency(this
-                                .valueTotalCurrencyID.getValue());
+                            currentState.value = Game.current.getCurrency(this.valueTotalCurrencyID.getValue());
                             break;
                         case 1: // Earned
-                            currentState.value = Game.current.getCurrencyEarned(this
-                                .valueTotalCurrencyID.getValue());
+                            currentState.value = Game.current.getCurrencyEarned(this.valueTotalCurrencyID.getValue());
                             break;
                         case 2: // Used
-                            currentState.value = Game.current.getCurrencyUsed(this
-                                .valueTotalCurrencyID.getValue());
+                            currentState.value = Game.current.getCurrencyUsed(this.valueTotalCurrencyID.getValue());
                             break;
                     }
                     break;
                 case 7: // Hero / enemy stat
                     currentState.value = 0;
-                    let id = this.valueHeroEnemyInstanceID.getValue();
-                    for (let player of Game.current.teamHeroes) {
+                    const id = this.valueHeroEnemyInstanceID.getValue();
+                    for (const player of Game.current.teamHeroes) {
                         if (player.instid === id) {
-                            currentState.value = player[Datas.BattleSystems
-                                .getStatistic(this.valueStatisticID.getValue())
-                                .abbreviation];
+                            currentState.value =
+                                player[Data.BattleSystems.getStatistic(this.valueStatisticID.getValue()).abbreviation];
                             break;
                         }
                     }
@@ -180,57 +175,55 @@ class ChangeVariables extends Base {
                 case 8: // Enemy instance ID
                     currentState.value = 0;
                     if (Scene.Map.current.isBattleMap) {
-                        currentState.value = Scene.Map.current
-                            .battlers[Enum.CharacterKind.Monster][this
-                            .valueEnemyIndex].player.instid;
+                        currentState.value = Scene.Map.current.battlers[CHARACTER_KIND.MONSTER][this.valueEnemyIndex].player.instid;
                     }
                     break;
                 case 9: // Other characteristics
-                    switch (this.valueOtherCharacteristicKind) {
-                        case Enum.ChangeVariablesOtherCharacteristics.CurrentMapID:
+                    switch (this.valueOtherCHARACTERISTIC_KIND) {
+                        case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.CURRENT_MAP_ID:
                             currentState.value = Scene.Map.current.id;
                             break;
-                        case Enum.ChangeVariablesOtherCharacteristics.NumberInTeam:
+                        case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.NUMBER_IN_TEAM:
                             currentState.value = Game.current.teamHeroes.length;
                             break;
-                        case Enum.ChangeVariablesOtherCharacteristics.NumberInHidden:
+                        case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.NUMBER_IN_HIDDEN:
                             currentState.value = Game.current.hiddenHeroes.length;
                             break;
-                        case Enum.ChangeVariablesOtherCharacteristics.NumberInReserve:
+                        case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.NUMBER_IN_RESERVE:
                             currentState.value = Game.current.reserveHeroes.length;
                             break;
-                        case Enum.ChangeVariablesOtherCharacteristics.TotalNumberOfSteps:
+                        case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.TOTAL_NUMBER_OF_STEPS:
                             currentState.value = Game.current.steps;
                             break;
-                        case Enum.ChangeVariablesOtherCharacteristics.TotalNumberOfSeconds:
+                        case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.TOTAL_NUMBER_OF_SECONDS:
                             currentState.value = Game.current.playTime.getSeconds();
                             break;
-                        case Enum.ChangeVariablesOtherCharacteristics.TotalNumberOfSavesDone:
+                        case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.TOTAL_NUMBER_OF_SAVES_DONE:
                             currentState.value = Game.current.saves;
                             break;
-                        case Enum.ChangeVariablesOtherCharacteristics.TotalNumberOfBattles:
+                        case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.TOTAL_NUMBER_OF_BATTLES:
                             currentState.value = Game.current.battles;
                             break;
-                        case Enum.ChangeVariablesOtherCharacteristics.CameraXPosition:
+                        case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.CAMERA_X_POSITION:
                             currentState.value = Scene.Map.current.camera.getThreeCamera().position.x;
                             break;
-                        case Enum.ChangeVariablesOtherCharacteristics.CameraYPosition:
+                        case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.CAMERA_Y_POSITION:
                             currentState.value = Scene.Map.current.camera.getThreeCamera().position.y;
                             break;
-                        case Enum.ChangeVariablesOtherCharacteristics.CameraZPosition:
+                        case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.CAMERA_Z_POSITION:
                             currentState.value = Scene.Map.current.camera.getThreeCamera().position.z;
                             break;
-                        case Enum.ChangeVariablesOtherCharacteristics.TotalSecondsCurrentMusic: {
+                        case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.TOTAL_SECONDS_CURRENT_MUSIC: {
                             currentState.value = 0;
-                            let current = Manager.Songs.current[Enum.SongKind.Music];
+                            const current = Manager.Songs.current[SONG_KIND.MUSIC];
                             if (current) {
                                 currentState.value = current.seek();
                             }
                             break;
                         }
-                        case Enum.ChangeVariablesOtherCharacteristics.TotalSecondsCurrentBackgroundMusic: {
+                        case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.TOTAL_SECONDS_CURRENT_BACKGROUND_MUSIC: {
                             currentState.value = 0;
-                            let current = Manager.Songs.current[Enum.SongKind.BackgroundSound];
+                            const current = Manager.Songs.current[SONG_KIND.BACKGROUND_SOUND];
                             if (current) {
                                 currentState.value = current.seek();
                             }
@@ -243,8 +236,7 @@ class ChangeVariables extends Base {
         // Apply new value to variable(s)
         if (currentState.valid) {
             for (let i = 0, l = this.nbSelection; i < l; i++) {
-                Game.current.variables[this.selection + i] = Mathf
-                    .OPERATORS_NUMBERS[this.operation](Game.current.variables[this.selection + i], currentState.value);
+                Game.current.variables.set(this.selection + i, Mathf.OPERATORS_NUMBERS[this.operation](Game.current.getVariable(this.selection + i), currentState.value));
             }
             return 1;
         }

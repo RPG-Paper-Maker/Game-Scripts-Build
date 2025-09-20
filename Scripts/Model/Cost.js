@@ -1,0 +1,174 @@
+/*
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
+
+    RPG Paper Maker engine is under proprietary license.
+    This source code is also copyrighted.
+
+    Use Commercial edition for commercial use of your games.
+    See RPG Paper Maker EULA here:
+        http://rpg-paper-maker.com/index.php/eula.
+*/
+import { DAMAGES_KIND, Interpreter, Utils } from '../Common/index.js';
+import { Game, Player } from '../Core/index.js';
+import { Data, Scene } from '../index.js';
+import { Base } from './Base.js';
+import { DynamicValue } from './DynamicValue.js';
+/**
+ * A class for costs.
+ */
+export class Cost extends Base {
+    constructor(json) {
+        super(json);
+    }
+    /**
+     * Computes the price mapping for multiple costs.
+     * @param list - The list of costs.
+     * @returns A record mapping ID → tuple(kind, value).
+     */
+    static getPrice(list) {
+        const price = new Map();
+        for (const cost of list) {
+            const value = [
+                cost.kind,
+                Interpreter.evaluate(cost.valueFormula.getValue()),
+            ];
+            switch (cost.kind) {
+                case DAMAGES_KIND.STAT:
+                    price.set(cost.statisticID.getValue(), value);
+                    break;
+                case DAMAGES_KIND.CURRENCY:
+                    price.set(cost.currencyID.getValue(), value);
+                    break;
+                case DAMAGES_KIND.VARIABLE:
+                    price.set(cost.variableID, value);
+                    break;
+            }
+        }
+        return price;
+    }
+    /**
+     * Computes the effective cost value for a user and target,
+     * accounting for resistances and multipliers.
+     * @param user - The player using the skill/item.
+     * @param target - The target of the skill/item.
+     * @returns The computed cost value.
+     */
+    getValue(user, target) {
+        let value = Interpreter.evaluate(this.valueFormula.getValue(), { user, target });
+        const baseValue = value;
+        if (user.skillCostRes[-1]) {
+            value *= user.skillCostRes[-1].multiplication;
+        }
+        if (user.skillCostRes[this.skillItem.id]) {
+            value *= user.skillCostRes[this.skillItem.id].multiplication;
+        }
+        if (user.skillCostRes[-1]) {
+            value += (baseValue * user.skillCostRes[-1].addition) / 100;
+        }
+        if (user.skillCostRes[this.skillItem.id]) {
+            value += (baseValue * user.skillCostRes[this.skillItem.id].multiplication) / 100;
+        }
+        return Math.round(value);
+    }
+    /**
+     * Applies the cost to the current user (reducing stats, currency, or variables).
+     */
+    use() {
+        const user = Scene.Map.current.user?.player ?? Player.getTemporaryPlayer();
+        const target = Player.getTemporaryPlayer();
+        const value = this.getValue(user, target);
+        switch (this.kind) {
+            case DAMAGES_KIND.STAT:
+                user[Data.BattleSystems.getStatistic(this.statisticID.getValue()).abbreviation] -= value;
+                break;
+            case DAMAGES_KIND.CURRENCY:
+                Game.current.addCurrency(this.currencyID.getValue(), -value);
+                break;
+            case DAMAGES_KIND.VARIABLE:
+                Game.current.variables.set(this.variableID, Game.current.getVariable(this.variableID) - value);
+                break;
+        }
+    }
+    /**
+     * Checks if the cost can be paid with the current resources.
+     * @returns True if possible, false otherwise.
+     */
+    isPossible() {
+        const user = Scene.Map.current.user?.player ?? Player.getTemporaryPlayer();
+        const target = Player.getTemporaryPlayer();
+        const value = this.getValue(user, target);
+        let currentValue = 0;
+        switch (this.kind) {
+            case DAMAGES_KIND.STAT:
+                currentValue =
+                    user[Data.BattleSystems.getStatistic(this.statisticID.getValue()).abbreviation];
+                break;
+            case DAMAGES_KIND.CURRENCY:
+                currentValue = Game.current.getCurrency(this.currencyID.getValue());
+                break;
+            case DAMAGES_KIND.VARIABLE:
+                currentValue = Game.current.getVariable(this.variableID);
+                break;
+        }
+        return currentValue - value >= 0;
+    }
+    /**
+     * Returns a string representation of this cost.
+     * @returns A human-readable string.
+     */
+    toString() {
+        const user = Scene.Map.current.user?.player ?? Player.getTemporaryPlayer();
+        const target = Player.getTemporaryPlayer();
+        let result = `${this.getValue(user, target)} `;
+        switch (this.kind) {
+            case DAMAGES_KIND.STAT:
+                result += Data.BattleSystems.getStatistic(this.statisticID.getValue()).name();
+                break;
+            case DAMAGES_KIND.CURRENCY:
+                result += Data.Systems.getCurrency(this.currencyID.getValue()).name();
+                break;
+            case DAMAGES_KIND.VARIABLE:
+                result += Data.Variables.get(this.variableID);
+                break;
+        }
+        return result;
+    }
+    /**
+     * Reads the JSON data describing this cost.
+     */
+    read(json) {
+        this.kind = Utils.valueOrDefault(json.k, DAMAGES_KIND.STAT);
+        switch (this.kind) {
+            case DAMAGES_KIND.STAT:
+                this.statisticID = DynamicValue.readOrDefaultDatabase(json.sid);
+                break;
+            case DAMAGES_KIND.CURRENCY:
+                this.currencyID = DynamicValue.readOrDefaultDatabase(json.cid);
+                break;
+            case DAMAGES_KIND.VARIABLE:
+                this.variableID = Utils.valueOrDefault(json.vid, 1);
+                break;
+        }
+        this.valueFormula = DynamicValue.readOrDefaultMessage(json.vf);
+    }
+    /**
+     * Parses a cost from an event command.
+     * @param command - The command array.
+     * @param iterator - The command iterator.
+     */
+    parse(command, iterator) {
+        this.kind = command[iterator.i++];
+        switch (this.kind) {
+            case DAMAGES_KIND.STAT:
+                this.statisticID = DynamicValue.createValueCommand(command, iterator);
+                break;
+            case 1:
+                this.currencyID = DynamicValue.createValueCommand(command, iterator);
+                break;
+            case 2:
+                this.variableID = command[iterator.i++];
+                break;
+        }
+        this.valueFormula = DynamicValue.createValueCommand(command, iterator);
+    }
+}

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { Model } from "../index.js";
+import { SONG_KIND } from '../Common/index.js';
 import { Base } from './Base.js';
-import { System } from '../index.js';
-import { Enum } from '../Common/index.js';
 /** @class
  *  An event command for playing a backgroundsound.
  *  @extends EventCommand.Base
@@ -19,11 +19,10 @@ import { Enum } from '../Common/index.js';
 class PlaySound extends Base {
     constructor(command) {
         super();
-        let iterator = {
-            i: 0
+        const iterator = {
+            i: 0,
         };
-        this.song = System.PlaySong.createValueCommand(command, iterator, Enum
-            .SongKind.Sound);
+        this.song = Model.PlaySong.createValueCommand(command, iterator, SONG_KIND.SOUND);
     }
     /**
      *  Initialize the current state.

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,8 +8,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Datas } from "../index.js";
-import { Constants, Enum, ScreenResolution } from '../Common/index.js';
+import { Data } from "../index.js";
+import { ALIGN, Constants, PICTURE_KIND, ScreenResolution } from '../Common/index.js';
 /** @class
  *  A status affected to a player.
  *  @param {number} id - The ID of the status
@@ -17,19 +17,19 @@ import { Constants, Enum, ScreenResolution } from '../Common/index.js';
 class Status {
     constructor(id, turn = 0) {
         this.id = id;
-        this.system = Datas.Status.get(id);
+        this.system = Data.Status.get(id);
         this.turn = turn;
-        this.picture = Datas.Pictures.getPictureCopy(Enum.PictureKind.Icons, this.system.pictureID);
+        this.picture = Data.Pictures.getPictureCopy(PICTURE_KIND.ICONS, this.system.pictureID);
     }
     /**
      *  Get message and replace target name.
      *  @static
-     *  @param {System.DynamicValue} message
+     *  @param {Model.DynamicValue} message
      *  @param {Battler} target
      *  @returns {string}
      */
     static getMessage(message, target) {
-        return message.getValue().replace("[target]", target.player.name);
+        return message.getValue().replace('[target]', target.player.name);
     }
     /**
      *  Draw the status on top of battler.
@@ -37,32 +37,32 @@ class Status {
      *  @param {Status[]} statusList
      *  @param {number} x - The x position
      *  @param {number} y - The y position
-     *  @param {Enum.Align} [align=Enum.Align.Left]
+     *  @param {Align} [align=ALIGN.LEFT]
      */
-    static drawList(statusList, x, y, align = Enum.Align.Left) {
-        let l = statusList.length;
-        let totalWidth = l * ScreenResolution.getScreenMinXY(Datas.Systems.iconsSize);
+    static drawList(statusList, x, y, align = ALIGN.LEFT) {
+        const l = statusList.length;
+        let totalWidth = l * ScreenResolution.getScreenMinXY(Data.Systems.iconsSize);
         let s;
         if (l > 1) {
-            totalWidth += (l - 1) * ScreenResolution.getScreenMinXY(Constants
-                .MEDIUM_SPACE);
+            totalWidth += (l - 1) * ScreenResolution.getScreenMinXY(Constants.MEDIUM_SPACE);
         }
         let xOffset = 0;
         switch (align) {
-            case Enum.Align.Left:
+            case ALIGN.LEFT:
                 totalWidth = 0;
                 break;
-            case Enum.Align.Center:
+            case ALIGN.CENTER:
                 totalWidth /= 2;
                 break;
         }
         for (let i = 0, l = statusList.length; i < l; i++) {
             s = statusList[i];
-            xOffset += ScreenResolution.getScreenMinXY(Datas.Systems.iconsSize);
-            s.draw(x - totalWidth + xOffset + ScreenResolution.getScreenMinXY(i
-                * Constants.MEDIUM_SPACE) - ScreenResolution.getScreenMinXY(Datas
-                .Systems.iconsSize), y - ScreenResolution.getScreenMinXY(Datas
-                .Systems.iconsSize));
+            xOffset += ScreenResolution.getScreenMinXY(Data.Systems.iconsSize);
+            s.draw(x -
+                totalWidth +
+                xOffset +
+                ScreenResolution.getScreenMinXY(i * Constants.MEDIUM_SPACE) -
+                ScreenResolution.getScreenMinXY(Data.Systems.iconsSize), y - ScreenResolution.getScreenMinXY(Data.Systems.iconsSize));
         }
     }
     /**
@@ -103,10 +103,16 @@ class Status {
      *  @param {number} y - The y position
      */
     draw(x, y) {
-        this.picture.draw({ x: x, y: y, sx: this.system.pictureIndexX * Datas
-                .Systems.iconsSize, sy: this.system.pictureIndexY * Datas.Systems
-                .iconsSize, sw: Datas.Systems.iconsSize, sh: Datas.Systems.iconsSize,
-            w: ScreenResolution.getScreenMinXY(Datas.Systems.iconsSize), h: ScreenResolution.getScreenMinXY(Datas.Systems.iconsSize) });
+        this.picture.draw({
+            x: x,
+            y: y,
+            sx: this.system.pictureIndexX * Data.Systems.iconsSize,
+            sy: this.system.pictureIndexY * Data.Systems.iconsSize,
+            sw: Data.Systems.iconsSize,
+            sh: Data.Systems.iconsSize,
+            w: ScreenResolution.getScreenMinXY(Data.Systems.iconsSize),
+            h: ScreenResolution.getScreenMinXY(Data.Systems.iconsSize),
+        });
     }
 }
 export { Status };

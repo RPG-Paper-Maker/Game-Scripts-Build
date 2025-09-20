@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -10,7 +10,7 @@
 */
 import { Mathf, ScreenResolution } from '../Common/index.js';
 import { Battler, Game } from '../Core/index.js';
-import { Datas, Graphic, Manager, Scene } from '../index.js';
+import { Data, Graphic, Manager, Scene } from '../index.js';
 import { Base } from './Base.js';
 /** @class
  *  The graphic displaying a skill or an item use.
@@ -43,7 +43,7 @@ class UseSkillItem extends Base {
     setAll(b) {
         this.all = b;
         if (b) {
-            let l = Game.current.teamHeroes.length;
+            const l = Game.current.teamHeroes.length;
             Scene.Map.current.targets = new Array(l);
             for (let i = 0; i < l; i++) {
                 Scene.Map.current.targets[i] = new Battler(Game.current.teamHeroes[i]);
@@ -87,7 +87,7 @@ class UseSkillItem extends Base {
             } while (!this.skillItem.isPossible(target));
             Scene.Map.current.targets = [new Battler(target)];
             Manager.Stack.requestPaintHUD = true;
-            Datas.Systems.soundCursor.playSound();
+            Data.Systems.soundCursor.playSound();
         }
     }
     /**
@@ -111,7 +111,7 @@ class UseSkillItem extends Base {
     updateGraphicCharactersEquip(equip) {
         this.graphicCharacters = [];
         let graphicPlayer, isPossible;
-        for (let player of Game.current.teamHeroes) {
+        for (const player of Game.current.teamHeroes) {
             isPossible = true;
             if (equip !== null) {
                 isPossible = player.canEquipWeaponArmor(equip);
@@ -150,10 +150,10 @@ class UseSkillItem extends Base {
      *  @param {number} key - The key ID pressed
      */
     onKeyPressedAndRepeat(key) {
-        if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls.Right)) {
+        if (Data.Keyboards.isKeyEqual(key, Data.Keyboards.menuControls.Right)) {
             this.goRight();
         }
-        else if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls.Left)) {
+        else if (Data.Keyboards.isKeyEqual(key, Data.Keyboards.menuControls.Left)) {
             this.goLeft();
         }
     }
@@ -173,12 +173,12 @@ class UseSkillItem extends Base {
                 }
             }
             if (changed && i !== this.indexArrow) {
-                let target = Game.current.teamHeroes[i];
+                const target = Game.current.teamHeroes[i];
                 if (this.skillItem.isPossible(target)) {
                     this.indexArrow = i;
                     Scene.Map.current.targets = [new Battler(target)];
                     Manager.Stack.requestPaintHUD = true;
-                    Datas.Systems.soundCursor.playSound();
+                    Data.Systems.soundCursor.playSound();
                 }
             }
         }
@@ -191,7 +191,7 @@ class UseSkillItem extends Base {
      *  @param {number} h - The h size
      */
     drawArrowAtIndex(index, x, y, h) {
-        Datas.Systems.getCurrentWindowSkin().drawArrowTarget(this.graphicCharacters[index].battlerFrame.value, x + ScreenResolution.getScreenMinXY(32 + index * 85), y + h - ScreenResolution.getScreenMinXY(20));
+        Data.Systems.getCurrentWindowSkin().drawArrowTarget(this.graphicCharacters[index].battlerFrame.value, x + ScreenResolution.getScreenMinXY(32 + index * 85), y + h - ScreenResolution.getScreenMinXY(20));
     }
     /**
      *  Drawing the skill or item use informations.

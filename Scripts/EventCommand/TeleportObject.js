@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { Mathf, Platform, ScreenResolution, Utils } from '../Common/index.js';
+import { Frame, Game, MapObject, Position, ReactionInterpreter } from '../Core/index.js';
+import { Data, Manager, Model, Scene } from '../index.js';
 import { Base } from './Base.js';
-import { System, Datas, Manager, Scene } from '../index.js';
-import { MapObject, Position, ReactionInterpreter, Game, Frame } from '../Core/index.js';
-import { Constants, Mathf, Platform, ScreenResolution, Utils } from '../Common/index.js';
 /** @class
  *  An event command for teleporting an object.
  *  @extends EventCommand.Base
@@ -20,44 +20,42 @@ import { Constants, Mathf, Platform, ScreenResolution, Utils } from '../Common/i
 class TeleportObject extends Base {
     constructor(command) {
         super();
-        let iterator = {
-            i: 0
+        const iterator = {
+            i: 0,
         };
         // Object ID
-        this.objectID = System.DynamicValue.createValueCommand(command, iterator);
+        this.objectID = Model.DynamicValue.createValueCommand(command, iterator);
         // Position
         this.objectIDPosition = null;
         this.mapID = null;
         switch (command[iterator.i++]) {
             case 0:
-                this.mapID = System.DynamicValue.createNumber(command[iterator
-                    .i++]);
-                this.x = System.DynamicValue.createNumber(command[iterator.i++]);
-                this.y = System.DynamicValue.createNumber(command[iterator.i++]);
-                this.yPlus = System.DynamicValue.createNumber(command[iterator
-                    .i++]);
-                this.z = System.DynamicValue.createNumber(command[iterator.i++]);
+                this.mapID = Model.DynamicValue.createNumber(command[iterator.i++]);
+                this.x = Model.DynamicValue.createNumber(command[iterator.i++]);
+                this.y = Model.DynamicValue.createNumber(command[iterator.i++]);
+                this.yPlus = Model.DynamicValue.createNumber(command[iterator.i++]);
+                this.z = Model.DynamicValue.createNumber(command[iterator.i++]);
                 break;
             case 1:
-                this.mapID = System.DynamicValue.createValueCommand(command, iterator);
-                this.x = System.DynamicValue.createValueCommand(command, iterator);
-                this.y = System.DynamicValue.createValueCommand(command, iterator);
-                this.yPlus = System.DynamicValue.createValueCommand(command, iterator);
-                this.z = System.DynamicValue.createValueCommand(command, iterator);
+                this.mapID = Model.DynamicValue.createValueCommand(command, iterator);
+                this.x = Model.DynamicValue.createValueCommand(command, iterator);
+                this.y = Model.DynamicValue.createValueCommand(command, iterator);
+                this.yPlus = Model.DynamicValue.createValueCommand(command, iterator);
+                this.z = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
             case 2:
-                this.objectIDPosition = System.DynamicValue.createValueCommand(command, iterator);
+                this.objectIDPosition = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
         }
         // Transition
         this.direction = command[iterator.i++];
         this.transitionStart = command[iterator.i++];
-        if (Utils.numToBool(this.transitionStart)) {
-            this.transitionStartColor = System.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(this.transitionStart)) {
+            this.transitionStartColor = Model.DynamicValue.createValueCommand(command, iterator);
         }
         this.transitionEnd = command[iterator.i++];
-        if (Utils.numToBool(this.transitionEnd)) {
-            this.transitionEndColor = System.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(this.transitionEnd)) {
+            this.transitionEndColor = Model.DynamicValue.createValueCommand(command, iterator);
         }
     }
     /**
@@ -72,15 +70,15 @@ class TeleportObject extends Base {
             teleported: false,
             transitionedStart: this.transitionStart === 0,
             transitionedEnd: this.transitionEnd === 0,
-            startColor: this.transitionStart === 1 ? Datas.Systems.getColor(this
-                .transitionStartColor.getValue()) : null,
-            endColor: this.transitionEnd === 1 ? Datas.Systems.getColor(this
-                .transitionEndColor.getValue()) : null,
+            startColor: this.transitionStart === 1
+                ? Data.Systems.getColor(this.transitionStartColor.getValue())
+                : null,
+            endColor: this.transitionEnd === 1 ? Data.Systems.getColor(this.transitionEndColor.getValue()) : null,
             transitionColorAlpha: 0,
             distance: Scene.Map.current.camera.distance,
             transitioning: false,
             endTransition: false,
-            frame: new Frame(TeleportObject.TRANSITION_DURATION)
+            frame: new Frame(TeleportObject.TRANSITION_DURATION),
         };
     }
     /**
@@ -94,8 +92,7 @@ class TeleportObject extends Base {
         let coef;
         // Apply start transition
         if (!currentState.transitionedStart) {
-            coef = currentState.frame.update() ? 1 : currentState.frame.tick
-                / TeleportObject.TRANSITION_DURATION;
+            coef = currentState.frame.update() ? 1 : currentState.frame.tick / TeleportObject.TRANSITION_DURATION;
             if (this.transitionStart === 1) {
                 if (currentState.transitionColorAlpha < 1) {
                     currentState.transitionColorAlpha = coef;
@@ -103,8 +100,7 @@ class TeleportObject extends Base {
             }
             else if (this.transitionStart === 2) {
                 if (Scene.Map.current.camera.distance > 0) {
-                    Scene.Map.current.camera.distance = 1 + ((1 - coef) *
-                        (currentState.distance - 1));
+                    Scene.Map.current.camera.distance = 1 + (1 - coef) * (currentState.distance - 1);
                 }
             }
             if (coef < 1) {
@@ -116,13 +112,11 @@ class TeleportObject extends Base {
         }
         // Search object
         if (!currentState.waitingObject) {
-            let objectID = this.objectID.getValue();
+            const objectID = this.objectID.getValue();
             if (!currentState.waitingPosition) {
                 // Set object's position
                 if (this.objectIDPosition === null) {
-                    currentState.position = new Position(this.x.getValue(), this
-                        .y.getValue(), this.z.getValue(), this.yPlus.getValue()
-                        * 100 / Datas.Systems.SQUARE_SIZE).toVector3();
+                    currentState.position = new Position(this.x.getValue(), this.y.getValue(), this.z.getValue(), (this.yPlus.getValue() * 100) / Data.Systems.SQUARE_SIZE).toVector3();
                 }
                 else {
                     MapObject.search(this.objectIDPosition.getValue(), (result) => {
@@ -136,15 +130,13 @@ class TeleportObject extends Base {
                     // If needs teleport hero in another map
                     let needReload = false;
                     if (this.mapID !== null) {
-                        let id = this.mapID.getValue();
+                        const id = this.mapID.getValue();
                         // If hero set the current map
                         if (result.object.isHero) {
-                            Game.current.hero.position = currentState
-                                .position;
-                            let direction = this.direction === 0 ? Game.current
-                                .hero.orientation : this.direction - 1;
+                            Game.current.hero.position = currentState.position;
+                            const direction = this.direction === 0 ? Game.current.hero.orientation : this.direction - 1;
                             if (Scene.Map.current.id !== id) {
-                                let map = new Scene.Map(id, false, false, direction);
+                                const map = new Scene.Map(id, false, false, direction);
                                 // Include current reaction in the new map so it excecute commands after teleport
                                 map.reactionInterpreters.push(ReactionInterpreter.currentReaction);
                                 // Initialize time event again to reinclude time repeat off
@@ -154,8 +146,7 @@ class TeleportObject extends Base {
                             }
                             else {
                                 needReload = true;
-                                Game.current.hero.orientationEye = Mathf.mod(direction + Scene.Map.current.camera
-                                    .getMapOrientation() - 2, 4);
+                                Game.current.hero.orientationEye = Mathf.mod(direction + Scene.Map.current.camera.getMapOrientation() - 2, 4);
                                 Game.current.hero.updateUVs();
                             }
                         }
@@ -183,8 +174,7 @@ class TeleportObject extends Base {
             }
             currentState.endTransition = true;
             currentState.transitioning = true;
-            coef = currentState.frame.update() ? 1 : currentState.frame.tick /
-                TeleportObject.TRANSITION_DURATION;
+            coef = currentState.frame.update() ? 1 : currentState.frame.tick / TeleportObject.TRANSITION_DURATION;
             if (this.transitionEnd === 1) {
                 if (currentState.transitionColorAlpha > 0) {
                     currentState.transitionColorAlpha = 1 - coef;
@@ -192,9 +182,9 @@ class TeleportObject extends Base {
             }
             else if (this.transitionEnd === 2) {
                 if (currentState.distance === null) {
-                    if (Scene.Map.current.camera && Scene.Map.current.camera
-                        .system && !Utils.isUndefined(Scene.Map.current.camera
-                        .distance)) {
+                    if (Scene.Map.current.camera &&
+                        Scene.Map.current.camera.system &&
+                        Scene.Map.current.camera.distance !== undefined) {
                         currentState.distance = Scene.Map.current.camera.distance;
                         Scene.Map.current.camera.distance = 1;
                     }
@@ -203,7 +193,7 @@ class TeleportObject extends Base {
                     }
                 }
                 if (Scene.Map.current.camera.distance < currentState.distance) {
-                    Scene.Map.current.camera.distance = 1 + (coef * (currentState.distance - 1));
+                    Scene.Map.current.camera.distance = 1 + coef * (currentState.distance - 1);
                 }
             }
             if (coef < 1) {
@@ -218,22 +208,11 @@ class TeleportObject extends Base {
      */
     drawHUD(currentState) {
         if (this.transitionStart === 1 && !currentState.endTransition) {
-            Platform.ctx.fillStyle = Constants.STRING_RGBA + Constants
-                .STRING_PARENTHESIS_LEFT + currentState.startColor.red
-                + Constants.STRING_COMA + currentState.startColor.green
-                + Constants.STRING_COMA + currentState.startColor.blue
-                + Constants.STRING_COMA + currentState.transitionColorAlpha +
-                Constants.STRING_PARENTHESIS_RIGHT;
+            Platform.ctx.fillStyle = `rgba(${currentState.startColor.red},${currentState.startColor.green},${currentState.startColor.blue},${currentState.transitionColorAlpha})`;
             Platform.ctx.fillRect(0, 0, ScreenResolution.CANVAS_WIDTH, ScreenResolution.CANVAS_HEIGHT);
         }
-        if (this.transitionEnd === 1 && currentState.transitioning &&
-            !currentState.transitionedEnd) {
-            Platform.ctx.fillStyle = Constants.STRING_RGBA + Constants
-                .STRING_PARENTHESIS_LEFT + currentState.endColor.red
-                + Constants.STRING_COMA + currentState.endColor.green
-                + Constants.STRING_COMA + currentState.endColor.blue
-                + Constants.STRING_COMA + currentState.transitionColorAlpha +
-                Constants.STRING_PARENTHESIS_RIGHT;
+        if (this.transitionEnd === 1 && currentState.transitioning && !currentState.transitionedEnd) {
+            Platform.ctx.fillStyle = `rgba(${currentState.endColor.red},${currentState.endColor.green},${currentState.endColor.blue},${currentState.transitionColorAlpha})`;
             Platform.ctx.fillRect(0, 0, ScreenResolution.CANVAS_WIDTH, ScreenResolution.CANVAS_HEIGHT);
         }
     }

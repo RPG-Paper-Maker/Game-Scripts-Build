@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -10,7 +10,7 @@
 */
 import * as THREE from 'three';
 import { Paths, Platform, ScreenResolution, Utils } from '../Common/index.js';
-import { Datas } from '../index.js';
+import { Data } from '../index.js';
 import { Stack } from './Stack.js';
 /** @class
  *  The GL class handling some 3D stuff.
@@ -25,12 +25,12 @@ class GL {
      *  @static
      */
     static initialize() {
-        this.renderer = new THREE.WebGLRenderer({ antialias: Datas.Systems.antialias, alpha: true });
+        this.renderer = new THREE.WebGLRenderer({ antialias: Data.Systems.antialias, alpha: true });
         this.renderer.autoClear = false;
         this.renderer.setSize(ScreenResolution.CANVAS_WIDTH, ScreenResolution.CANVAS_HEIGHT, true);
         this.renderer.shadowMap.enabled = true;
         this.renderer.setPixelRatio(window.devicePixelRatio);
-        if (Datas.Systems.antialias) {
+        if (Data.Systems.antialias) {
             this.renderer.setPixelRatio(2);
         }
         document.body.appendChild(this.renderer.domElement);
@@ -60,7 +60,7 @@ class GL {
             let camera;
             for (let i = 0, l = Stack.content.length; i < l; i++) {
                 camera = Stack.content[i].camera;
-                if (!Utils.isUndefined(camera)) {
+                if (camera !== undefined) {
                     camera.resizeGL();
                 }
             }
@@ -72,13 +72,13 @@ class GL {
      *  @returns {Promise<THREE.Material>}
      */
     static async loadTexture(path) {
-        let texture = await new Promise((resolve, reject) => {
+        const texture = await new Promise((resolve, reject) => {
             this.textureLoader.load(path, (t) => {
                 resolve(t);
             }, () => { }, () => {
-                let error = 'Could not load ' + path;
-                if (Datas.Systems.ignoreAssetsLoadingErrors) {
-                    let t = new THREE.Texture();
+                const error = 'Could not load ' + path;
+                if (Data.Systems.ignoreAssetsLoadingErrors) {
+                    const t = new THREE.Texture();
                     t.image = new Image();
                     console.warn(error);
                     resolve(t);
@@ -114,10 +114,10 @@ class GL {
         opts.texture.flipY = opts.flipY ? true : false;
         opts.texture.wrapS = THREE.RepeatWrapping;
         opts.texture.wrapT = THREE.RepeatWrapping;
-        opts.repeat = Utils.defaultValue(opts.repeat, 1.0);
-        opts.opacity = Utils.defaultValue(opts.opacity, 1.0);
-        opts.shadows = Utils.defaultValue(opts.shadows, true);
-        opts.side = Utils.defaultValue(opts.side, THREE.DoubleSide);
+        opts.repeat = Utils.valueOrDefault(opts.repeat, 1.0);
+        opts.opacity = Utils.valueOrDefault(opts.opacity, 1.0);
+        opts.shadows = Utils.valueOrDefault(opts.shadows, true);
+        opts.side = Utils.valueOrDefault(opts.side, THREE.DoubleSide);
         const fragment = this.SHADER_FIX_FRAGMENT;
         const vertex = this.SHADER_FIX_VERTEX;
         const screenTone = this.screenTone;
@@ -198,9 +198,9 @@ class GL {
      *  @returns {Vector2}
      */
     static toScreenPosition(vector, camera) {
-        let widthHalf = ScreenResolution.CANVAS_WIDTH / 2;
-        let heightHalf = ScreenResolution.CANVAS_HEIGHT / 2;
-        let position = vector.clone();
+        const widthHalf = ScreenResolution.CANVAS_WIDTH / 2;
+        const heightHalf = ScreenResolution.CANVAS_HEIGHT / 2;
+        const position = vector.clone();
         camera.updateMatrixWorld(true);
         position.project(camera);
         return new THREE.Vector2(position.x * widthHalf + widthHalf, -(position.y * heightHalf) + heightHalf);

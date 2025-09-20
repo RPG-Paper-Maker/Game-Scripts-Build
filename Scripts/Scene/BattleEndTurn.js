@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum } from '../Common/index.js';
+import { BATTLE_STEP, TROOP_REACTION_FREQUENCY_KIND } from '../Common/index.js';
 import { ReactionInterpreter } from '../Core/index.js';
 // -------------------------------------------------------
 //
@@ -28,11 +28,11 @@ class BattleEndTurn {
     initialize() {
         // Each end turn troop reaction
         if (this.step === 0) {
-            let reactions = this.battle.troop.reactions;
+            const reactions = this.battle.troop.reactions;
             let reaction, l;
             for (l = reactions.length; this.indexTroopReaction < l; this.indexTroopReaction++) {
                 reaction = reactions[this.indexTroopReaction];
-                if (reaction.frequency === Enum.TroopReactionFrequencyKind.EachTurnEnd) {
+                if (reaction.frequency === TROOP_REACTION_FREQUENCY_KIND.EACH_TURN_END) {
                     // Check conditions
                     if (!reaction.conditions.isValid()) {
                         continue;
@@ -50,7 +50,7 @@ class BattleEndTurn {
             this.indexTroopReaction = 0;
             this.battle.activeGroup();
             this.battle.switchAttackingGroup();
-            this.battle.changeStep(Enum.BattleStep.StartTurn);
+            this.battle.changeStep(BATTLE_STEP.START_TURN);
         }
     }
     /**

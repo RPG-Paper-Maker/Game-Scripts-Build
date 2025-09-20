@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,14 +8,14 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum, Interpreter, Utils, Platform, Mathf } from '../Common/index.js';
-import { Datas, System, Graphic } from '../index.js';
-import { Skill } from './Skill.js';
+import { CHARACTER_KIND, CHARACTERISTIC_KIND, CONDITION_HEROES_KIND, INCREASE_DECREASE_KIND, Interpreter, ITEM_KIND, Mathf, Platform, Utils, } from '../Common/index.js';
+import { Data, Graphic, Model } from '../index.js';
 import { Item } from './Item.js';
+import { Skill } from './Skill.js';
 import { Status } from './Status.js';
 /** @class
  *  A character in the team/hidden/reserve.
- *  @param {CharacterKind} [kind=undefined] - The kind of the character (hero or monster)
+ *  @param {CHARACTER_KIND} [kind=undefined] - The kind of the character (hero or monster)
  *  @param {number} [id=undefined] - The ID of the character
  *  @param {number} [instanceID=undefined] - The instance id of the character
  *  @param {Skill[]} [skills=undefined] - List of all the learned skills
@@ -27,12 +27,12 @@ class Player {
         this.facesetID = null;
         this.facesetIndexX = null;
         this.facesetIndexY = null;
-        if (!Utils.isUndefined(kind)) {
+        if (kind !== undefined) {
             this.kind = kind;
             this.id = id;
             this.instid = instanceID;
             this.system = this.getSystem();
-            this.name = Utils.isUndefined(name) ? this.system.name() : name;
+            this.name = name === undefined ? this.system.name() : name;
             // Skills
             this.skills = [];
             let i, l;
@@ -40,9 +40,9 @@ class Player {
                 this.skills[i] = new Skill(skills[i].id);
             }
             // Equip
-            l = Datas.BattleSystems.maxEquipmentID;
+            l = Data.BattleSystems.maxEquipmentID;
             this.equip = new Array(l + 1);
-            for (i = 1, l = Datas.BattleSystems.maxEquipmentID; i <= l; i++) {
+            for (i = 1, l = Data.BattleSystems.maxEquipmentID; i <= l; i++) {
                 this.equip[i] = null;
             }
             // Status
@@ -71,15 +71,13 @@ class Player {
      *  Get the max size of equipment kind names.
      *  @static
      *  @returns {number}
-    */
+     */
     static getEquipmentLength() {
         // Adding equipments
         let maxLength = 0;
         let graphic;
-        for (let i = 0, l = Datas.BattleSystems.equipmentsOrder.length - 1; i <
-            l; i++) {
-            graphic = new Graphic.Text(Datas.BattleSystems.getEquipment(Datas
-                .BattleSystems.equipmentsOrder[i + 1]).name());
+        for (let i = 0, l = Data.BattleSystems.equipmentsIDs.length - 1; i < l; i++) {
+            graphic = new Graphic.Text(Data.BattleSystems.getEquipment(Data.BattleSystems.equipmentsIDs[i + 1]).name());
             graphic.updateContextFont();
             maxLength = Math.max(Platform.ctx.measureText(graphic.text).width, maxLength);
         }
@@ -92,10 +90,10 @@ class Player {
      *  @returns {GamePlayer}
      */
     static getTemporaryPlayer(values) {
-        let player = new Player();
-        let statistics = Datas.BattleSystems.statisticsOrder;
+        const player = new Player();
+        const statistics = Data.BattleSystems.statisticsIDs;
         for (let i = 0, l = statistics.length; i < l; i++) {
-            player.initStatValue(Datas.BattleSystems.getStatistic(statistics[i]), values ? values[statistics[i]] : 0);
+            player.initStatValue(Data.BattleSystems.getStatistic(statistics[i]), values ? values[statistics[i]] : 0);
         }
         return player;
     }
@@ -163,29 +161,29 @@ class Player {
      *  @param {Player[]} tab - The heroes list
      *  @param {Function} callback - The callback
      *  @returns {boolean}
-    */
+     */
     static applySelection(selectionKind, tab, instanceID, callback) {
         switch (selectionKind) {
-            case Enum.ConditionHeroesKind.AllTheHeroes:
+            case CONDITION_HEROES_KIND.ALL_THE_HEROES:
                 return Player.allTheHeroes(tab, callback);
-            case Enum.ConditionHeroesKind.NoneOfTheHeroes:
+            case CONDITION_HEROES_KIND.NONE_OF_THE_HEROES:
                 return Player.noneOfTheHeroes(tab, callback);
-            case Enum.ConditionHeroesKind.AtLeastOneHero:
+            case CONDITION_HEROES_KIND.AT_LEAST_ONE_HERO:
                 return Player.atLeastOneHero(tab, callback);
-            case Enum.ConditionHeroesKind.TheHeroeWithInstanceID:
+            case CONDITION_HEROES_KIND.THE_HERO_WITH_INSTANCE_ID:
                 return Player.theHeroeWithInstanceID(tab, instanceID, callback);
         }
     }
     /**
-     *  Get the player informations System.
+     *  Get the player informations Model.
      *  @returns {System.Hero}
      */
     getSystem() {
         switch (this.kind) {
-            case Enum.CharacterKind.Hero:
-                return Datas.Heroes.get(this.id);
-            case Enum.CharacterKind.Monster:
-                return Datas.Monsters.get(this.id);
+            case CHARACTER_KIND.HERO:
+                return Data.Heroes.get(this.id);
+            case CHARACTER_KIND.MONSTER:
+                return Data.Monsters.get(this.id);
         }
     }
     /**
@@ -194,13 +192,13 @@ class Player {
      */
     getSaveCharacter() {
         // Status
-        let statusList = [];
+        const statusList = [];
         let i, l, status;
         for (i = 0, l = this.status.length; i < l; i++) {
             status = this.status[i];
             statusList[i] = {
                 id: status.system.id,
-                turn: status.turn
+                turn: status.turn,
             };
         }
         return {
@@ -217,7 +215,7 @@ class Player {
             battler: this.battlerID,
             face: this.facesetID,
             faceX: this.facesetIndexX,
-            faceY: this.facesetIndexY
+            faceY: this.facesetIndexY,
         };
     }
     /**
@@ -225,15 +223,24 @@ class Player {
      *  @returns {number[]}
      */
     getSaveStat() {
-        let l = Datas.BattleSystems.statisticsOrder.length;
-        let list = new Array(l);
+        const l = Data.BattleSystems.statisticsIDs.length;
+        const list = new Array(l);
         let statistic;
         for (let i = 0; i < l; i++) {
-            let id = Datas.BattleSystems.statisticsOrder[i];
-            statistic = Datas.BattleSystems.getStatistic(id);
-            list[id] = statistic.isFix ? [this[statistic.abbreviation], this[statistic.getBonusAbbreviation()], this[statistic
-                    .getAddedAbbreviation()]] : [this[statistic.abbreviation], this[statistic.getBonusAbbreviation()], this[statistic
-                    .getMaxAbbreviation()], this[statistic.getAddedAbbreviation()]];
+            const id = Data.BattleSystems.statisticsIDs[i];
+            statistic = Data.BattleSystems.getStatistic(id);
+            list[id] = statistic.isFix
+                ? [
+                    this[statistic.abbreviation],
+                    this[statistic.getBonusAbbreviation()],
+                    this[statistic.getAddedAbbreviation()],
+                ]
+                : [
+                    this[statistic.abbreviation],
+                    this[statistic.getBonusAbbreviation()],
+                    this[statistic.getMaxAbbreviation()],
+                    this[statistic.getAddedAbbreviation()],
+                ];
         }
         return list;
     }
@@ -242,12 +249,11 @@ class Player {
      *  @returns {number[][]}
      */
     getSaveEquip() {
-        let l = this.equip.length;
-        let list = new Array(l);
+        const l = this.equip.length;
+        const list = new Array(l);
         for (let i = 1; i < l; i++) {
             if (this.equip[i] !== null) {
-                list[i] = [this.equip[i].kind, this.equip[i].system.id, this
-                        .equip[i].nb];
+                list[i] = [this.equip[i].kind, this.equip[i].system.id, this.equip[i].nb];
             }
         }
         return list;
@@ -257,7 +263,7 @@ class Player {
      *  @returns {boolean}
      */
     isDead() {
-        return Interpreter.evaluate(Datas.BattleSystems.formulaIsDead.getValue(), { user: this });
+        return Interpreter.evaluate(Data.BattleSystems.formulaIsDead.getValue(), { user: this });
     }
     /**
      *  Instanciate a character in a particular level.
@@ -267,14 +273,13 @@ class Player {
         // Skills
         this.skills = this.system.getSkills(level, this.changedClass);
         // Begin equipment / elements
-        let characteristics = this.system.getCharacteristics(this.changedClass);
+        const characteristics = this.system.getCharacteristics(this.changedClass);
         this.elements = [];
         let i, l, characteristic, kind, itemID, item;
         for (i = 0, l = characteristics.length; i < l; i++) {
             characteristic = characteristics[i];
-            if (characteristic.kind === Enum.CharacteristicKind.BeginEquipment) {
-                kind = characteristic.isBeginWeapon ? Enum.ItemKind.Weapon :
-                    Enum.ItemKind.Armor;
+            if (characteristic.kind === CHARACTERISTIC_KIND.BEGIN_EQUIPMENT) {
+                kind = characteristic.isBeginWeapon ? ITEM_KIND.WEAPON : ITEM_KIND.ARMOR;
                 itemID = characteristic.beginWeaponArmorID.getValue();
                 item = Item.findItem(kind, itemID);
                 if (item) {
@@ -285,32 +290,30 @@ class Player {
                 }
                 this.equip[characteristic.beginEquipmentID.getValue()] = item;
             }
-            else if (characteristic.kind === Enum.CharacteristicKind.Element) {
+            else if (characteristic.kind === CHARACTERISTIC_KIND.ELEMENT) {
                 this.elements.push(characteristic.elementID);
             }
         }
         // Stats
-        let statistics = Datas.BattleSystems.statisticsOrder;
-        let statisticsProgression = this.system.getStatisticsProgression(this
-            .changedClass);
-        let nonFixStatistics = new Array;
+        const statistics = Data.BattleSystems.statisticsIDs;
+        const statisticsProgression = this.system.getStatisticsProgression(this.changedClass);
+        const nonFixStatistics = [];
         for (i = 0, l = statistics.length; i < l; i++) {
-            this[Datas.BattleSystems.getStatistic(statistics[i])
-                .getBeforeAbbreviation()] = undefined;
+            this[Data.BattleSystems.getStatistic(statistics[i]).getBeforeAbbreviation()] = undefined;
         }
         let j, m, statistic, statisticProgression;
         for (i = 0, l = statistics.length; i < l; i++) {
-            let id = statistics[i];
-            statistic = Datas.BattleSystems.getStatistic(id);
+            const id = statistics[i];
+            statistic = Data.BattleSystems.getStatistic(id);
             // Default value
             this.initStatValue(statistic, 0);
             this[statistic.getBonusAbbreviation()] = 0;
             this[statistic.getAddedAbbreviation()] = 0;
-            if (id === Datas.BattleSystems.idLevelStatistic) {
+            if (id === Data.BattleSystems.idLevelStatistic) {
                 // Level
                 this[statistic.abbreviation] = level;
             }
-            else if (id === Datas.BattleSystems.idExpStatistic) {
+            else if (id === Data.BattleSystems.idExpStatistic) {
                 // Experience
                 this[statistic.abbreviation] = this.expList[level];
                 this[statistic.getMaxAbbreviation()] = this.expList[level + 1];
@@ -324,8 +327,7 @@ class Player {
                             nonFixStatistics.push(statisticProgression);
                         }
                         else {
-                            this.initStatValue(statistic, statisticProgression
-                                .getValueAtLevel(level, this));
+                            this.initStatValue(statistic, statisticProgression.getValueAtLevel(level, this));
                         }
                         break;
                     }
@@ -336,8 +338,7 @@ class Player {
         for (i = 0, l = nonFixStatistics.length; i < l; i++) {
             for (j = 0; j < l; j++) {
                 statisticProgression = nonFixStatistics[j];
-                this.initStatValue(Datas.BattleSystems.getStatistic(statisticProgression.id), statisticProgression
-                    .getValueAtLevel(level, this));
+                this.initStatValue(Data.BattleSystems.getStatistic(statisticProgression.id), statisticProgression.getValueAtLevel(level, this));
             }
         }
         this.updateAllStatsValues();
@@ -349,16 +350,16 @@ class Player {
      *  @returns {number[][]}
      */
     getEquipmentStatsAndBonus(item, equipmentID) {
-        let statistics = Datas.BattleSystems.statisticsOrder;
-        let l = Datas.BattleSystems.maxStatisticID;
-        let list = new Array(l + 1);
-        let bonus = new Array(l + 1);
-        let added = new Array(l + 1);
-        let res = {
+        const statistics = Data.BattleSystems.statisticsIDs;
+        let l = Data.BattleSystems.maxStatisticID;
+        const list = new Array(l + 1);
+        const bonus = new Array(l + 1);
+        const added = new Array(l + 1);
+        const res = {
             statusRes: [],
             experienceGain: [],
             currencyGain: [],
-            skillCostRes: []
+            skillCostRes: [],
         };
         let i;
         for (i = 1; i < l + 1; i++) {
@@ -398,7 +399,7 @@ class Player {
         let id;
         for (i = 0, l = statistics.length; i < l; i++) {
             id = statistics[i];
-            statistic = Datas.BattleSystems.getStatistic(id);
+            statistic = Data.BattleSystems.getStatistic(id);
             if (list[id] === null) {
                 list[id] = this[statistic.getAbbreviationNext()];
             }
@@ -406,18 +407,17 @@ class Player {
             list[id] += added[id];
         }
         // Update formulas statistics
-        let statisticsProgression = this.system.getStatisticsProgression(this
-            .changedClass);
-        let previewPlayer = Player.getTemporaryPlayer(list);
+        const statisticsProgression = this.system.getStatisticsProgression(this.changedClass);
+        const previewPlayer = Player.getTemporaryPlayer(list);
         let statisticProgression;
         for (i = 0, l = statisticsProgression.length; i < l; i++) {
             for (j = 0; j < l; j++) {
                 statisticProgression = statisticsProgression[j];
-                list[statisticProgression.id] = statisticProgression
-                    .getValueAtLevel(this.getCurrentLevel(), previewPlayer, this
-                    .system.getProperty(System.Class.PROPERTY_FINAL_LEVEL, this
-                    .changedClass)) + bonus[statisticProgression.id] + added[statisticProgression.id];
-                previewPlayer.initStatValue(Datas.BattleSystems.getStatistic(statisticProgression.id), list[statisticProgression.id]);
+                list[statisticProgression.id] =
+                    statisticProgression.getValueAtLevel(this.getCurrentLevel(), previewPlayer, this.system.getProperty(Model.Class.PROPERTY_FINAL_LEVEL, this.changedClass)) +
+                        bonus[statisticProgression.id] +
+                        added[statisticProgression.id];
+                previewPlayer.initStatValue(Data.BattleSystems.getStatistic(statisticProgression.id), list[statisticProgression.id]);
             }
         }
         return [list, bonus, res];
@@ -432,16 +432,15 @@ class Player {
         let characteristic, statistic, base;
         for (let i = 0, l = characteristics.length; i < l; i++) {
             characteristic = characteristics[i];
-            if (characteristic.kind === Enum.CharacteristicKind.IncreaseDecrease) {
+            if (characteristic.kind === CHARACTERISTIC_KIND.INCREASE_DECREASE) {
                 switch (characteristic.increaseDecreaseKind) {
-                    case Enum.IncreaseDecreaseKind.StatValue:
-                    case Enum.IncreaseDecreaseKind.ElementRes:
-                        let result = characteristic.getNewStatValue(this);
+                    case INCREASE_DECREASE_KIND.STAT_VALUE:
+                    case INCREASE_DECREASE_KIND.ELEMENT_RES:
+                        const result = characteristic.getNewStatValue(this);
                         if (result !== null) {
                             if (list[result[0]] === null) {
-                                statistic = Datas.BattleSystems.getStatistic(result[0]);
-                                base = this[statistic.getAbbreviationNext()] - this[statistic
-                                    .getBonusAbbreviation()];
+                                statistic = Data.BattleSystems.getStatistic(result[0]);
+                                base = this[statistic.getAbbreviationNext()] - this[statistic.getBonusAbbreviation()];
                                 list[result[0]] = characteristic.operation ? 0 : base;
                                 bonus[result[0]] = characteristic.operation ? -base : 0;
                             }
@@ -454,7 +453,7 @@ class Player {
                         break;
                 }
             }
-            else if (characteristic.kind === Enum.CharacteristicKind.Script) {
+            else if (characteristic.kind === CHARACTERISTIC_KIND.SCRIPT) {
                 characteristic.executeScript(this);
             }
         }
@@ -466,26 +465,24 @@ class Player {
      */
     updateEquipmentStats(list, bonus, res) {
         if (!list || !bonus || !res) {
-            let result = this.getEquipmentStatsAndBonus();
+            const result = this.getEquipmentStatsAndBonus();
             list = result[0];
             bonus = result[1];
             res = result[2];
         }
-        let statistics = Datas.BattleSystems.statisticsOrder;
+        const statistics = Data.BattleSystems.statisticsIDs;
         let statistic, value;
         for (let i = 0, l = statistics.length; i < l; i++) {
-            let id = statistics[i];
-            statistic = Datas.BattleSystems.getStatistic(id);
+            const id = statistics[i];
+            statistic = Data.BattleSystems.getStatistic(id);
             value = list[id];
             if (statistic.isFix) {
                 this[statistic.abbreviation] = value;
             }
             else {
                 this[statistic.getMaxAbbreviation()] = value;
-                if (this[statistic.abbreviation] > this[statistic
-                    .getMaxAbbreviation()]) {
-                    this[statistic.abbreviation] = this[statistic
-                        .getMaxAbbreviation()];
+                if (this[statistic.abbreviation] > this[statistic.getMaxAbbreviation()]) {
+                    this[statistic.abbreviation] = this[statistic.getMaxAbbreviation()];
                 }
             }
             this[statistic.getBonusAbbreviation()] = bonus[id];
@@ -511,9 +508,8 @@ class Player {
      *  @param {number} bonus - The value
      */
     updateStatValue(statistic, value) {
-        let abr = statistic.isFix ? statistic.abbreviation : statistic
-            .getMaxAbbreviation();
-        if (Utils.isUndefined(this[statistic.getBeforeAbbreviation()])) {
+        const abr = statistic.isFix ? statistic.abbreviation : statistic.getMaxAbbreviation();
+        if (this[statistic.getBeforeAbbreviation()] !== undefined) {
             this[statistic.getBeforeAbbreviation()] = this[abr];
         }
         this[abr] = value;
@@ -524,22 +520,19 @@ class Player {
      */
     updateAllStatsValues() {
         // Fix values : equipment influence etc
-        let level = this.getCurrentLevel();
-        let statistics = Datas.BattleSystems.statisticsOrder;
-        let statisticsProgression = this.system.getStatisticsProgression(this
-            .changedClass);
-        let nonFixStatistics = new Array;
+        const level = this.getCurrentLevel();
+        const statistics = Data.BattleSystems.statisticsIDs;
+        const statisticsProgression = this.system.getStatisticsProgression(this.changedClass);
+        const nonFixStatistics = [];
         let i, l;
         for (i = 0, l = statistics.length; i < l; i++) {
-            this[Datas.BattleSystems.getStatistic(statistics[i])
-                .getBeforeAbbreviation()] = undefined;
+            this[Data.BattleSystems.getStatistic(statistics[i]).getBeforeAbbreviation()] = undefined;
         }
         let j, m, statistic, statisticProgression;
         for (i = 0, l = statistics.length; i < l; i++) {
-            let id = statistics[i];
-            statistic = Datas.BattleSystems.getStatistic(id);
-            if (id !== Datas.BattleSystems.idLevelStatistic && id !== Datas
-                .BattleSystems.idExpStatistic) {
+            const id = statistics[i];
+            statistic = Data.BattleSystems.getStatistic(id);
+            if (id !== Data.BattleSystems.idLevelStatistic && id !== Data.BattleSystems.idExpStatistic) {
                 for (j = 0, m = statisticsProgression.length; j < m; j++) {
                     statisticProgression = statisticsProgression[j];
                     if (statisticProgression.id === id) {
@@ -547,8 +540,7 @@ class Player {
                             nonFixStatistics.push(statisticProgression);
                         }
                         else {
-                            this.updateStatValue(statistic, statisticProgression
-                                .getValueAtLevel(level, this));
+                            this.updateStatValue(statistic, statisticProgression.getValueAtLevel(level, this));
                         }
                         break;
                     }
@@ -559,9 +551,8 @@ class Player {
         for (i = 0, l = nonFixStatistics.length; i < l; i++) {
             for (j = 0; j < l; j++) {
                 statisticProgression = nonFixStatistics[j];
-                statistic = Datas.BattleSystems.getStatistic(statisticProgression.id);
-                this.updateStatValue(statistic, statisticProgression
-                    .getValueAtLevel(level, this));
+                statistic = Data.BattleSystems.getStatistic(statisticProgression.id);
+                this.updateStatValue(statistic, statisticProgression.getValueAtLevel(level, this));
             }
         }
         // Update equipment stats + characteristics
@@ -574,19 +565,19 @@ class Player {
      *  @returns {string}
      */
     getBarAbbreviation(stat) {
-        return this[stat.abbreviation] + " / " + this[stat.getMaxAbbreviation()];
+        return this[stat.abbreviation] + ' / ' + this[stat.getMaxAbbreviation()];
     }
     /**
      *  Read the JSON associated to the character and items.
      *  @param {Record<string, any>} - json Json object describing the items
-    */
+     */
     read(json) {
         // Stats
-        let jsonStats = json.stats;
+        const jsonStats = json.stats;
         let i, l, statistic, value;
-        for (i = 0, l = Datas.BattleSystems.statisticsOrder.length; i < l; i++) {
-            let id = Datas.BattleSystems.statisticsOrder[i];
-            statistic = Datas.BattleSystems.getStatistic(id);
+        for (i = 0, l = Data.BattleSystems.statisticsIDs.length; i < l; i++) {
+            const id = Data.BattleSystems.statisticsIDs[i];
+            statistic = Data.BattleSystems.getStatistic(id);
             value = jsonStats[id];
             if (value) {
                 this[statistic.abbreviation] = value[0];
@@ -601,7 +592,7 @@ class Player {
             }
         }
         // Equip
-        l = Datas.BattleSystems.maxEquipmentID;
+        l = Data.BattleSystems.maxEquipmentID;
         this.equip = new Array(l + 1);
         let equip, item;
         for (i = 1; i <= l; i++) {
@@ -618,16 +609,16 @@ class Player {
             this.equip[i] = item;
         }
         // Exp list
-        this.changedClass = json.class ? Datas.Classes.get(json.class) : undefined;
+        this.changedClass = json.class ? Data.Classes.get(json.class) : undefined;
         this.expList = this.system.createExpList(this.changedClass);
-        for (let i in json.exp) {
+        for (const i in json.exp) {
             this.expList[i] = json.exp[i];
         }
         // Faceset and battler
-        this.facesetID = Utils.defaultValue(json.face, null);
-        this.facesetIndexX = Utils.defaultValue(json.faceX, null);
-        this.facesetIndexY = Utils.defaultValue(json.faceY, null);
-        this.battlerID = Utils.defaultValue(json.battler, null);
+        this.facesetID = Utils.valueOrDefault(json.face, null);
+        this.facesetIndexX = Utils.valueOrDefault(json.faceX, null);
+        this.facesetIndexY = Utils.valueOrDefault(json.faceY, null);
+        this.battlerID = Utils.valueOrDefault(json.battler, null);
         this.updateAllStatsValues();
     }
     /**
@@ -635,14 +626,14 @@ class Player {
      *  @returns {number}
      */
     getCurrentLevel() {
-        return this[Datas.BattleSystems.getLevelStatistic().abbreviation];
+        return this[Data.BattleSystems.getLevelStatistic().abbreviation];
     }
     /**
      *  Apply level up.
      */
     levelUp() {
         // Change lvl stat
-        this[Datas.BattleSystems.getLevelStatistic().abbreviation]++;
+        this[Data.BattleSystems.getLevelStatistic().abbreviation]++;
         // Update statistics
         this.updateAllStatsValues();
         // Update skills learned
@@ -652,10 +643,9 @@ class Player {
      *  Learn new skills (on level up).
      */
     learnSkills() {
-        let newSkills = this.system.getLearnedSkills(this[Datas.BattleSystems
-            .getLevelStatistic().abbreviation], this.changedClass);
+        const newSkills = this.system.getLearnedSkills(this[Data.BattleSystems.getLevelStatistic().abbreviation], this.changedClass);
         // If already added, remove
-        for (let skill of newSkills) {
+        for (const skill of newSkills) {
             this.removeSkill(skill.id);
         }
         this.skills = this.skills.concat(newSkills);
@@ -665,24 +655,21 @@ class Player {
      *  @returns {number}
      */
     getRewardExperience() {
-        return this.system.getRewardExperience(this
-            .getCurrentLevel());
+        return this.system.getRewardExperience(this.getCurrentLevel());
     }
     /**
      *  Get the currencies reward.
      *  @returns {Record<string, any>}
      */
     getRewardCurrencies() {
-        return this.system.getRewardCurrencies(this
-            .getCurrentLevel());
+        return this.system.getRewardCurrencies(this.getCurrentLevel());
     }
     /**
      *  Get the loots reward.
      *  @returns {Record<string, Item>[]}
      */
     getRewardLoots() {
-        return this.system.getRewardLoots(this
-            .getCurrentLevel());
+        return this.system.getRewardLoots(this.getCurrentLevel());
     }
     /**
      *  Update remaining xp according to full time.
@@ -690,15 +677,13 @@ class Player {
      */
     updateRemainingXP(fullTime) {
         if (this.getCurrentLevel() < this.expList.length - 1) {
-            let current = this[Datas.BattleSystems.getExpStatistic()
-                .abbreviation];
-            let max = this[Datas.BattleSystems.getExpStatistic()
-                .getMaxAbbreviation()];
-            let xpForLvl = max - current;
-            let dif = this.totalRemainingXP - xpForLvl;
-            this.remainingXP = (dif > 0) ? xpForLvl : this.totalRemainingXP;
+            const current = this[Data.BattleSystems.getExpStatistic().abbreviation];
+            const max = this[Data.BattleSystems.getExpStatistic().getMaxAbbreviation()];
+            const xpForLvl = max - current;
+            const dif = this.totalRemainingXP - xpForLvl;
+            this.remainingXP = dif > 0 ? xpForLvl : this.totalRemainingXP;
             this.totalRemainingXP -= this.remainingXP;
-            this.totalTimeXP = Math.floor(this.remainingXP / (max - this.expList[this.getCurrentLevel()]) * fullTime);
+            this.totalTimeXP = Math.floor((this.remainingXP / (max - this.expList[this.getCurrentLevel()])) * fullTime);
         }
         else {
             this.remainingXP = 0;
@@ -712,17 +697,15 @@ class Player {
      *  Update obtained experience.
      */
     updateObtainedExperience() {
-        let xpAbbreviation = Datas.BattleSystems.getExpStatistic().abbreviation;
-        let tick = new Date().getTime() - this.timeXP;
+        const xpAbbreviation = Data.BattleSystems.getExpStatistic().abbreviation;
+        const tick = new Date().getTime() - this.timeXP;
         if (tick >= this.totalTimeXP) {
-            this[xpAbbreviation] = this[xpAbbreviation] + this.remainingXP -
-                this.obtainedXP;
+            this[xpAbbreviation] = this[xpAbbreviation] + this.remainingXP - this.obtainedXP;
             this.remainingXP = 0;
             this.obtainedXP = 0;
         }
         else {
-            let xp = Math.floor((tick / this.totalTimeXP * this.remainingXP)) -
-                this.obtainedXP;
+            const xp = Math.floor((tick / this.totalTimeXP) * this.remainingXP) - this.obtainedXP;
             this.obtainedXP += xp;
             this[xpAbbreviation] += xp;
         }
@@ -733,16 +716,14 @@ class Player {
      *  @returns {boolean}
      */
     updateExperience() {
-        let xpAbbreviation = Datas.BattleSystems.getExpStatistic()
-            .abbreviation;
-        let maxXPAbbreviation = Datas.BattleSystems.getExpStatistic()
-            .getMaxAbbreviation();
-        let maxXP = this[maxXPAbbreviation];
+        const xpAbbreviation = Data.BattleSystems.getExpStatistic().abbreviation;
+        const maxXPAbbreviation = Data.BattleSystems.getExpStatistic().getMaxAbbreviation();
+        const maxXP = this[maxXPAbbreviation];
         this.updateObtainedExperience();
         this.testedLevelUp = true;
-        let dif = this[xpAbbreviation] - maxXP;
+        const dif = this[xpAbbreviation] - maxXP;
         if (dif >= 0) {
-            let newMaxXP = this.expList[this.getCurrentLevel() + 2];
+            const newMaxXP = this.expList[this.getCurrentLevel() + 2];
             let leveledUp = false;
             if (newMaxXP) {
                 // Go to next level
@@ -786,15 +767,14 @@ class Player {
      *  @returns {boolean}
      */
     isExperienceUpdated() {
-        return this.testedLevelUp && this.totalRemainingXP === 0 && this
-            .remainingXP === 0;
+        return this.testedLevelUp && this.totalRemainingXP === 0 && this.remainingXP === 0;
     }
     /**
      *  Synchronize experience if level was manually updated with a command.
      */
     synchronizeExperience() {
-        let statistic = Datas.BattleSystems.getExpStatistic();
-        let level = this.getCurrentLevel();
+        const statistic = Data.BattleSystems.getExpStatistic();
+        const level = this.getCurrentLevel();
         this[statistic.abbreviation] = this.expList[level];
         this[statistic.getMaxAbbreviation()] = this.expList[level + 1];
     }
@@ -802,8 +782,8 @@ class Player {
      *  Synchronize level if experience was manually updated with a command.
      */
     synchronizeLevel() {
-        let expStatistic = Datas.BattleSystems.getExpStatistic();
-        let exp = this[expStatistic.abbreviation];
+        const expStatistic = Data.BattleSystems.getExpStatistic();
+        const exp = this[expStatistic.abbreviation];
         let finalLevel = this.expList.length - 1;
         for (; finalLevel >= 1; finalLevel--) {
             if (exp >= this.expList[finalLevel]) {
@@ -821,7 +801,7 @@ class Player {
      *  @returns {boolean}
      */
     hasStatus(id) {
-        for (let status of this.status) {
+        for (const status of this.status) {
             if (status.id === id) {
                 return true;
             }
@@ -833,7 +813,7 @@ class Player {
      *  @returns {Core.Status[]}
      */
     getFirstStatus() {
-        let statusList = [];
+        const statusList = [];
         let status;
         for (let c = 0, i = 0; i < Player.MAX_STATUS_DISPLAY_TOP; i++) {
             status = this.status[i];
@@ -855,8 +835,8 @@ class Player {
      *  @returns {Core.Status}
      */
     addStatus(id) {
-        let status = new Status(id);
-        let priority = status.system.priority.getValue();
+        const status = new Status(id);
+        const priority = status.system.priority.getValue();
         let i, s, p;
         for (i = this.status.length - 1; i >= 0; i--) {
             s = this.status[i];
@@ -868,7 +848,7 @@ class Player {
         for (i = this.status.length - 1; i >= 0; i--) {
             // Add according to priority
             p = s.system.priority.getValue();
-            if (s <= priority) {
+            if (p <= priority) {
                 break;
             }
         }
@@ -920,8 +900,8 @@ class Player {
         let s;
         for (let i = this.status.length - 1; i >= 0; i--) {
             s = this.status[i];
-            if (s.system.isReleaseAfterAttacked && Mathf.randomPercentTest(s.system
-                .chanceReleaseAfterAttacked.getValue())) {
+            if (s.system.isReleaseAfterAttacked &&
+                Mathf.randomPercentTest(s.system.chanceReleaseAfterAttacked.getValue())) {
                 s = this.status[0];
                 this.status.splice(i, 1);
                 battler.updateStatusStep();
@@ -937,7 +917,7 @@ class Player {
      *  Remove the status with release at start turn option.
      */
     removeStartTurnStatus(listStill) {
-        let listHealed = [];
+        const listHealed = [];
         let test = false;
         let j, m, s, release, testRelease;
         for (let i = this.status.length - 1; i >= 0; i--) {
@@ -947,7 +927,8 @@ class Player {
                 testRelease = false;
                 for (j = 0, m = s.system.releaseStartTurn.length; j < m; j++) {
                     release = s.system.releaseStartTurn[j];
-                    if (Mathf.OPERATORS_COMPARE[release.operationTurnKind](s.turn, release.turn.getValue()) && Mathf.randomPercentTest(release.chance.getValue())) {
+                    if (Mathf.OPERATORS_COMPARE[release.operationTurnKind](s.turn, release.turn.getValue()) &&
+                        Mathf.randomPercentTest(release.chance.getValue())) {
                         this.status.splice(i, 1);
                         listHealed.push(s);
                         test = true;
@@ -979,8 +960,8 @@ class Player {
      *  @returns {[number, number, number[][]]}
      */
     getBestWeaponArmorToReplace(weaponArmor) {
-        let equipments = weaponArmor.getType().equipments;
-        let baseResult = this.getEquipmentStatsAndBonus();
+        const equipments = weaponArmor.getType().equipments;
+        const baseResult = this.getEquipmentStatsAndBonus();
         let baseBonus = 0;
         let id;
         for (id in baseResult[1]) {
@@ -994,7 +975,7 @@ class Player {
                 for (id in baseResult[1]) {
                     totalBonus += result[1][id] === null ? 0 : result[1][id];
                 }
-                if (Utils.isUndefined(bestBonus) || bestBonus < totalBonus) {
+                if (bestBonus === undefined || bestBonus < totalBonus) {
                     bestBonus = totalBonus;
                     bestResult = result;
                     bestEquipmentID = equipmentID;
@@ -1008,7 +989,7 @@ class Player {
      *  @param {number} id
      */
     addSkill(id) {
-        let index = Utils.indexOfProp(this.skills, "id", id);
+        const index = Utils.indexOfProp(this.skills, 'id', id);
         if (index === -1) {
             this.skills.push(new Skill(id));
         }
@@ -1018,7 +999,7 @@ class Player {
      *  @param {number} id
      */
     removeSkill(id) {
-        let index = Utils.indexOfProp(this.skills, "id", id);
+        const index = Utils.indexOfProp(this.skills, 'id', id);
         if (index !== -1) {
             this.skills.splice(index, 1);
         }
@@ -1030,10 +1011,9 @@ class Player {
     getCharacteristics() {
         let characteristics = this.system.getCharacteristics(this.changedClass);
         // Also add weapons and armors
-        for (let equipment of this.equip) {
+        for (const equipment of this.equip) {
             if (equipment) {
-                characteristics = characteristics.concat(equipment
-                    .system.characteristics);
+                characteristics = characteristics.concat(equipment.system.characteristics);
             }
         }
         return characteristics;
@@ -1043,7 +1023,7 @@ class Player {
      *  @returns {System.Characteristic[]}
      */
     getClass() {
-        return Utils.defaultValue(this.changedClass, this.system.class);
+        return Utils.valueOrDefault(this.changedClass, this.system.class);
     }
     /**
      *  Update the elements list according to characteristics.
@@ -1051,8 +1031,8 @@ class Player {
     updateElements() {
         this.elements = [];
         const characteristics = this.system.getCharacteristics(this.changedClass);
-        for (let characteristic of characteristics) {
-            if (characteristic.kind === Enum.CharacteristicKind.Element) {
+        for (const characteristic of characteristics) {
+            if (characteristic.kind === CHARACTERISTIC_KIND.ELEMENT) {
                 this.elements.push(characteristic.elementID);
             }
         }
@@ -1091,23 +1071,23 @@ class Player {
      *  @returns {boolean}
      */
     canEquipWeaponArmor(weaponArmor) {
-        let characteristics = this.getCharacteristics();
-        for (let characteristic of characteristics) {
-            if (characteristic.kind === Enum.CharacteristicKind
-                .AllowForbidEquip && ((weaponArmor.kind === Enum.ItemKind
-                .Weapon && characteristic.isAllowEquipWeapon &&
-                weaponArmor.system.type === characteristic.equipWeaponTypeID
-                    .getValue()) || (weaponArmor.kind === Enum.ItemKind.Armor
-                && !characteristic.isAllowEquipWeapon &&
-                weaponArmor.system.type === characteristic.equipArmorTypeID
-                    .getValue())) && !characteristic.isAllowEquip) {
+        const characteristics = this.getCharacteristics();
+        for (const characteristic of characteristics) {
+            if (characteristic.kind === CHARACTERISTIC_KIND.ALLOW_FORBID_CHANGE &&
+                ((weaponArmor.kind === ITEM_KIND.WEAPON &&
+                    characteristic.isAllowEquipWeapon &&
+                    weaponArmor.system.type === characteristic.equipWeaponTypeID.getValue()) ||
+                    (weaponArmor.kind === ITEM_KIND.ARMOR &&
+                        !characteristic.isAllowEquipWeapon &&
+                        weaponArmor.system.type === characteristic.equipArmorTypeID.getValue())) &&
+                !characteristic.isAllowEquip) {
                 return false;
             }
-            if (characteristic.kind === Enum.CharacteristicKind.AllowForbidChange
-                && !characteristic.isAllowChangeEquipment) {
-                let type = weaponArmor.kind === Enum.ItemKind.Weapon ? Datas
-                    .BattleSystems.getWeaponKind(weaponArmor.system.type) : Datas
-                    .BattleSystems.getArmorKind(weaponArmor.system.type);
+            if (characteristic.kind === CHARACTERISTIC_KIND.ALLOW_FORBID_CHANGE &&
+                !characteristic.isAllowChangeEquipment) {
+                const type = weaponArmor.kind === ITEM_KIND.WEAPON
+                    ? Data.BattleSystems.getWeaponKind(weaponArmor.system.type)
+                    : Data.BattleSystems.getArmorKind(weaponArmor.system.type);
                 if (type.equipments[characteristic.changeEquipmentID.getValue()]) {
                     return false;
                 }

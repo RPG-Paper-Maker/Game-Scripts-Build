@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,10 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Datas, Graphic } from '../index.js';
+import { ALIGN, ScreenResolution, Utils } from '../Common/index.js';
+import { Data, Graphic } from '../index.js';
 import { Base } from './Base.js';
-import { Enum, ScreenResolution, Utils } from '../Common/index.js';
-var Align = Enum.Align;
 /** @class
  *  The graphic displaying a save.
  *  @extends Graphic.Base
@@ -21,16 +20,17 @@ class Save extends Base {
     constructor(game) {
         super();
         this.game = game;
-        this.graphicSlot = new Graphic.Text(Datas.Languages.extras.slot.name() +
-            " " + this.game.slot, { align: Align.Center });
+        this.graphicSlot = new Graphic.Text(Data.Languages.extras.slot.name() + ' ' + this.game.slot, {
+            align: ALIGN.CENTER,
+        });
         if (this.game.isEmpty) {
-            this.graphicEmpty = new Graphic.Text(Datas.Languages.extras.empty
-                .name(), { align: Align.Center });
+            this.graphicEmpty = new Graphic.Text(Data.Languages.extras.empty.name(), { align: ALIGN.CENTER });
         }
         else {
-            this.graphicTimer = new Graphic.Text(Utils.getStringDate(this.game
-                .playTime.getSeconds()), { align: Align.Right });
-            let l = this.game.teamHeroes.length;
+            this.graphicTimer = new Graphic.Text(Utils.getStringDate(this.game.playTime.getSeconds()), {
+                align: ALIGN.RIGHT,
+            });
+            const l = this.game.teamHeroes.length;
             this.graphicPlayers = new Array(l);
             let graphic;
             for (let i = 0; i < l; i++) {
@@ -71,9 +71,7 @@ class Save extends Base {
         else {
             this.graphicTimer.draw(x, y, w, ScreenResolution.getScreenMinXY(20));
             for (let i = 0, l = this.graphicPlayers.length; i < l; i++) {
-                this.graphicPlayers[i].drawCharacter(x + ScreenResolution
-                    .getScreenMinXY(5 + (i * 115)), y + ScreenResolution
-                    .getScreenMinXY(20), w, h);
+                this.graphicPlayers[i].drawCharacter(x + ScreenResolution.getScreenMinXY(5 + i * 115), y + ScreenResolution.getScreenMinXY(20), w, h);
             }
         }
     }

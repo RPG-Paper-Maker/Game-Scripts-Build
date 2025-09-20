@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Datas, Manager, Scene, System } from "../index.js";
+import { Data, Manager, Model, Scene } from "../index.js";
 import { Utils } from '../Common/index.js';
 import { Game } from '../Core/index.js';
 import { Base } from './Base.js';
@@ -20,8 +20,8 @@ import { Base } from './Base.js';
 class ChangeWeather extends Base {
     constructor(command) {
         super();
-        let iterator = {
-            i: 0
+        const iterator = {
+            i: 0,
         };
         switch (command[iterator.i++]) {
             case 0:
@@ -32,27 +32,27 @@ class ChangeWeather extends Base {
                 switch (command[iterator.i++]) {
                     case 0:
                         this.isColor = true;
-                        this.colorID = System.DynamicValue.createValueCommand(command, iterator);
+                        this.colorID = Model.DynamicValue.createValueCommand(command, iterator);
                         break;
                     case 1:
                         this.isColor = false;
-                        this.imageID = System.DynamicValue.createValueCommand(command, iterator);
+                        this.imageID = Model.DynamicValue.createValueCommand(command, iterator);
                         iterator.i++;
                         break;
                 }
-                this.numberPerPortion = System.DynamicValue.createValueCommand(command, iterator);
-                this.portionsRay = System.DynamicValue.createValueCommand(command, iterator);
-                this.size = System.DynamicValue.createValueCommand(command, iterator);
-                this.depthTest = System.DynamicValue.createValueCommand(command, iterator);
-                this.depthWrite = System.DynamicValue.createValueCommand(command, iterator);
-                this.initialVelocity = System.DynamicValue.createValueCommand(command, iterator);
-                this.velocityAddition = System.DynamicValue.createValueCommand(command, iterator);
-                this.initialYRotation = System.DynamicValue.createValueCommand(command, iterator);
-                this.yRotationAddition = System.DynamicValue.createValueCommand(command, iterator);
+                this.numberPerPortion = Model.DynamicValue.createValueCommand(command, iterator);
+                this.portionsRay = Model.DynamicValue.createValueCommand(command, iterator);
+                this.size = Model.DynamicValue.createValueCommand(command, iterator);
+                this.depthTest = Model.DynamicValue.createValueCommand(command, iterator);
+                this.depthWrite = Model.DynamicValue.createValueCommand(command, iterator);
+                this.initialVelocity = Model.DynamicValue.createValueCommand(command, iterator);
+                this.velocityAddition = Model.DynamicValue.createValueCommand(command, iterator);
+                this.initialYRotation = Model.DynamicValue.createValueCommand(command, iterator);
+                this.yRotationAddition = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
         }
-        this.isWaitEnd = Utils.numToBool(command[iterator.i++]);
-        this.time = System.DynamicValue.createValueCommand(command, iterator);
+        this.isWaitEnd = Utils.numberToBool(command[iterator.i++]);
+        this.time = Model.DynamicValue.createValueCommand(command, iterator);
         this.parallel = !this.isWaitEnd;
     }
     /**
@@ -60,8 +60,8 @@ class ChangeWeather extends Base {
      *  @returns {Record<string, any>} The current state
      */
     initialize() {
-        let time = this.time.getValue() * 1000;
-        let result = {
+        const time = this.time.getValue() * 1000;
+        const result = {
             parallel: this.isWaitEnd,
             time: time,
             timeLeft: time,
@@ -70,21 +70,21 @@ class ChangeWeather extends Base {
             particlesNumber: 0,
             finalParticlesNumber: 0,
             created: false,
-            transition: true
+            transition: true,
         };
         if (this.isNone) {
             return result;
         }
         if (this.isColor) {
-            result.color = Datas.Systems.getColor(this.colorID.getValue());
+            result.color = Data.Systems.getColor(this.colorID.getValue());
         }
         else {
             result.imageID = this.imageID.getValue();
         }
         result.numberPerPortion = this.numberPerPortion.getValue();
         result.portionsRay = this.portionsRay.getValue();
-        result.finalParticlesNumber = result.numberPerPortion * ((result
-            .portionsRay * 8) + 1) * (result.portionsRay * 2 + 1);
+        result.finalParticlesNumber =
+            result.numberPerPortion * (result.portionsRay * 8 + 1) * (result.portionsRay * 2 + 1);
         result.size = this.size.getValue();
         result.depthTest = this.depthTest.getValue();
         result.depthWrite = this.depthWrite.getValue();
@@ -104,8 +104,9 @@ class ChangeWeather extends Base {
     update(currentState, object, state) {
         if (currentState.parallel) {
             // If previous weather already transitionning, cancel transition and remove immediately
-            if (Game.current.previousWeatherOptions !== null && Game.current
-                .previousWeatherOptions.transition && !currentState.created &&
+            if (Game.current.previousWeatherOptions !== null &&
+                Game.current.previousWeatherOptions.transition &&
+                !currentState.created &&
                 !Game.current.previousWeatherOptions.isNone) {
                 Scene.Map.current.scene.remove(Scene.Map.current.previousWeatherPoints);
             }
@@ -124,7 +125,7 @@ class ChangeWeather extends Base {
                 timeRate = dif / currentState.time;
             }
             // Update particles number to display
-            currentState.particlesNumber = currentState.particlesNumber + (timeRate * currentState.finalParticlesNumber);
+            currentState.particlesNumber = currentState.particlesNumber + timeRate * currentState.finalParticlesNumber;
             // Create weather in the current map
             if (!currentState.created) {
                 currentState.created = true;
@@ -136,11 +137,10 @@ class ChangeWeather extends Base {
                 Scene.Map.current.createWeather();
             }
             // Reduce particles number for the previous weather if existing
-            if (Game.current.previousWeatherOptions !== null && !Game.current
-                .previousWeatherOptions.isNone) {
-                Game.current.previousWeatherOptions.particlesNumber = Game
-                    .current.previousWeatherOptions.particlesNumber - (timeRate
-                    * Game.current.previousWeatherOptions.finalParticlesNumber);
+            if (Game.current.previousWeatherOptions !== null && !Game.current.previousWeatherOptions.isNone) {
+                Game.current.previousWeatherOptions.particlesNumber =
+                    Game.current.previousWeatherOptions.particlesNumber -
+                        timeRate * Game.current.previousWeatherOptions.finalParticlesNumber;
                 // If time left, remove it from scene
                 if (currentState.timeLeft === 0) {
                     Game.current.previousWeatherOptions.transition = false;

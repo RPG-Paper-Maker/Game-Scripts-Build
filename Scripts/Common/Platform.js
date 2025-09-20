@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,69 +8,104 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Constants, IO } from './index.js';
+import { IO } from './index.js';
 let firstError = true;
 /**
- * A class replaced according to te platform used (desktop, browser, mobile...)
+ * Provides platform-specific utilities for file access, window management,
+ * rendering contexts, and error reporting.
  *
- * @class Platform
+ * This class is static-only and adapts behavior depending on the runtime
+ * environment (desktop, browser, mobile).
  */
-class Platform {
+export class Platform {
+    // -------------------------------------------------------------------------
+    // Window management
+    // -------------------------------------------------------------------------
     /**
-     * Creates an instance of Platform.
-     * @memberof Platform
+     * Change the app window title.
+     * @param title - Title to display.
      */
-    constructor() {
-        throw new Error('This class is static.');
+    static setWindowTitle(title) {
+        window.ipcRenderer.send('change-window-title', title);
     }
     /**
-     *  Load a file.
-     *  @static
+     * Change the app window size.
+     * @param w - Width in pixels.
+     * @param h - Height in pixels.
+     * @param fullscreen - Whether to switch to fullscreen.
+     */
+    static setWindowSize(w, h, fullscreen) {
+        window.ipcRenderer.send('change-window-size', w, h, fullscreen);
+    }
+    /**
+     * Quit the application.
+     */
+    static quit() {
+        window.close();
+    }
+    // -------------------------------------------------------------------------
+    // File I/O
+    // -------------------------------------------------------------------------
+    /**
+     * Check if a file exists.
+     * @param path - File path.
+     * @returns True if file exists.
+     */
+    static async fileExists(path) {
+        return IO.fileExists(path);
+    }
+    /**
+     * Load a file as text.
+     * @param path - File path.
+     * @param forcePath - If true, prepends {@link ROOT_DIRECTORY}.
      */
     static async loadFile(path, forcePath = false) {
         if (forcePath) {
             path = Platform.ROOT_DIRECTORY + '/' + path;
         }
-        return await IO.openFile(path);
+        return IO.openFile(path);
     }
     /**
-     *  Parse a JSON file
-     *  @static
+     * Load and parse a JSON file.
+     * @param path - File path.
      */
     static async parseFileJSON(path) {
-        return await IO.parseFileJSON(path);
+        return IO.parseFileJSON(path);
     }
     /**
-     *  Load a save.
-     *  @static
+     * Load a save file.
+     * @param slot - Save slot index.
+     * @param path - File path.
      */
-    static async loadSave(slot, path) {
+    static async loadSave(_slot, path) {
         if (await IO.fileExists(path)) {
-            return await Platform.parseFileJSON(path);
+            return Platform.parseFileJSON(path);
         }
         return null;
     }
     /**
-     *  Register a save.
-     *  @static
+     * Register (write) a save file.
+     * @param slot - Save slot index.
+     * @param path - File path.
+     * @param json - Save data.
      */
-    static async registerSave(slot, path, json) {
+    static async registerSave(_slot, path, json) {
         await IO.saveFile(path, json);
     }
+    // -------------------------------------------------------------------------
+    // Error handling
+    // -------------------------------------------------------------------------
     /**
-     *  Show an error object.
-     *  @static
-     *  @param {Error} e - The error message
+     * Show an error object.
+     * @param e - Error instance.
      */
     static showError(e) {
-        Platform.showErrorMessage(e.message + Constants.STRING_NEW_LINE + e.stack, false);
+        Platform.showErrorMessage(`${e.message}\n${e.stack}`, false);
     }
     /**
-     *  Show an error message.
-     *  @static
-     *  @param {string} msg - The error message
-     *  @param {boolean} displayDialog - Indicates if you need to display the
-     *  dialog box
+     * Show an error message.
+     * @param msg - Error message.
+     * @param displayDialog - Whether to also display a dialog box.
      */
     static showErrorMessage(msg, displayDialog = true) {
         if (firstError) {
@@ -82,62 +117,49 @@ class Platform {
             throw new Error(msg);
         }
     }
+    // -------------------------------------------------------------------------
+    // Mode helpers
+    // -------------------------------------------------------------------------
     /**
-     *  Check if there is a specific mode test (app args).
-     *  @static
-     *  @returns {boolean}
+     * Check if the app is running in normal test mode (battles).
      */
     static isModeTestNormal() {
         return true;
     }
 }
+// -------------------------------------------------------------------------
+// Environment flags
+// -------------------------------------------------------------------------
+/** Root directory for build assets. */
 Platform.ROOT_DIRECTORY = './build/';
-Platform.IS_DESKTOP = false;
-Platform.screenWidth = window.screen.width;
-Platform.screenHeight = window.screen.height;
-Platform.DESKTOP = true;
+/** Whether the app runs as a desktop build. */
+Platform.IS_DESKTOP = true;
+/** Whether the app is running in web development mode. */
 Platform.WEB_DEV = false;
+/** Active test mode identifier (if any). */
 Platform.MODE_TEST = undefined;
+/** Mode constant for troop battle test. */
 Platform.MODE_TEST_BATTLE_TROOP = 'battleTroop';
+/** Mode constant for text preview test. */
 Platform.MODE_TEST_SHOW_TEXT_PREVIEW = 'showTextPreview';
+// -------------------------------------------------------------------------
+// Screen & canvas
+// -------------------------------------------------------------------------
+/** Current screen width in pixels. */
+Platform.screenWidth = window.screen.width;
+/** Current screen height in pixels. */
+Platform.screenHeight = window.screen.height;
+/** Main 3D rendering canvas. */
 Platform.canvas3D = document.getElementById('three-d');
+/** HUD (2D overlay) canvas. */
 Platform.canvasHUD = document.getElementById('hud');
+/** Video rendering container element. */
 Platform.canvasVideos = document.getElementById('video-container');
+/** Offscreen rendering canvas. */
 Platform.canvasRendering = document.getElementById('rendering');
-Platform.ctx = (Platform.canvasHUD.getContext('2d', { willReadFrequently: true }));
-Platform.ctxr = (Platform.canvasRendering.getContext('2d', { willReadFrequently: true }));
-/**
- *  Set window title.
- *  @static
- *  @param {string} title - The title to display
- */
-Platform.setWindowTitle = function (title) {
-    window.ipcRenderer.send('change-window-title', title);
-};
-/**
- *  Set window size.
- *  @static
- *  @param {number} w - The window width
- *  @param {number} h - The window height
- *  @param {boolean} f - Indicate if the window is fullscreen
- */
-Platform.setWindowSize = function (w, h, f) {
-    window.ipcRenderer.send('change-window-size', w, h, f);
-};
-/**
- *  Quit app.
- *  @static
- */
-Platform.quit = function () {
-    window.close();
-};
-/**
- *  Check if a file exists.
- *  @static
- *  @param {string} path - The path of the file
- *  @returns {Promise<boolean>}
- */
-Platform.fileExists = async function (path) {
-    return await IO.fileExists(path);
-};
-export { Platform };
+/** HUD rendering context (2D). */
+Platform.ctx = Platform.canvasHUD.getContext('2d', { willReadFrequently: true });
+/** Offscreen rendering context (2D). */
+Platform.ctxr = Platform.canvasRendering.getContext('2d', {
+    willReadFrequently: true,
+});

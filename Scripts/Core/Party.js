@@ -1,13 +1,12 @@
 import { Scene } from "../index.js";
-import { Enum } from '../Common/index.js';
+import { CHARACTER_KIND, GROUP_KIND } from '../Common/index.js';
 /**
  * The class who handles the heroes party.
  *
  * @class Party
  */
 class Party {
-    constructor() {
-    }
+    constructor() { }
     /**
      * Return all members of the team. (including hidden and reserve)
      *
@@ -15,7 +14,7 @@ class Party {
      * @memberof Party
      */
     allMembers() {
-        let heroes = [];
+        const heroes = [];
         return heroes.concat(this.teamHeroes, this.hiddenHeroes, this.reserveHeroes);
     }
     teamMembers() {
@@ -31,7 +30,7 @@ class Party {
      * Return all the aliveMembers (including hidden and reserve)
      */
     aliveMembers() {
-        return this.allMembers().filter(hero => !hero.isDead());
+        return this.allMembers().filter((hero) => !hero.isDead());
     }
     /**
      * Return all the alive team members.
@@ -40,7 +39,7 @@ class Party {
      * @memberof Party
      */
     aliveTeamMembers() {
-        return this.teamHeroes.filter(hero => !hero.isDead());
+        return this.teamHeroes.filter((hero) => !hero.isDead());
     }
     /**
      * return all the dead members (including hidden and reserve)
@@ -49,16 +48,16 @@ class Party {
      * @memberof Party
      */
     deadMembers() {
-        return this.allMembers().filter(hero => hero.isDead());
+        return this.allMembers().filter((hero) => hero.isDead());
     }
     teamDeadMembers() {
-        return this.teamHeroes.filter(hero => hero.isDead());
+        return this.teamHeroes.filter((hero) => hero.isDead());
     }
     reserveDeadMembers() {
-        return this.reserveHeroes.filter(hero => hero.isDead());
+        return this.reserveHeroes.filter((hero) => hero.isDead());
     }
     hiddenDeadMembers() {
-        return this.hiddenHeroes.filter(hero => hero.isDead());
+        return this.hiddenHeroes.filter((hero) => hero.isDead());
     }
     /**
      * Return the first member of the battle party.
@@ -75,29 +74,28 @@ class Party {
     maxMembers() {
         return 4;
     }
-    addToParty(id, kind) {
-    }
+    addToParty(id, kind) { }
     removeFromParty(id, kind) { }
     swapTeam(teamA, teamB) {
-        let a = this.allocateTeamGroup(teamA.team)[teamA.id];
-        let b = this.allocateTeamGroup(teamB.team)[teamB.id];
+        const a = this.allocateTeamGroup(teamA.team)[teamA.id];
+        const b = this.allocateTeamGroup(teamB.team)[teamB.id];
         this.allocateTeamGroup(teamA.team)[teamA.id] = b;
         this.allocateTeamGroup(teamB.team)[teamB.id] = a;
     }
     allocateTeamGroup(team) {
         switch (team) {
-            case Enum.GroupKind.Team:
+            case GROUP_KIND.TEAM:
                 return this.teamHeroes;
                 break;
-            case Enum.GroupKind.Reserve:
+            case GROUP_KIND.RESERVE:
                 return this.reserveHeroes;
                 break;
-            case Enum.GroupKind.Hidden:
+            case GROUP_KIND.HIDDEN:
                 return this.hiddenHeroes;
-            case Enum.GroupKind.Troop:
-                return Scene.Map.current.players[Enum.CharacterKind.Monster];
+            case GROUP_KIND.TROOP:
+                return Scene.Map.current.players[CHARACTER_KIND.MONSTER];
             default:
-                throw new Error("The team is unspecified");
+                throw new Error('The team is unspecified');
                 break;
         }
     }

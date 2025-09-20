@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -9,12 +9,10 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import * as THREE from 'three';
-import { Enum, Inputs, Mathf, Platform, Utils } from '../Common/index.js';
-import { Game, MapObject, ReactionInterpreter } from '../Core/index.js';
-import { Datas, EventCommand, Manager, Scene, System } from '../index.js';
+import { COMMAND_MOVE_KIND, ELEMENT_MAP_KIND, EVENT_COMMAND_KIND, Inputs, Mathf, ORIENTATION, Platform, Utils, } from '../Common/index.js';
+import { Game, MapObject, ReactionInterpreter, Rectangle } from '../Core/index.js';
+import { Data, EventCommand, Manager, Model, Scene } from '../index.js';
 import { Base } from './Base.js';
-var CommandMoveKind = Enum.CommandMoveKind;
-var Orientation = Enum.Orientation;
 /** @class
  *  An event command for moving object.
  *  @extends EventCommand.Base
@@ -23,80 +21,80 @@ var Orientation = Enum.Orientation;
 class MoveObject extends Base {
     constructor(command) {
         super();
-        let iterator = {
+        const iterator = {
             i: 0,
         };
-        let l = command.length;
+        const l = command.length;
         // Object ID
-        this.objectID = System.DynamicValue.createValueCommand(command, iterator);
+        this.objectID = Model.DynamicValue.createValueCommand(command, iterator);
         // Options
-        this.isIgnore = Utils.numToBool(command[iterator.i++]);
-        this.isWaitEnd = Utils.numToBool(command[iterator.i++]);
-        this.isCameraOrientation = Utils.numToBool(command[iterator.i++]);
+        this.isIgnore = Utils.numberToBool(command[iterator.i++]);
+        this.isWaitEnd = Utils.numberToBool(command[iterator.i++]);
+        this.isCameraOrientation = Utils.numberToBool(command[iterator.i++]);
         // List of move commands
         this.moves = [];
         this.parameters = [];
         let permanent;
         while (iterator.i < l) {
             this.kind = command[iterator.i++];
-            if (this.kind >= CommandMoveKind.MoveNorth && this.kind <= CommandMoveKind.MoveBack) {
+            if (this.kind >= COMMAND_MOVE_KIND.MOVE_NORTH && this.kind <= COMMAND_MOVE_KIND.MOVE_BACK) {
                 this.parameters.push({
-                    square: !Utils.numToBool(command[iterator.i++]),
+                    square: !Utils.numberToBool(command[iterator.i++]),
                 });
                 switch (this.kind) {
-                    case CommandMoveKind.MoveNorth:
+                    case COMMAND_MOVE_KIND.MOVE_NORTH:
                         this.moves.push(this.moveNorth);
                         break;
-                    case CommandMoveKind.MoveSouth:
+                    case COMMAND_MOVE_KIND.MOVE_SOUTH:
                         this.moves.push(this.moveSouth);
                         break;
-                    case CommandMoveKind.MoveWest:
+                    case COMMAND_MOVE_KIND.MOVE_WEST:
                         this.moves.push(this.moveWest);
                         break;
-                    case CommandMoveKind.MoveEast:
+                    case COMMAND_MOVE_KIND.MOVE_EAST:
                         this.moves.push(this.moveEast);
                         break;
-                    case CommandMoveKind.MoveNorthWest:
+                    case COMMAND_MOVE_KIND.MOVE_NORTH_WEST:
                         this.moves.push(this.moveNorthWest);
                         break;
-                    case CommandMoveKind.MoveNorthEast:
+                    case COMMAND_MOVE_KIND.MOVE_NORTH_EAST:
                         this.moves.push(this.moveNorthEast);
                         break;
-                    case CommandMoveKind.MoveSouthWest:
+                    case COMMAND_MOVE_KIND.MOVE_SOUTH_WEST:
                         this.moves.push(this.moveSouthWest);
                         break;
-                    case CommandMoveKind.MoveSouthEast:
+                    case COMMAND_MOVE_KIND.MOVE_SOUTH_EAST:
                         this.moves.push(this.moveSouthEast);
                         break;
-                    case CommandMoveKind.MoveRandom:
+                    case COMMAND_MOVE_KIND.MOVE_RANDOM:
                         this.moves.push(this.moveRandom);
                         break;
-                    case CommandMoveKind.MoveHero:
+                    case COMMAND_MOVE_KIND.MOVE_HERO:
                         this.moves.push(this.moveHero);
                         break;
-                    case CommandMoveKind.MoveOppositeHero:
+                    case COMMAND_MOVE_KIND.MOVE_OPPOSITE_HERO:
                         this.moves.push(this.moveOppositeHero);
                         break;
-                    case CommandMoveKind.MoveFront:
+                    case COMMAND_MOVE_KIND.MOVE_FRONT:
                         this.moves.push(this.moveFront);
                         break;
-                    case CommandMoveKind.MoveBack:
+                    case COMMAND_MOVE_KIND.MOVE_BACK:
                         this.moves.push(this.moveBack);
                         break;
-                    case CommandMoveKind.Jump:
+                    case COMMAND_MOVE_KIND.JUMP:
                         this.moves.push(this.jump);
                         break;
                 }
             }
-            else if (this.kind === CommandMoveKind.Jump) {
-                let square = !Utils.numToBool(command[iterator.i++]);
-                let x = System.DynamicValue.createValueCommand(command, iterator);
-                let y = System.DynamicValue.createValueCommand(command, iterator);
-                let yPlus = System.DynamicValue.createValueCommand(command, iterator);
-                let z = System.DynamicValue.createValueCommand(command, iterator);
-                let peakY = System.DynamicValue.createValueCommand(command, iterator);
-                let peakYPlus = System.DynamicValue.createValueCommand(command, iterator);
-                let time = System.DynamicValue.createValueCommand(command, iterator);
+            else if (this.kind === COMMAND_MOVE_KIND.JUMP) {
+                const square = !Utils.numberToBool(command[iterator.i++]);
+                const x = Model.DynamicValue.createValueCommand(command, iterator);
+                const y = Model.DynamicValue.createValueCommand(command, iterator);
+                const yPlus = Model.DynamicValue.createValueCommand(command, iterator);
+                const z = Model.DynamicValue.createValueCommand(command, iterator);
+                const peakY = Model.DynamicValue.createValueCommand(command, iterator);
+                const peakYPlus = Model.DynamicValue.createValueCommand(command, iterator);
+                const time = Model.DynamicValue.createValueCommand(command, iterator);
                 this.parameters.push({
                     square: square,
                     x: x,
@@ -109,31 +107,31 @@ class MoveObject extends Base {
                 });
                 this.moves.push(this.jump);
             }
-            else if (this.kind === CommandMoveKind.ChangeGraphics) {
-                permanent = Utils.numToBool(command[iterator.i++]);
-                let dontChangeOrientation = Utils.numToBool(command[iterator.i++]);
-                let indexKind = command[iterator.i++];
-                let kind = Enum.ElementMapKind.None;
+            else if (this.kind === COMMAND_MOVE_KIND.CHANGE_GRAPHICS) {
+                permanent = Utils.numberToBool(command[iterator.i++]);
+                const dontChangeOrientation = Utils.numberToBool(command[iterator.i++]);
+                const indexKind = command[iterator.i++];
+                let kind = ELEMENT_MAP_KIND.NONE;
                 switch (indexKind) {
                     case 0:
-                        kind = Enum.ElementMapKind.None;
+                        kind = ELEMENT_MAP_KIND.NONE;
                         break;
                     case 1:
-                        kind = Enum.ElementMapKind.SpritesFix;
+                        kind = ELEMENT_MAP_KIND.SPRITES_FIX;
                         break;
                     case 2:
-                        kind = Enum.ElementMapKind.SpritesFace;
+                        kind = ELEMENT_MAP_KIND.SPRITES_FACE;
                         break;
                     case 3:
-                        kind = Enum.ElementMapKind.Object3D;
+                        kind = ELEMENT_MAP_KIND.OBJECT_3D;
                         break;
                 }
-                let pictureID = System.DynamicValue.createValueCommand(command, iterator);
+                const pictureID = Model.DynamicValue.createValueCommand(command, iterator);
                 iterator.i++;
-                let indexX = command[iterator.i++];
-                let indexY = command[iterator.i++];
-                let width = command[iterator.i++];
-                let height = command[iterator.i++];
+                const indexX = command[iterator.i++];
+                const indexY = command[iterator.i++];
+                const width = command[iterator.i++];
+                const height = command[iterator.i++];
                 this.parameters.push({
                     permanent: permanent,
                     dontChangeOrientation: dontChangeOrientation,
@@ -146,102 +144,104 @@ class MoveObject extends Base {
                 });
                 this.moves.push(this.changeGraphics);
             }
-            else if (this.kind >= CommandMoveKind.TurnNorth && this.kind <= CommandMoveKind.LookAtHeroOpposite) {
+            else if (this.kind >= COMMAND_MOVE_KIND.TURN_NORTH &&
+                this.kind <= COMMAND_MOVE_KIND.LOOK_AT_HERO_OPPOSITE) {
                 this.parameters.push({});
                 switch (this.kind) {
-                    case CommandMoveKind.TurnNorth:
+                    case COMMAND_MOVE_KIND.TURN_NORTH:
                         this.moves.push(this.turnNorth);
                         break;
-                    case CommandMoveKind.TurnSouth:
+                    case COMMAND_MOVE_KIND.TURN_SOUTH:
                         this.moves.push(this.turnSouth);
                         break;
-                    case CommandMoveKind.TurnWest:
+                    case COMMAND_MOVE_KIND.TURN_WEST:
                         this.moves.push(this.turnWest);
                         break;
-                    case CommandMoveKind.TurnEast:
+                    case COMMAND_MOVE_KIND.TURN_EAST:
                         this.moves.push(this.turnEast);
                         break;
-                    case CommandMoveKind.Turn90Right:
+                    case COMMAND_MOVE_KIND.TURN_90_RIGHT:
                         this.moves.push(this.turn90Right);
                         break;
-                    case CommandMoveKind.Turn90Left:
+                    case COMMAND_MOVE_KIND.TURN_90_LEFT:
                         this.moves.push(this.turn90Left);
                         break;
-                    case CommandMoveKind.LookAtHero:
+                    case COMMAND_MOVE_KIND.LOOK_AT_HERO:
                         this.moves.push(this.lookAtHero);
                         break;
-                    case CommandMoveKind.LookAtHeroOpposite:
+                    case COMMAND_MOVE_KIND.LOOK_AT_HERO_OPPOSITE:
                         this.moves.push(this.lookAtHeroOpposite);
                         break;
                 }
             }
-            else if (this.kind === CommandMoveKind.ChangeSpeed || this.kind === CommandMoveKind.ChangeFrequency) {
-                let permanent = Utils.numToBool(command[iterator.i++]);
-                let value = System.DynamicValue.createValueCommand(command, iterator);
+            else if (this.kind === COMMAND_MOVE_KIND.CHANGE_SPEED ||
+                this.kind === COMMAND_MOVE_KIND.CHANGE_FREQUENCY) {
+                const permanent = Utils.numberToBool(command[iterator.i++]);
+                const value = Model.DynamicValue.createValueCommand(command, iterator);
                 this.parameters.push({
                     permanent: permanent,
                     value: value,
                 });
-                if (this.kind === CommandMoveKind.ChangeSpeed) {
+                if (this.kind === COMMAND_MOVE_KIND.CHANGE_SPEED) {
                     this.moves.push(this.changeSpeed);
                 }
                 else {
                     this.moves.push(this.changeFrequency);
                 }
             }
-            else if (this.kind >= CommandMoveKind.MoveAnimation && this.kind <= CommandMoveKind.KeepPosition) {
-                let onOff = Utils.numToBool(command[iterator.i++]);
-                let permanent = Utils.numToBool(command[iterator.i++]);
+            else if (this.kind >= COMMAND_MOVE_KIND.MOVE_ANIMATION && this.kind <= COMMAND_MOVE_KIND.KEEP_POSITION) {
+                const onOff = Utils.numberToBool(command[iterator.i++]);
+                const permanent = Utils.numberToBool(command[iterator.i++]);
                 this.parameters.push({
                     onOff: onOff,
                     permanent: permanent,
                 });
                 switch (this.kind) {
-                    case CommandMoveKind.MoveAnimation:
+                    case COMMAND_MOVE_KIND.MOVE_ANIMATION:
                         this.moves.push(this.moveAnimation);
                         break;
-                    case CommandMoveKind.StopAnimation:
+                    case COMMAND_MOVE_KIND.STOP_ANIMATION:
                         this.moves.push(this.stopAnimation);
                         break;
-                    case CommandMoveKind.ClimbAnimation:
+                    case COMMAND_MOVE_KIND.CLIMB_ANIMATION:
                         this.moves.push(this.climbAnimation);
                         break;
-                    case CommandMoveKind.FixDirection:
+                    case COMMAND_MOVE_KIND.FIX_DIRECTION:
                         this.moves.push(this.directionFix);
                         break;
-                    case CommandMoveKind.Through:
+                    case COMMAND_MOVE_KIND.THROUGH:
                         this.moves.push(this.through);
                         break;
-                    case CommandMoveKind.SetWithCamera:
+                    case COMMAND_MOVE_KIND.SET_WITH_CAMERA:
                         this.moves.push(this.setWithCamera);
                         break;
-                    case CommandMoveKind.PixelOffset:
+                    case COMMAND_MOVE_KIND.PIXEL_OFFSET:
                         this.moves.push(this.pixelOffset);
                         break;
-                    case CommandMoveKind.KeepPosition:
+                    case COMMAND_MOVE_KIND.KEEP_POSITION:
                         this.moves.push(this.keepPosition);
                         break;
                 }
             }
-            else if (this.kind >= CommandMoveKind.Wait && this.kind <= CommandMoveKind.Script) {
+            else if (this.kind >= COMMAND_MOVE_KIND.WAIT && this.kind <= COMMAND_MOVE_KIND.SCRIPT) {
                 let kind, l;
                 switch (this.kind) {
-                    case CommandMoveKind.Wait:
-                        kind = Enum.EventCommandKind.Wait;
+                    case COMMAND_MOVE_KIND.WAIT:
+                        kind = EVENT_COMMAND_KIND.WAIT;
                         l = 2;
                         break;
-                    case CommandMoveKind.PlaySound:
-                        kind = Enum.EventCommandKind.PlaySound;
+                    case COMMAND_MOVE_KIND.PLAY_SOUND:
+                        kind = EVENT_COMMAND_KIND.PLAY_SOUND;
                         l = 12;
                         break;
-                    case CommandMoveKind.Script:
-                        kind = Enum.EventCommandKind.Script;
-                        l = Utils.numToBool(command[iterator.i]) ? 3 : 2;
+                    case COMMAND_MOVE_KIND.SCRIPT:
+                        kind = EVENT_COMMAND_KIND.SCRIPT;
+                        l = Utils.numberToBool(command[iterator.i]) ? 3 : 2;
                         break;
                 }
-                let commandList = command.slice(iterator.i, iterator.i + l);
+                const commandList = command.slice(iterator.i, iterator.i + l);
                 iterator.i += l;
-                let eventCommand = Manager.Events.getEventCommand({
+                const eventCommand = Manager.Events.getEventCommand({
                     kind: kind,
                     command: commandList,
                 });
@@ -261,22 +261,22 @@ class MoveObject extends Base {
      */
     static oppositeOrientation(orientation) {
         switch (orientation) {
-            case Orientation.South:
-                return Orientation.North;
-            case Orientation.West:
-                return Orientation.East;
-            case Orientation.North:
-                return Orientation.South;
-            case Orientation.East:
-                return Orientation.West;
-            case Orientation.SouthWest:
-                return Orientation.NorthEast;
-            case Orientation.SouthEast:
-                return Orientation.NorthWest;
-            case Orientation.NorthWest:
-                return Orientation.SouthEast;
-            case Orientation.NorthEast:
-                return Orientation.SouthWest;
+            case ORIENTATION.SOUTH:
+                return ORIENTATION.NORTH;
+            case ORIENTATION.WEST:
+                return ORIENTATION.EAST;
+            case ORIENTATION.NORTH:
+                return ORIENTATION.SOUTH;
+            case ORIENTATION.EAST:
+                return ORIENTATION.WEST;
+            case ORIENTATION.SOUTH_WEST:
+                return ORIENTATION.NORTH_EAST;
+            case ORIENTATION.SOUTH_EAST:
+                return ORIENTATION.NORTH_WEST;
+            case ORIENTATION.NORTH_WEST:
+                return ORIENTATION.SOUTH_EAST;
+            case ORIENTATION.NORTH_EAST:
+                return ORIENTATION.SOUTH_WEST;
         }
     }
     /**
@@ -301,15 +301,14 @@ class MoveObject extends Base {
         };
     }
     getLockedOrientation(orientation) {
-        if (this.isCameraOrientation && Inputs.lockedKeys.length > 0) {
+        if (this.isCameraOrientation && Inputs.lockedKeys.size > 0) {
             const currentEvent = ReactionInterpreter.currentReaction.currentReaction.event;
             if (currentEvent && currentEvent.idEvent === 3 && currentEvent.isSystem) {
                 const pressedKey = ReactionInterpreter.currentParameters[1].getValue();
-                const value = Inputs.lockedKeys.find(([k]) => k === pressedKey);
-                if (value) {
-                    const [, lockedAngle] = value;
-                    let dif = lockedAngle - Scene.Map.current.camera.horizontalAngle;
-                    let angleDif = Math.round(dif / 90);
+                const lockedAngle = Inputs.lockedKeys.get(pressedKey);
+                if (lockedAngle !== undefined) {
+                    const dif = lockedAngle - Scene.Map.current.camera.horizontalAngle;
+                    const angleDif = Math.round(dif / 90);
                     return Mathf.mod(orientation + angleDif, 4);
                 }
             }
@@ -337,7 +336,7 @@ class MoveObject extends Base {
                 : Scene.Map.current.camera.horizontalAngle
             : -90.0;
         if (currentState.position === null && square) {
-            currentState.position = object.getFuturPosition(orientation, Datas.Systems.SQUARE_SIZE, angle)[0];
+            currentState.position = object.getFuturPosition(orientation, Data.Systems.SQUARE_SIZE, angle)[0];
         }
         if (object.previousMoveCommand === null && object.previousOrientation === null) {
             object.previousMoveCommand = this;
@@ -356,12 +355,12 @@ class MoveObject extends Base {
         else if (object.previousMoveCommand !== this) {
             object.otherMoveCommand = this;
         }
-        let distances = object.move(orientation, Datas.Systems.SQUARE_SIZE - currentState.distance, angle, this.isCameraOrientation);
+        const distances = object.move(orientation, Data.Systems.SQUARE_SIZE - currentState.distance, angle, this.isCameraOrientation);
         currentState.distance += distances[0];
         currentState.normalDistance += distances[1];
         if (!square ||
-            (square && currentState.normalDistance >= Datas.Systems.SQUARE_SIZE) ||
-            (square && currentState.distance >= Datas.Systems.SQUARE_SIZE) ||
+            (square && currentState.normalDistance >= Data.Systems.SQUARE_SIZE) ||
+            (square && currentState.distance >= Data.Systems.SQUARE_SIZE) ||
             distances[0] === 0) {
             if (distances[0] === 0 && square && !this.isIgnore) {
                 currentState.position = null;
@@ -394,7 +393,7 @@ class MoveObject extends Base {
      *  @returns {Orientation}
      */
     moveNorth(currentState, object, parameters) {
-        return object ? this.move(currentState, object, parameters.square, Orientation.North) : Orientation.North;
+        return object ? this.move(currentState, object, parameters.square, ORIENTATION.NORTH) : ORIENTATION.NORTH;
     }
     /**
      *  Function to move south.
@@ -405,9 +404,9 @@ class MoveObject extends Base {
      */
     moveSouth(currentState, object, parameters) {
         if (object) {
-            return this.move(currentState, object, parameters.square, Orientation.South);
+            return this.move(currentState, object, parameters.square, ORIENTATION.SOUTH);
         }
-        return Orientation.South;
+        return ORIENTATION.SOUTH;
     }
     /**
      *  Function to move west.
@@ -418,9 +417,9 @@ class MoveObject extends Base {
      */
     moveWest(currentState, object, parameters) {
         if (object) {
-            return this.move(currentState, object, parameters.square, Orientation.West);
+            return this.move(currentState, object, parameters.square, ORIENTATION.WEST);
         }
-        return Orientation.West;
+        return ORIENTATION.WEST;
     }
     /**
      *  Function to move east.
@@ -431,9 +430,9 @@ class MoveObject extends Base {
      */
     moveEast(currentState, object, parameters) {
         if (object) {
-            return this.move(currentState, object, parameters.square, Orientation.East);
+            return this.move(currentState, object, parameters.square, ORIENTATION.EAST);
         }
-        return Orientation.East;
+        return ORIENTATION.EAST;
     }
     /**
      *  Function to move north west.
@@ -444,10 +443,10 @@ class MoveObject extends Base {
      */
     moveNorthWest(currentState, object, parameters) {
         if (object) {
-            object.previousOrientation = Orientation.North;
+            object.previousOrientation = ORIENTATION.NORTH;
         }
-        let orientation = this.moveWest(currentState, object, parameters);
-        return object ? orientation : Orientation.North;
+        const orientation = this.moveWest(currentState, object, parameters);
+        return object ? orientation : ORIENTATION.NORTH;
     }
     /**
      *  Function to move north west.
@@ -458,10 +457,10 @@ class MoveObject extends Base {
      */
     moveNorthEast(currentState, object, parameters) {
         if (object) {
-            object.previousOrientation = Orientation.North;
+            object.previousOrientation = ORIENTATION.NORTH;
         }
-        let orientation = this.moveEast(currentState, object, parameters);
-        return object ? orientation : Orientation.North;
+        const orientation = this.moveEast(currentState, object, parameters);
+        return object ? orientation : ORIENTATION.NORTH;
     }
     /**
      *  Function to move north west.
@@ -472,10 +471,10 @@ class MoveObject extends Base {
      */
     moveSouthWest(currentState, object, parameters) {
         if (object) {
-            object.previousOrientation = Orientation.South;
+            object.previousOrientation = ORIENTATION.SOUTH;
         }
-        let orientation = this.moveWest(currentState, object, parameters);
-        return object ? orientation : Orientation.South;
+        const orientation = this.moveWest(currentState, object, parameters);
+        return object ? orientation : ORIENTATION.SOUTH;
     }
     /**
      *  Function to move north west.
@@ -486,10 +485,10 @@ class MoveObject extends Base {
      */
     moveSouthEast(currentState, object, parameters) {
         if (object) {
-            object.previousOrientation = Orientation.South;
+            object.previousOrientation = ORIENTATION.SOUTH;
         }
-        let orientation = this.moveEast(currentState, object, parameters);
-        return object ? orientation : Orientation.South;
+        const orientation = this.moveEast(currentState, object, parameters);
+        return object ? orientation : ORIENTATION.SOUTH;
     }
     /**
      *  Function to move random.
@@ -500,13 +499,13 @@ class MoveObject extends Base {
      */
     moveRandom(currentState, object, parameters) {
         switch (currentState.random) {
-            case CommandMoveKind.MoveNorth:
+            case COMMAND_MOVE_KIND.MOVE_NORTH:
                 return this.moveNorth(currentState, object, parameters);
-            case CommandMoveKind.MoveSouth:
+            case COMMAND_MOVE_KIND.MOVE_SOUTH:
                 return this.moveSouth(currentState, object, parameters);
-            case CommandMoveKind.MoveWest:
+            case COMMAND_MOVE_KIND.MOVE_WEST:
                 return this.moveWest(currentState, object, parameters);
-            case CommandMoveKind.MoveEast:
+            case COMMAND_MOVE_KIND.MOVE_EAST:
                 return this.moveEast(currentState, object, parameters);
         }
     }
@@ -548,19 +547,19 @@ class MoveObject extends Base {
                 orientation = EventCommand.MoveObject.oppositeOrientation(orientation);
             }
             switch (orientation) {
-                case Orientation.SouthWest:
+                case ORIENTATION.SOUTH_WEST:
                     return this.moveSouthWest(currentState, object, parameters);
-                case Orientation.SouthEast:
+                case ORIENTATION.SOUTH_EAST:
                     return this.moveSouthEast(currentState, object, parameters);
-                case Orientation.NorthWest:
+                case ORIENTATION.NORTH_WEST:
                     return this.moveNorthWest(currentState, object, parameters);
-                case Orientation.NorthEast:
+                case ORIENTATION.NORTH_EAST:
                     return this.moveNorthEast(currentState, object, parameters);
                 default:
                     return this.move(currentState, object, parameters.square, orientation);
             }
         }
-        return Orientation.None;
+        return ORIENTATION.NONE;
     }
     /**
      *  Function to move front.
@@ -571,11 +570,11 @@ class MoveObject extends Base {
      */
     moveFront(currentState, object, parameters) {
         if (object) {
-            let orientation = currentState.moveHeroOrientation === null ? object.orientationEye : currentState.moveHeroOrientation;
+            const orientation = currentState.moveHeroOrientation === null ? object.orientationEye : currentState.moveHeroOrientation;
             currentState.moveHeroOrientation = orientation;
             return this.move(currentState, object, parameters.square, currentState.moveHeroOrientation);
         }
-        return Orientation.None;
+        return ORIENTATION.NONE;
     }
     /**
      *  Function to move back.
@@ -586,13 +585,13 @@ class MoveObject extends Base {
      */
     moveBack(currentState, object, parameters) {
         if (object) {
-            let orientation = currentState.moveHeroOrientation === null
+            const orientation = currentState.moveHeroOrientation === null
                 ? EventCommand.MoveObject.oppositeOrientation(object.orientationEye)
                 : currentState.moveHeroOrientation;
             currentState.moveHeroOrientation = orientation;
             return this.move(currentState, object, parameters.square, currentState.moveHeroOrientation);
         }
-        return Orientation.None;
+        return ORIENTATION.NONE;
     }
     /**
      *  Function to jump.
@@ -606,10 +605,11 @@ class MoveObject extends Base {
             if (currentState.currentTime === -1) {
                 currentState.currentTime = 0;
                 currentState.startJump = new THREE.Vector3(object.position.x, object.position.y, object.position.z);
-                let square = parameters.square ? Datas.Systems.SQUARE_SIZE : 1;
-                currentState.endJump = new THREE.Vector3(parameters.x.getValue() * square + currentState.startJump.x, parameters.y.getValue() * square + parameters.yPlus.getValue() + currentState.startJump.y, parameters.z.getValue() * square + currentState.startJump.z);
-                currentState.peak =
-                    parameters.peakY.getValue() * Datas.Systems.SQUARE_SIZE + parameters.peakYPlus.getValue();
+                const square = parameters.square ? Data.Systems.SQUARE_SIZE : 1;
+                currentState.endJump = new THREE.Vector3(parameters.x.getValue() * square + currentState.startJump.x, (parameters.y.getValue() * square + parameters.yPlus.getValue()) +
+                    currentState.startJump.y, parameters.z.getValue() * square + currentState.startJump.z);
+                currentState.peak = (parameters.peakY.getValue() * Data.Systems.SQUARE_SIZE +
+                    parameters.peakYPlus.getValue());
                 if (currentState.peak < currentState.endJump.y) {
                     Platform.showErrorMessage('Move object command: jump peak cannot be lower than final y position offset. Final position=' +
                         currentState.endJump.y +
@@ -628,7 +628,7 @@ class MoveObject extends Base {
                 return false;
             }
         }
-        return Orientation.None;
+        return ORIENTATION.NONE;
     }
     /**
      *  Function to look at north.
@@ -639,10 +639,10 @@ class MoveObject extends Base {
      */
     turnNorth(currentState, object, parameters) {
         if (object) {
-            object.lookAt((Orientation.North + (this.isCameraOrientation ? Scene.Map.current.orientation : 0)) % 4);
+            object.lookAt((ORIENTATION.NORTH + (this.isCameraOrientation ? Scene.Map.current.orientation : 0)) % 4);
             return true;
         }
-        return Orientation.North;
+        return ORIENTATION.NORTH;
     }
     /**
      *  Function to look at south.
@@ -653,10 +653,10 @@ class MoveObject extends Base {
      */
     turnSouth(currentState, object, parameters) {
         if (object) {
-            object.lookAt((Orientation.South + (this.isCameraOrientation ? Scene.Map.current.orientation : 0)) % 4);
+            object.lookAt((ORIENTATION.SOUTH + (this.isCameraOrientation ? Scene.Map.current.orientation : 0)) % 4);
             return true;
         }
-        return Orientation.South;
+        return ORIENTATION.SOUTH;
     }
     /**
      *  Function to look at west.
@@ -667,10 +667,10 @@ class MoveObject extends Base {
      */
     turnWest(currentState, object, parameters) {
         if (object) {
-            object.lookAt((Orientation.West + (this.isCameraOrientation ? Scene.Map.current.orientation : 0)) % 4);
+            object.lookAt((ORIENTATION.WEST + (this.isCameraOrientation ? Scene.Map.current.orientation : 0)) % 4);
             return true;
         }
-        return Orientation.West;
+        return ORIENTATION.WEST;
     }
     /**
      *  Function to look at east.
@@ -681,10 +681,10 @@ class MoveObject extends Base {
      */
     turnEast(currentState, object, parameters) {
         if (object) {
-            object.lookAt((Orientation.East + (this.isCameraOrientation ? Scene.Map.current.orientation : 0)) % 4);
+            object.lookAt((ORIENTATION.EAST + (this.isCameraOrientation ? Scene.Map.current.orientation : 0)) % 4);
             return true;
         }
-        return Orientation.East;
+        return ORIENTATION.EAST;
     }
     /**
      *  Function to look at 90° right.
@@ -698,7 +698,7 @@ class MoveObject extends Base {
             object.lookAt((object.orientationEye + 1) % 4);
             return true;
         }
-        return Orientation.None;
+        return ORIENTATION.NONE;
     }
     /**
      *  Function to look at 90° left.
@@ -712,7 +712,7 @@ class MoveObject extends Base {
             object.lookAt((object.orientationEye - 1) % 4);
             return true;
         }
-        return Orientation.None;
+        return ORIENTATION.NONE;
     }
     /**
      *  Function to look at hero.
@@ -726,7 +726,7 @@ class MoveObject extends Base {
             object.lookAt(object.getOrientationBetween(Game.current.hero));
             return true;
         }
-        return Orientation.None;
+        return ORIENTATION.NONE;
     }
     /**
      *  Function to look at hero opposite.
@@ -740,7 +740,7 @@ class MoveObject extends Base {
             object.lookAt((object.getOrientationBetween(Game.current.hero) + 2) % 4);
             return true;
         }
-        return Orientation.None;
+        return ORIENTATION.NONE;
     }
     /**
      *  Function to change graphics.
@@ -755,12 +755,7 @@ class MoveObject extends Base {
             object.currentStateInstance.graphicKind = parameters.kind;
             object.currentStateInstance.graphicID = parameters.pictureID.getValue();
             if (object.currentStateInstance.graphicID === 0) {
-                object.currentStateInstance.rectTileset = [
-                    parameters.indexX,
-                    parameters.indexY,
-                    parameters.width,
-                    parameters.height,
-                ];
+                object.currentStateInstance.rectTileset = new Rectangle(parameters.indexX, parameters.indexY, parameters.width, parameters.height);
             }
             else {
                 object.currentStateInstance.indexX = parameters.indexX;
@@ -770,20 +765,22 @@ class MoveObject extends Base {
             }
             // Permanent change
             if (parameters.permanent) {
-                let options = this.getPermanentOptions(object);
+                const options = this.getPermanentOptions(object);
                 if (options === null) {
                     return;
                 }
                 options.gid = object.currentStateInstance.graphicID;
                 options.gk = object.currentStateInstance.graphicKind;
-                options.gt = object.currentStateInstance.rectTileset;
+                options.gt = object.currentStateInstance.rectTileset
+                    ? object.currentStateInstance.rectTileset.clone()
+                    : object.currentStateInstance.rectTileset;
                 options.gix = object.currentStateInstance.indexX;
                 options.giy = object.currentStateInstance.indexY;
             }
             // Graphic update
             object.changeState();
         }
-        return Orientation.None;
+        return ORIENTATION.NONE;
     }
     /**
      *  Function to change speed.
@@ -798,7 +795,7 @@ class MoveObject extends Base {
             object.currentStateInstance.speedID = parameters.value.getValue();
             // Permanent change
             if (parameters.permanent) {
-                let options = this.getPermanentOptions(object);
+                const options = this.getPermanentOptions(object);
                 if (options === null) {
                     return;
                 }
@@ -808,7 +805,7 @@ class MoveObject extends Base {
             object.currentStateInstance.indexY = object.orientationEye;
             object.changeState();
         }
-        return Orientation.None;
+        return ORIENTATION.NONE;
     }
     /**
      *  Function to change frequency.
@@ -823,7 +820,7 @@ class MoveObject extends Base {
             object.currentStateInstance.frequencyID = parameters.value.getValue();
             // Permanent change
             if (parameters.permanent) {
-                let options = this.getPermanentOptions(object);
+                const options = this.getPermanentOptions(object);
                 if (options === null) {
                     return;
                 }
@@ -833,7 +830,7 @@ class MoveObject extends Base {
             object.currentStateInstance.indexY = object.orientationEye;
             object.changeState();
         }
-        return Orientation.None;
+        return ORIENTATION.NONE;
     }
     /**
      *  Function to move animation.
@@ -848,14 +845,14 @@ class MoveObject extends Base {
             object.currentStateInstance.moveAnimation = parameters.onOff;
             // Permanent change
             if (parameters.permanent) {
-                let options = this.getPermanentOptions(object);
+                const options = this.getPermanentOptions(object);
                 if (options === null) {
                     return;
                 }
                 options.ma = object.currentStateInstance.moveAnimation;
             }
         }
-        return Orientation.None;
+        return ORIENTATION.NONE;
     }
     /**
      *  Function to stop animation.
@@ -870,14 +867,14 @@ class MoveObject extends Base {
             object.currentStateInstance.stopAnimation = parameters.onOff;
             // Permanent change
             if (parameters.permanent) {
-                let options = this.getPermanentOptions(object);
+                const options = this.getPermanentOptions(object);
                 if (options === null) {
                     return;
                 }
                 options.sa = object.currentStateInstance.stopAnimation;
             }
         }
-        return Orientation.None;
+        return ORIENTATION.NONE;
     }
     /**
      *  Function to climb animation.
@@ -892,14 +889,14 @@ class MoveObject extends Base {
             object.currentStateInstance.climbAnimation = parameters.onOff;
             // Permanent change
             if (parameters.permanent) {
-                let options = this.getPermanentOptions(object);
+                const options = this.getPermanentOptions(object);
                 if (options === null) {
                     return;
                 }
                 options.ca = object.currentStateInstance.climbAnimation;
             }
         }
-        return Orientation.None;
+        return ORIENTATION.NONE;
     }
     /**
      *  Function to direction fix.
@@ -914,14 +911,14 @@ class MoveObject extends Base {
             object.currentStateInstance.directionFix = parameters.onOff;
             // Permanent change
             if (parameters.permanent) {
-                let options = this.getPermanentOptions(object);
+                const options = this.getPermanentOptions(object);
                 if (options === null) {
                     return;
                 }
                 options.df = object.currentStateInstance.directionFix;
             }
         }
-        return Orientation.None;
+        return ORIENTATION.NONE;
     }
     /**
      *  Function to through.
@@ -936,7 +933,7 @@ class MoveObject extends Base {
             object.currentStateInstance.through = parameters.onOff;
             // Permanent change
             if (parameters.permanent) {
-                let options = this.getPermanentOptions(object);
+                const options = this.getPermanentOptions(object);
                 if (options === null) {
                     return;
                 }
@@ -945,7 +942,7 @@ class MoveObject extends Base {
             // Update bounding box
             object.updateBB(object.position);
         }
-        return Orientation.None;
+        return ORIENTATION.NONE;
     }
     /**
      *  Function to set with camera.
@@ -960,14 +957,14 @@ class MoveObject extends Base {
             object.currentStateInstance.setWithCamera = parameters.onOff;
             // Permanent change
             if (parameters.permanent) {
-                let options = this.getPermanentOptions(object);
+                const options = this.getPermanentOptions(object);
                 if (options === null) {
                     return;
                 }
                 options.swc = object.currentStateInstance.setWithCamera;
             }
         }
-        return Orientation.None;
+        return ORIENTATION.NONE;
     }
     /**
      *  Function to pixel offset.
@@ -982,14 +979,14 @@ class MoveObject extends Base {
             object.currentStateInstance.pixelOffset = parameters.onOff;
             // Permanent change
             if (parameters.permanent) {
-                let options = this.getPermanentOptions(object);
+                const options = this.getPermanentOptions(object);
                 if (options === null) {
                     return;
                 }
                 options.po = object.currentStateInstance.pixelOffset;
             }
         }
-        return Orientation.None;
+        return ORIENTATION.NONE;
     }
     /**
      *  Function to keep position.
@@ -1004,14 +1001,14 @@ class MoveObject extends Base {
             object.currentStateInstance.keepPosition = parameters.onOff;
             // Permanent change
             if (parameters.permanent) {
-                let options = this.getPermanentOptions(object);
+                const options = this.getPermanentOptions(object);
                 if (options === null) {
                     return;
                 }
                 options.kp = object.currentStateInstance.keepPosition;
             }
         }
-        return Orientation.None;
+        return ORIENTATION.NONE;
     }
     /**
      *  Function to wait, play a sound, and script.
@@ -1031,7 +1028,7 @@ class MoveObject extends Base {
             }
             return false;
         }
-        return Orientation.None;
+        return ORIENTATION.NONE;
     }
     /**
      *  Get the hero orientation.
@@ -1039,44 +1036,44 @@ class MoveObject extends Base {
      *  @returns {Orientation}
      */
     getHeroOrientation(object) {
-        let xDif = object.position.x - Game.current.hero.position.x;
-        let zDif = object.position.z - Game.current.hero.position.z;
-        let orientationX = Orientation.None;
-        let orientationZ = Orientation.None;
+        const xDif = object.position.x - Game.current.hero.position.x;
+        const zDif = object.position.z - Game.current.hero.position.z;
+        let orientationX = ORIENTATION.NONE;
+        let orientationZ = ORIENTATION.NONE;
         if (xDif > 1) {
-            orientationX = Orientation.West;
+            orientationX = ORIENTATION.WEST;
         }
         else if (xDif < -1) {
-            orientationX = Orientation.East;
+            orientationX = ORIENTATION.EAST;
         }
         if (zDif > 1) {
-            orientationZ = Orientation.North;
+            orientationZ = ORIENTATION.NORTH;
         }
         else if (zDif < -1) {
-            orientationZ = Orientation.South;
+            orientationZ = ORIENTATION.SOUTH;
         }
         switch (orientationX) {
-            case Orientation.None: {
+            case ORIENTATION.NONE: {
                 return orientationZ;
             }
-            case Orientation.West: {
+            case ORIENTATION.WEST: {
                 switch (orientationZ) {
-                    case Orientation.None:
-                        return Orientation.West;
-                    case Orientation.North:
-                        return Orientation.NorthWest;
-                    case Orientation.South:
-                        return Orientation.SouthWest;
+                    case ORIENTATION.NONE:
+                        return ORIENTATION.WEST;
+                    case ORIENTATION.NORTH:
+                        return ORIENTATION.NORTH_WEST;
+                    case ORIENTATION.SOUTH:
+                        return ORIENTATION.SOUTH_WEST;
                 }
             }
-            case Orientation.East: {
+            case ORIENTATION.EAST: {
                 switch (orientationZ) {
-                    case Orientation.None:
-                        return Orientation.East;
-                    case Orientation.North:
-                        return Orientation.NorthEast;
-                    case Orientation.South:
-                        return Orientation.SouthEast;
+                    case ORIENTATION.NONE:
+                        return ORIENTATION.EAST;
+                    case ORIENTATION.NORTH:
+                        return ORIENTATION.NORTH_EAST;
+                    case ORIENTATION.SOUTH:
+                        return ORIENTATION.SOUTH_EAST;
                 }
             }
         }
@@ -1088,7 +1085,7 @@ class MoveObject extends Base {
      */
     getCurrentOrientation(currentState) {
         if (this.moves.length === 0) {
-            return Orientation.None;
+            return ORIENTATION.NONE;
         }
         return this.moves[currentState.index].call(this, currentState);
     }
@@ -1106,16 +1103,16 @@ class MoveObject extends Base {
             return null;
         }
         else {
-            let portion = Scene.Map.current.mapProperties.allObjects[object.system.id].getGlobalPortion();
-            let portionDatas = Game.current.getPortionDatas(Scene.Map.current.id, portion);
-            let indexProp = portionDatas.soi.indexOf(object.system.id);
+            const portion = Scene.Map.current.mapProperties.allObjects.get(object.system.id).getGlobalPortion();
+            const portionData = Game.current.getPortionData(Scene.Map.current.id, portion);
+            const indexProp = portionData.soi.indexOf(object.system.id);
             if (indexProp === -1) {
                 statesOptions = [];
-                portionDatas.soi.push(object.system.id);
-                portionDatas.so.push(statesOptions);
+                portionData.soi.push(object.system.id);
+                portionData.so.push(statesOptions);
             }
             else {
-                statesOptions = portionDatas.so[indexProp];
+                statesOptions = portionData.so[indexProp];
             }
         }
         let options = statesOptions[object.currentState.id - 1];
@@ -1138,14 +1135,14 @@ class MoveObject extends Base {
         }
         if (currentState.parallel && this.moves.length > 0) {
             if (!currentState.waitingObject) {
-                let objectID = this.objectID.getValue();
+                const objectID = this.objectID.getValue();
                 MapObject.search(objectID, (result) => {
                     currentState.object = result.object;
                 }, object);
                 currentState.waitingObject = true;
             }
             if (currentState.object !== null) {
-                let finished = this.moves[currentState.index].call(this, currentState, currentState.object, this.parameters[currentState.index]);
+                const finished = this.moves[currentState.index].call(this, currentState, currentState.object, this.parameters[currentState.index]);
                 if (finished) {
                     currentState.distance = 0;
                     currentState.normalDistance = 0;

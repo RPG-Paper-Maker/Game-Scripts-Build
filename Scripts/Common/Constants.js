@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -9,46 +9,36 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 /**
- *
- * The common class for constants.
- * @class Constants
+ * Common constants used.
  */
-class Constants {
-    constructor() {
-        throw new Error('This is a static class!');
-    }
+export class Constants {
 }
+/** Default UI font size in pixels. */
 Constants.DEFAULT_FONT_SIZE = 13;
+/** Default font family used across the UI. */
 Constants.DEFAULT_FONT_NAME = 'Arial';
+/** Base tile size in pixels. */
 Constants.BASIC_SQUARE_SIZE = 32;
+/** Small font size in pixels. */
 Constants.SMALL_FONT_SIZE = 8;
+/** Medium font size in pixels. */
 Constants.MEDIUM_FONT_SIZE = 10;
+/** Standard medium spacing in UI layouts. */
 Constants.MEDIUM_SPACE = 5;
+/** Standard large spacing in UI layouts. */
 Constants.LARGE_SPACE = 10;
+/** Standard huge spacing in UI layouts. */
 Constants.HUGE_SPACE = 20;
+/** Raycasting distance constant (far). */
 Constants.PORTIONS_RAY_FAR = 0;
+/** Size of a map portion in tiles. */
 Constants.PORTION_SIZE = 16;
+/**
+ * Maximum allowed texture/picture size in pixels.
+ * Prevents loading assets too large for the rendering pipeline.
+ */
 Constants.MAX_PICTURE_SIZE = 4096;
-Constants.NUM_BOOL_TRUE = 1;
-Constants.NUM_BOOL_FALSE = 0;
-Constants.CLASS_HIDDEN = 'hidden';
-Constants.STRING_RGBA = 'rgba';
-Constants.STRING_PARENTHESIS_LEFT = '(';
-Constants.STRING_PARENTHESIS_RIGHT = ')';
-Constants.STRING_BRACKET_LEFT = '[';
-Constants.STRING_BRACKET_RIGHT = ']';
-Constants.STRING_COMA = ',';
-Constants.STRING_COLON = ':';
-Constants.STRING_SLASH = '/';
-Constants.STRING_NEW_LINE = '\n';
-Constants.STRING_EQUAL = '=';
-Constants.STRING_DASH = '-';
-Constants.STRING_SPACE = ' ';
-Constants.STRING_ZERO = '0';
-Constants.UNDEFINED = 'undefined';
-Constants.NUMBER = 'number';
-Constants.STRING = 'string';
+/** Key name `"k"` used in JSON data. */
 Constants.JSON_KEY = 'k';
+/** Value name `"v"` used in JSON data. */
 Constants.JSON_VALUE = 'v';
-Constants.EXTENSION_JSON = '.json';
-export { Constants };

@@ -1,13 +1,13 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
     Use Commercial edition for commercial use of your games.
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Constants, Interpreter, Paths, Platform, Utils } from '../Common/index.js';
-import { System } from '../index.js';
+import { Interpreter, Paths, Platform, Utils } from '../Common/index.js';
+import { Model } from '../index.js';
 /** @class
  *  The class who handles plugins of RPG Paper Maker.
  *  @static
@@ -23,7 +23,7 @@ class Plugins {
      *  @async
      */
     static async load() {
-        let plugins = Utils.defaultValue((await Platform.parseFileJSON(Paths.FILE_SCRIPTS)).plugins, []);
+        const plugins = Utils.valueOrDefault((await Platform.parseFileJSON(Paths.FILE_SCRIPTS)).plugins, []);
         for (let i = 0, l = plugins.length; i < l; i++) {
             await this.loadPlugin(plugins[i]);
         }
@@ -36,12 +36,12 @@ class Plugins {
      *  @returns {Promise<boolean>}
      */
     static async loadPlugin(pluginJSON) {
-        let json = await Platform.parseFileJSON(Paths.PLUGINS + pluginJSON.name + Constants.STRING_SLASH + Paths.FILE_PLUGIN_DETAILS);
-        let plugin = new System.Plugin(pluginJSON.id, json);
+        const json = (await Platform.parseFileJSON(Paths.PLUGINS + pluginJSON.name + '/' + Paths.FILE_PLUGIN_DETAILS));
+        const plugin = new Model.Plugin(pluginJSON.id, json);
         // FIX 01 : plugin wasn't unloaded if not enabled.
-        if (Utils.defaultValue(pluginJSON.checked, true)) {
+        if (Utils.valueOrDefault(pluginJSON.checked, true)) {
             this.register(plugin);
-            const code = await Platform.loadFile(Paths.PLUGINS + pluginJSON.name + Constants.STRING_SLASH + Paths.FILE_PLUGIN_CODE);
+            const code = await Platform.loadFile(Paths.PLUGINS + pluginJSON.name + '/' + Paths.FILE_PLUGIN_CODE);
             Interpreter.evaluate(code, { addReturn: false });
             return true;
         }
@@ -78,8 +78,8 @@ class Plugins {
      *  @param {any[]} args
      */
     static executeCommand(pluginID, commandID, args) {
-        let plugin = this.fetch(this.pluginsNames[pluginID]);
-        plugin.commands[plugin.commandsNames[commandID]].apply(this, args);
+        const plugin = this.fetch(this.pluginsNames[pluginID]);
+        plugin.commands[plugin.commandsNames.get(commandID)].apply(this, args);
     }
     /**
      *  Return the plugin object.
@@ -134,7 +134,7 @@ class Plugins {
      *  Merge the two plugins to extends their plugins data.
      *  @static
      *  @usage This function is used to extends the parameters of other plugins.
-     *  See Patch System.
+     *  See Patch Model.
      *  @experimental This is a experimental features that is yet to be support
      *  in RPM.
      *  @param {string} parent
@@ -159,9 +159,9 @@ class Plugins {
      *  @param loadBefore (METHODS ONLY) Should original method's code be executed before or after your code (NOTE: This is obviously disabled if param overwrite is set to true.) (DEFAULT: true)
      */
     static inject(classObject, prototypeName, prototype, staticType = false, overwrite = false, loadOriginalBefore = true) {
-        let TheAnyPrototype = prototype; //force any type, system will not accept otherwise!
+        const TheAnyPrototype = prototype; //force any type, system will not accept otherwise!
         if (!staticType) {
-            let classPrototype = classObject.prototype[prototypeName];
+            const classPrototype = classObject.prototype[prototypeName];
             if (classPrototype instanceof Function) {
                 if (overwrite) {
                     classObject.prototype[prototypeName] = function (...args) {
@@ -173,7 +173,7 @@ class Plugins {
                 }
                 else if (loadOriginalBefore) {
                     classObject.prototype[prototypeName] = function (...args) {
-                        let result = classPrototype.call(this, ...args);
+                        const result = classPrototype.call(this, ...args);
                         this.super = (...arggs) => {
                             classPrototype.call(this, ...arggs);
                         };
@@ -196,8 +196,8 @@ class Plugins {
             }
         }
         else {
-            let classAnyObject = classObject; //force any type, system will not accept otherwise!
-            let classMethod = classAnyObject[prototypeName];
+            const classAnyObject = classObject; //force any type, system will not accept otherwise!
+            const classMethod = classAnyObject[prototypeName];
             if (classMethod instanceof Function) {
                 if (overwrite) {
                     classAnyObject[prototypeName] = function (...args) {
@@ -209,7 +209,7 @@ class Plugins {
                 }
                 else if (loadOriginalBefore) {
                     classAnyObject[prototypeName] = function (...args) {
-                        let result = classMethod.call(this, ...args);
+                        const result = classMethod.call(this, ...args);
                         this.super = (...arggs) => {
                             classMethod.call(this, ...arggs);
                         };

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,10 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { PICTURE_KIND, ScreenResolution, Utils } from '../Common/index.js';
+import { Data, Manager, Model } from '../index.js';
 import { Base } from './Base.js';
-import { System, Datas, Manager } from '../index.js';
-import { Utils, ScreenResolution, Enum } from '../Common/index.js';
-var PictureKind = Enum.PictureKind;
 /** @class
  *  An event command for displaying a picture.
  *  @extends EventCommand.Base
@@ -20,13 +19,13 @@ var PictureKind = Enum.PictureKind;
 class DisplayAPicture extends Base {
     constructor(command) {
         super();
-        let iterator = {
-            i: 0
+        const iterator = {
+            i: 0,
         };
-        this.pictureID = System.DynamicValue.createValueCommand(command, iterator);
+        this.pictureID = Model.DynamicValue.createValueCommand(command, iterator);
         iterator.i++;
-        this.index = System.DynamicValue.createValueCommand(command, iterator);
-        this.centered = Utils.numToBool(command[iterator.i++]);
+        this.index = Model.DynamicValue.createValueCommand(command, iterator);
+        this.centered = Utils.numberToBool(command[iterator.i++]);
         if (this.centered) {
             this.originX = ScreenResolution.SCREEN_X / 2;
             this.originY = ScreenResolution.SCREEN_Y / 2;
@@ -35,12 +34,12 @@ class DisplayAPicture extends Base {
             this.originX = 0;
             this.originY = 0;
         }
-        this.x = System.DynamicValue.createValueCommand(command, iterator);
-        this.y = System.DynamicValue.createValueCommand(command, iterator);
-        this.zoom = System.DynamicValue.createValueCommand(command, iterator);
-        this.opacity = System.DynamicValue.createValueCommand(command, iterator);
-        this.angle = System.DynamicValue.createValueCommand(command, iterator);
-        this.stretch = Utils.numToBool(command[iterator.i++]);
+        this.x = Model.DynamicValue.createValueCommand(command, iterator);
+        this.y = Model.DynamicValue.createValueCommand(command, iterator);
+        this.zoom = Model.DynamicValue.createValueCommand(command, iterator);
+        this.opacity = Model.DynamicValue.createValueCommand(command, iterator);
+        this.angle = Model.DynamicValue.createValueCommand(command, iterator);
+        this.stretch = Utils.numberToBool(command[iterator.i++]);
     }
     /**
      *  Update and check if the event is finished.
@@ -48,11 +47,10 @@ class DisplayAPicture extends Base {
      *  @param {MapObject} object - The current object reacting
      *  @param {number} state - The state ID
      *  @returns {number} The number of node to pass
-    */
+     */
     update(currentState, object, state) {
-        let currentIndex = this.index.getValue();
-        let picture = Datas.Pictures.getPictureCopy(PictureKind.Pictures, this
-            .pictureID.getValue());
+        const currentIndex = this.index.getValue();
+        const picture = Data.Pictures.getPictureCopy(PICTURE_KIND.PICTURES, this.pictureID.getValue());
         picture.setX(this.originX + this.x.getValue());
         picture.setY(this.originY + this.y.getValue());
         picture.centered = this.centered;
@@ -64,7 +62,7 @@ class DisplayAPicture extends Base {
             picture.setW(picture.image.width);
             picture.setH(picture.image.height);
         }
-        let value = [currentIndex, picture];
+        const value = [currentIndex, picture];
         let ok = false;
         let index;
         for (let i = 0, l = Manager.Stack.displayedPictures.length; i < l; i++) {

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,8 +8,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Manager, Scene, System } from "../index.js";
-import { Enum, Utils } from '../Common/index.js';
+import { Manager, Model, Scene } from "../index.js";
+import { ITEM_KIND } from '../Common/index.js';
 import { Game, Item } from '../Core/index.js';
 import { Base } from './Base.js';
 /** @class
@@ -21,17 +21,17 @@ class StartShopMenu extends Base {
     constructor(command, isRestock = false) {
         super();
         this.isRestock = isRestock;
-        let iterator = {
-            i: 0
+        const iterator = {
+            i: 0,
         };
         if (!isRestock) {
-            this.buyOnly = System.DynamicValue.createValueCommand(command, iterator);
+            this.buyOnly = Model.DynamicValue.createValueCommand(command, iterator);
         }
-        this.shopID = System.DynamicValue.createValueCommand(command, iterator);
+        this.shopID = Model.DynamicValue.createValueCommand(command, iterator);
         this.items = [];
         let shopItem;
         while (iterator.i < command.length) {
-            shopItem = new System.ShopItem();
+            shopItem = new Model.ShopItem();
             shopItem.parse(command, iterator);
             this.items.push(shopItem);
         }
@@ -42,13 +42,13 @@ class StartShopMenu extends Base {
      */
     initialize() {
         // Create or load stock according to first time opening or not
-        let shopID = this.shopID.getValue();
+        const shopID = this.shopID.getValue();
         let stocks = [];
-        stocks[Enum.ItemKind.Item] = {};
-        stocks[Enum.ItemKind.Weapon] = {};
-        stocks[Enum.ItemKind.Armor] = {};
+        stocks[ITEM_KIND.ITEM] = {};
+        stocks[ITEM_KIND.WEAPON] = {};
+        stocks[ITEM_KIND.ARMOR] = {};
         let system;
-        let list = [];
+        const list = [];
         let id, stock, newStock;
         if (Game.current.shops[shopID]) {
             stocks = Game.current.shops[shopID];
@@ -57,7 +57,7 @@ class StartShopMenu extends Base {
                 id = system.getItem().id;
                 stock = stocks[system.selectionItem][id];
                 if (this.isRestock) {
-                    stock = (Utils.isUndefined(stock) ? 0 : stock);
+                    stock = stock === undefined ? 0 : stock;
                     if (stock !== -1) {
                         newStock = system.getStock();
                         if (newStock === -1) {
@@ -70,7 +70,7 @@ class StartShopMenu extends Base {
                     stocks[system.selectionItem][id] = stock;
                 }
                 else {
-                    if (Utils.isUndefined(stock)) {
+                    if (stock === undefined) {
                         stock = system.getStock();
                         stocks[system.selectionItem][id] = stock;
                     }
@@ -90,14 +90,16 @@ class StartShopMenu extends Base {
                 Game.current.shops[shopID] = stocks;
             }
         }
-        return this.isRestock ? {
-            opened: true
-        } : {
-            opened: false,
-            shopID: shopID,
-            buyOnly: this.buyOnly.getValue(),
-            stock: list
-        };
+        return this.isRestock
+            ? {
+                opened: true,
+            }
+            : {
+                opened: false,
+                shopID: shopID,
+                buyOnly: this.buyOnly.getValue(),
+                stock: list,
+            };
     }
     /**
      *  Update and check if the event is finished.
@@ -110,8 +112,7 @@ class StartShopMenu extends Base {
         if (currentState.opened) {
             return 1;
         }
-        Manager.Stack.push(new Scene.MenuShop(currentState.shopID, currentState
-            .buyOnly, currentState.stock));
+        Manager.Stack.push(new Scene.MenuShop(currentState.shopID, currentState.buyOnly, currentState.stock));
         currentState.opened = true;
         return 0;
     }

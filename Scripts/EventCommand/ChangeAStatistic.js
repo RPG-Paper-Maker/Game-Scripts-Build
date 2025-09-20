@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
-import { System, Datas } from '../index.js';
-import { Utils, Mathf, Interpreter, Platform } from '../Common/index.js';
+import { Interpreter, Mathf, Platform, Utils } from '../Common/index.js';
 import { Game } from '../Core/index.js';
+import { Data, Model } from '../index.js';
+import { Base } from './Base.js';
 /** @class
  *  An event command for changing a statistic.
  *  @extends EventCommand.Base
@@ -20,15 +20,15 @@ import { Game } from '../Core/index.js';
 class ChangeAStatistic extends Base {
     constructor(command) {
         super();
-        let iterator = {
-            i: 0
+        const iterator = {
+            i: 0,
         };
-        this.statisticID = System.DynamicValue.createValueCommand(command, iterator);
+        this.statisticID = Model.DynamicValue.createValueCommand(command, iterator);
         // Selection
         this.selection = command[iterator.i++];
         switch (this.selection) {
             case 0:
-                this.heInstanceID = System.DynamicValue.createValueCommand(command, iterator);
+                this.heInstanceID = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
             case 1:
                 this.groupIndex = command[iterator.i++];
@@ -40,18 +40,18 @@ class ChangeAStatistic extends Base {
         this.value = command[iterator.i++];
         switch (this.value) {
             case 0:
-                this.vNumber = System.DynamicValue.createValueCommand(command, iterator);
+                this.vNumber = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
             case 1:
-                this.vFormula = System.DynamicValue.createValueCommand(command, iterator);
+                this.vFormula = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
             case 2:
                 this.vMax = true;
                 break;
         }
         // Option
-        this.canAboveMax = !Utils.numToBool(command[iterator.i++]);
-        this.isApplyToMax = Utils.numToBool(command[iterator.i++]);
+        this.canAboveMax = !Utils.numberToBool(command[iterator.i++]);
+        this.isApplyToMax = Utils.numberToBool(command[iterator.i++]);
     }
     /**
      *  Update and check if the event is finished.
@@ -59,20 +59,21 @@ class ChangeAStatistic extends Base {
      *  @param {MapObject} object - The current object reacting
      *  @param {number} state - The state ID
      *  @returns {number} The number of node to pass
-    */
+     */
     update(currentState, object, state) {
-        let statisticID = this.statisticID.getValue();
-        let stat = Datas.BattleSystems.getStatistic(statisticID);
-        let isChangingExperience = Datas.BattleSystems.idExpStatistic === statisticID;
-        let isChangingLevel = Datas.BattleSystems.idLevelStatistic === statisticID;
-        let abr = this.isApplyToMax ? stat.getMaxAbbreviation() : stat.abbreviation;
+        const statisticID = this.statisticID.getValue();
+        const stat = Data.BattleSystems.getStatistic(statisticID);
+        const isChangingExperience = Data.BattleSystems.idExpStatistic === statisticID;
+        const isChangingLevel = Data.BattleSystems.idLevelStatistic === statisticID;
+        const abr = this.isApplyToMax ? stat.getMaxAbbreviation() : stat.abbreviation;
         let targets;
         switch (this.selection) {
             case 0:
-                let t = Game.current.getHeroByInstanceID(this.heInstanceID.getValue());
+                const t = Game.current.getHeroByInstanceID(this.heInstanceID.getValue());
                 if (t === null) {
-                    Platform.showErrorMessage("Can't get any hero/enemy with instance ID "
-                        + this.heInstanceID.getValue() + ". Please review your event command.");
+                    Platform.showErrorMessage("Can't get any hero/enemy with instance ID " +
+                        this.heInstanceID.getValue() +
+                        '. Please review your event command.');
                 }
                 targets = [t];
                 break;
@@ -90,7 +91,7 @@ class ChangeAStatistic extends Base {
                     break;
                 case 1:
                     target[abr] = Mathf.OPERATORS_NUMBERS[this.operation](target[abr], Interpreter.evaluate(this.vFormula.getValue(), {
-                        user: target
+                        user: target,
                     }));
                     break;
                 case 2:
@@ -101,8 +102,7 @@ class ChangeAStatistic extends Base {
                 target[abr] = Math.max(target[stat.getMaxAbbreviation()], target[abr]);
             }
             after = target[abr];
-            if (!isChangingExperience && (isChangingLevel || stat.isFix || this
-                .isApplyToMax)) {
+            if (!isChangingExperience && (isChangingLevel || stat.isFix || this.isApplyToMax)) {
                 if (isChangingLevel) {
                     target[abr] = before;
                     while (target.getCurrentLevel() < after) {

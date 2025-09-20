@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,11 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum, Utils } from '../Common/index.js';
+import { ALIGN, Utils } from '../Common/index.js';
 import { WindowBox } from '../Core/index.js';
-import { Datas, Graphic, Manager, Scene, System } from '../index.js';
+import { Data, Graphic, Manager, Model, Scene } from '../index.js';
 import { Base } from './Base.js';
-var Align = Enum.Align;
 /** @class
  *  An event command for displaying text.
  *  @extends EventCommand.Base
@@ -21,14 +20,14 @@ var Align = Enum.Align;
 class ShowText extends Base {
     constructor(command) {
         super();
-        let iterator = {
+        const iterator = {
             i: 0,
         };
-        this.interlocutor = System.DynamicValue.createValueCommand(command, iterator);
+        this.interlocutor = Model.DynamicValue.createValueCommand(command, iterator);
         this.facesetID = command[iterator.i++];
         this.facesetIndexX = command[iterator.i++];
         this.facesetIndexY = command[iterator.i++];
-        let lang = new System.Translatable();
+        const lang = new Model.Localization();
         while (iterator.i < command.length) {
             lang.getCommand(command, iterator);
         }
@@ -38,7 +37,7 @@ class ShowText extends Base {
             padding: WindowBox.HUGE_PADDING_BOX,
         });
         this.windowInterlocutor = new WindowBox(this.windowMain.oX + WindowBox.MEDIUM_SLOT_HEIGHT / 2, this.windowMain.oY - WindowBox.MEDIUM_SLOT_HEIGHT / 2, WindowBox.MEDIUM_SLOT_WIDTH, WindowBox.MEDIUM_SLOT_HEIGHT, {
-            content: new Graphic.Text('', { align: Align.Center }),
+            content: new Graphic.Text('', { align: ALIGN.CENTER }),
             padding: WindowBox.SMALL_SLOT_PADDING,
         });
     }
@@ -59,16 +58,16 @@ class ShowText extends Base {
      *  @returns {Record<string, any>} The current state
      */
     initialize() {
-        this.windowMain.setX(Utils.defaultValue(Datas.Systems.dbOptions.v_x, 0));
-        this.windowMain.setY(Utils.defaultValue(Datas.Systems.dbOptions.v_y, 0));
-        this.windowMain.setW(Utils.defaultValue(Datas.Systems.dbOptions.v_w, 0));
-        this.windowMain.setH(Utils.defaultValue(Datas.Systems.dbOptions.v_h, 0));
+        this.windowMain.setX(Utils.valueOrDefault(Data.Systems.dbOptions.v_x, 0));
+        this.windowMain.setY(Utils.valueOrDefault(Data.Systems.dbOptions.v_y, 0));
+        this.windowMain.setW(Utils.valueOrDefault(Data.Systems.dbOptions.v_w, 0));
+        this.windowMain.setH(Utils.valueOrDefault(Data.Systems.dbOptions.v_h, 0));
         this.windowInterlocutor.setX(this.windowMain.oX + WindowBox.MEDIUM_SLOT_HEIGHT / 2);
         this.windowInterlocutor.setY(this.windowMain.oY - WindowBox.MEDIUM_SLOT_HEIGHT / 2);
-        this.windowMain.padding[0] = Utils.defaultValue(Datas.Systems.dbOptions.v_pLeft, 0);
-        this.windowMain.padding[1] = Utils.defaultValue(Datas.Systems.dbOptions.v_pTop, 0);
-        this.windowMain.padding[2] = Utils.defaultValue(Datas.Systems.dbOptions.v_pRight, 0);
-        this.windowMain.padding[3] = Utils.defaultValue(Datas.Systems.dbOptions.v_pBottom, 0);
+        this.windowMain.padding[0] = Utils.valueOrDefault(Data.Systems.dbOptions.v_pLeft, 0);
+        this.windowMain.padding[1] = Utils.valueOrDefault(Data.Systems.dbOptions.v_pTop, 0);
+        this.windowMain.padding[2] = Utils.valueOrDefault(Data.Systems.dbOptions.v_pRight, 0);
+        this.windowMain.padding[3] = Utils.valueOrDefault(Data.Systems.dbOptions.v_pBottom, 0);
         this.windowMain.updateDimensions();
         this.windowMain.content.update();
         this.windowInterlocutor.content.setText(this.interlocutor.getValue());
@@ -92,7 +91,7 @@ class ShowText extends Base {
         }
         currentState.frameTick += Manager.Stack.elapsedTime;
         if (currentState.frameTick >= currentState.frameDuration) {
-            currentState.frame = (currentState.frame + 1) % Datas.Systems.FRAMES;
+            currentState.frame = (currentState.frame + 1) % Data.Systems.FRAMES;
             currentState.frameTick = 0;
             Manager.Stack.requestPaintHUD = true;
         }
@@ -123,7 +122,7 @@ class ShowText extends Base {
             this.windowInterlocutor.draw();
         }
         if (currentState) {
-            Datas.Systems.getCurrentWindowSkin().drawArrowMessage(currentState.frame, this.windowMain.oX + this.windowMain.oW / 2, this.windowMain.oY + (this.windowMain.oH - 40));
+            Data.Systems.getCurrentWindowSkin().drawArrowMessage(currentState.frame, this.windowMain.oX + this.windowMain.oW / 2, this.windowMain.oY + (this.windowMain.oH - 40));
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -10,17 +10,27 @@
 */
 import { Platform } from './Platform.js';
 /**
- * The static class containing all the files paths.
+ * Centralized registry of engine-relative file and directory paths.
  *
- * @class Paths
+ * All paths are built relative to {@link Platform.ROOT_DIRECTORY}, unless
+ * otherwise noted. This class is static-only.
  */
-class Paths {
-    constructor() {
-        throw new Error('This is a static class');
-    }
+export class Paths {
 }
+// -------------------------------------------------------------------------
+// Generic
+// -------------------------------------------------------------------------
+/** Prefix for `file://` URLs (used in desktop contexts). */
 Paths.FILES = 'file:///';
+/** Root test folder. */
 Paths.TEST = Platform.ROOT_DIRECTORY + 'Test/';
+/** Test configuration JSON. */
+Paths.FILE_TEST = Paths.TEST + 'test.json';
+/** Protection flag file. */
+Paths.FILE_PROTECT = Platform.ROOT_DIRECTORY + '.protect';
+// -------------------------------------------------------------------------
+// Data JSON files
+// -------------------------------------------------------------------------
 Paths.FILE_MAPS = Platform.ROOT_DIRECTORY + 'Maps/';
 Paths.FILE_MAP_INFOS = '/infos.json';
 Paths.FILE_PICTURES = Platform.ROOT_DIRECTORY + 'pictures.json';
@@ -50,13 +60,16 @@ Paths.FILE_ANIMATIONS = Platform.ROOT_DIRECTORY + 'animations.json';
 Paths.FILE_STATUS = Platform.ROOT_DIRECTORY + 'status.json';
 Paths.FILE_SCRIPTS = Platform.ROOT_DIRECTORY + 'scripts.json';
 Paths.FILE_LANGS = Platform.ROOT_DIRECTORY + 'langs.json';
-Paths.FILE_PROTECT = Platform.ROOT_DIRECTORY + '.protect';
-Paths.FILE_TEST = Paths.TEST + 'test.json';
-Paths.FILE_PLUGIN_CODE = 'code.js';
-Paths.FILE_PLUGIN_DETAILS = 'details.json';
+// -------------------------------------------------------------------------
+// Asset folders
+// -------------------------------------------------------------------------
+// Media types
 Paths.PICTURES = '/Images';
 Paths.VIDEOS = '/Videos';
 Paths.FONTS = '/Fonts';
+Paths.SONGS = '/Songs/';
+Paths.SHAPES = '/Shapes/';
+// HUD and UI
 Paths.HUD = Paths.PICTURES + '/HUD/';
 Paths.TEXTURES2D = Paths.PICTURES + '/Textures2D/';
 Paths.BARS = Paths.HUD + 'Bars';
@@ -67,6 +80,7 @@ Paths.TITLE_SCREEN = Paths.HUD + 'TitleScreen';
 Paths.GAME_OVER = Paths.HUD + 'GameOver';
 Paths.HUD_PICTURES = Paths.HUD + 'Pictures';
 Paths.ANIMATIONS = Paths.HUD + 'Animations';
+// Textures
 Paths.AUTOTILES = Paths.TEXTURES2D + 'Autotiles';
 Paths.CHARACTERS = Paths.TEXTURES2D + 'Characters';
 Paths.TILESETS = Paths.TEXTURES2D + 'Tilesets';
@@ -76,17 +90,22 @@ Paths.OBJECTS_3D = Paths.TEXTURES2D + 'Objects3D';
 Paths.MOUNTAINS = Paths.TEXTURES2D + 'Mountains';
 Paths.SKYBOXES = Paths.TEXTURES2D + 'SkyBoxes';
 Paths.PARTICLES = Paths.TEXTURES2D + 'Particles';
-Paths.SONGS = '/Songs/';
+// Audio
 Paths.MUSICS = Paths.SONGS + 'Musics';
 Paths.BACKGROUND_SOUNDS = Paths.SONGS + 'BackgroundSounds';
 Paths.SOUNDS = Paths.SONGS + 'Sounds';
 Paths.MUSIC_EFFECTS = Paths.SONGS + 'MusicEffects';
-Paths.SHAPES = '/Shapes/';
+// Shapes
 Paths.OBJ = Paths.SHAPES + 'OBJ';
 Paths.MTL = Paths.SHAPES + 'MTL';
 Paths.OBJ_COLLISIONS = Paths.SHAPES + 'Collisions';
+// -------------------------------------------------------------------------
+// Scripts, plugins, shaders, saves
+// -------------------------------------------------------------------------
+/** Base path for game scripts (adjusted for web builds). */
 Paths.SCRIPTS = (Platform.WEB_DEV && !Platform.IS_DESKTOP ? '.' + window.location.pathname : '') + 'Scripts/';
 Paths.PLUGINS = Platform.ROOT_DIRECTORY + 'Plugins/';
 Paths.SHADERS = Paths.SCRIPTS + 'Shaders/';
 Paths.SAVES = Platform.ROOT_DIRECTORY + 'Saves';
-export { Paths };
+Paths.FILE_PLUGIN_CODE = 'code.js';
+Paths.FILE_PLUGIN_DETAILS = 'details.json';

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,11 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Constants, Enum, ScreenResolution } from '../Common/index.js';
+import { Constants, PICTURE_KIND, ScreenResolution } from '../Common/index.js';
 import { Game, Picture2D, WindowBox, WindowChoices } from '../Core/index.js';
-import { Datas, Manager } from '../index.js';
+import { Data, Manager } from '../index.js';
 import { Base } from './Base.js';
-var PictureKind = Enum.PictureKind;
 /**
  *  The Scene displaying the game title screen.
  *  @class TitleScreen
@@ -41,21 +40,21 @@ class TitleScreen extends Base {
         // Destroy pictures
         Manager.Stack.displayedPictures = [];
         // Creating background
-        if (Datas.TitlescreenGameover.isTitleBackgroundImage) {
-            this.pictureBackground = await Picture2D.createWithID(Datas.TitlescreenGameover.titleBackgroundImageID, PictureKind.TitleScreen, { cover: true });
+        if (Data.TitlescreenGameover.isTitleBackgroundImage) {
+            this.pictureBackground = await Picture2D.createWithID(Data.TitlescreenGameover.titleBackgroundImageID, PICTURE_KIND.TITLE_SCREEN, { cover: true });
         }
         else {
-            await Manager.Videos.play(Datas.Videos.get(Datas.TitlescreenGameover.titleBackgroundVideoID).getPath());
+            await Manager.Videos.play(Data.Videos.get(Data.TitlescreenGameover.titleBackgroundVideoID).getPath());
         }
         // Windows
-        let commandsNb = Datas.TitlescreenGameover.titleCommands.length;
-        this.windowChoicesCommands = new WindowChoices(ScreenResolution.SCREEN_X / 2 - WindowBox.MEDIUM_SLOT_WIDTH / 2, ScreenResolution.SCREEN_Y - Constants.HUGE_SPACE - commandsNb * WindowBox.MEDIUM_SLOT_HEIGHT, WindowBox.MEDIUM_SLOT_WIDTH, WindowBox.MEDIUM_SLOT_HEIGHT, Datas.TitlescreenGameover.getTitleCommandsNames(), {
+        const commandsNb = Data.TitlescreenGameover.titleCommands.length;
+        this.windowChoicesCommands = new WindowChoices(ScreenResolution.SCREEN_X / 2 - WindowBox.MEDIUM_SLOT_WIDTH / 2, ScreenResolution.SCREEN_Y - Constants.HUGE_SPACE - commandsNb * WindowBox.MEDIUM_SLOT_HEIGHT, WindowBox.MEDIUM_SLOT_WIDTH, WindowBox.MEDIUM_SLOT_HEIGHT, Data.TitlescreenGameover.getTitleCommandsNames(), {
             nbItemsMax: commandsNb,
-            listCallbacks: Datas.TitlescreenGameover.getTitleCommandsActions(),
+            listCallbacks: Data.TitlescreenGameover.getTitleCommandsActions(),
             padding: [0, 0, 0, 0],
         });
         // Play title screen song
-        Datas.TitlescreenGameover.titleMusic.playMusic();
+        Data.TitlescreenGameover.titleMusic.playMusic();
         this.loading = false;
     }
     /**
@@ -63,7 +62,7 @@ class TitleScreen extends Base {
      */
     translate() {
         for (let i = 0, l = this.windowChoicesCommands.listContents.length; i < l; i++) {
-            this.windowChoicesCommands.listContents[i].setText(Datas.TitlescreenGameover.titleCommands[i].name());
+            this.windowChoicesCommands.listContents[i].setText(Data.TitlescreenGameover.titleCommands[i].name());
         }
     }
     /**
@@ -103,7 +102,7 @@ class TitleScreen extends Base {
      *  @inheritdoc
      */
     drawHUD() {
-        if (Datas.TitlescreenGameover.isTitleBackgroundImage) {
+        if (Data.TitlescreenGameover.isTitleBackgroundImage) {
             this.pictureBackground.draw();
         }
         this.windowChoicesCommands.draw();

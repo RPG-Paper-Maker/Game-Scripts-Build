@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -11,26 +11,25 @@
 import * as THREE from 'three';
 import { Manager } from '../index.js';
 import { CustomGeometry } from './CustomGeometry.js';
-/** @class
- *  Autotiles grouped with the same textures.
- *  @param {TextureBundle} texture
+/**
+ * A group of autotiles that share the same {@link TextureBundle}.
+ * Provides geometry aggregation and mesh creation for rendering.
  */
-class Autotiles {
+export class Autotiles {
     constructor(bundle) {
         this.bundle = bundle;
-        let texture = Manager.GL.getMaterialTexture(bundle.material);
-        this.width = texture ? texture.image.width : 0;
-        this.height = texture ? texture.image.height : 0;
+        const texture = Manager.GL.getMaterialTexture(bundle.material);
+        this.width = texture?.image?.width ?? 0;
+        this.height = texture?.image?.height ?? 0;
         this.geometry = new CustomGeometry();
         this.mesh = null;
         this.index = 0;
     }
     /**
-     *  Update the geometry of the autotiles according to an autotile and its
-     *  position.
-     *  @param {Position} position - The position
-     *  @param {Autotile} autotile - The autotile to add to geometry
-     *  @returns {StructMapElementCollision}
+     * Update the geometry with a new autotile instance at a given position.
+     * @param position - The autotile’s position in the map grid.
+     * @param autotile - The autotile instance to update geometry for.
+     * @param pictureID - The picture ID used to resolve autotile textures.
      */
     updateGeometry(position, autotile, pictureID) {
         return this.width === null || this.height === 0
@@ -38,8 +37,8 @@ class Autotiles {
             : autotile.updateGeometryAutotile(this.geometry, this.bundle, position, this.width, this.height, pictureID, this.index++);
     }
     /**
-     *  Create a mesh with material and geometry.
-     *  @returns {boolean}
+     * Create a mesh from the current geometry and material.
+     * @returns `true` if the mesh was successfully created, `false` if geometry is empty.
      */
     createMesh() {
         if (this.geometry.isEmpty()) {
@@ -77,4 +76,3 @@ Autotiles.AUTOTILE_BORDER = {
     C4: 22,
     D2: 23,
 };
-export { Autotiles };

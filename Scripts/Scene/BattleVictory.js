@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,11 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Datas, Graphic, Manager, Scene, System } from "../index.js";
-import { Enum, Platform, ScreenResolution } from '../Common/index.js';
+import { Data, Graphic, Manager, Model, Scene } from "../index.js";
+import { CHARACTER_KIND, LOOT_KIND, Platform, ScreenResolution } from '../Common/index.js';
 import { Game, Item, WindowBox } from '../Core/index.js';
-var CharacterKind = Enum.CharacterKind;
-var LootKind = Enum.LootKind;
 // -------------------------------------------------------
 //
 //  CLASS BattleVictory
@@ -34,7 +32,7 @@ class BattleVictory {
     initialize() {
         // Remove status if release at end of battles
         let i, l, battler, s;
-        for (battler of this.battle.battlers[CharacterKind.Hero]) {
+        for (battler of this.battle.battlers[CHARACTER_KIND.HERO]) {
             s = battler.player.status[0];
             battler.player.removeEndBattleStatus();
             battler.updateStatusStep();
@@ -42,12 +40,12 @@ class BattleVictory {
         }
         // If loosing, directly go to end transition
         if (!this.battle.winning) {
-            this.battle.windowTopInformations.content.setText(Datas.Languages.extras.defeat.name());
+            this.battle.windowTopInformations.content.setText(Data.Languages.extras.defeat.name());
             this.battle.subStep = 4;
             return;
         }
         // Change information bar content
-        this.battle.windowTopInformations.content.setText(Datas.Languages.extras.victory.name());
+        this.battle.windowTopInformations.content.setText(Data.Languages.extras.victory.name());
         // Rewards
         this.prepareRewards();
         let id;
@@ -67,7 +65,7 @@ class BattleVictory {
         }
         // Heroes
         let xp;
-        for (battler of this.battle.battlers[CharacterKind.Hero]) {
+        for (battler of this.battle.battlers[CHARACTER_KIND.HERO]) {
             battler.setVictory();
             xp = this.battle.xp;
             if (battler.player.experienceGain[0]) {
@@ -86,8 +84,8 @@ class BattleVictory {
             Game.current.victoryMusic.playMusic();
         }
         // Windows
-        let w = 200 + WindowBox.SMALL_PADDING_BOX[0] + WindowBox.SMALL_PADDING_BOX[2];
-        let h = this.battle.lootsNumber * 30 + WindowBox.SMALL_PADDING_BOX[1] + WindowBox.SMALL_PADDING_BOX[3];
+        const w = 200 + WindowBox.SMALL_PADDING_BOX[0] + WindowBox.SMALL_PADDING_BOX[2];
+        const h = this.battle.lootsNumber * 30 + WindowBox.SMALL_PADDING_BOX[1] + WindowBox.SMALL_PADDING_BOX[3];
         this.battle.windowLoots = new WindowBox(ScreenResolution.SCREEN_X - 20 - w, ScreenResolution.SCREEN_Y - 20 - h, w, h, {
             content: new Graphic.Loots(this.battle.loots, this.battle.lootsNumber),
             padding: WindowBox.SMALL_PADDING_BOX,
@@ -101,27 +99,26 @@ class BattleVictory {
         this.battle.xp = 0;
         this.battle.currencies = {};
         this.battle.loots = [];
-        this.battle.loots[LootKind.Item] = {};
-        this.battle.loots[LootKind.Weapon] = {};
-        this.battle.loots[LootKind.Armor] = {};
+        this.battle.loots[LOOT_KIND.ITEM] = {};
+        this.battle.loots[LOOT_KIND.WEAPON] = {};
+        this.battle.loots[LOOT_KIND.ARMOR] = {};
         this.battle.lootsNumber = 0;
-        let battlers = this.battle.battlers[CharacterKind.Monster];
+        const battlers = this.battle.battlers[CHARACTER_KIND.MONSTER];
         // Calculate rewards
-        let i, j, l, m, player, id, list, loots, currencies, hero, baseCurrency, currency;
+        let i, j, l, m, player, currencies, hero, currency;
         for (i = 0, l = battlers.length; i < l; i++) {
             player = battlers[i].player;
             this.battle.xp += player.getRewardExperience();
             currencies = player.getRewardCurrencies();
-            for (id in currencies) {
-                baseCurrency = currencies[id];
+            for (const [id, baseCurrency] of currencies.entries()) {
                 currency = baseCurrency;
                 // Get team currency bonus
-                for (hero of this.battle.battlers[CharacterKind.Hero]) {
+                for (hero of this.battle.battlers[CHARACTER_KIND.HERO]) {
                     if (hero.player.currencyGain[id]) {
                         currency *= hero.player.currencyGain[id].multiplication;
                     }
                 }
-                for (hero of this.battle.battlers[CharacterKind.Hero]) {
+                for (hero of this.battle.battlers[CHARACTER_KIND.HERO]) {
                     if (hero.player.currencyGain[id]) {
                         currency += (baseCurrency * hero.player.currencyGain[id].addition) / 100;
                     }
@@ -133,10 +130,10 @@ class BattleVictory {
                     this.battle.currencies[id] = currency;
                 }
             }
-            list = player.getRewardLoots();
+            const list = player.getRewardLoots();
             for (j = 0, m = list.length; j < m; j++) {
-                loots = list[j];
-                for (id in loots) {
+                const loots = list[j];
+                for (const [id] of loots.entries()) {
                     if (this.battle.loots[j].hasOwnProperty(id)) {
                         this.battle.loots[j][id].nb += loots[id].nb;
                     }
@@ -148,7 +145,7 @@ class BattleVictory {
             }
         }
         for (i = 0, l = this.battle.loots.length; i < l; i++) {
-            for (id in this.battle.loots[i]) {
+            for (const id in this.battle.loots[i]) {
                 this.battle.loots[i][id] = new Item(i, parseInt(id), this.battle.loots[i][id].nb);
             }
         }
@@ -161,8 +158,8 @@ class BattleVictory {
     updateTeamXP() {
         this.battle.finishedXP = true;
         let battler, player, y, h;
-        for (let i = this.battle.priorityIndex, l = this.battle.battlers[CharacterKind.Hero].length; i < l; i++) {
-            battler = this.battle.battlers[CharacterKind.Hero][i];
+        for (let i = this.battle.priorityIndex, l = this.battle.battlers[CHARACTER_KIND.HERO].length; i < l; i++) {
+            battler = this.battle.battlers[CHARACTER_KIND.HERO][i];
             player = battler.player;
             if (!player.isExperienceUpdated()) {
                 if (player.updateExperience()) {
@@ -181,7 +178,7 @@ class BattleVictory {
                             WindowBox.HUGE_PADDING_BOX[0] +
                             WindowBox.HUGE_PADDING_BOX[2];
                     this.battle.windowStatisticProgression.setH(h);
-                    Datas.BattleSystems.battleLevelUp.playSound();
+                    Data.BattleSystems.battleLevelUp.playSound();
                     this.battle.subStep = 2;
                     return;
                 }
@@ -195,7 +192,7 @@ class BattleVictory {
      *  Pause the team progression xp.
      */
     pauseTeamXP() {
-        for (let battler of this.battle.battlers[CharacterKind.Hero]) {
+        for (const battler of this.battle.battlers[CHARACTER_KIND.HERO]) {
             battler.player.pauseExperience();
         }
     }
@@ -203,7 +200,7 @@ class BattleVictory {
      *  Unpause the team progression xp.
      */
     unpauseTeamXP() {
-        for (let battler of this.battle.battlers[CharacterKind.Hero]) {
+        for (const battler of this.battle.battlers[CHARACTER_KIND.HERO]) {
             battler.player.unpauseExperience();
         }
         this.battle.user.player.updateRemainingXP(Scene.Battle.TIME_PROGRESSION_XP);
@@ -220,7 +217,7 @@ class BattleVictory {
      */
     prepareEndTransition() {
         this.battle.transitionEnded = false;
-        Manager.Songs.initializeProgressionMusic(System.PlaySong.currentPlayingMusic.volume.getValue(), 0, 0, Scene.Battle.TIME_LINEAR_MUSIC_END);
+        Manager.Songs.initializeProgressionMusic(Model.PlaySong.currentPlayingMusic.volume.getValue(), 0, 0, Scene.Battle.TIME_LINEAR_MUSIC_END);
         this.battle.subStep = 3;
         this.battle.time = new Date().getTime();
     }
@@ -238,7 +235,7 @@ class BattleVictory {
                     }
                     else {
                         // Pass xp
-                        for (let battler of this.battle.battlers[CharacterKind.Hero]) {
+                        for (const battler of this.battle.battlers[CHARACTER_KIND.HERO]) {
                             battler.player.passExperience();
                             battler.player.updateObtainedExperience();
                         }
@@ -276,7 +273,7 @@ class BattleVictory {
                 if (new Date().getTime() - this.battle.time >= Scene.Battle.TIME_END_WAIT) {
                     this.battle.time = new Date().getTime();
                     this.battle.windowTopInformations.content = this.battle.graphicRewardTop;
-                    for (let battler of this.battle.battlers[CharacterKind.Hero]) {
+                    for (const battler of this.battle.battlers[CHARACTER_KIND.HERO]) {
                         battler.player.updateRemainingXP(Scene.Battle.TIME_PROGRESSION_XP);
                     }
                     Manager.Stack.requestPaintHUD = true;

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -54,8 +54,8 @@ export class CustomGeometryFace extends CustomGeometry {
         }
         this.currentAngle = angle;
         const vertices = this.getVertices();
-        let vertex = new THREE.Vector3();
-        let center = new THREE.Vector3();
+        const vertex = new THREE.Vector3();
+        const center = new THREE.Vector3();
         let ic = 0;
         for (let i = 0, l = vertices.length; i < l; i += 3) {
             ic = Math.floor(i / 12) * 3;

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
-import { System, Scene } from '../index.js';
+import { Mathf } from '../Common/index.js';
 import { Game } from '../Core/index.js';
-import { Mathf, Utils } from '../Common/index.js';
+import { Model, Scene } from '../index.js';
+import { Base } from './Base.js';
 /** @class
  *  An event command for changing a property value.
  *  @extends EventCommand.Base
@@ -20,12 +20,12 @@ import { Mathf, Utils } from '../Common/index.js';
 class ChangeProperty extends Base {
     constructor(command) {
         super();
-        let iterator = {
+        const iterator = {
             i: 0,
         };
-        this.propertyID = System.DynamicValue.createValueCommand(command, iterator);
+        this.propertyID = Model.DynamicValue.createValueCommand(command, iterator);
         this.operationKind = command[iterator.i++];
-        this.newValue = System.DynamicValue.createValueCommand(command, iterator);
+        this.newValue = Model.DynamicValue.createValueCommand(command, iterator);
     }
     /**
      *  Update and check if the event is finished.
@@ -35,8 +35,8 @@ class ChangeProperty extends Base {
      *  @returns {number} The number of node to pass
      */
     update(currentState, object, state) {
-        let propertyID = this.propertyID.getValue();
-        let newValue = Mathf.OPERATORS_NUMBERS[this.operationKind](object.properties[propertyID], this.newValue.getValue());
+        const propertyID = this.propertyID.getValue();
+        const newValue = Mathf.OPERATORS_NUMBERS[this.operationKind](object.properties[propertyID], this.newValue.getValue());
         object.properties[propertyID] = newValue;
         let props;
         if (object.isHero) {
@@ -44,22 +44,22 @@ class ChangeProperty extends Base {
         }
         else if (object.isStartup) {
             props = Game.current.startupProperties[Scene.Map.current.id];
-            if (Utils.isUndefined(props)) {
+            if (props === undefined) {
                 props = [];
                 Game.current.startupProperties[Scene.Map.current.id] = props;
             }
         }
         else {
-            let portion = Scene.Map.current.mapProperties.allObjects[object.system.id].getGlobalPortion();
-            let portionDatas = Game.current.getPortionDatas(Scene.Map.current.id, portion);
-            let indexProp = portionDatas.pi.indexOf(object.system.id);
+            const portion = Scene.Map.current.mapProperties.allObjects.get(object.system.id).getGlobalPortion();
+            const portionData = Game.current.getPortionData(Scene.Map.current.id, portion);
+            const indexProp = portionData.pi.indexOf(object.system.id);
             if (indexProp === -1) {
                 props = [];
-                portionDatas.pi.push(object.system.id);
-                portionDatas.p.push(props);
+                portionData.pi.push(object.system.id);
+                portionData.p.push(props);
             }
             else {
-                props = portionDatas.p[indexProp];
+                props = portionData.p[indexProp];
             }
         }
         props[propertyID - 1] = newValue;

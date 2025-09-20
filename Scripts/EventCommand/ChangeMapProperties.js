@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,10 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
-import { System, Scene } from '../index.js';
-import { Utils, Enum } from '../Common/index.js';
+import { SONG_KIND, Utils } from '../Common/index.js';
 import { Game } from '../Core/index.js';
+import { Model, Scene } from '../index.js';
+import { Base } from './Base.js';
 /** @class
  *  An event command for changing a map properties.
  *  @extends EventCommand.Base
@@ -20,30 +20,30 @@ import { Game } from '../Core/index.js';
 class ChangeMapProperties extends Base {
     constructor(command) {
         super();
-        let iterator = {
-            i: 0
+        const iterator = {
+            i: 0,
         };
-        this.mapID = System.DynamicValue.createValueCommand(command, iterator);
-        this.isTilesetID = Utils.numToBool(command[iterator.i++]);
+        this.mapID = Model.DynamicValue.createValueCommand(command, iterator);
+        this.isTilesetID = Utils.numberToBool(command[iterator.i++]);
         if (this.isTilesetID) {
-            this.tilesetID = System.DynamicValue.createValueCommand(command, iterator);
+            this.tilesetID = Model.DynamicValue.createValueCommand(command, iterator);
         }
-        this.isMusic = Utils.numToBool(command[iterator.i++]);
+        this.isMusic = Utils.numberToBool(command[iterator.i++]);
         if (this.isMusic) {
-            this.music = System.PlaySong.createValueCommand(command, iterator, Enum.SongKind.Music);
+            this.music = Model.PlaySong.createValueCommand(command, iterator, SONG_KIND.MUSIC);
         }
-        this.isBackgroundSound = Utils.numToBool(command[iterator.i++]);
+        this.isBackgroundSound = Utils.numberToBool(command[iterator.i++]);
         if (this.isBackgroundSound) {
-            this.backgroundSound = System.PlaySong.createValueCommand(command, iterator, Enum.SongKind.BackgroundSound);
+            this.backgroundSound = Model.PlaySong.createValueCommand(command, iterator, SONG_KIND.BACKGROUND_SOUND);
         }
-        this.isCameraPropertiesID = Utils.numToBool(command[iterator.i++]);
+        this.isCameraPropertiesID = Utils.numberToBool(command[iterator.i++]);
         if (this.isCameraPropertiesID) {
-            this.cameraPropertiesID = System.DynamicValue.createValueCommand(command, iterator);
+            this.cameraPropertiesID = Model.DynamicValue.createValueCommand(command, iterator);
         }
-        this.isSky = Utils.numToBool(command[iterator.i++]);
+        this.isSky = Utils.numberToBool(command[iterator.i++]);
         if (this.isSky) {
             this.skyKind = command[iterator.i++];
-            this.skyID = System.DynamicValue.createValueCommand(command, iterator);
+            this.skyID = Model.DynamicValue.createValueCommand(command, iterator);
         }
     }
     /**
@@ -53,7 +53,7 @@ class ChangeMapProperties extends Base {
     initialize() {
         return {
             loading: false,
-            loaded: false
+            loaded: false,
         };
     }
     /**
@@ -70,7 +70,7 @@ class ChangeMapProperties extends Base {
                 mapID = Scene.Map.current.id;
             }
             let datas = Game.current.mapsProperties[mapID];
-            if (Utils.isUndefined(datas)) {
+            if (datas === undefined) {
                 datas = {};
                 Game.current.mapsProperties[mapID] = datas;
             }
@@ -134,8 +134,7 @@ class ChangeMapProperties extends Base {
                 })();
             }
         }
-        return !currentState.loading || (currentState.loading && currentState
-            .loaded) ? 1 : 0;
+        return !currentState.loading || (currentState.loading && currentState.loaded) ? 1 : 0;
     }
 }
 export { ChangeMapProperties };

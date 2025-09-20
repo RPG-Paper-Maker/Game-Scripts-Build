@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,10 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum, ScreenResolution, Utils } from '../Common/index.js';
-import { Datas, Manager, System } from '../index.js';
+import { PICTURE_KIND, ScreenResolution, Utils } from '../Common/index.js';
+import { Data, Manager, Model } from '../index.js';
 import { Base } from './Base.js';
-var PictureKind = Enum.PictureKind;
 /** @class
  *  An event command for setting / moving / turning a picture.
  *  @extends EventCommand.Base
@@ -20,31 +19,31 @@ var PictureKind = Enum.PictureKind;
 class SetMoveTurnAPicture extends Base {
     constructor(command) {
         super();
-        let iterator = {
+        const iterator = {
             i: 0,
         };
-        this.index = System.DynamicValue.createValueCommand(command, iterator);
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.pictureID = System.DynamicValue.createValueCommand(command, iterator);
+        this.index = Model.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.pictureID = Model.DynamicValue.createValueCommand(command, iterator);
             iterator.i++;
         }
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.zoom = System.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.zoom = Model.DynamicValue.createValueCommand(command, iterator);
         }
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.opacity = System.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.opacity = Model.DynamicValue.createValueCommand(command, iterator);
         }
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.x = System.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.x = Model.DynamicValue.createValueCommand(command, iterator);
         }
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.y = System.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.y = Model.DynamicValue.createValueCommand(command, iterator);
         }
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.angle = System.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.angle = Model.DynamicValue.createValueCommand(command, iterator);
         }
-        this.waitEnd = Utils.numToBool(command[iterator.i++]);
-        this.time = System.DynamicValue.createValueCommand(command, iterator);
+        this.waitEnd = Utils.numberToBool(command[iterator.i++]);
+        this.time = Model.DynamicValue.createValueCommand(command, iterator);
         this.parallel = !this.waitEnd;
     }
     /**
@@ -52,8 +51,8 @@ class SetMoveTurnAPicture extends Base {
      *  @returns {Record<string, any>} The current state
      */
     initialize() {
-        let time = this.time.getValue() * 1000;
-        let index = this.index.getValue();
+        const time = this.time.getValue() * 1000;
+        const index = this.index.getValue();
         let obj, picture;
         let i, l;
         for (i = 0, l = Manager.Stack.displayedPictures.length; i < l; i++) {
@@ -68,13 +67,13 @@ class SetMoveTurnAPicture extends Base {
             if (this.pictureID) {
                 let prevX = picture.oX;
                 let prevY = picture.oY;
-                let prevW = picture.oW;
-                let prevH = picture.oH;
-                let prevCentered = picture.centered;
-                let prevZoom = picture.zoom;
-                let prevOpacity = picture.opacity;
-                let prevAngle = picture.angle;
-                picture = Datas.Pictures.getPictureCopy(PictureKind.Pictures, this.pictureID.getValue());
+                const prevW = picture.oW;
+                const prevH = picture.oH;
+                const prevCentered = picture.centered;
+                const prevZoom = picture.zoom;
+                const prevOpacity = picture.opacity;
+                const prevAngle = picture.angle;
+                picture = Data.Pictures.getPictureCopy(PICTURE_KIND.PICTURES, this.pictureID.getValue());
                 if (prevCentered) {
                     prevX += (prevW - picture.oW) / 2;
                     prevY += (prevH - picture.oH) / 2;

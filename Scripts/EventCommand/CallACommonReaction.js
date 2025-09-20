@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,11 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum } from '../Common/index.js';
+import { DYNAMIC_VALUE_KIND, Utils } from '../Common/index.js';
 import { ReactionInterpreter } from '../Core/index.js';
-import { Datas, System } from '../index.js';
+import { Data, Model } from '../index.js';
 import { Base } from './Base.js';
-var DynamicValueKind = Enum.DynamicValueKind;
 /** @class
  *  An event command for calling a common reaction.
  *  @extends EventCommand.Base
@@ -21,16 +20,16 @@ var DynamicValueKind = Enum.DynamicValueKind;
 class CallACommonReaction extends Base {
     constructor(command) {
         super();
-        let iterator = {
+        const iterator = {
             i: 0,
         };
         this.commonReactionID = command[iterator.i++];
         this.parameters = [];
-        let l = command.length;
+        const l = command.length;
         let paramID;
         while (iterator.i < l) {
             paramID = command[iterator.i++];
-            this.parameters[paramID] = System.DynamicValue.createValueCommand(command, iterator);
+            this.parameters[paramID] = Model.DynamicValue.createValueCommand(command, iterator);
         }
     }
     /**
@@ -51,22 +50,22 @@ class CallACommonReaction extends Base {
      */
     update(currentState, object, state) {
         if (!currentState.interpreter) {
-            let reaction = Datas.CommonEvents.getCommonReaction(this.commonReactionID);
-            let parameters = System.DynamicValue.mapWithParametersProperties(this.parameters);
+            const reaction = Data.CommonEvents.getCommonReaction(this.commonReactionID);
+            const parameters = Model.DynamicValue.mapWithParametersProperties(this.parameters);
             // Correct parameters for default values
             let v, parameter, k;
-            for (let id in reaction.parameters) {
-                v = reaction.parameters[id].value;
+            for (const [id, reactionParameter] of reaction.parameters.entries()) {
+                v = reactionParameter.value;
                 parameter = parameters[id];
-                k = parameter ? parameter.kind : DynamicValueKind.None;
-                if (k > DynamicValueKind.Unknown && k <= DynamicValueKind.Default) {
-                    parameter = k === DynamicValueKind.Default ? v : System.DynamicValue.create(k, null);
+                k = parameter ? parameter.kind : DYNAMIC_VALUE_KIND.NONE;
+                if (k > DYNAMIC_VALUE_KIND.UNKNOWN && k <= DYNAMIC_VALUE_KIND.DEFAULT) {
+                    parameter = k === DYNAMIC_VALUE_KIND.DEFAULT ? v : Model.DynamicValue.create(k, null);
                 }
                 parameters[id] = parameter;
             }
-            currentState.interpreter = new ReactionInterpreter(object, Datas.CommonEvents.getCommonReaction(this.commonReactionID), object, state, parameters);
+            currentState.interpreter = new ReactionInterpreter(object, Data.CommonEvents.getCommonReaction(this.commonReactionID), object, state, Utils.arrayToMap(parameters));
         }
-        let previousBlocking = ReactionInterpreter.blockingHero;
+        const previousBlocking = ReactionInterpreter.blockingHero;
         ReactionInterpreter.blockingHero = currentState.interpreter.currentReaction.blockingHero;
         currentState.interpreter.update();
         ReactionInterpreter.blockingHero = previousBlocking;

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
 import { Scene } from "../index.js";
 import { Inputs } from '../Common/index.js';
+import { Base } from './Base.js';
 /** @class
  *  An event command for reseting the camera.
  *  @extends EventCommand.Base
@@ -26,7 +26,7 @@ class ResetCamera extends Base {
      *  @param {MapObject} object - The current object reacting
      *  @param {number} state - The state ID
      *  @returns {number} The number of node to pass
-    */
+     */
     update(currentState, object, state) {
         const initialH = Scene.Map.current.camera.horizontalAngle;
         Scene.Map.current.camera.initialize();

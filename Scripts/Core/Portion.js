@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Constants } from '../Common/index.js';
-import { Datas } from '../index.js';
+import { Data } from '../index.js';
 /** @class
  *  The data class for portion.
  *  @param {number} x
@@ -38,7 +38,7 @@ class Portion {
      *   @returns {number[]}
      */
     static createFromVector3(position) {
-        return new Portion(Math.floor(position.x / Datas.Systems.SQUARE_SIZE / Constants.PORTION_SIZE), Math.floor(position.y / Datas.Systems.SQUARE_SIZE / Constants.PORTION_SIZE), Math.floor(position.z / Datas.Systems.SQUARE_SIZE / Constants.PORTION_SIZE));
+        return new Portion(Math.floor(position.x / Data.Systems.SQUARE_SIZE / Constants.PORTION_SIZE), Math.floor(position.y / Data.Systems.SQUARE_SIZE / Constants.PORTION_SIZE), Math.floor(position.z / Data.Systems.SQUARE_SIZE / Constants.PORTION_SIZE));
     }
     static fromKey(key) {
         const [x, y, z] = key.split('_').map(Number);
@@ -56,7 +56,7 @@ class Portion {
      *  @returns {string}
      */
     getFileName() {
-        return this.toKey() + Constants.EXTENSION_JSON;
+        return this.toKey() + '.json';
     }
     toKey() {
         return [this.x, this.y, this.z].join('_');

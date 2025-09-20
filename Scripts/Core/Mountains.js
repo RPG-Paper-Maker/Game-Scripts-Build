@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -18,7 +18,7 @@ import { CustomGeometry } from './CustomGeometry.js';
 class Mountains {
     constructor(bundle) {
         this.bundle = bundle;
-        let texture = Manager.GL.getMaterialTexture(bundle.material);
+        const texture = Manager.GL.getMaterialTexture(bundle.material);
         this.width = texture.image.width;
         this.height = texture.image.height;
         this.geometry = new CustomGeometry();
@@ -32,7 +32,7 @@ class Mountains {
      *  @param {number} pictureID - The current mountain picture ID
      */
     updateGeometry(position, mountain, pictureID) {
-        let res = mountain.updateGeometry(this.geometry, this.bundle, position, pictureID, this.count);
+        const res = mountain.updateGeometry(this.geometry, this.bundle, position, pictureID, this.count);
         this.count = res[0];
         return res[1];
     }

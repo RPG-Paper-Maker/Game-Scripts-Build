@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Datas, Scene, System } from "../index.js";
+import { Data, Model, Scene } from "../index.js";
 import { Utils } from '../Common/index.js';
 import { Game, MapObject, Position } from '../Core/index.js';
 import { Base } from './Base.js';
@@ -20,34 +20,34 @@ import { Base } from './Base.js';
 class CreateObjectInMap extends Base {
     constructor(command) {
         super();
-        let iterator = {
+        const iterator = {
             i: 0,
         };
-        this.modelID = System.DynamicValue.createValueCommand(command, iterator);
+        this.modelID = Model.DynamicValue.createValueCommand(command, iterator);
         this.objectIDPosition = null;
         this.mapID = null;
         switch (command[iterator.i++]) {
             case 0:
-                this.mapID = System.DynamicValue.createNumber(command[iterator.i++]);
-                this.x = System.DynamicValue.createNumber(command[iterator.i++]);
-                this.y = System.DynamicValue.createNumber(command[iterator.i++]);
-                this.yPlus = System.DynamicValue.createNumber(command[iterator.i++]);
-                this.z = System.DynamicValue.createNumber(command[iterator.i++]);
+                this.mapID = Model.DynamicValue.createNumber(command[iterator.i++]);
+                this.x = Model.DynamicValue.createNumber(command[iterator.i++]);
+                this.y = Model.DynamicValue.createNumber(command[iterator.i++]);
+                this.yPlus = Model.DynamicValue.createNumber(command[iterator.i++]);
+                this.z = Model.DynamicValue.createNumber(command[iterator.i++]);
                 break;
             case 1:
-                this.mapID = System.DynamicValue.createValueCommand(command, iterator);
-                this.x = System.DynamicValue.createValueCommand(command, iterator);
-                this.y = System.DynamicValue.createValueCommand(command, iterator);
-                this.yPlus = System.DynamicValue.createValueCommand(command, iterator);
-                this.z = System.DynamicValue.createValueCommand(command, iterator);
+                this.mapID = Model.DynamicValue.createValueCommand(command, iterator);
+                this.x = Model.DynamicValue.createValueCommand(command, iterator);
+                this.y = Model.DynamicValue.createValueCommand(command, iterator);
+                this.yPlus = Model.DynamicValue.createValueCommand(command, iterator);
+                this.z = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
             case 2:
-                this.objectIDPosition = System.DynamicValue.createValueCommand(command, iterator);
+                this.objectIDPosition = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
         }
-        this.isStockID = Utils.numToBool(command[iterator.i++]);
+        this.isStockID = Utils.numberToBool(command[iterator.i++]);
         if (this.isStockID) {
-            this.stockID = System.DynamicValue.createValueCommand(command, iterator);
+            this.stockID = Model.DynamicValue.createValueCommand(command, iterator);
         }
     }
     /**
@@ -75,7 +75,7 @@ class CreateObjectInMap extends Base {
         if (!currentState.waitingPosition) {
             // Set object's position
             if (this.objectIDPosition === null) {
-                currentState.position = new Position(this.x.getValue(), this.y.getValue(), this.z.getValue(), (this.yPlus.getValue() * 100) / Datas.Systems.SQUARE_SIZE).toVector3();
+                currentState.position = new Position(this.x.getValue(), this.y.getValue(), this.z.getValue(), (this.yPlus.getValue() * 100) / Data.Systems.SQUARE_SIZE).toVector3();
             }
             else {
                 MapObject.search(this.objectIDPosition.getValue(), (result) => {
@@ -85,16 +85,16 @@ class CreateObjectInMap extends Base {
             currentState.waitingPosition = true;
         }
         if (currentState.position !== null) {
-            let id = ++Scene.Map.current.mapProperties.maxObjectsID;
-            let position = Position.createFromVector3(currentState.position);
-            let globalPortion = position.getGlobalPortion();
-            Scene.Map.current.mapProperties.allObjects[id] = position;
-            let newObject = new MapObject(System.MapObject.createFromModelID(this.modelID.getValue(), id), currentState.position);
+            const id = ++Scene.Map.current.mapProperties.maxObjectsID;
+            const position = Position.createFromVector3(currentState.position);
+            const globalPortion = position.getGlobalPortion();
+            Scene.Map.current.mapProperties.allObjects.set(id, position);
+            const newObject = new MapObject(Model.MapObject.createFromModelID(this.modelID.getValue(), id), currentState.position);
             if (this.isStockID) {
-                Game.current.variables[this.stockID.getValue(true)] = id;
+                Game.current.variables.set(this.stockID.getValue(true), id);
             }
-            Game.current.getPortionDatas(Scene.Map.current.id, globalPortion).m.push(newObject);
-            Game.current.getPortionDatas(Scene.Map.current.id, globalPortion).min.push(newObject);
+            Game.current.getPortionData(Scene.Map.current.id, globalPortion).m.push(newObject);
+            Game.current.getPortionData(Scene.Map.current.id, globalPortion).min.push(newObject);
             newObject.changeState();
         }
         return currentState.position === null ? 0 : 1;

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Manager, Scene, System } from "../index.js";
+import { Manager, Model, Scene } from "../index.js";
 import { Base } from './Base.js';
 /** @class
  *  An event command for entering a name menu.
@@ -18,11 +18,11 @@ import { Base } from './Base.js';
 class EnterANameMenu extends Base {
     constructor(command) {
         super();
-        let iterator = {
-            i: 0
+        const iterator = {
+            i: 0,
         };
-        this.heroInstanceID = System.DynamicValue.createValueCommand(command, iterator);
-        this.maxCharacters = System.DynamicValue.createValueCommand(command, iterator);
+        this.heroInstanceID = Model.DynamicValue.createValueCommand(command, iterator);
+        this.maxCharacters = Model.DynamicValue.createValueCommand(command, iterator);
     }
     /**
      *  Initialize the current state.
@@ -30,7 +30,7 @@ class EnterANameMenu extends Base {
      */
     initialize() {
         return {
-            opened: false
+            opened: false,
         };
     }
     /**

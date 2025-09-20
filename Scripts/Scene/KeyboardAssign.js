@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Constants, Enum, Inputs, ScreenResolution } from '../Common/index.js';
+import { ALIGN, Constants, Inputs, PICTURE_KIND, ScreenResolution } from '../Common/index.js';
 import { Picture2D, WindowBox, WindowChoices } from '../Core/index.js';
-import { Datas, Graphic, Manager, Scene } from '../index.js';
+import { Data, Graphic, Manager, Scene } from '../index.js';
 import { Base } from './Base.js';
 /** @class
  *  A scene for the keyboard assign setting.
@@ -25,25 +25,25 @@ class KeyboardAssign extends Base {
      */
     async load() {
         // Creating background
-        if (Datas.TitlescreenGameover.isTitleBackgroundImage) {
-            this.pictureBackground = await Picture2D.createWithID(Datas.TitlescreenGameover.titleBackgroundImageID, Enum.PictureKind.TitleScreen, { cover: true });
+        if (Data.TitlescreenGameover.isTitleBackgroundImage) {
+            this.pictureBackground = await Picture2D.createWithID(Data.TitlescreenGameover.titleBackgroundImageID, PICTURE_KIND.TITLE_SCREEN, { cover: true });
         }
         // Creating windows
         this.windowKeyboard = new WindowBox(Constants.HUGE_SPACE, Constants.HUGE_SPACE, WindowBox.MEDIUM_SLOT_WIDTH, WindowBox.LARGE_SLOT_HEIGHT, {
-            content: new Graphic.Text(Datas.Languages.extras.keyboardAssignment.name(), {
-                align: Enum.Align.Center,
+            content: new Graphic.Text(Data.Languages.extras.keyboardAssignment.name(), {
+                align: ALIGN.CENTER,
             }),
             padding: WindowBox.SMALL_SLOT_PADDING,
         });
         this.windowInformations = new WindowBox(Constants.HUGE_SPACE + WindowBox.MEDIUM_SLOT_WIDTH + Constants.LARGE_SPACE, Constants.HUGE_SPACE, ScreenResolution.SCREEN_X - 2 * Constants.HUGE_SPACE - WindowBox.MEDIUM_SLOT_WIDTH - Constants.LARGE_SPACE, WindowBox.LARGE_SLOT_HEIGHT, {
-            content: new Graphic.Text(Datas.Languages.extras.keyboardAssignmentSelectedDescription.name(), {
-                align: Enum.Align.Center,
+            content: new Graphic.Text(Data.Languages.extras.keyboardAssignmentSelectedDescription.name(), {
+                align: ALIGN.CENTER,
             }),
             padding: WindowBox.SMALL_SLOT_PADDING,
         });
-        this.windowChoicesMain = new WindowChoices(Constants.HUGE_SPACE, Constants.HUGE_SPACE + WindowBox.LARGE_SLOT_HEIGHT + Constants.LARGE_SPACE, ScreenResolution.SCREEN_X - 2 * Constants.HUGE_SPACE, WindowBox.MEDIUM_SLOT_HEIGHT, Datas.Keyboards.getCommandsGraphics(), {
+        this.windowChoicesMain = new WindowChoices(Constants.HUGE_SPACE, Constants.HUGE_SPACE + WindowBox.LARGE_SLOT_HEIGHT + Constants.LARGE_SPACE, ScreenResolution.SCREEN_X - 2 * Constants.HUGE_SPACE, WindowBox.MEDIUM_SLOT_HEIGHT, Data.Keyboards.getCommandsGraphics(), {
             nbItemsMax: 9,
-            listCallbacks: Datas.Keyboards.getCommandsActions(),
+            listCallbacks: Data.Keyboards.getCommandsActions(),
             bordersInsideVisible: false,
         });
         this.windowPress = new WindowBox(ScreenResolution.SCREEN_X / 2 - Scene.KeyboardAssign.WINDOW_PRESS_WIDTH / 2, ScreenResolution.SCREEN_Y / 2 - Scene.KeyboardAssign.WINDOW_PRESS_HEIGHT / 2, Scene.KeyboardAssign.WINDOW_PRESS_WIDTH, Scene.KeyboardAssign.WINDOW_PRESS_HEIGHT, {
@@ -64,7 +64,7 @@ class KeyboardAssign extends Base {
         this.compareWait = Scene.KeyboardAssign.MAX_WAIT_TIME_FIRST;
         this.waitTime = new Date().getTime();
         this.showPress = true;
-        let graphic = this.windowChoicesMain.getCurrentContent();
+        const graphic = this.windowChoicesMain.getCurrentContent();
         this.originalSC = graphic.kb.sc;
         this.currentSC = [];
         graphic.updateShort(this.currentSC);
@@ -75,7 +75,7 @@ class KeyboardAssign extends Base {
      *  Cancel the scene.
      */
     cancel() {
-        Datas.Systems.soundCancel.playSound();
+        Data.Systems.soundCancel.playSound();
         Manager.Stack.pop();
     }
     /**
@@ -92,12 +92,12 @@ class KeyboardAssign extends Base {
             if (this.keysPressed.length === 0 && new Date().getTime() - this.waitTime >= this.compareWait) {
                 this.showPress = false;
                 // If nothing, go back to previous sc
-                let graphic = this.windowChoicesMain.getCurrentContent();
+                const graphic = this.windowChoicesMain.getCurrentContent();
                 if (this.currentSC.length === 0) {
                     graphic.updateShort(this.originalSC);
                 }
                 else {
-                    Datas.Settings.updateKeyboard(graphic.kb.id, this.currentSC);
+                    Data.Settings.updateKeyboard(graphic.kb.id, this.currentSC).catch(console.error);
                 }
                 Manager.Stack.requestPaintHUD = true;
             }
@@ -117,7 +117,7 @@ class KeyboardAssign extends Base {
                 this.currentSC.push([]);
                 this.nextOR = false;
             }
-            let current = this.currentSC[this.currentSC.length - 1];
+            const current = this.currentSC[this.currentSC.length - 1];
             if (current.indexOf(key) === -1) {
                 this.compareWait = Scene.KeyboardAssign.MAX_WAIT_TIME_FIRST;
                 this.currentSC[this.currentSC.length - 1].push(key);
@@ -126,7 +126,7 @@ class KeyboardAssign extends Base {
         }
         else {
             this.windowChoicesMain.onKeyPressed(key, this);
-            if (Datas.Keyboards.checkCancelMenu(key)) {
+            if (Data.Keyboards.checkCancelMenu(key)) {
                 this.cancel();
             }
         }
@@ -179,7 +179,7 @@ class KeyboardAssign extends Base {
      *  Draw the HUD scene
      */
     drawHUD() {
-        if (Datas.TitlescreenGameover.isTitleBackgroundImage) {
+        if (Data.TitlescreenGameover.isTitleBackgroundImage) {
             this.pictureBackground.draw();
         }
         this.windowKeyboard.draw();

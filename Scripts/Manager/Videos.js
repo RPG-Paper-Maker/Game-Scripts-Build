@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,14 +8,14 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Constants, Platform } from '../Common/index.js';
+import { Platform } from '../Common/index.js';
 /** @class
  *  The manager for songs.
  *  @static
  */
 class Videos {
     constructor() {
-        throw new Error("This is a static class");
+        throw new Error('This is a static class');
     }
     /**
      *  Play the video.
@@ -23,7 +23,7 @@ class Videos {
      *  @param {EventListener} endedHandler
      */
     static async play(src, endedHandler = null) {
-        Platform.canvasVideos.classList.remove(Constants.CLASS_HIDDEN);
+        Platform.canvasVideos.classList.remove('hidden');
         if (!this.paused) {
             Platform.canvasVideos.src = src;
         }
@@ -46,9 +46,9 @@ class Videos {
      *  Stop the current video.
      */
     static stop() {
-        Platform.canvasVideos.classList.add(Constants.CLASS_HIDDEN);
+        Platform.canvasVideos.classList.add('hidden');
         Platform.canvasVideos.pause();
-        Platform.canvasVideos.src = "";
+        Platform.canvasVideos.src = '';
         this.removeEndedEventListener();
     }
     /**
@@ -56,8 +56,7 @@ class Videos {
      */
     static removeEndedEventListener() {
         if (this.currentEndedHandler !== null) {
-            Platform.canvasVideos.removeEventListener('ended', this
-                .currentEndedHandler, false);
+            Platform.canvasVideos.removeEventListener('ended', this.currentEndedHandler, false);
         }
     }
 }

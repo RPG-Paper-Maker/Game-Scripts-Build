@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,39 +8,35 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { ALIGN, Constants, DAMAGES_KIND, Mathf, ScreenResolution } from '../Common/index.js';
+import { Data, Graphic, Model } from '../index.js';
 import { Base } from './Base.js';
-import { System, Graphic, Datas } from '../index.js';
-import { Utils, Enum, Constants, Mathf, ScreenResolution } from '../Common/index.js';
-var Align = Enum.Align;
 /** @class
  *  The graphic displaying all the items information in the inventory menu.
  *  @param {Item} item - The current selected item
  *  @param {number} nbItem - The number of occurence of the selected item
  */
 class Item extends Base {
-    constructor(item, { nbItem, possible = true, showSellPrice = false } = {}) {
+    constructor(item, { nbItem, possible = true, showSellPrice = false, } = {}) {
         super();
         this.item = item;
         // All the graphics
-        nbItem = Utils.isUndefined(nbItem) ? item.nb : nbItem;
-        this.graphicName = Graphic.TextIcon.createFromSystem("", this.item.system, {}, possible ? {} : { color: System.Color.GREY });
+        nbItem = nbItem === undefined ? item.nb : nbItem;
+        this.graphicName = Graphic.TextIcon.createFromSystem('', this.item.system, {}, possible ? {} : { color: Model.Color.GREY });
         this.updateName(nbItem);
-        if (Utils.isUndefined(item.shop)) {
-            this.graphicNb = new Graphic.Text("x" + nbItem, { align: Align.Right });
+        if (item.shop === undefined) {
+            this.graphicNb = new Graphic.Text('x' + nbItem, { align: ALIGN.RIGHT });
         }
         this.graphicInformations = new Graphic.SkillItem(this.item.system);
         this.graphicCurrencies = [];
-        if (!Utils.isUndefined(item.shop) || showSellPrice) {
-            let price = showSellPrice ? item.system.getPrice() : item.shop.getPrice();
+        if (item.shop !== undefined || showSellPrice) {
+            const price = showSellPrice ? item.system.getPrice() : item.shop.getPrice();
             this.graphicCurrencies = [];
             let graphic;
-            for (let id in price) {
-                let [kind, value] = price[id];
-                graphic = Graphic.TextIcon.createFromSystem(Mathf
-                    .numberWithCommas(showSellPrice ? Math.round(Datas.Systems
-                    .priceSoldItem.getValue() * value / 100) : value), kind === Enum.DamagesKind.Currency ? Datas.Systems
-                    .getCurrency(parseInt(id)) : null, { align: Align
-                        .Right }, possible ? {} : { color: System.Color.GREY });
+            for (const [id, [kind, value]] of price.entries()) {
+                graphic = Graphic.TextIcon.createFromSystem(Mathf.numberWithCommas(showSellPrice
+                    ? Math.round((Data.Systems.priceSoldItem.getValue() * value) / 100)
+                    : value), kind === DAMAGES_KIND.CURRENCY ? Data.Systems.getCurrency(id) : null, { align: ALIGN.RIGHT }, possible ? {} : { color: Model.Color.GREY });
                 this.graphicCurrencies.push(graphic);
             }
         }
@@ -50,15 +46,14 @@ class Item extends Base {
      *  @param {number} [nbItem=undefined]
      */
     updateName(nbItem) {
-        nbItem = Utils.isUndefined(nbItem) ? this.item.nb : nbItem;
-        this.graphicName.setText(this.item.system.name() + (!Utils.isUndefined(this.item.shop) && nbItem !== -1 ? Constants.STRING_SPACE + Constants
-            .STRING_BRACKET_LEFT + nbItem + Constants.STRING_BRACKET_RIGHT : ""));
+        nbItem = nbItem === undefined ? this.item.nb : nbItem;
+        this.graphicName.setText(this.item.system.name() + (this.item.shop !== undefined && nbItem !== -1 ? ' ' + '[' + nbItem + ']' : ''));
     }
     /**
      *  Update the game item number.
      */
     updateNb() {
-        this.graphicNb.setText("x" + this.item.nb);
+        this.graphicNb.setText('x' + this.item.nb);
     }
     /**
      *  Drawing the item in choice box.

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Mathf, ScreenResolution } from '../Common/index.js';
-import { Datas, Manager, Scene } from '../index.js';
+import { Data, Manager, Scene } from '../index.js';
 /** @class
  *  The camera of the current map.
  *  @param {System.CameraProperties} cameraProperties - The System camera
@@ -70,7 +70,7 @@ class Camera {
      *  @returns {number}
      */
     getHidingDistance() {
-        if (Datas.Systems.moveCameraOnBlockView && !this.forceNoHide) {
+        if (Data.Systems.moveCameraOnBlockView && !this.forceNoHide) {
             return this.hidingCurrent === -1 ? this.distance : this.hidingCurrent;
         }
         return this.distance;
@@ -107,9 +107,9 @@ class Camera {
      *  @returns {number}
      */
     getVerticalAngle(p1, p2) {
-        let x = p2.x - p1.x;
-        let y = p2.y - p1.y;
-        let z = p2.z - p1.z;
+        const x = p2.x - p1.x;
+        const y = p2.y - p1.y;
+        const z = p2.z - p1.z;
         return 90 + (Math.atan2(y, Math.sqrt(x * x + z * z)) * 180) / Math.PI;
     }
     /**
@@ -155,14 +155,14 @@ class Camera {
      *  Update the three.js camera position.
      */
     updateCameraPosition() {
-        let distance = this.getDistance();
-        let camera = this.getThreeCamera();
+        const distance = this.getDistance();
+        const camera = this.getThreeCamera();
         camera.position.x = this.targetPosition.x - distance * Math.cos((this.horizontalAngle * Math.PI) / 180.0);
         camera.position.y = this.targetPosition.y + this.getHeight();
         camera.position.z = this.targetPosition.z - distance * Math.sin((this.horizontalAngle * Math.PI) / 180.0);
         if (!this.isPerspective) {
-            let x = ScreenResolution.CANVAS_WIDTH * (distance / 1000);
-            let y = ScreenResolution.CANVAS_HEIGHT * (distance / 1000);
+            const x = ScreenResolution.CANVAS_WIDTH * (distance / 1000);
+            const y = ScreenResolution.CANVAS_HEIGHT * (distance / 1000);
             this.orthographicCamera.left = -x;
             this.orthographicCamera.right = x;
             this.orthographicCamera.top = y;
@@ -173,8 +173,8 @@ class Camera {
      *  Update target offset position.
      */
     updateTargetOffset() {
-        let distance = this.getDistance();
-        let camera = this.getThreeCamera();
+        const distance = this.getDistance();
+        const camera = this.getThreeCamera();
         this.targetOffset.x +=
             camera.position.x -
                 distance * Math.cos(((this.horizontalAngle + 180) * Math.PI) / 180.0) -
@@ -189,7 +189,7 @@ class Camera {
      *  Update horizontal and vertical angles.
      */
     updateAngles() {
-        let camera = this.getThreeCamera();
+        const camera = this.getThreeCamera();
         this.horizontalAngle = this.getHorizontalAngle(camera.position, this.targetPosition);
         this.verticalAngle = this.getVerticalAngle(camera.position, this.targetPosition);
     }
@@ -211,7 +211,7 @@ class Camera {
      */
     updateTimer() {
         if (this.previousHidingDistance !== this.hidingDistance &&
-            Math.abs(this.previousHidingDistance - this.hidingDistance) > Datas.Systems.SQUARE_SIZE) {
+            Math.abs(this.previousHidingDistance - this.hidingDistance) > Data.Systems.SQUARE_SIZE) {
             this.hidingTime = 0;
             this.hidingStart = this.hidingCurrent;
             this.hidingEnd = this.isHiding() ? this.hidingDistance : this.distance;
@@ -245,9 +245,9 @@ class Camera {
             Scene.Map.current.sunLight.target.updateMatrixWorld();
             Scene.Map.current.sunLight.position
                 .set(-1, 1.75, 1)
-                .multiplyScalar(Datas.Systems.SQUARE_SIZE * 10)
+                .multiplyScalar(Data.Systems.SQUARE_SIZE * 10)
                 .add(this.targetPosition);
-            const d = Math.max((Datas.Systems.SQUARE_SIZE * this.distance) / 10, 400);
+            const d = Math.max((Data.Systems.SQUARE_SIZE * this.distance) / 10, 400);
             if (d !== Scene.Map.current.sunLight.shadow.camera.right) {
                 Scene.Map.current.sunLight.shadow.camera.left = -d;
                 Scene.Map.current.sunLight.shadow.camera.right = d;

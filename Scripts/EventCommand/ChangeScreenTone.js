@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
-import { System, Datas, Manager, Scene } from '../index.js';
 import { Utils } from '../Common/index.js';
+import { Data, Manager, Model, Scene } from '../index.js';
+import { Base } from './Base.js';
 /** @class
  *  An event command for changing screen tone.
  *  @extends EventCommand.Base
@@ -22,19 +22,19 @@ class ChangeScreenTone extends Base {
         if (!command) {
             return;
         }
-        let iterator = {
-            i: 0
+        const iterator = {
+            i: 0,
         };
-        this.r = System.DynamicValue.createValueCommand(command, iterator);
-        this.g = System.DynamicValue.createValueCommand(command, iterator);
-        this.b = System.DynamicValue.createValueCommand(command, iterator);
-        this.grey = System.DynamicValue.createValueCommand(command, iterator);
-        if (Utils.numToBool(command[iterator.i++])) {
-            this.subColor = Utils.numToBool(command[iterator.i++]);
-            this.colorID = System.DynamicValue.createValueCommand(command, iterator);
+        this.r = Model.DynamicValue.createValueCommand(command, iterator);
+        this.g = Model.DynamicValue.createValueCommand(command, iterator);
+        this.b = Model.DynamicValue.createValueCommand(command, iterator);
+        this.grey = Model.DynamicValue.createValueCommand(command, iterator);
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.subColor = Utils.numberToBool(command[iterator.i++]);
+            this.colorID = Model.DynamicValue.createValueCommand(command, iterator);
         }
-        this.waitEnd = Utils.numToBool(command[iterator.i++]);
-        this.time = System.DynamicValue.createValueCommand(command, iterator);
+        this.waitEnd = Utils.numberToBool(command[iterator.i++]);
+        this.time = Model.DynamicValue.createValueCommand(command, iterator);
         this.parallel = !this.waitEnd;
     }
     /**
@@ -42,20 +42,19 @@ class ChangeScreenTone extends Base {
      *  @returns {Record<string, any>} The current state
      */
     initialize() {
-        let time = this.time.getValue() * 1000;
-        let color = this.colorID ? Datas.Systems.getColor(this.colorID
-            .getValue()) : null;
+        const time = this.time.getValue() * 1000;
+        const color = this.colorID ? Data.Systems.getColor(this.colorID.getValue()) : null;
         return {
             parallel: this.waitEnd,
-            finalDifRed: Math.max(Math.min((this.r.getValue() + (color ? color
-                .red : 0)) / 255, 1), -1) - Manager.GL.screenTone.x,
-            finalDifGreen: Math.max(Math.min((this.g.getValue() + (color ? color
-                .green : 0)) / 255, 1), -1) - Manager.GL.screenTone.y,
-            finalDifBlue: Math.max(Math.min((this.b.getValue() + (color ? color
-                .blue : 0)) / 255, 1), -1) - Manager.GL.screenTone.z,
-            finalDifGrey: Math.max(Math.min(1 - (this.grey.getValue() / 100), 1), -1) - Manager.GL.screenTone.w,
+            finalDifRed: Math.max(Math.min((this.r.getValue() + (color ? color.red : 0)) / 255, 1), -1) -
+                Manager.GL.screenTone.x,
+            finalDifGreen: Math.max(Math.min((this.g.getValue() + (color ? color.green : 0)) / 255, 1), -1) -
+                Manager.GL.screenTone.y,
+            finalDifBlue: Math.max(Math.min((this.b.getValue() + (color ? color.blue : 0)) / 255, 1), -1) -
+                Manager.GL.screenTone.z,
+            finalDifGrey: Math.max(Math.min(1 - this.grey.getValue() / 100, 1), -1) - Manager.GL.screenTone.w,
             time: time,
-            timeLeft: time
+            timeLeft: time,
         };
     }
     /**
@@ -64,7 +63,7 @@ class ChangeScreenTone extends Base {
      *  @param {MapObject} object - The current object reacting
      *  @param {number} state - The state ID
      *  @returns {number} The number of node to pass
-    */
+     */
     update(currentState, object, state) {
         if (currentState.parallel) {
             // Updating the time left
@@ -82,16 +81,11 @@ class ChangeScreenTone extends Base {
                 timeRate = dif / currentState.time;
             }
             // Update values
-            Manager.GL.screenTone.setX(Manager.GL.screenTone.x + (timeRate *
-                currentState.finalDifRed));
-            Manager.GL.screenTone.setY(Manager.GL.screenTone.y + (timeRate *
-                currentState.finalDifGreen));
-            Manager.GL.screenTone.setZ(Manager.GL.screenTone.z + (timeRate *
-                currentState.finalDifBlue));
-            Manager.GL.screenTone.setW(Manager.GL.screenTone.w + (timeRate *
-                currentState.finalDifGrey));
-            Manager.GL.updateBackgroundColor(Scene.Map.current.mapProperties
-                .backgroundColor);
+            Manager.GL.screenTone.setX(Manager.GL.screenTone.x + timeRate * currentState.finalDifRed);
+            Manager.GL.screenTone.setY(Manager.GL.screenTone.y + timeRate * currentState.finalDifGreen);
+            Manager.GL.screenTone.setZ(Manager.GL.screenTone.z + timeRate * currentState.finalDifBlue);
+            Manager.GL.screenTone.setW(Manager.GL.screenTone.w + timeRate * currentState.finalDifGrey);
+            Manager.GL.updateBackgroundColor(Scene.Map.current.mapProperties.backgroundColor);
             // If time = 0, then this is the end of the command
             if (currentState.timeLeft === 0) {
                 return 1;

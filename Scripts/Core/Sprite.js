@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -9,12 +9,12 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import * as THREE from 'three';
-import { Enum, Mathf, Utils } from '../Common/index.js';
-import { Datas, Scene } from '../index.js';
+import { ELEMENT_MAP_KIND, Mathf, Utils } from '../Common/index.js';
+import { Data, Scene } from '../index.js';
 import { CustomGeometry } from './CustomGeometry.js';
 import { CustomGeometryFace } from './CustomGeometryFace.js';
 import { MapElement } from './MapElement.js';
-var ElementMapKind = Enum.ElementMapKind;
+import { Rectangle } from './Rectangle.js';
 /** @class
  *  A sprite in the map.
  *  @extends MapElement
@@ -32,11 +32,11 @@ class Sprite extends MapElement {
     /**
      *  Create a new sprite.
      *  @static
-     *  @param {ElementMapKind} kind - The element map kind
+     *  @param {ELEMENT_MAP_KIND} kind - The element map kind
      *  @param {number[]} texture - Texture UV coords
      */
     static create(kind, texture) {
-        let sprite = new Sprite();
+        const sprite = new Sprite();
         sprite.kind = kind;
         sprite.textureRect = texture;
         return sprite;
@@ -70,17 +70,6 @@ class Sprite extends MapElement {
         Mathf.rotateVertex(vecC, center, angle, axis);
         Mathf.rotateVertex(vecD, center, angle, axis);
     }
-    static rotateVertexEuler(vec, center, euler) {
-        vec.sub(center);
-        vec.applyEuler(euler);
-        vec.add(center);
-    }
-    static rotateQuadEuler(vecA, vecB, vecC, vecD, center, euler) {
-        Mathf.rotateVertexEuler(vecA, center, euler);
-        Mathf.rotateVertexEuler(vecB, center, euler);
-        Mathf.rotateVertexEuler(vecC, center, euler);
-        Mathf.rotateVertexEuler(vecD, center, euler);
-    }
     /**
      *  Add a static sprite to the geometry.
      *  @static
@@ -103,12 +92,12 @@ class Sprite extends MapElement {
     getVectors(vecA, vecB, vecC, vecD, pos, position, size) {
         let zPlus = position.layer * 0.05;
         // Apply an offset according to layer position
-        if (this.kind !== Enum.ElementMapKind.SpritesFace && !this.front) {
+        if (this.kind !== ELEMENT_MAP_KIND.SPRITES_FACE && !this.front) {
             zPlus *= -1;
         }
-        pos.setX(this.xOffset * Datas.Systems.SQUARE_SIZE);
-        pos.setY(this.yOffset * Datas.Systems.SQUARE_SIZE);
-        pos.setZ(this.zOffset * Datas.Systems.SQUARE_SIZE + zPlus);
+        pos.setX(this.xOffset * Data.Systems.SQUARE_SIZE);
+        pos.setY(this.yOffset * Data.Systems.SQUARE_SIZE);
+        pos.setZ(this.zOffset * Data.Systems.SQUARE_SIZE + zPlus);
         vecA.multiply(size);
         vecB.multiply(size);
         vecC.multiply(size);
@@ -130,13 +119,13 @@ class Sprite extends MapElement {
      *  @returns {any[]}
      */
     updateGeometry(geometry, width, height, position, count, tileset, localPosition) {
-        let vecA = Sprite.MODEL[0].clone();
-        let vecB = Sprite.MODEL[1].clone();
-        let vecC = Sprite.MODEL[2].clone();
-        let vecD = Sprite.MODEL[3].clone();
-        let center = new THREE.Vector3();
-        let pos = new THREE.Vector3();
-        let size = new THREE.Vector3(this.textureRect[2] * Datas.Systems.SQUARE_SIZE * position.scaleX, this.textureRect[3] * Datas.Systems.SQUARE_SIZE * position.scaleY, 1.0);
+        const vecA = Sprite.MODEL[0].clone();
+        const vecB = Sprite.MODEL[1].clone();
+        const vecC = Sprite.MODEL[2].clone();
+        const vecD = Sprite.MODEL[3].clone();
+        const center = new THREE.Vector3();
+        const pos = new THREE.Vector3();
+        const size = new THREE.Vector3(this.textureRect.width * Data.Systems.SQUARE_SIZE * position.scaleX, this.textureRect.height * Data.Systems.SQUARE_SIZE * position.scaleY, 1.0);
         // For static sprites
         this.getVectors(vecA, vecB, vecC, vecD, pos, position, size);
         if (localPosition !== null) {
@@ -151,44 +140,45 @@ class Sprite extends MapElement {
             localPosition = tileset ? position.toVector3() : new THREE.Vector3();
         }
         // Getting UV coordinates
-        let x = (this.textureRect[0] * Datas.Systems.SQUARE_SIZE) / width;
-        let y = (this.textureRect[1] * Datas.Systems.SQUARE_SIZE) / height;
-        let w = (this.textureRect[2] * Datas.Systems.SQUARE_SIZE) / width;
-        let h = (this.textureRect[3] * Datas.Systems.SQUARE_SIZE) / height;
-        let coefX = MapElement.COEF_TEX / width;
-        let coefY = MapElement.COEF_TEX / height;
+        let x = (this.textureRect.x * Data.Systems.SQUARE_SIZE) / width;
+        let y = (this.textureRect.y * Data.Systems.SQUARE_SIZE) / height;
+        let w = (this.textureRect.width * Data.Systems.SQUARE_SIZE) / width;
+        let h = (this.textureRect.height * Data.Systems.SQUARE_SIZE) / height;
+        const coefX = MapElement.COEF_TEX / width;
+        const coefY = MapElement.COEF_TEX / height;
         x += coefX;
         y += coefY;
         w -= coefX * 2;
         h -= coefY * 2;
-        let texA = new THREE.Vector2();
-        let texB = new THREE.Vector2();
-        let texC = new THREE.Vector2();
-        let texD = new THREE.Vector2();
+        const texA = new THREE.Vector2();
+        const texB = new THREE.Vector2();
+        const texC = new THREE.Vector2();
+        const texD = new THREE.Vector2();
         CustomGeometry.uvsQuadToTex(texA, texB, texC, texD, x, y, w, h);
         // Collision
-        let objCollision = new Array();
-        let twidth = Math.floor((this.textureRect[2] * position.scaleX) / 2);
-        let theight = Math.floor((this.textureRect[3] * position.scaleY) / 2);
+        const objCollision = [];
+        const twidth = Math.floor((this.textureRect.width * position.scaleX) / 2);
+        const theight = Math.floor((this.textureRect.height * position.scaleY) / 2);
         if (tileset) {
-            let collisions = Scene.Map.current.mapProperties.tileset.picture.getSquaresForTexture(this.textureRect);
-            for (let rect of collisions) {
+            const collisions = Scene.Map.current.mapProperties.tileset.picture.getSquaresForTexture(this.textureRect);
+            for (const rect of collisions) {
                 objCollision.push({
                     p: position,
                     l: localPosition,
                     b: [
                         localPosition.x -
-                            twidth * Datas.Systems.SQUARE_SIZE -
-                            ((this.textureRect[2] * position.scaleX) % 2) * Math.round(Datas.Systems.SQUARE_SIZE / 2) +
-                            rect[0] +
-                            Math.round((rect[2] * position.scaleX) / 2),
+                            twidth * Data.Systems.SQUARE_SIZE -
+                            ((this.textureRect.width * position.scaleX) % 2) *
+                                Math.round(Data.Systems.SQUARE_SIZE / 2) +
+                            rect.x +
+                            Math.round((rect.width * position.scaleX) / 2),
                         localPosition.y +
-                            this.textureRect[3] * position.scaleY * Datas.Systems.SQUARE_SIZE -
-                            rect[1] -
-                            Math.round((rect[3] * position.scaleY) / 2),
+                            this.textureRect.height * position.scaleY * Data.Systems.SQUARE_SIZE -
+                            rect.y -
+                            Math.round((rect.height * position.scaleY) / 2),
                         localPosition.z,
-                        rect[2] * position.scaleX,
-                        rect[3] * position.scaleY,
+                        rect.width * position.scaleX,
+                        rect.height * position.scaleY,
                         1,
                         position.angleY,
                         position.angleX,
@@ -197,28 +187,29 @@ class Sprite extends MapElement {
                     w: twidth,
                     h: theight,
                     cr: [0, -size.y / 2, 0],
-                    k: this.kind === ElementMapKind.SpritesFix,
+                    k: this.kind === ELEMENT_MAP_KIND.SPRITES_FIX,
                 });
             }
-            let climbing = Scene.Map.current.mapProperties.tileset.picture.getSquaresClimbing(this.textureRect);
-            for (let [x, y] of climbing) {
+            const climbing = Scene.Map.current.mapProperties.tileset.picture.getSquaresClimbing(this.textureRect);
+            for (const [x, y] of climbing) {
                 objCollision.push({
                     p: position,
                     l: localPosition,
                     b: [
                         localPosition.x -
-                            twidth * Datas.Systems.SQUARE_SIZE -
-                            ((this.textureRect[2] * position.scaleX) % 2) * Math.round(Datas.Systems.SQUARE_SIZE / 2) +
-                            (x + this.xOffset) * Datas.Systems.SQUARE_SIZE * position.scaleX +
-                            Math.round((Datas.Systems.SQUARE_SIZE * position.scaleX * position.scaleX) / 2),
+                            twidth * Data.Systems.SQUARE_SIZE -
+                            ((this.textureRect.width * position.scaleX) % 2) *
+                                Math.round(Data.Systems.SQUARE_SIZE / 2) +
+                            (x + this.xOffset) * Data.Systems.SQUARE_SIZE * position.scaleX +
+                            Math.round((Data.Systems.SQUARE_SIZE * position.scaleX * position.scaleX) / 2),
                         localPosition.y +
-                            this.yOffset * Datas.Systems.SQUARE_SIZE +
-                            this.textureRect[3] * position.scaleY * Datas.Systems.SQUARE_SIZE -
-                            y * Datas.Systems.SQUARE_SIZE * position.scaleY -
-                            Math.round((Datas.Systems.SQUARE_SIZE * position.scaleY * position.scaleY) / 2),
+                            this.yOffset * Data.Systems.SQUARE_SIZE +
+                            this.textureRect.height * position.scaleY * Data.Systems.SQUARE_SIZE -
+                            y * Data.Systems.SQUARE_SIZE * position.scaleY -
+                            Math.round((Data.Systems.SQUARE_SIZE * position.scaleY * position.scaleY) / 2),
                         localPosition.z,
-                        Datas.Systems.SQUARE_SIZE * position.scaleX,
-                        Datas.Systems.SQUARE_SIZE * position.scaleY,
+                        Data.Systems.SQUARE_SIZE * position.scaleX,
+                        Data.Systems.SQUARE_SIZE * position.scaleY,
                         1,
                         position.angleY,
                         position.angleX,
@@ -227,7 +218,7 @@ class Sprite extends MapElement {
                     w: twidth,
                     h: theight,
                     cr: [0, -size.y / 2, 0],
-                    k: this.kind === ElementMapKind.SpritesFix,
+                    k: this.kind === ELEMENT_MAP_KIND.SPRITES_FIX,
                     cl: true,
                 });
             }
@@ -238,13 +229,13 @@ class Sprite extends MapElement {
                 b: null,
                 w: twidth,
                 h: theight,
-                k: this.kind === ElementMapKind.SpritesFix,
+                k: this.kind === ELEMENT_MAP_KIND.SPRITES_FIX,
             });
         }
         if (geometry instanceof CustomGeometryFace) {
             // Face sprite
-            const p = new THREE.Vector3(pos.x, localPosition.y + this.yOffset * Datas.Systems.SQUARE_SIZE, pos.z);
-            const c = new THREE.Vector3(center.x, localPosition.y + this.yOffset * Datas.Systems.SQUARE_SIZE, center.z);
+            const p = new THREE.Vector3(pos.x, localPosition.y + this.yOffset * Data.Systems.SQUARE_SIZE, pos.z);
+            const c = new THREE.Vector3(center.x, localPosition.y + this.yOffset * Data.Systems.SQUARE_SIZE, center.z);
             geometry.pushQuadVerticesFace(Sprite.MODEL[0].clone().multiply(size).add(p), Sprite.MODEL[1].clone().multiply(size).add(p), Sprite.MODEL[2].clone().multiply(size).add(p), Sprite.MODEL[3].clone().multiply(size).add(p), c);
             geometry.pushQuadIndices(count);
             geometry.pushQuadUVs(texA, texB, texC, texD);
@@ -252,38 +243,38 @@ class Sprite extends MapElement {
         }
         else {
             // Simple sprite
-            center.setX(center.x + this.xOffset * Datas.Systems.SQUARE_SIZE);
-            center.setZ(center.z + this.zOffset * Datas.Systems.SQUARE_SIZE);
-            let vecSimpleA = vecA.clone();
-            let vecSimpleB = vecB.clone();
-            let vecSimpleC = vecC.clone();
-            let vecSimpleD = vecD.clone();
-            Sprite.rotateQuadEuler(vecSimpleA, vecSimpleB, vecSimpleC, vecSimpleD, center, position.toRotationEuler());
+            center.setX(center.x + this.xOffset * Data.Systems.SQUARE_SIZE);
+            center.setZ(center.z + this.zOffset * Data.Systems.SQUARE_SIZE);
+            const vecSimpleA = vecA.clone();
+            const vecSimpleB = vecB.clone();
+            const vecSimpleC = vecC.clone();
+            const vecSimpleD = vecD.clone();
+            Mathf.rotateQuadEuler(vecSimpleA, vecSimpleB, vecSimpleC, vecSimpleD, center, position.toRotationEuler());
             count = Sprite.addStaticSpriteToGeometry(geometry, vecSimpleA, vecSimpleB, vecSimpleC, vecSimpleD, texA, texB, texC, texD, count);
         }
         // Double sprite
-        if (this.kind === ElementMapKind.SpritesDouble || this.kind === ElementMapKind.SpritesQuadra) {
-            let vecDoubleA = vecA.clone();
-            let vecDoubleB = vecB.clone();
-            let vecDoubleC = vecC.clone();
-            let vecDoubleD = vecD.clone();
+        if (this.kind === ELEMENT_MAP_KIND.SPRITES_DOUBLE || this.kind === ELEMENT_MAP_KIND.SPRITES_QUADRA) {
+            const vecDoubleA = vecA.clone();
+            const vecDoubleB = vecB.clone();
+            const vecDoubleC = vecC.clone();
+            const vecDoubleD = vecD.clone();
             Sprite.rotateSprite(vecDoubleA, vecDoubleB, vecDoubleC, vecDoubleD, center, 90, Sprite.Y_AXIS);
-            Sprite.rotateQuadEuler(vecDoubleA, vecDoubleB, vecDoubleC, vecDoubleD, center, position.toRotationEuler());
+            Mathf.rotateQuadEuler(vecDoubleA, vecDoubleB, vecDoubleC, vecDoubleD, center, position.toRotationEuler());
             count = Sprite.addStaticSpriteToGeometry(geometry, vecDoubleA, vecDoubleB, vecDoubleC, vecDoubleD, texA, texB, texC, texD, count);
             // Quadra sprite
-            if (this.kind === ElementMapKind.SpritesQuadra) {
-                let vecQuadra1A = vecA.clone();
-                let vecQuadra1B = vecB.clone();
-                let vecQuadra1C = vecC.clone();
-                let vecQuadra1D = vecD.clone();
-                let vecQuadra2A = vecA.clone();
-                let vecQuadra2B = vecB.clone();
-                let vecQuadra2C = vecC.clone();
-                let vecQuadra2D = vecD.clone();
+            if (this.kind === ELEMENT_MAP_KIND.SPRITES_QUADRA) {
+                const vecQuadra1A = vecA.clone();
+                const vecQuadra1B = vecB.clone();
+                const vecQuadra1C = vecC.clone();
+                const vecQuadra1D = vecD.clone();
+                const vecQuadra2A = vecA.clone();
+                const vecQuadra2B = vecB.clone();
+                const vecQuadra2C = vecC.clone();
+                const vecQuadra2D = vecD.clone();
                 Sprite.rotateSprite(vecQuadra1A, vecQuadra1B, vecQuadra1C, vecQuadra1D, center, 45, Sprite.Y_AXIS);
-                Sprite.rotateQuadEuler(vecQuadra1A, vecQuadra1B, vecQuadra1C, vecQuadra1D, center, position.toRotationEuler());
+                Mathf.rotateQuadEuler(vecQuadra1A, vecQuadra1B, vecQuadra1C, vecQuadra1D, center, position.toRotationEuler());
                 Sprite.rotateSprite(vecQuadra2A, vecQuadra2B, vecQuadra2C, vecQuadra2D, center, -45, Sprite.Y_AXIS);
-                Sprite.rotateQuadEuler(vecQuadra2A, vecQuadra2B, vecQuadra2C, vecQuadra2D, center, position.toRotationEuler());
+                Mathf.rotateQuadEuler(vecQuadra2A, vecQuadra2B, vecQuadra2C, vecQuadra2D, center, position.toRotationEuler());
                 count = Sprite.addStaticSpriteToGeometry(geometry, vecQuadra1A, vecQuadra1B, vecQuadra1C, vecQuadra1D, texA, texB, texC, texD, count);
                 count = Sprite.addStaticSpriteToGeometry(geometry, vecQuadra2A, vecQuadra2B, vecQuadra2C, vecQuadra2D, texA, texB, texC, texD, count);
             }
@@ -299,8 +290,8 @@ class Sprite extends MapElement {
      *  @returns {any[]}
      */
     createGeometry(width, height, tileset, position) {
-        let geometry = new CustomGeometry();
-        let collisions = this.updateGeometry(geometry, width, height, position, 0, tileset, null);
+        const geometry = new CustomGeometry();
+        const collisions = this.updateGeometry(geometry, width, height, position, 0, tileset, null);
         geometry.updateAttributes();
         return [geometry, collisions];
     }
@@ -310,13 +301,9 @@ class Sprite extends MapElement {
      */
     read(json) {
         super.read(json);
-        this.front = Utils.defaultValue(json.f, true);
+        this.front = Utils.valueOrDefault(json.f, true);
         this.kind = json.k;
-        this.textureRect = json.t;
-        if (this.textureRect.length === 2) {
-            this.textureRect.push(1);
-            this.textureRect.push(1);
-        }
+        this.textureRect = Rectangle.createFromArray(json.t);
     }
 }
 Sprite.MODEL = [

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,14 +8,13 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum } from '../Common/index.js';
-var ItemKind = Enum.ItemKind;
-import { Datas, Scene } from '../index.js';
+import { DAMAGES_KIND, ITEM_KIND } from '../Common/index.js';
+import { Data, Scene } from '../index.js';
 import { Game } from './Game.js';
 import { Player } from './Player.js';
 /** @class
  *  An item in the inventory.
- *  @param {ItemKind} kind - Kind of item (item, weapon, or armor)
+ *  @param {ITEM_KIND} kind - Kind of item (item, weapon, or armor)
  *  @param {number} id - The ID of the item
  *  @param {number} nb - The occurence of the item in the inventory
  */
@@ -23,14 +22,14 @@ class Item {
     constructor(kind, id, nb, shop) {
         this.kind = kind;
         switch (this.kind) {
-            case ItemKind.Item:
-                this.system = Datas.Items.get(id);
+            case ITEM_KIND.ITEM:
+                this.system = Data.Items.get(id);
                 break;
-            case ItemKind.Weapon:
-                this.system = Datas.Weapons.get(id);
+            case ITEM_KIND.WEAPON:
+                this.system = Data.Weapons.get(id);
                 break;
-            case ItemKind.Armor:
-                this.system = Datas.Armors.get(id);
+            case ITEM_KIND.ARMOR:
+                this.system = Data.Armors.get(id);
                 break;
         }
         this.nb = nb;
@@ -39,7 +38,7 @@ class Item {
     /**
      *  Find an item in the inventory.
      *  @static
-     *  @param {ItemKind} kind - The kind of item
+     *  @param {ITEM_KIND} kind - The kind of item
      *  @param {number} id - The item ID
      *  @returns {Item}
      */
@@ -60,7 +59,7 @@ class Item {
         return {
             kind: this.kind,
             id: this.system.id,
-            nb: this.nb
+            nb: this.nb,
         };
     }
     /**
@@ -107,7 +106,9 @@ class Item {
      *  Modify the number of the item
      */
     equalItems() {
-        if (!this.modifyItems(function (item) { item.nb = this.nb; })) {
+        if (!this.modifyItems(function (item) {
+            item.nb = this.nb;
+        })) {
             Game.current.items.push(this);
         }
     }
@@ -115,7 +116,9 @@ class Item {
      *  Add the number of the item
      */
     addItems() {
-        if (!this.modifyItems(function (item) { item.nb += this.nb; })) {
+        if (!this.modifyItems(function (item) {
+            item.nb += this.nb;
+        })) {
             Game.current.items.push(this);
         }
     }
@@ -176,28 +179,26 @@ class Item {
      *  @returns {boolean}
      */
     buy(shopID, times) {
-        let price = this.shop.getPrice();
-        let user = Scene.Map.current.user ? Scene.Map.current.user.player : Player
-            .getTemporaryPlayer();
+        const price = this.shop.getPrice();
+        const user = Scene.Map.current.user ? Scene.Map.current.user.player : Player.getTemporaryPlayer();
         // Update value
-        for (let id in price) {
-            let [kind, value] = price[id];
-            value *= times;
+        for (const [id, [kind, value]] of price.entries()) {
+            const totalValue = value * times;
             switch (kind) {
-                case Enum.DamagesKind.Currency:
-                    Game.current.currencies[id] -= value;
-                    if (value > 0) {
-                        Game.current.currenciesUsed[id] += value;
+                case DAMAGES_KIND.CURRENCY:
+                    Game.current.currencies.set(id, Game.current.currencies.get(id) - totalValue);
+                    if (totalValue > 0) {
+                        Game.current.currenciesUsed.set(id, Game.current.currenciesUsed.get(id) + totalValue);
                     }
                     else {
-                        Game.current.currenciesEarned[id] -= value;
+                        Game.current.currenciesEarned.set(id, Game.current.currenciesEarned.get(id) - totalValue);
                     }
                     break;
-                case Enum.DamagesKind.Stat:
-                    user[Datas.BattleSystems.getStatistic(parseInt(id)).abbreviation] -= value;
+                case DAMAGES_KIND.STAT:
+                    user[Data.BattleSystems.getStatistic(id).abbreviation] -= totalValue;
                     break;
-                case Enum.DamagesKind.Variable:
-                    Game.current.variables[parseInt(id)] -= value;
+                case DAMAGES_KIND.VARIABLE:
+                    Game.current.variables.set(id, Game.current.getVariable(id) - totalValue);
                     break;
             }
         }
@@ -205,7 +206,7 @@ class Item {
             this.nb -= times;
         }
         // Add items to inventory
-        let item = Item.findItem(this.kind, this.system.id);
+        const item = Item.findItem(this.kind, this.system.id);
         if (item) {
             item.nb += times;
         }
@@ -226,16 +227,13 @@ class Item {
      *  @returns {boolean}
      */
     sell(times) {
-        let price = this.system.getPrice();
-        let user = Scene.Map.current.user ? Scene.Map.current.user.player : Player
-            .getTemporaryPlayer();
+        const price = this.system.getPrice();
+        const user = Scene.Map.current.user ? Scene.Map.current.user.player : Player.getTemporaryPlayer();
         // Update currency
-        for (let id in price) {
-            let [kind, value] = price[id];
-            let p = Math.round(value * Datas.Systems.priceSoldItem.getValue() /
-                100) * times;
+        for (const [id, [kind, value]] of price.entries()) {
+            const p = Math.round((value * Data.Systems.priceSoldItem.getValue()) / 100) * times;
             switch (kind) {
-                case Enum.DamagesKind.Currency:
+                case DAMAGES_KIND.CURRENCY:
                     Game.current.currencies[id] += p;
                     if (p > 0) {
                         Game.current.currenciesEarned[id] += p;
@@ -244,11 +242,11 @@ class Item {
                         Game.current.currenciesUsed[id] -= p;
                     }
                     break;
-                case Enum.DamagesKind.Stat:
-                    user[Datas.BattleSystems.getStatistic(parseInt(id)).abbreviation] += p;
+                case DAMAGES_KIND.STAT:
+                    user[Data.BattleSystems.getStatistic(id).abbreviation] += p;
                     break;
-                case Enum.DamagesKind.Variable:
-                    Game.current.variables[parseInt(id)] += p;
+                case DAMAGES_KIND.VARIABLE:
+                    Game.current.variables.set(id, Game.current.getVariable(id) + p);
                     break;
             }
         }

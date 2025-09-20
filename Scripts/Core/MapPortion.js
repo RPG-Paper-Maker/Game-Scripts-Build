@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -9,8 +9,8 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import * as THREE from 'three';
-import { Constants, Enum } from '../Common/index.js';
-import { Datas, Manager, Scene, System } from '../index.js';
+import { Constants, ELEMENT_MAP_KIND, SHAPE_KIND } from '../Common/index.js';
+import { Data, Manager, Model, Scene } from '../index.js';
 import { Autotile } from './Autotile.js';
 import { Autotiles } from './Autotiles.js';
 import { CustomGeometry } from './CustomGeometry.js';
@@ -25,8 +25,6 @@ import { Object3DCustom } from './Object3DCustom.js';
 import { Position } from './Position.js';
 import { Sprite } from './Sprite.js';
 import { SpriteWall } from './SpriteWall.js';
-var ElementMapKind = Enum.ElementMapKind;
-var ShapeKind = Enum.ShapeKind;
 /** @class
  *  A portion of the map.
  *  @param {Portion} portion
@@ -42,25 +40,25 @@ class MapPortion {
         for (i = 0; i < Constants.PORTION_SIZE; i++) {
             this.squareNonEmpty[i] = new Array(Constants.PORTION_SIZE);
             for (j = 0; j < Constants.PORTION_SIZE; j++) {
-                this.squareNonEmpty[i][j] = new Array();
+                this.squareNonEmpty[i][j] = [];
             }
         }
-        let l = Constants.PORTION_SIZE * Constants.PORTION_SIZE * Constants.PORTION_SIZE;
+        const l = Constants.PORTION_SIZE * Constants.PORTION_SIZE * Constants.PORTION_SIZE;
         this.boundingBoxesLands = new Array(l);
         this.boundingBoxesSprites = new Array(l);
         this.boundingBoxesMountains = new Array(l);
         this.boundingBoxesObjects3D = new Array(l);
         for (i = 0; i < l; i++) {
-            this.boundingBoxesLands[i] = new Array();
-            this.boundingBoxesSprites[i] = new Array();
-            this.boundingBoxesMountains[i] = new Array();
-            this.boundingBoxesObjects3D[i] = new Array();
+            this.boundingBoxesLands[i] = [];
+            this.boundingBoxesSprites[i] = [];
+            this.boundingBoxesMountains[i] = [];
+            this.boundingBoxesObjects3D[i] = [];
         }
-        this.staticAutotilesList = new Array();
+        this.staticAutotilesList = [];
         this.staticMountainsList = new Map();
-        this.objectsList = new Array();
-        this.staticWallsList = new Array();
-        this.staticObjects3DList = new Array();
+        this.objectsList = [];
+        this.staticWallsList = [];
+        this.staticObjects3DList = [];
     }
     /**
      *  Read the JSON associated to the map portion.
@@ -93,21 +91,21 @@ class MapPortion {
             return;
         }
         const material = Scene.Map.current.textureTileset;
-        let texture = Manager.GL.getMaterialTexture(material);
-        let width = texture ? texture.image.width : 0;
-        let height = texture ? texture.image.height : 0;
-        let geometry = new CustomGeometry();
-        let layers = [];
+        const texture = Manager.GL.getMaterialTexture(material);
+        const width = texture ? texture.image.width : 0;
+        const height = texture ? texture.image.height : 0;
+        const geometry = new CustomGeometry();
+        const layers = [];
         let count = 0;
         for (const { k, v } of json) {
             const position = Position.createFromArray(k);
             const layer = position.layer;
             switch (v.k) {
-                case Enum.ElementMapKind.Floors:
+                case ELEMENT_MAP_KIND.FLOORS:
                     const floor = new Floor(v);
                     if (layer > 0) {
                         let j = 0;
-                        let m = layers.length;
+                        const m = layers.length;
                         for (; j < m; j++) {
                             if (layer <= layers[j][0].layer) {
                                 layers.splice(j, 0, [position, floor]);
@@ -125,15 +123,15 @@ class MapPortion {
                         count++;
                     }
                     break;
-                case Enum.ElementMapKind.Autotiles:
+                case ELEMENT_MAP_KIND.AUTOTILES:
                     const autotile = new Autotile(v);
                     let pictureID = Game.current.textures.autotiles[autotile.autotileID];
                     if (pictureID === undefined) {
-                        pictureID = Datas.SpecialElements.getAutotile(autotile.autotileID).pictureID;
+                        pictureID = Data.SpecialElements.getAutotile(autotile.autotileID).pictureID;
                     }
                     const indexPos = position.toIndex();
                     let texture = null;
-                    const texturesAutotile = await Datas.SpecialElements.loadAutotileTexture(autotile.autotileID);
+                    const texturesAutotile = await Data.SpecialElements.loadAutotileTexture(autotile.autotileID);
                     let autotiles;
                     if (texturesAutotile) {
                         for (let j = 0, m = texturesAutotile.length; j < m; j++) {
@@ -185,7 +183,7 @@ class MapPortion {
             }
             Scene.Map.current.scene.add(this.staticFloorsMesh);
         }
-        for (let list of this.staticAutotilesList) {
+        for (const list of this.staticAutotilesList) {
             if (list) {
                 for (const autotiles of list) {
                     if (autotiles && autotiles.createMesh()) {
@@ -213,10 +211,10 @@ class MapPortion {
      */
     readSpritesGlobals(json) {
         const material = Scene.Map.current.textureTileset;
-        let staticGeometry = new CustomGeometry();
-        let faceGeometry = new CustomGeometryFace();
+        const staticGeometry = new CustomGeometry();
+        const faceGeometry = new CustomGeometryFace();
         let staticCount = 0, faceCount = 0;
-        let texture = Manager.GL.getMaterialTexture(material);
+        const texture = Manager.GL.getMaterialTexture(material);
         if (texture) {
             let s, position, sprite, localPosition, collisions, resultUpdate;
             for (let i = 0, l = json.length; i < l; i++) {
@@ -224,7 +222,7 @@ class MapPortion {
                 position = Position.createFromArray(s.k);
                 sprite = new Sprite(s.v);
                 localPosition = position.toVector3();
-                if (sprite.kind === ElementMapKind.SpritesFace) {
+                if (sprite.kind === ELEMENT_MAP_KIND.SPRITES_FACE) {
                     resultUpdate = sprite.updateGeometry(faceGeometry, texture.image.width, texture.image.height, position, faceCount, true, localPosition);
                     faceCount = resultUpdate[0];
                     collisions = resultUpdate[1];
@@ -269,13 +267,13 @@ class MapPortion {
      *  walls
      */
     async readSpritesWalls(json) {
-        let hash = new Map();
+        const hash = new Map();
         for (const { k, v } of json) {
             const position = Position.createFromArray(k);
             const sprite = new SpriteWall(v);
             let pictureID = Game.current.textures.walls[sprite.id];
             if (pictureID === undefined) {
-                pictureID = Datas.SpecialElements.getWall(sprite.id).pictureID;
+                pictureID = Data.SpecialElements.getWall(sprite.id).pictureID;
             }
             // Constructing the geometry
             let obj = hash.get(sprite.id);
@@ -288,7 +286,7 @@ class MapPortion {
                 count = obj.c;
             }
             else {
-                material = await Datas.SpecialElements.loadWallTexture(sprite.id);
+                material = await Data.SpecialElements.loadWallTexture(sprite.id);
                 if (material) {
                     geometry = new CustomGeometry();
                     count = 0;
@@ -338,9 +336,9 @@ class MapPortion {
             mountain.read(v);
             let pictureID = Game.current.textures.mountains[mountain.mountainID];
             if (pictureID === undefined) {
-                pictureID = Datas.SpecialElements.getMountain(mountain.mountainID).pictureID;
+                pictureID = Data.SpecialElements.getMountain(mountain.mountainID).pictureID;
             }
-            const textureMountain = await Datas.SpecialElements.loadMountainTexture(mountain.mountainID);
+            const textureMountain = await Data.SpecialElements.loadMountainTexture(mountain.mountainID);
             let mountains;
             let texture = null;
             if (textureMountain) {
@@ -378,26 +376,26 @@ class MapPortion {
         const hash = new Map();
         for (const { k, v } of json) {
             const position = Position.createFromArray(k);
-            const datas = Datas.SpecialElements.getObject3D(v.did);
+            const datas = Data.SpecialElements.getObject3D(v.did);
             let pictureID = Game.current.textures.objects3D[datas.id];
             if (pictureID === undefined) {
-                pictureID = Datas.SpecialElements.getObject3D(datas.id).pictureID;
+                pictureID = Data.SpecialElements.getObject3D(datas.id).pictureID;
             }
             if (datas) {
                 let obj3D;
                 switch (datas.shapeKind) {
-                    case ShapeKind.Box:
+                    case SHAPE_KIND.BOX:
                         obj3D = new Object3DBox(v, datas);
                         break;
-                    case ShapeKind.Sphere:
+                    case SHAPE_KIND.SPHERE:
                         break;
-                    case ShapeKind.Cylinder:
+                    case SHAPE_KIND.CYLINDER:
                         break;
-                    case ShapeKind.Cone:
+                    case SHAPE_KIND.CONE:
                         break;
-                    case ShapeKind.Capsule:
+                    case SHAPE_KIND.CAPSULE:
                         break;
-                    case ShapeKind.Custom:
+                    case SHAPE_KIND.CUSTOM:
                         obj3D = new Object3DCustom(v, datas);
                         break;
                 }
@@ -412,7 +410,7 @@ class MapPortion {
                     count = obj.c;
                 }
                 else {
-                    material = await Datas.SpecialElements.loadObject3DTexture(datas.id);
+                    material = await Data.SpecialElements.loadObject3DTexture(datas.id);
                     if (material) {
                         geometry = new CustomGeometry();
                         count = 0;
@@ -427,7 +425,7 @@ class MapPortion {
                 if (Manager.GL.getMaterialTexture(material)) {
                     const result = obj3D.updateGeometry(geometry, position, count);
                     obj.c = result[0];
-                    this.updateCollision(this.boundingBoxesObjects3D, result[1], position, datas.shapeKind === ShapeKind.Custom, Scene.Map.current.overflowObjects3D);
+                    this.updateCollision(this.boundingBoxesObjects3D, result[1], position, datas.shapeKind === SHAPE_KIND.CUSTOM, Scene.Map.current.overflowObjects3D);
                 }
             }
         }
@@ -454,17 +452,17 @@ class MapPortion {
      *  @param {Record<string, any>} json - Json object describing the objects
      */
     async readObjects(json) {
-        let datas = Scene.Map.current.getObjectsAtPortion(this.portion);
-        let objectsM = datas.m;
-        let objectsR = datas.r;
-        let m = objectsM.length;
-        let n = objectsR.length;
+        const datas = Scene.Map.current.getObjectsAtPortion(this.portion);
+        const objectsM = datas.m;
+        const objectsR = datas.r;
+        const m = objectsM.length;
+        const n = objectsR.length;
         // Read
         let i, j, l, jsonObject, position, object, id, index, localPosition, mapObject;
         for (i = 0, l = json.length; i < l; i++) {
             jsonObject = json[i];
             position = Position.createFromArray(jsonObject.k);
-            object = new System.MapObject(jsonObject.v);
+            object = new Model.MapObject(jsonObject.v);
             id = object.id;
             // Check if the object is moving (so no need to add it to the scene)
             index = -1;
@@ -520,9 +518,9 @@ class MapPortion {
             Scene.Map.current.scene.remove(this.staticWallsList[i]);
         }
         this.staticWallsList = [];
-        for (let list of this.staticAutotilesList) {
+        for (const list of this.staticAutotilesList) {
             if (list) {
-                for (let autotiles of list) {
+                for (const autotiles of list) {
                     Scene.Map.current.scene.remove(autotiles.mesh);
                 }
             }
@@ -549,7 +547,7 @@ class MapPortion {
             this.objectsList[i].removeFromScene();
         }
         // Remove moved objects from the scene
-        let datas = Game.current.getPortionDatas(Scene.Map.current.id, this.portion);
+        const datas = Game.current.getPortionData(Scene.Map.current.id, this.portion);
         let objects = datas.min;
         for (i = 0, l = objects.length; i < l; i++) {
             objects[i].removeFromScene();
@@ -577,7 +575,7 @@ class MapPortion {
             jsonObject = json[i];
             position = Position.createFromArray(jsonObject.k);
             jsonObjectValue = jsonObject.v;
-            object = new System.MapObject();
+            object = new Model.MapObject();
             if (jsonObjectValue.id === id) {
                 object.read(jsonObjectValue);
                 localPosition = position.toVector3();
@@ -596,7 +594,7 @@ class MapPortion {
         if (this.faceSpritesMesh) {
             this.faceSpritesMesh.geometry.rotate(angle, Sprite.Y_AXIS);
         }
-        for (let object of this.objectsList) {
+        for (const object of this.objectsList) {
             object.update(angle);
         }
     }
@@ -633,7 +631,7 @@ class MapPortion {
         for (i = 0, l = collisions.length; i < l; i++) {
             objCollision = collisions[i];
             centeredPosition = objCollision.c
-                ? new Position(position.x + Math.ceil(objCollision.c.x / Datas.Systems.SQUARE_SIZE), position.y + Math.ceil(objCollision.c.y / Datas.Systems.SQUARE_SIZE), position.z + Math.ceil(objCollision.c.z / Datas.Systems.SQUARE_SIZE))
+                ? new Position(position.x + Math.ceil(objCollision.c.x / Data.Systems.SQUARE_SIZE), position.y + Math.ceil(objCollision.c.y / Data.Systems.SQUARE_SIZE), position.z + Math.ceil(objCollision.c.z / Data.Systems.SQUARE_SIZE))
                 : new Position(position.x, position.y, position.z);
             minW = -objCollision.m;
             maxW = objCollision.m;
@@ -679,16 +677,16 @@ class MapPortion {
      *  Get the object collision according to position.
      *  @param {Position} positionSource - The source json position
      *  @param {Position} positionTarget - The target json position
-     *  @param {ElementMapKind} kind - The element map kind
+     *  @param {ELEMENT_MAP_KIND} kind - The element map kind
      *  @returns {StructMapElementCollision[]}
      */
     getObjectCollisionAt(positionSource, positionTarget, kind) {
-        let result = new Array();
+        const result = [];
         switch (kind) {
-            case ElementMapKind.Mountains:
-                let a = positionTarget.x - positionSource.x;
-                let c = positionTarget.z - positionSource.z;
-                let collisions = this.boundingBoxesMountains[positionSource.toIndex()];
+            case ELEMENT_MAP_KIND.MOUNTAINS:
+                const a = positionTarget.x - positionSource.x;
+                const c = positionTarget.z - positionSource.z;
+                const collisions = this.boundingBoxesMountains[positionSource.toIndex()];
                 let w, objCollision;
                 for (let i = 0, l = collisions.length; i < l; i++) {
                     w = collisions[i].w;

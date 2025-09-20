@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
-import { Graphic, Datas, System } from '../index.js';
 import { Constants, ScreenResolution } from '../Common/index.js';
+import { Data, Graphic, Model } from '../index.js';
+import { Base } from './Base.js';
 /** @class
  *  The graphic displaying all the equipment information in the equip menu.
  *  @extends Graphic.Base
@@ -23,12 +23,10 @@ class Equip extends Base {
         super();
         this.length = ScreenResolution.getScreenMinXY(length);
         this.isPossible = isPossible;
-        let equiped = player.equip[id];
+        const equiped = player.equip[id];
         // All the graphics
-        this.graphicEquipmentName = new Graphic.Text(Datas.BattleSystems
-            .getEquipment(id).name(), isPossible ? {} : { color: System.Color.GREY });
-        this.graphicEquipment = new Graphic.Text(equiped === null ? "-" :
-            equiped.system.name(), isPossible ? {} : { color: System.Color.GREY });
+        this.graphicEquipmentName = new Graphic.Text(Data.BattleSystems.getEquipment(id).name(), isPossible ? {} : { color: Model.Color.GREY });
+        this.graphicEquipment = new Graphic.Text(equiped === null ? '-' : equiped.system.name(), isPossible ? {} : { color: Model.Color.GREY });
     }
     /**
      *  Drawing the equipment kind and equipment name.
@@ -39,8 +37,7 @@ class Equip extends Base {
      */
     drawChoice(x, y, w, h) {
         this.graphicEquipmentName.draw(x, y, w, h);
-        this.graphicEquipment.draw(x + this.length + ScreenResolution
-            .getScreenMinXY(Constants.LARGE_SPACE), y, w, h);
+        this.graphicEquipment.draw(x + this.length + ScreenResolution.getScreenMinXY(Constants.LARGE_SPACE), y, w, h);
     }
     /**
      *  Drawing the equipment kind and equipment name.

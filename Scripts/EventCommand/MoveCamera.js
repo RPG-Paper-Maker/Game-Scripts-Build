@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -11,7 +11,7 @@
 import * as THREE from 'three';
 import { Inputs, Mathf, Utils } from '../Common/index.js';
 import { MapObject } from '../Core/index.js';
-import { Datas, Manager, Scene, System } from '../index.js';
+import { Data, Manager, Model, Scene } from '../index.js';
 import { Base } from './Base.js';
 /** @class
  *  An event command for displaying text.
@@ -21,36 +21,36 @@ import { Base } from './Base.js';
 class MoveCamera extends Base {
     constructor(command) {
         super();
-        let iterator = {
+        const iterator = {
             i: 0,
         };
         // Target
-        if (!Utils.numToBool(command[iterator.i++])) {
+        if (!Utils.numberToBool(command[iterator.i++])) {
             this.targetID = null;
         }
         else {
-            this.targetID = System.DynamicValue.createValueCommand(command, iterator);
+            this.targetID = Model.DynamicValue.createValueCommand(command, iterator);
         }
         // Operation
         this.operation = command[iterator.i++];
         // Move
-        this.moveTargetOffset = Utils.numToBool(command[iterator.i++]);
-        this.cameraOrientation = Utils.numToBool(command[iterator.i++]);
-        this.x = System.DynamicValue.createValueCommand(command, iterator);
-        this.xSquare = !Utils.numToBool(command[iterator.i++]);
-        this.y = System.DynamicValue.createValueCommand(command, iterator);
-        this.ySquare = !Utils.numToBool(command[iterator.i++]);
-        this.z = System.DynamicValue.createValueCommand(command, iterator);
-        this.zSquare = !Utils.numToBool(command[iterator.i++]);
+        this.moveTargetOffset = Utils.numberToBool(command[iterator.i++]);
+        this.cameraOrientation = Utils.numberToBool(command[iterator.i++]);
+        this.x = Model.DynamicValue.createValueCommand(command, iterator);
+        this.xSquare = !Utils.numberToBool(command[iterator.i++]);
+        this.y = Model.DynamicValue.createValueCommand(command, iterator);
+        this.ySquare = !Utils.numberToBool(command[iterator.i++]);
+        this.z = Model.DynamicValue.createValueCommand(command, iterator);
+        this.zSquare = !Utils.numberToBool(command[iterator.i++]);
         // Rotation
-        this.rotationTargetOffset = Utils.numToBool(command[iterator.i++]);
-        this.h = System.DynamicValue.createValueCommand(command, iterator);
-        this.v = System.DynamicValue.createValueCommand(command, iterator);
+        this.rotationTargetOffset = Utils.numberToBool(command[iterator.i++]);
+        this.h = Model.DynamicValue.createValueCommand(command, iterator);
+        this.v = Model.DynamicValue.createValueCommand(command, iterator);
         // Zoom
-        this.distance = System.DynamicValue.createValueCommand(command, iterator);
+        this.distance = Model.DynamicValue.createValueCommand(command, iterator);
         // Options
-        this.isWaitEnd = Utils.numToBool(command[iterator.i++]);
-        this.time = System.DynamicValue.createValueCommand(command, iterator);
+        this.isWaitEnd = Utils.numberToBool(command[iterator.i++]);
+        this.time = Model.DynamicValue.createValueCommand(command, iterator);
         this.parallel = !this.isWaitEnd;
     }
     /**
@@ -59,14 +59,14 @@ class MoveCamera extends Base {
      */
     initialize() {
         Scene.Map.current.camera.update();
-        let time = this.time.getValue() * 1000;
-        let operation = Mathf.OPERATORS_NUMBERS[this.operation];
-        let finalX = operation(Scene.Map.current.camera.getThreeCamera().position.x, this.x.getValue() * (this.xSquare ? Datas.Systems.SQUARE_SIZE : 1));
-        let finalY = operation(Scene.Map.current.camera.getThreeCamera().position.y, this.y.getValue() * (this.ySquare ? Datas.Systems.SQUARE_SIZE : 1));
-        let finalZ = operation(Scene.Map.current.camera.getThreeCamera().position.z, this.z.getValue() * (this.zSquare ? Datas.Systems.SQUARE_SIZE : 1));
-        let finalH = operation(Scene.Map.current.camera.horizontalAngle, this.h.getValue());
-        let finalV = operation(Scene.Map.current.camera.verticalAngle, this.v.getValue());
-        let finalDistance = operation(Scene.Map.current.camera.distance, this.distance.getValue());
+        const time = this.time.getValue() * 1000;
+        const operation = Mathf.OPERATORS_NUMBERS[this.operation];
+        const finalX = operation(Scene.Map.current.camera.getThreeCamera().position.x, this.x.getValue() * (this.xSquare ? Data.Systems.SQUARE_SIZE : 1));
+        const finalY = operation(Scene.Map.current.camera.getThreeCamera().position.y, this.y.getValue() * (this.ySquare ? Data.Systems.SQUARE_SIZE : 1));
+        const finalZ = operation(Scene.Map.current.camera.getThreeCamera().position.z, this.z.getValue() * (this.zSquare ? Data.Systems.SQUARE_SIZE : 1));
+        const finalH = operation(Scene.Map.current.camera.horizontalAngle, this.h.getValue());
+        const finalV = operation(Scene.Map.current.camera.verticalAngle, this.v.getValue());
+        const finalDistance = operation(Scene.Map.current.camera.distance, this.distance.getValue());
         return {
             parallel: this.isWaitEnd,
             initialH: Scene.Map.current.camera.horizontalAngle,

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -9,12 +9,12 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import * as THREE from 'three';
-import { Enum } from '../Common/index.js';
-import { Datas } from '../index.js';
+import { PICTURE_KIND } from '../Common/index.js';
+import { Data } from '../index.js';
 import { CustomGeometry } from './CustomGeometry.js';
 import { MapElement } from './MapElement.js';
+import { Rectangle } from './Rectangle.js';
 import { Sprite } from './Sprite.js';
-var PictureKind = Enum.PictureKind;
 /** @class
  *  A sprite in the map.
  *  @extends MapElement
@@ -47,14 +47,14 @@ class SpriteWall extends MapElement {
      *  @return {any[]}
      */
     updateGeometry(geometry, position, width, height, pictureID, count) {
-        let vecA = new THREE.Vector3(-0.5, 1.0, 0.0);
-        let vecB = new THREE.Vector3(0.5, 1.0, 0.0);
-        let vecC = new THREE.Vector3(0.5, 0.0, 0.0);
-        let vecD = new THREE.Vector3(-0.5, 0.0, 0.0);
-        let center = new THREE.Vector3();
-        let size = new THREE.Vector3(Datas.Systems.SQUARE_SIZE, height, 0);
-        let angle = position.angleY;
-        let localPosition = position.toVector3();
+        const vecA = new THREE.Vector3(-0.5, 1.0, 0.0);
+        const vecB = new THREE.Vector3(0.5, 1.0, 0.0);
+        const vecC = new THREE.Vector3(0.5, 0.0, 0.0);
+        const vecD = new THREE.Vector3(-0.5, 0.0, 0.0);
+        const center = new THREE.Vector3();
+        const size = new THREE.Vector3(Data.Systems.SQUARE_SIZE, height, 0);
+        const angle = position.angleY;
+        const localPosition = position.toVector3();
         // Scale
         vecA.multiply(size);
         vecB.multiply(size);
@@ -67,28 +67,28 @@ class SpriteWall extends MapElement {
         vecD.add(localPosition);
         center.add(localPosition);
         // Getting UV coordinates
-        let textureRect = [this.kind, 0, 1, Math.floor(height / Datas.Systems.SQUARE_SIZE)];
-        let x = (textureRect[0] * Datas.Systems.SQUARE_SIZE) / width;
+        const textureRect = new Rectangle(this.kind, 0, 1, Math.floor(height / Data.Systems.SQUARE_SIZE));
+        let x = (textureRect[0] * Data.Systems.SQUARE_SIZE) / width;
         let y = textureRect[1];
-        let w = Datas.Systems.SQUARE_SIZE / width;
+        let w = Data.Systems.SQUARE_SIZE / width;
         let h = 1.0;
-        let coefX = MapElement.COEF_TEX / width;
-        let coefY = MapElement.COEF_TEX / height;
+        const coefX = MapElement.COEF_TEX / width;
+        const coefY = MapElement.COEF_TEX / height;
         x += coefX;
         y += coefY;
         w -= coefX * 2;
         h -= coefY * 2;
-        let texA = new THREE.Vector2();
-        let texB = new THREE.Vector2();
-        let texC = new THREE.Vector2();
-        let texD = new THREE.Vector2();
+        const texA = new THREE.Vector2();
+        const texB = new THREE.Vector2();
+        const texC = new THREE.Vector2();
+        const texD = new THREE.Vector2();
         CustomGeometry.uvsQuadToTex(texA, texB, texC, texD, x, y, w, h);
         // Collision
-        let objCollision = [];
+        const objCollision = [];
         let collisions = [];
-        let wall = Datas.SpecialElements.getWall(this.id);
+        const wall = Data.SpecialElements.getWall(this.id);
         if (wall) {
-            let picture = Datas.Pictures.get(PictureKind.Walls, pictureID);
+            const picture = Data.Pictures.get(PICTURE_KIND.WALLS, pictureID);
             if (picture) {
                 collisions = picture.getSquaresForWall(textureRect);
             }
@@ -100,10 +100,10 @@ class SpriteWall extends MapElement {
                     l: localPosition,
                     b: [
                         localPosition.x,
-                        localPosition.y + Math.floor((textureRect[3] * Datas.Systems.SQUARE_SIZE - rect[1]) / 2),
+                        localPosition.y + Math.floor((textureRect.height * Data.Systems.SQUARE_SIZE - rect.y) / 2),
                         localPosition.z,
-                        rect[2],
-                        rect[3] - 0.001, // Small offset for climbing collisions stuff
+                        rect.width,
+                        rect.height - 0.001, // Small offset for climbing collisions stuff
                         1,
                         angle,
                         0,
@@ -113,17 +113,17 @@ class SpriteWall extends MapElement {
                     h: textureRect[3],
                     k: true,
                 });
-                let climbing = picture.getSquaresClimbing(textureRect);
-                for (let [x, y] of climbing) {
+                const climbing = picture.getSquaresClimbing(textureRect);
+                for (const [x, y] of climbing) {
                     objCollision.push({
                         p: position,
                         l: localPosition,
                         b: [
                             localPosition.x + x,
-                            localPosition.y + Math.floor((textureRect[3] * Datas.Systems.SQUARE_SIZE - y) / 2),
+                            localPosition.y + Math.floor((textureRect[3] * Data.Systems.SQUARE_SIZE - y) / 2),
                             localPosition.z,
-                            rect[2],
-                            rect[3],
+                            rect.width,
+                            rect.height,
                             1,
                             angle,
                             0,

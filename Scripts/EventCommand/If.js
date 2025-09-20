@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,12 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { CONDITION_HEROES_KIND, Inputs, Interpreter, ITEM_KIND, Mathf, Utils } from '../Common/index.js';
+import { Game, MapObject, Player } from '../Core/index.js';
+import { Data, Model, Scene } from '../index.js';
 import { Base } from './Base.js';
-import { System, Datas, Scene } from '../index.js';
-import { Utils, Enum, Mathf, Interpreter, Inputs } from '../Common/index.js';
-var ConditionHeroesKind = Enum.ConditionHeroesKind;
-var ItemKind = Enum.ItemKind;
-import { Player, MapObject, Game } from '../Core/index.js';
 /** @class
  *  An event command for condition event command block.
  *  @extends EventCommand.Base
@@ -22,106 +20,98 @@ import { Player, MapObject, Game } from '../Core/index.js';
 class If extends Base {
     constructor(command) {
         super();
-        let iterator = {
-            i: 0
+        const iterator = {
+            i: 0,
         };
-        this.hasElse = Utils.numToBool(command[iterator.i++]);
+        this.hasElse = Utils.numberToBool(command[iterator.i++]);
         this.kind = command[iterator.i++];
         switch (this.kind) {
             case 0: // Variable / Param / Prop
-                this.variableParamProp = System.DynamicValue.createValueCommand(command, iterator);
-                this.variableParamPropOperationKind = command[iterator.i++];
-                this.variableParamPropValue = System.DynamicValue
-                    .createValueCommand(command, iterator);
+                this.variableParamProp = Model.DynamicValue.createValueCommand(command, iterator);
+                this.variableParamPropOPERATION_KIND = command[iterator.i++];
+                this.variableParamPropValue = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
             case 1: // Heroes
                 this.heroesSelection = command[iterator.i++];
-                if (this.heroesSelection === ConditionHeroesKind.TheHeroeWithInstanceID) {
-                    this.heroInstanceID = System.DynamicValue.createValueCommand(command, iterator);
+                if (this.heroesSelection === CONDITION_HEROES_KIND.THE_HERO_WITH_INSTANCE_ID) {
+                    this.heroInstanceID = Model.DynamicValue.createValueCommand(command, iterator);
                 }
-                this.heroesInTeam = Utils.numToBool(command[iterator.i++]);
+                this.heroesInTeam = Utils.numberToBool(command[iterator.i++]);
                 if (this.heroesInTeam) {
                     this.heroesInTeamSelection = command[iterator.i++];
                 }
                 this.heroesKind = command[iterator.i++];
                 switch (this.heroesKind) {
                     case 0:
-                        this.heroesNamed = System.DynamicValue
-                            .createValueCommand(command, iterator);
+                        this.heroesNamed = Model.DynamicValue.createValueCommand(command, iterator);
                         break;
                     case 1:
                         this.heroesInTeamValue = command[iterator.i++];
                         break;
                     case 2:
-                        this.heroesSkillID = System.DynamicValue
-                            .createValueCommand(command, iterator);
+                        this.heroesSkillID = Model.DynamicValue.createValueCommand(command, iterator);
                         break;
                     case 3:
                         this.heroesEquipedKind = command[iterator.i++];
                         switch (this.heroesEquipedKind) {
                             case 0:
-                                this.heroesEquipedWeaponID = System.DynamicValue
-                                    .createValueCommand(command, iterator);
+                                this.heroesEquipedWeaponID = Model.DynamicValue.createValueCommand(command, iterator);
                                 break;
                             case 1:
-                                this.heroesEquipedArmorID = System.DynamicValue
-                                    .createValueCommand(command, iterator);
+                                this.heroesEquipedArmorID = Model.DynamicValue.createValueCommand(command, iterator);
                                 break;
                         }
                         break;
                     case 4:
-                        this.heroesStatusID = System.DynamicValue
-                            .createValueCommand(command, iterator);
+                        this.heroesStatusID = Model.DynamicValue.createValueCommand(command, iterator);
                         break;
                     case 5:
-                        this.heroesStatisticID = System.DynamicValue
-                            .createValueCommand(command, iterator);
+                        this.heroesStatisticID = Model.DynamicValue.createValueCommand(command, iterator);
                         this.heroesStatisticOperation = command[iterator.i++];
-                        this.heroesStatisticValue = System.DynamicValue
-                            .createValueCommand(command, iterator);
+                        this.heroesStatisticValue = Model.DynamicValue.createValueCommand(command, iterator);
                         break;
                 }
                 break;
             case 2:
-                this.currencyID = System.DynamicValue.createValueCommand(command, iterator);
+                this.currencyID = Model.DynamicValue.createValueCommand(command, iterator);
                 this.operationCurrency = command[iterator.i++];
-                this.currencyValue = System.DynamicValue.createValueCommand(command, iterator);
+                this.currencyValue = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
             case 3:
-                this.itemID = System.DynamicValue.createValueCommand(command, iterator);
+                this.itemID = Model.DynamicValue.createValueCommand(command, iterator);
                 this.operationItem = command[iterator.i++];
-                this.itemValue = System.DynamicValue.createValueCommand(command, iterator);
+                this.itemValue = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
             case 4:
-                this.weaponID = System.DynamicValue.createValueCommand(command, iterator);
+                this.weaponID = Model.DynamicValue.createValueCommand(command, iterator);
                 this.operationWeapon = command[iterator.i++];
-                this.weaponValue = System.DynamicValue.createValueCommand(command, iterator);
-                this.weaponEquiped = Utils.numToBool(command[iterator.i++]);
+                this.weaponValue = Model.DynamicValue.createValueCommand(command, iterator);
+                this.weaponEquiped = Utils.numberToBool(command[iterator.i++]);
                 break;
             case 5:
-                this.armorID = System.DynamicValue.createValueCommand(command, iterator);
+                this.armorID = Model.DynamicValue.createValueCommand(command, iterator);
                 this.operationArmor = command[iterator.i++];
-                this.armorValue = System.DynamicValue.createValueCommand(command, iterator);
-                this.armorEquiped = Utils.numToBool(command[iterator.i++]);
+                this.armorValue = Model.DynamicValue.createValueCommand(command, iterator);
+                this.armorEquiped = Utils.numberToBool(command[iterator.i++]);
                 break;
             case 6:
-                this.keyID = System.DynamicValue.createValueCommand(command, iterator);
-                this.keyValue = System.DynamicValue.createValueCommand(command, iterator);
+                this.keyID = Model.DynamicValue.createValueCommand(command, iterator);
+                this.keyValue = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
             case 7:
-                this.script = System.DynamicValue.createValueCommand(command, iterator);
+                this.script = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
             case 9:
-                this.objectIDLookingAt = System.DynamicValue.createValueCommand(command, iterator);
+                this.objectIDLookingAt = Model.DynamicValue.createValueCommand(command, iterator);
                 this.orientationLookingAt = command[iterator.i++];
                 break;
             case 10:
-                this.chronometerID = System.DynamicValue.createValueCommand(command, iterator);
+                this.chronometerID = Model.DynamicValue.createValueCommand(command, iterator);
                 this.chronometerOperation = command[iterator.i++];
-                this.chronometerSeconds = System.DynamicValue.createValueCommand(command, iterator);
+                this.chronometerSeconds = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
             case 11:
-                this.objectIDClimbing = System.DynamicValue.createValueCommand(command, iterator);
+                this.objectIDClimbing = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
         }
     }
@@ -139,7 +129,7 @@ class If extends Base {
     initialize() {
         return {
             waitingObject: false,
-            object: null
+            object: null,
         };
     }
     /**
@@ -148,19 +138,16 @@ class If extends Base {
      *  @param {MapObject} object - The current object reacting
      *  @param {number} state - The state ID
      *  @returns {number} The number of node to pass
-    */
+     */
     update(currentState, object, state) {
         let i, j, l, m, result, heroesSelection, id, equip, stat, item, value, nb;
         switch (this.kind) {
             case 0: // Variable / Param / Prop
-                result = Mathf.OPERATORS_COMPARE[this
-                    .variableParamPropOperationKind](this.variableParamProp
-                    .getValue(), this.variableParamPropValue.getValue());
+                result = Mathf.OPERATORS_COMPARE[this.variableParamPropOPERATION_KIND](this.variableParamProp.getValue(), this.variableParamPropValue.getValue());
                 break;
             case 1:
                 if (this.heroesInTeam) {
-                    heroesSelection = Game.current.getTeam(this
-                        .heroesInTeamSelection);
+                    heroesSelection = Game.current.getTeam(this.heroesInTeamSelection);
                 }
                 else {
                     heroesSelection = Game.current.teamHeroes.concat(Game.current.reserveHeroes);
@@ -168,14 +155,13 @@ class If extends Base {
                 }
                 switch (this.heroesKind) {
                     case 0:
-                        let name = this.heroesNamed.getValue();
+                        const name = this.heroesNamed.getValue();
                         result = Player.applySelection(this.heroesSelection, heroesSelection, this.getHeroInstanceID(), (hero) => {
                             return hero.name === name;
                         });
                         break;
                     case 1:
-                        let tab = Game.current.getTeam(this
-                            .heroesInTeamValue);
+                        const tab = Game.current.getTeam(this.heroesInTeamValue);
                         result = Player.applySelection(this.heroesSelection, heroesSelection, this.getHeroInstanceID(), (hero) => {
                             id = hero.instid;
                             for (i = 0, l = tab.length; i < l; i++) {
@@ -204,8 +190,7 @@ class If extends Base {
                                 result = Player.applySelection(this.heroesSelection, heroesSelection, this.getHeroInstanceID(), (hero) => {
                                     for (i = 0, l = hero.equip.length; i < l; i++) {
                                         equip = hero.equip[i];
-                                        if (equip && equip.kind === ItemKind.Weapon
-                                            && equip.system.id === id) {
+                                        if (equip && equip.kind === ITEM_KIND.WEAPON && equip.system.id === id) {
                                             return true;
                                         }
                                     }
@@ -217,8 +202,7 @@ class If extends Base {
                                 result = Player.applySelection(this.heroesSelection, heroesSelection, this.getHeroInstanceID(), (hero) => {
                                     for (i = 0, l = hero.equip.length; i < l; i++) {
                                         equip = hero.equip[i];
-                                        if (equip && equip.kind === ItemKind.Armor
-                                            && equip.system.id === id) {
+                                        if (equip && equip.kind === ITEM_KIND.ARMOR && equip.system.id === id) {
                                             return true;
                                         }
                                     }
@@ -239,41 +223,35 @@ class If extends Base {
                         });
                         break;
                     case 5:
-                        stat = Datas.BattleSystems.getStatistic(this
-                            .heroesStatisticID.getValue());
+                        stat = Data.BattleSystems.getStatistic(this.heroesStatisticID.getValue());
                         value = this.heroesStatisticValue.getValue();
                         result = Player.applySelection(this.heroesSelection, heroesSelection, this.getHeroInstanceID(), (hero) => {
-                            return Mathf.OPERATORS_COMPARE[this
-                                .heroesStatisticOperation](hero[stat
-                                .abbreviation], value);
+                            return Mathf.OPERATORS_COMPARE[this.heroesStatisticOperation](hero[stat.abbreviation], value);
                         });
                         break;
                 }
                 break;
             case 2:
-                result = Mathf.OPERATORS_COMPARE[this.operationCurrency](Game
-                    .current.currencies[this.currencyID.getValue()], this
-                    .currencyValue.getValue());
+                result = Mathf.OPERATORS_COMPARE[this.operationCurrency](Game.current.getCurrency(this.currencyID.getValue()), this.currencyValue.getValue());
                 break;
             case 3:
                 nb = 0;
                 id = this.itemID.getValue();
                 for (i = 0, l = Game.current.items.length; i < l; i++) {
                     item = Game.current.items[i];
-                    if (item.kind === ItemKind.Item && item.system.id === id) {
+                    if (item.kind === ITEM_KIND.ITEM && item.system.id === id) {
                         nb = item.nb;
                         break;
                     }
                 }
-                result = Mathf.OPERATORS_COMPARE[this.operationItem](nb, this
-                    .itemValue.getValue());
+                result = Mathf.OPERATORS_COMPARE[this.operationItem](nb, this.itemValue.getValue());
                 break;
             case 4:
                 nb = 0;
                 id = this.weaponID.getValue();
                 for (i = 0, l = Game.current.items.length; i < l; i++) {
                     item = Game.current.items[i];
-                    if (item.kind === ItemKind.Weapon && item.system.id === id) {
+                    if (item.kind === ITEM_KIND.WEAPON && item.system.id === id) {
                         nb = item.nb;
                         break;
                     }
@@ -286,22 +264,20 @@ class If extends Base {
                         h = heroesSelection[i];
                         for (j = 0, m = h.equip.length; j < m; j++) {
                             equip = h.equip[j];
-                            if (equip && equip.kind === ItemKind.Weapon && equip
-                                .system.id === id) {
+                            if (equip && equip.kind === ITEM_KIND.WEAPON && equip.system.id === id) {
                                 nb += 1;
                             }
                         }
                     }
                 }
-                result = Mathf.OPERATORS_COMPARE[this.operationWeapon](nb, this
-                    .weaponValue.getValue());
+                result = Mathf.OPERATORS_COMPARE[this.operationWeapon](nb, this.weaponValue.getValue());
                 break;
             case 5:
                 nb = 0;
                 id = this.armorID.getValue();
                 for (i = 0, l = Game.current.items.length; i < l; i++) {
                     item = Game.current.items[i];
-                    if (item.kind === ItemKind.Armor && item.system.id === id) {
+                    if (item.kind === ITEM_KIND.ARMOR && item.system.id === id) {
                         nb = item.nb;
                         break;
                     }
@@ -314,22 +290,20 @@ class If extends Base {
                         h = heroesSelection[i];
                         for (j = 0, m = h.equip.length; j < m; j++) {
                             equip = h.equip[j];
-                            if (equip && equip.kind === ItemKind.Armor && equip
-                                .system.id === id) {
+                            if (equip && equip.kind === ITEM_KIND.ARMOR && equip.system.id === id) {
                                 nb += 1;
                             }
                         }
                     }
                 }
-                result = Mathf.OPERATORS_COMPARE[this.operationArmor](nb, this
-                    .armorValue.getValue());
+                result = Mathf.OPERATORS_COMPARE[this.operationArmor](nb, this.armorValue.getValue());
                 break;
             case 6:
-                let key = Datas.Keyboards.get(this.keyID.getValue());
-                let b = this.keyValue.getValue();
+                const key = Data.Keyboards.get(this.keyID.getValue());
+                const b = this.keyValue.getValue();
                 result = !b;
-                for (i = 0, l = Inputs.keysPressed.length; i < l; i++) {
-                    if (Datas.Keyboards.isKeyEqual(Inputs.keysPressed[i], key)) {
+                for (const pressedKey of Inputs.keysPressed) {
+                    if (Data.Keyboards.isKeyEqual(pressedKey, key)) {
                         result = b;
                         break;
                     }
@@ -337,7 +311,7 @@ class If extends Base {
                 break;
             case 7:
                 result = Interpreter.evaluate(this.script.getValue(), {
-                    thisObject: object
+                    thisObject: object,
                 });
                 break;
             case 8:
@@ -345,7 +319,7 @@ class If extends Base {
                 break;
             case 9: {
                 if (!currentState.waitingObject) {
-                    let objectID = this.objectIDLookingAt.getValue();
+                    const objectID = this.objectIDLookingAt.getValue();
                     MapObject.search(objectID, (result) => {
                         currentState.object = result.object;
                     }, object);
@@ -355,25 +329,24 @@ class If extends Base {
                     return 0;
                 }
                 else {
-                    result = currentState.object.orientationEye === this
-                        .orientationLookingAt;
+                    result = currentState.object.orientationEye === this.orientationLookingAt;
                     break;
                 }
             }
             case 10:
-                let index = Utils.indexOfProp(Game.current.chronometers, "id", this.chronometerID.getValue());
+                const index = Utils.indexOfProp(Game.current.chronometers, 'id', this.chronometerID.getValue());
                 if (index === -1) {
                     result = false;
                     break;
                 }
                 else {
-                    let chrono = Game.current.chronometers[index];
+                    const chrono = Game.current.chronometers[index];
                     result = Mathf.OPERATORS_COMPARE[this.chronometerOperation](chrono.getSeconds(), this.chronometerSeconds.getValue());
                 }
                 break;
             case 11: {
                 if (!currentState.waitingObject) {
-                    let objectID = this.objectIDClimbing.getValue();
+                    const objectID = this.objectIDClimbing.getValue();
                     MapObject.search(objectID, (result) => {
                         currentState.object = result.object;
                     }, object);

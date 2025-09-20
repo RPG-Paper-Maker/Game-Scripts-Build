@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
-import { System } from '../index.js';
+import { Model } from "../index.js";
 import { Game } from '../Core/index.js';
+import { Base } from './Base.js';
 /** @class
  *  An event command for changing status.
  *  @extends EventCommand.Base
@@ -18,14 +18,14 @@ import { Game } from '../Core/index.js';
 class ChangeStatus extends Base {
     constructor(command) {
         super();
-        var iterator = {
-            i: 0
+        const iterator = {
+            i: 0,
         };
         // Selection
         this.selection = command[iterator.i++];
         switch (this.selection) {
             case 0:
-                this.heInstanceID = System.DynamicValue.createValueCommand(command, iterator);
+                this.heInstanceID = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
             case 1:
                 this.groupIndex = command[iterator.i++];
@@ -34,7 +34,7 @@ class ChangeStatus extends Base {
         // Operation
         this.operation = command[iterator.i++];
         // Status
-        this.statusID = System.DynamicValue.createValueCommand(command, iterator);
+        this.statusID = Model.DynamicValue.createValueCommand(command, iterator);
     }
     /**
      *  Update and check if the event is finished.
@@ -42,14 +42,13 @@ class ChangeStatus extends Base {
      *  @param {MapObject} object - The current object reacting
      *  @param {number} state - The state ID
      *  @returns {number} The number of node to pass
-    */
+     */
     update(currentState, object, state) {
-        let statusID = this.statusID.getValue();
+        const statusID = this.statusID.getValue();
         let targets;
         switch (this.selection) {
             case 0:
-                targets = [Game.current.getHeroByInstanceID(this.heInstanceID
-                        .getValue())];
+                targets = [Game.current.getHeroByInstanceID(this.heInstanceID.getValue())];
                 break;
             case 1:
                 targets = Game.current.getTeam(this.groupIndex);

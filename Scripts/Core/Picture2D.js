@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,8 +8,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Datas } from '../index.js';
-import { ScreenResolution, Platform } from '../Common/index.js';
+import { Platform, ScreenResolution } from '../Common/index.js';
+import { Data } from '../index.js';
 import { Stack } from '../Manager/index.js';
 import { Bitmap } from './Bitmap.js';
 /** @class
@@ -22,7 +22,7 @@ import { Bitmap } from './Bitmap.js';
  *   @param {number} [h=0] - Coords of the bitmap
  */
 class Picture2D extends Bitmap {
-    constructor(path = "", { x = 0, y = 0, w = 0, h = 0, zoom = 1.0, opacity = 1.0, angle = 0.0, cover = false, stretch = false, sx = 0, sy = 0 } = {}) {
+    constructor(path = '', { x = 0, y = 0, w = 0, h = 0, zoom = 1.0, opacity = 1.0, angle = 0.0, cover = false, stretch = false, sx = 0, sy = 0, } = {}) {
         super(x, y, w, h);
         this.zoom = zoom;
         this.opacity = opacity;
@@ -46,7 +46,7 @@ class Picture2D extends Bitmap {
      *  @param {System.Picture} picture - The picture to load
      */
     static async create(picture, opts = {}) {
-        let pic = picture ? new Picture2D(picture.getPath(), opts) : new Picture2D();
+        const pic = picture ? new Picture2D(picture.getPath(), opts) : new Picture2D();
         await pic.load();
         return pic;
     }
@@ -54,7 +54,7 @@ class Picture2D extends Bitmap {
      *  Create a picture from kind and id and then load it
      *  @static
      *  @param {number} id - The picture id to load
-     *  @param {PictureKind} kind - The picture kind to load
+     *  @param {PICTURE_KIND} kind - The picture kind to load
      *  @param {number} x - The x position
      *  @param {number} y - The y position
      *  @param {number} w - The w size
@@ -65,13 +65,13 @@ class Picture2D extends Bitmap {
      *
      * @static
      * @param {number} id - The picture id to load
-     * @param {PictureKind} kind - The picture kind to load
+     * @param {PICTURE_KIND} kind - The picture kind to load
      * @param {pictureOptions} [opts={}]
      * @return {*}
      * @memberof Picture2D
      */
     static async createWithID(id, kind, opts = {}) {
-        return (await Picture2D.create(Datas.Pictures.get(kind, id), opts));
+        return await Picture2D.create(Data.Pictures.get(kind, id), opts);
     }
     /**
      *  Load the image.
@@ -80,8 +80,8 @@ class Picture2D extends Bitmap {
      *  @returns {Promise<HTMLImageElement>}
      */
     static async loadImage(path) {
-        return (await new Promise((resolve, reject) => {
-            let image = new Image();
+        return await new Promise((resolve, reject) => {
+            const image = new Image();
             image.onload = () => {
                 resolve(image);
             };
@@ -91,7 +91,7 @@ class Picture2D extends Bitmap {
                 resolve(image);
             };
             image.src = path;
-        }));
+        });
     }
     /**
      *  Load the picture and then check.
@@ -128,7 +128,7 @@ class Picture2D extends Bitmap {
      *  @returns {Picture2D}
      */
     createCopy() {
-        let picture = new Picture2D();
+        const picture = new Picture2D();
         picture.empty = this.empty;
         picture.path = this.path;
         picture.image = this.image;
@@ -151,19 +151,25 @@ class Picture2D extends Bitmap {
      *  @param {boolean} [positionResize=true] - Indicate if the position resize
      *  (screen resolution)
      */
-    draw({ x = null, y = null, w = null, h = null, sx = this.sx, sy = this.sy, sw = this.oW, sh = this.oH, positionResize = false } = {}) {
+    draw({ x = null, y = null, w = null, h = null, sx = this.sx, sy = this.sy, sw = this.oW, sh = this.oH, positionResize = false, } = {}) {
         if (!this.empty && this.loaded && sw > 0 && sh > 0) {
             // Default values
-            x = x === null ? this.x : (positionResize ? ScreenResolution
-                .getScreenX(x) : x);
-            y = y === null ? this.y : (positionResize ? ScreenResolution
-                .getScreenY(y) : y);
-            w = w === null ? this.w * this.zoom : (this.stretch ? ScreenResolution
-                .getScreenX(w) : ScreenResolution.getScreenMinXY(w));
-            h = h === null ? this.h * this.zoom : (this.stretch ? ScreenResolution
-                .getScreenY(h) : ScreenResolution.getScreenMinXY(h));
+            x = x === null ? this.x : positionResize ? ScreenResolution.getScreenX(x) : x;
+            y = y === null ? this.y : positionResize ? ScreenResolution.getScreenY(y) : y;
+            w =
+                w === null
+                    ? this.w * this.zoom
+                    : this.stretch
+                        ? ScreenResolution.getScreenX(w)
+                        : ScreenResolution.getScreenMinXY(w);
+            h =
+                h === null
+                    ? this.h * this.zoom
+                    : this.stretch
+                        ? ScreenResolution.getScreenY(h)
+                        : ScreenResolution.getScreenMinXY(h);
             // Draw the image according to all parameters
-            let angle = this.angle * Math.PI / 180;
+            const angle = (this.angle * Math.PI) / 180;
             Platform.ctx.save();
             Platform.ctx.globalAlpha = this.opacity;
             if (!this.centered) {
@@ -187,10 +193,10 @@ class Picture2D extends Bitmap {
             if (this.centered) {
                 if (this.reverse) {
                     Platform.ctx.scale(-1, 1);
-                    Platform.ctx.translate(-x - (w / 2), y - (h / 2));
+                    Platform.ctx.translate(-x - w / 2, y - h / 2);
                 }
                 else {
-                    Platform.ctx.translate(x - (w / 2), y - (h / 2));
+                    Platform.ctx.translate(x - w / 2, y - h / 2);
                 }
             }
             Platform.ctx.drawImage(this.image, sx, sy, sw, sh, 0, 0, w, h);

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,11 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum } from '../Common/index.js';
+import { ALIGN } from '../Common/index.js';
 import { Game } from '../Core/index.js';
-import { Datas, Graphic, Manager, Scene } from '../index.js';
+import { Data, Graphic, Manager, Scene } from '../index.js';
 import { SaveLoadGame } from './SaveLoadGame.js';
-var Align = Enum.Align;
 /** @class
  *  A scene in the menu for saving a game.
  *  @extends Scene.SaveLoadGame
@@ -33,7 +32,7 @@ class SaveGame extends SaveLoadGame {
      */
     async load() {
         await super.load();
-        this.setContents.call(this, new Graphic.Text(Datas.Languages.extras.saveAGame.name(), { align: Align.Center }), new Graphic.Text(Datas.Languages.extras.saveAGameDescription.name(), { align: Align.Center }));
+        this.setContents.call(this, new Graphic.Text(Data.Languages.extras.saveAGame.name(), { align: ALIGN.CENTER }), new Graphic.Text(Data.Languages.extras.saveAGameDescription.name(), { align: ALIGN.CENTER }));
         this.loading = false;
     }
     /**
@@ -53,7 +52,7 @@ class SaveGame extends SaveLoadGame {
     action(isKey, options = {}) {
         // If action, save in the selected slot
         if (Scene.MenuBase.checkActionMenu(isKey, options)) {
-            Datas.Systems.soundConfirmation.playSound();
+            Data.Systems.soundConfirmation.playSound();
             Manager.Stack.push(new Scene.Confirm(() => {
                 this.save();
             }));

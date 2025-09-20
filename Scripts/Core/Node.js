@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 /** @class
- *  Datas structure of tree.
+ *  Data structure of tree.
  *  @param {Node} parent - Parent of the node
  *  @param {any} data - Data of the node
  */
@@ -26,7 +26,7 @@ class Node {
      * @param data
      */
     add(data) {
-        let node = new Node(this, data);
+        const node = new Node(this, data);
         if (this.firstChild === null) {
             this.firstChild = node;
         }
@@ -49,7 +49,7 @@ class Node {
      */
     getNext() {
         if (this.next === null) {
-            return (this.parent.isRoot()) ? null : this.parent;
+            return this.parent.isRoot() ? null : this.parent;
         }
         return this.next;
     }

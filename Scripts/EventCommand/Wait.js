@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,8 +8,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { Model } from "../index.js";
 import { Base } from './Base.js';
-import { System } from '../index.js';
 /** @class
  *  An event command for displaying text.
  *  @extends EventCommand.Base
@@ -18,10 +18,10 @@ import { System } from '../index.js';
 class Wait extends Base {
     constructor(command) {
         super();
-        let iterator = {
-            i: 0
+        const iterator = {
+            i: 0,
         };
-        this.milliseconds = System.DynamicValue.createValueCommand(command, iterator);
+        this.milliseconds = Model.DynamicValue.createValueCommand(command, iterator);
     }
     /**
      *  Initialize the current state.
@@ -30,7 +30,7 @@ class Wait extends Base {
     initialize() {
         return {
             milliseconds: this.milliseconds.getValue() * 1000,
-            currentTime: new Date().getTime()
+            currentTime: new Date().getTime(),
         };
     }
     /**
@@ -41,7 +41,7 @@ class Wait extends Base {
      *  @returns {number} The number of node to pass
      */
     update(currentState, object, state) {
-        return (currentState.currentTime + currentState.milliseconds <= new Date().getTime()) ? 1 : 0;
+        return currentState.currentTime + currentState.milliseconds <= new Date().getTime() ? 1 : 0;
     }
 }
 export { Wait };

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,12 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum } from '../Common/index.js';
+import { ALIGN, PICTURE_KIND } from '../Common/index.js';
 import { Game, Picture2D } from '../Core/index.js';
-import { Datas, Graphic, Manager, Scene } from '../index.js';
+import { Data, Graphic, Manager, Scene } from '../index.js';
 import { SaveLoadGame } from './SaveLoadGame.js';
-var Align = Enum.Align;
-var PictureKind = Enum.PictureKind;
 /** @class
  *  A scene in the menu for loading a game.
  *  @extends Scene.SaveLoadGame
@@ -27,9 +25,9 @@ class LoadGame extends SaveLoadGame {
      */
     async load() {
         await super.load();
-        this.setContents(new Graphic.Text(Datas.Languages.extras.loadAGame.name(), { align: Align.Center }), new Graphic.Text(Datas.Languages.extras.loadAGameDescription.name(), { align: Align.Center }));
-        if (Datas.TitlescreenGameover.isTitleBackgroundImage) {
-            this.pictureBackground = await Picture2D.createWithID(Datas.TitlescreenGameover.titleBackgroundImageID, PictureKind.TitleScreen, { cover: true });
+        this.setContents(new Graphic.Text(Data.Languages.extras.loadAGame.name(), { align: ALIGN.CENTER }), new Graphic.Text(Data.Languages.extras.loadAGameDescription.name(), { align: ALIGN.CENTER }));
+        if (Data.TitlescreenGameover.isTitleBackgroundImage) {
+            this.pictureBackground = await Picture2D.createWithID(Data.TitlescreenGameover.titleBackgroundImageID, PICTURE_KIND.TITLE_SCREEN, { cover: true });
         }
         this.loading = false;
     }
@@ -39,7 +37,7 @@ class LoadGame extends SaveLoadGame {
         // Initialize properties for hero
         Game.current.hero.initializeProperties();
         // Stop video if existing
-        if (!Datas.TitlescreenGameover.isTitleBackgroundImage) {
+        if (!Data.TitlescreenGameover.isTitleBackgroundImage) {
             Manager.Videos.stop();
         }
         // Pop load and title screen from the stack
@@ -57,10 +55,10 @@ class LoadGame extends SaveLoadGame {
             Game.current = this.windowChoicesSlots.getCurrentContent().game;
             if (Game.current.isEmpty) {
                 Game.current = null;
-                Datas.Systems.soundImpossible.playSound();
+                Data.Systems.soundImpossible.playSound();
             }
             else {
-                Datas.Systems.soundConfirmation.playSound();
+                Data.Systems.soundConfirmation.playSound();
                 this.loadGame();
             }
         }
@@ -84,7 +82,7 @@ class LoadGame extends SaveLoadGame {
      *  Draw the HUD scene
      */
     drawHUD() {
-        if (Datas.TitlescreenGameover.isTitleBackgroundImage) {
+        if (Data.TitlescreenGameover.isTitleBackgroundImage) {
             this.pictureBackground.draw();
         }
         super.drawHUD();

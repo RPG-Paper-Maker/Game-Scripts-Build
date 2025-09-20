@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,10 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum } from '../Common/index.js';
-import { Datas, Graphic } from '../index.js';
+import { ALIGN } from '../Common/index.js';
+import { Data, Graphic } from '../index.js';
 import { Base } from './Base.js';
-var Align = Enum.Align;
 /** @class
  *  A class for all keyboard assign to display in screen.
  *  @param {System.Keyboard} kb
@@ -21,9 +20,9 @@ class Keyboard extends Base {
         super();
         this.kb = kb;
         this.graphicTextName = new Graphic.Text(kb.name());
-        this.graphicTextShort = new Graphic.Text(kb.toString(), { align: Align.Center });
-        this.graphicTextInformation = new Graphic.Text(Datas.Languages.extras.pressAnyKeys.name(), {
-            align: Align.Center,
+        this.graphicTextShort = new Graphic.Text(kb.toString(), { align: ALIGN.CENTER });
+        this.graphicTextInformation = new Graphic.Text(Data.Languages.extras.pressAnyKeys.name(), {
+            align: ALIGN.CENTER,
         });
     }
     /**

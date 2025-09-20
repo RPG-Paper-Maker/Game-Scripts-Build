@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,11 +8,11 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Base } from './Base.js';
+import { ALIGN, Constants, PICTURE_KIND, ScreenResolution } from '../Common/index.js';
 import { Frame } from '../Core/index.js';
-import { Graphic, Datas, System, Manager } from '../index.js';
-import { Enum, Constants, Utils, ScreenResolution } from '../Common/index.js';
 import { Status } from '../Core/Status.js';
+import { Data, Graphic, Manager, Model } from '../index.js';
+import { Base } from './Base.js';
 /** @class
  *  The graphic displaying all the stats in the player description state menu.
  *  @extends Graphic.Base
@@ -23,89 +23,83 @@ class PlayerDescription extends Base {
         super();
         this.player = player;
         // Informations
-        let system = this.player.system;
-        let cl = this.player.getClass();
-        let levelStat = Datas.BattleSystems.getLevelStatistic();
-        let expStat = Datas.BattleSystems.getExpStatistic();
+        const system = this.player.system;
+        const cl = this.player.getClass();
+        const levelStat = Data.BattleSystems.getLevelStatistic();
+        const expStat = Data.BattleSystems.getExpStatistic();
         // All the graphics
-        this.graphicNameCenter = new Graphic.Text(this.player.name, { align: Enum
-                .Align.Center });
+        this.graphicNameCenter = new Graphic.Text(this.player.name, { align: ALIGN.CENTER });
         this.graphicName = new Graphic.Text(this.player.name);
-        this.graphicDescription = new Graphic.Text(system.description.name(), {
-            fontSize: Constants.MEDIUM_FONT_SIZE
-        }),
-            this.graphicClass = new Graphic.Text(cl.name(), { fontSize: Constants
-                    .MEDIUM_FONT_SIZE });
+        (this.graphicDescription = new Graphic.Text(system.description.name(), {
+            fontSize: Constants.MEDIUM_FONT_SIZE,
+        })),
+            (this.graphicClass = new Graphic.Text(cl.name(), { fontSize: Constants.MEDIUM_FONT_SIZE }));
         this.graphicLevelName = new Graphic.Text(levelStat.name());
-        this.graphicLevel = new Graphic.Text(Utils.numToString(player[levelStat
-            .abbreviation]));
+        this.graphicLevel = new Graphic.Text(String(player[levelStat.abbreviation]));
         if (expStat === null) {
             this.graphicExpName = null;
         }
         else {
             this.graphicExpName = new Graphic.Text(expStat.name(), { fontSize: Constants.MEDIUM_FONT_SIZE });
-            this.graphicExp = new Graphic.Text(player.getBarAbbreviation(expStat), { fontSize: Constants.MEDIUM_FONT_SIZE });
+            this.graphicExp = new Graphic.Text(player.getBarAbbreviation(expStat), {
+                fontSize: Constants.MEDIUM_FONT_SIZE,
+            });
         }
         // Adding stats
-        this.listStatsNames = new Array;
-        this.listStats = new Array;
+        this.listStatsNames = [];
+        this.listStats = [];
         let id, statistic, graphicName, txt;
-        for (let i = 0, j = 0, l = Datas.BattleSystems.statisticsOrder.length; i
-            < l; i++) {
-            id = Datas.BattleSystems.statisticsOrder[i];
-            if (id !== Datas.BattleSystems.idLevelStatistic && id !== Datas
-                .BattleSystems.idExpStatistic) {
-                statistic = Datas.BattleSystems.getStatistic(id);
+        for (let i = 0, j = 0, l = Data.BattleSystems.statisticsIDs.length; i < l; i++) {
+            id = Data.BattleSystems.statisticsIDs[i];
+            if (id !== Data.BattleSystems.idLevelStatistic && id !== Data.BattleSystems.idExpStatistic) {
+                statistic = Data.BattleSystems.getStatistic(id);
                 if (statistic.isRes) {
                     continue;
                 }
-                graphicName = new Graphic.Text(statistic.name() + Constants
-                    .STRING_COLON);
+                graphicName = new Graphic.Text(statistic.name() + ':');
                 this.listStatsNames.push(graphicName);
-                txt = Utils.numToString(this.player[statistic.abbreviation]);
+                txt = String(this.player[statistic.abbreviation]);
                 if (!statistic.isFix) {
-                    txt += Constants.STRING_SLASH + this.player[statistic
-                        .getMaxAbbreviation()];
+                    txt += '/' + this.player[statistic.getMaxAbbreviation()];
                 }
                 this.listStats.push(new Graphic.Text(txt));
                 j++;
             }
         }
         // Battler
-        this.battler = Datas.Pictures.getPictureCopy(Enum.PictureKind.Battlers, player.getBattlerID());
-        this.battlerFrame = new Frame(250, { frames: Datas.Systems.battlersFrames });
+        this.battler = Data.Pictures.getPictureCopy(PICTURE_KIND.BATTLERS, player.getBattlerID());
+        this.battlerFrame = new Frame(250, { frames: Data.Systems.battlersFrames });
     }
     /**
      *  Initialize the statistic progression
      */
     initializeStatisticProgression() {
-        this.listStatsProgression = new Array;
+        this.listStatsProgression = [];
         let id, statistic, value, graphic;
-        for (let i = 0, l = Datas.BattleSystems.statisticsOrder.length; i < l; i++) {
-            id = Datas.BattleSystems.statisticsOrder[i];
-            if (id !== Datas.BattleSystems.idLevelStatistic && id !== Datas
-                .BattleSystems.idExpStatistic) {
-                statistic = Datas.BattleSystems.getStatistic(id);
+        for (let i = 0, l = Data.BattleSystems.statisticsIDs.length; i < l; i++) {
+            id = Data.BattleSystems.statisticsIDs[i];
+            if (id !== Data.BattleSystems.idLevelStatistic && id !== Data.BattleSystems.idExpStatistic) {
+                statistic = Data.BattleSystems.getStatistic(id);
                 if (statistic.isRes) {
                     continue;
                 }
                 let txt;
                 if (value > 0) {
-                    txt = "+";
+                    txt = '+';
                 }
                 else if (value < 0) {
-                    txt = "-";
+                    txt = '-';
                 }
                 else {
-                    txt = "";
+                    txt = '';
                 }
                 value = this.player[statistic.abbreviation] - this.player[statistic.getBeforeAbbreviation()];
                 graphic = new Graphic.Text(txt + value);
                 if (value > 0) {
-                    graphic.color = System.Color.GREEN;
+                    graphic.color = Model.Color.GREEN;
                 }
                 else if (value < 0) {
-                    graphic.color = System.Color.RED;
+                    graphic.color = Model.Color.RED;
                 }
                 this.listStatsProgression.push(graphic);
             }
@@ -115,34 +109,30 @@ class PlayerDescription extends Base {
      *  Update the statistic progression.
      */
     updateStatisticProgression() {
-        this.listStatsNames = new Array;
-        this.listStats = new Array;
+        this.listStatsNames = [];
+        this.listStats = [];
         this.maxLength = 0;
         let id, statistic, graphicName, txt;
-        for (let i = 0, l = Datas.BattleSystems.statisticsOrder.length; i < l; i++) {
-            id = Datas.BattleSystems.statisticsOrder[i];
-            if (id !== Datas.BattleSystems.idLevelStatistic && id !== Datas
-                .BattleSystems.idExpStatistic) {
-                statistic = Datas.BattleSystems.getStatistic(id);
-                graphicName = new Graphic.Text(statistic.name() + Constants
-                    .STRING_COLON);
+        for (let i = 0, l = Data.BattleSystems.statisticsIDs.length; i < l; i++) {
+            id = Data.BattleSystems.statisticsIDs[i];
+            if (id !== Data.BattleSystems.idLevelStatistic && id !== Data.BattleSystems.idExpStatistic) {
+                statistic = Data.BattleSystems.getStatistic(id);
+                graphicName = new Graphic.Text(statistic.name() + ':');
                 this.maxLength = Math.max(graphicName.textWidth, this.maxLength);
                 this.listStatsNames.push(graphicName);
-                txt = "";
+                txt = '';
                 if (this.player.stepLevelUp === 0) {
-                    txt += statistic.isFix ? this.player[statistic
-                        .getBeforeAbbreviation()] : this.player[statistic
-                        .abbreviation];
+                    txt += statistic.isFix
+                        ? this.player[statistic.getBeforeAbbreviation()]
+                        : this.player[statistic.abbreviation];
                     if (!statistic.isFix) {
-                        txt += Constants.STRING_SLASH + this.player[statistic
-                            .getBeforeAbbreviation()];
+                        txt += '/' + this.player[statistic.getBeforeAbbreviation()];
                     }
-                    txt += " -> ";
+                    txt += ' -> ';
                 }
                 txt += this.player[statistic.abbreviation];
                 if (!statistic.isFix) {
-                    txt += Constants.STRING_SLASH + this.player[statistic
-                        .getMaxAbbreviation()];
+                    txt += '/' + this.player[statistic.getMaxAbbreviation()];
                 }
                 this.listStats.push(new Graphic.Text(txt));
             }
@@ -166,8 +156,7 @@ class PlayerDescription extends Base {
     drawStatisticProgression(x, y, w, h) {
         for (let i = 0, l = this.listStatsNames.length; i < l; i++) {
             this.listStatsNames[i].draw(x, y * ScreenResolution.getScreenMinXY(30), 0, 0);
-            this.listStats[i].draw(x + this.maxLength + ScreenResolution
-                .getScreenMinXY(10), i * ScreenResolution.getScreenMinXY(30), 0, 0);
+            this.listStats[i].draw(x + this.maxLength + ScreenResolution.getScreenMinXY(10), i * ScreenResolution.getScreenMinXY(30), 0, 0);
         }
     }
     /**
@@ -188,43 +177,44 @@ class PlayerDescription extends Base {
      *  @param {number} h - The height dimention to draw graphic
      */
     draw(x, y, w, h) {
-        let xCharacter = x + ScreenResolution.getScreenMinXY(80);
+        const xCharacter = x + ScreenResolution.getScreenMinXY(80);
         let yName = y + ScreenResolution.getScreenMinXY(20);
-        let coef = Constants.BASIC_SQUARE_SIZE / Datas.Systems.SQUARE_SIZE;
-        let wBattler = this.battler.w / Datas.Systems.battlersFrames;
-        let hBattler = this.battler.h / Datas.Systems.battlersColumns;
-        let owBattler = this.battler.oW / Datas.Systems.battlersFrames;
-        let ohBattler = this.battler.oH / Datas.Systems.battlersColumns;
+        const coef = Constants.BASIC_SQUARE_SIZE / Data.Systems.SQUARE_SIZE;
+        const wBattler = this.battler.w / Data.Systems.battlersFrames;
+        const hBattler = this.battler.h / Data.Systems.battlersColumns;
+        const owBattler = this.battler.oW / Data.Systems.battlersFrames;
+        const ohBattler = this.battler.oH / Data.Systems.battlersColumns;
         // Battler
-        this.battler.draw({ x: x + (ScreenResolution.getScreenMinXY(80) -
-                (wBattler * coef)) / 2, y: y + ScreenResolution.getScreenMinXY(80) -
-                (hBattler * coef) - ScreenResolution.getScreenMinXY(15), w: owBattler
-                * coef, h: ohBattler * coef, sx: this.battlerFrame.value * owBattler,
-            sy: 0, sw: owBattler, sh: ohBattler });
+        this.battler.draw({
+            x: x + (ScreenResolution.getScreenMinXY(80) - wBattler * coef) / 2,
+            y: y + ScreenResolution.getScreenMinXY(80) - hBattler * coef - ScreenResolution.getScreenMinXY(15),
+            w: owBattler * coef,
+            h: ohBattler * coef,
+            sx: this.battlerFrame.value * owBattler,
+            sy: 0,
+            sw: owBattler,
+            sh: ohBattler,
+        });
         // Name, level, description, exp
         yName = y + ScreenResolution.getScreenMinXY(10);
         this.graphicName.draw(xCharacter, yName, 0, 0);
-        let xLevelName = xCharacter + this.graphicName.textWidth + ScreenResolution
-            .getScreenMinXY(10);
+        const xLevelName = xCharacter + this.graphicName.textWidth + ScreenResolution.getScreenMinXY(10);
         this.graphicLevelName.draw(xLevelName, yName, 0, 0);
-        let xLevel = xLevelName + this.graphicLevelName.textWidth;
+        const xLevel = xLevelName + this.graphicLevelName.textWidth;
         this.graphicLevel.draw(xLevel, yName, 0, 0);
-        let xStatus = xLevel + this.graphicLevel.textWidth;
+        const xStatus = xLevel + this.graphicLevel.textWidth;
         Status.drawList(this.player.status, xStatus, yName);
-        let yClass = yName + ScreenResolution.getScreenMinXY(Constants.HUGE_SPACE);
+        const yClass = yName + ScreenResolution.getScreenMinXY(Constants.HUGE_SPACE);
         this.graphicClass.draw(xCharacter, yClass, 0, 0);
-        let yExp = yClass + ScreenResolution.getScreenMinXY(Constants.HUGE_SPACE);
+        const yExp = yClass + ScreenResolution.getScreenMinXY(Constants.HUGE_SPACE);
         let yDescription = yExp;
         if (this.graphicExpName !== null) {
             this.graphicExpName.draw(xCharacter, yExp, 0, 0);
-            this.graphicExp.draw(xCharacter + this.graphicExpName.textWidth +
-                ScreenResolution.getScreenMinXY(Constants.LARGE_SPACE), yExp, 0, 0);
+            this.graphicExp.draw(xCharacter + this.graphicExpName.textWidth + ScreenResolution.getScreenMinXY(Constants.LARGE_SPACE), yExp, 0, 0);
             yDescription += ScreenResolution.getScreenMinXY(Constants.HUGE_SPACE);
         }
-        this.graphicDescription.draw(xCharacter, yDescription, ScreenResolution
-            .getScreenX(450), 0);
-        let yStats = yDescription + this.graphicDescription.textHeight +
-            ScreenResolution.getScreenMinXY(Constants.HUGE_SPACE);
+        this.graphicDescription.draw(xCharacter, yDescription, ScreenResolution.getScreenX(450), 0);
+        const yStats = yDescription + this.graphicDescription.textHeight + ScreenResolution.getScreenMinXY(Constants.HUGE_SPACE);
         // Stats
         let xStat, yStat;
         if (this.listStats.length > 0) {
@@ -232,9 +222,10 @@ class PlayerDescription extends Base {
             const rows = Math.floor((h - yStats + y) / space);
             for (let i = 0, l = this.listStatsNames.length; i < l; i++) {
                 xStat = x + ScreenResolution.getScreenMinXY(Math.floor(i / rows) * 190);
-                yStat = yStats + ((i % rows) * space);
+                yStat = yStats + (i % rows) * space;
                 this.listStatsNames[i].draw(xStat, yStat, 0, 0);
-                this.listStats[i].draw(xStat + ScreenResolution.getScreenMinXY(80) +
+                this.listStats[i].draw(xStat +
+                    ScreenResolution.getScreenMinXY(80) +
                     ScreenResolution.getScreenMinXY(Constants.LARGE_SPACE), yStat, 0, 0);
             }
         }

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,8 +8,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { Manager, Scene } from '../index.js';
 import { Base } from './Base.js';
-import { Scene, Manager } from '../index.js';
 /** @class
  *  An event command for opening the main menu.
  *  @extends EventCommand.Base
@@ -25,7 +25,7 @@ class OpenMainMenu extends Base {
      */
     initialize() {
         return {
-            opened: false
+            opened: false,
         };
     }
     /**
@@ -34,7 +34,7 @@ class OpenMainMenu extends Base {
      *  @param {MapObject} object - The current object reacting
      *  @param {number} state - The state ID
      *  @returns {number} The number of node to pass
-    */
+     */
     update(currentState, object, state) {
         if (!Scene.Map.allowMainMenu || currentState.opened) {
             return 1;

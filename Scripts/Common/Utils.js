@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,241 +8,173 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Rectangle } from '../Core/index.js';
-import { Constants } from './index.js';
-import { Platform } from './Platform.js';
-import { ScreenResolution } from './ScreenResolution.js';
 /**
- * The static class containing all the utils functions.
- *
- * @class Utils
+ * Static utility class providing helper functions for value handling,
+ * formatting, JSON parsing, and array/object manipulation.
  */
-class Utils {
-    constructor() {
-        throw new Error("This is a static class!");
+export class Utils {
+    /**
+     * Returns the default value if the given value is `undefined`, otherwise returns the value.
+     * @template T
+     * @param value - The value to check
+     * @param defaultValue - The default value to return if `value` is undefined
+     * @returns The resolved value
+     */
+    static valueOrDefault(value, defaultValue) {
+        return value === undefined ? defaultValue : value;
     }
     /**
-     *  Return default value if undefined, else the value.
-     *  @static
-     *  @param {any} value - The value
-     *  @param {any} defaultValue - The default value
-     *  @returns {any}
+     * Converts a number (1 or 0) into a boolean.
+     * @param num - The number
+     * @returns True if `num` is 1, otherwise false
      */
-    static defaultValue(value, defaultValue) {
-        return this.isUndefined(value) ? defaultValue : value;
+    static numberToBool(num) {
+        return num === 1;
     }
-    /** Check if the value is undefined
-    *   @static
-    *   @param {any} value - The value
-    *   @returns {boolean}
-    */
-    static isUndefined(value) {
-        return typeof value === Constants.UNDEFINED;
-    }
-    /** Check if the value is a number
-    *   @static
-    *   @param {any} value - The value
-    *   @returns {boolean}
-    */
-    static isNumber(value) {
-        return typeof value === Constants.NUMBER;
-    }
-    /** Check if the value is a string
-     *   @static
-     *   @param {any} value - The value
-     *   @returns {boolean}
+    /**
+     * Converts a boolean into a number (true → 1, false → 0).
+     * @param b - The boolean
+     * @returns The number representation
      */
-    static isString(value) {
-        return typeof value === Constants.STRING;
+    static boolToNumber(b) {
+        return b ? 1 : 0;
     }
-    /** Convert a number to boolean
-     *   @static
-     *   @param {number} num - The number
-     *   @returns {boolean}
-     */
-    static numToBool(num) {
-        return num === Constants.NUM_BOOL_TRUE;
-    }
-    /** Convert a boolean to number
-     *   @static
-     *   @param {boolean} b - The boolean
-     *   @returns {number}
-     */
-    static boolToNum(b) {
-        return b ? Constants.NUM_BOOL_TRUE : Constants.NUM_BOOL_FALSE;
-    }
-    /** Convert number to string
-     *   @static
-     *   @param {number} n - The number
-     *   @returns {string}
-     */
-    static numToString(n) {
-        return "" + n;
-    }
-    /** Try catch for async functions
-     *   @static
-     *   @param {function} func - The async function to apply
-     *   @returns {Promise<any>}
-     */
-    static async tryCatch(func, that) {
-        try {
-            return await func.call(that);
-        }
-        catch (e) {
-            window.onerror(null, null, null, null, e);
-        }
-    }
-    /** Return a string of the date by passing all the seconds
-     *   @static
-     *   @param {number} total - Total number of seconds
-     *   @returns {string}
+    /**
+     * Converts a total number of seconds into a formatted time string (HH:MM:SS).
+     * @param total - Total number of seconds
+     * @returns A formatted string
      */
     static getStringDate(total) {
-        return (this.formatNumber(Math.floor(total / 3600), 4) + Constants
-            .STRING_COLON + this.formatNumber(Math.floor((total % 3600) / 60), 2) + Constants.STRING_COLON + this.formatNumber(Math.floor(total % 60), 2));
+        return (this.formatNumber(Math.floor(total / 3600), 4) +
+            ':' +
+            this.formatNumber(Math.floor((total % 3600) / 60), 2) +
+            ':' +
+            this.formatNumber(Math.floor(total % 60), 2));
     }
-    /** Return the string of a number and parse with 0 according to a given size
-     *  @static
-     *  @param {number} num - Number
-     *  @param {number} size - Max number to display
-     *  @returns {string}
+    /**
+     * Formats a number with leading zeros according to a given size.
+     * @param num - The number
+     * @param size - The total length
+     * @returns A formatted string
      */
     static formatNumber(num, size) {
-        return ('000000000' + num).substr(-size);
+        return num.toString().padStart(size, '0');
     }
-    /** Return the string of a id + name of a system element.
-     *  @static
-     *  @param {number} id
-     *  @param {string} name
-     *  @returns {string}
+    /**
+     * Returns a formatted string containing an ID and name.
+     * @param id - The ID
+     * @param name - The name
+     * @returns A formatted string
      */
     static getIDName(id, name) {
-        return "<> " + this.formatNumber(id, 4) + ": " + name;
-    }
-    /** Create a new array list initialed with null everywhere
-     *   @static
-     *   @param {number} size - The list size
-     *   @returns {any[]}
-     */
-    static fillNullList(size) {
-        let list = new Array(size);
-        for (let i = 0; i < size; i++) {
-            list[i] = null;
-        }
-        return list;
+        return `<> ${this.formatNumber(id, 4)}: ${name}`;
     }
     /**
-     * Read a json list and create a System list sorted by ID, index, and return max ID.
-     *
-     * @static
-     * @param {systemJsonList} json - The json list to read
-     * @return {*}  {number}
-     * @memberof Utils
+     * Builds a font string usable by canvas contexts.
+     * @param fontSize - Font size in pixels
+     * @param fontName - Font family name
+     * @param bold - Whether the font is bold
+     * @param italic - Whether the font is italic
+     * @returns A CSS-compatible font string
      */
-    static readJSONSystemList(json) {
-        let jsonElement;
-        let maxID = 0;
-        let id, element;
-        for (let i = 0, l = json.list.length; i < l; i++) {
-            jsonElement = json.list[i];
-            id = jsonElement.id;
-            if (Utils.isUndefined(json.listHash)) {
-                element = Utils.isUndefined(json.cons) ? json.func.call(null, jsonElement)
-                    : new json.cons(jsonElement);
-                if (!Utils.isUndefined(json.listIDs)) {
-                    json.listIDs[jsonElement.id] = element;
-                }
-                if (!Utils.isUndefined(json.listIndexes)) {
-                    json.listIndexes[i] = json.indexesIDs ? id : element;
-                }
+    static createFont(fontSize, fontName, bold, italic) {
+        return `${bold ? 'bold ' : ''}${italic ? 'italic ' : ''}${fontSize}px "${fontName}"`;
+    }
+    /**
+     * Reads a JSON list and returns an array of objects of type `T`,
+     * ordered by the `id` property in ascending order.
+     * @typeParam T - The type of object to construct from each JSON entry.
+     * @param jsonList - The array of JSON objects to read and process. Defaults to empty array.
+     * @param transformFn - A constructor function (`new`) or a custom function to create an instance of `T`.
+     *  @param ordered - indicates if the list should be sorted by `id`.
+     * @returns An array of objects of type `T` sorted by `id` if wanted.
+     * @throws Will throw an error if `transformFn` is not provided.
+     * @remarks
+     * JSON entries without an `id` will default to `0` for sorting purposes.
+     */
+    static readJSONList(jsonList = [], transformFn, ordered = false) {
+        const list = jsonList;
+        if (ordered) {
+            list.sort((a, b) => (a.id ?? 0) - (b.id ?? 0));
+        }
+        return list.map((json) => {
+            if (transformFn.prototype && typeof transformFn === 'function') {
+                // Called as constructor
+                return new transformFn(json);
             }
             else {
-                json.listHash[jsonElement[Constants.JSON_KEY]] = Utils.isUndefined(json.cons) ? json.func.call(null, jsonElement) : new json.cons(jsonElement[Constants.JSON_VALUE]);
+                // Called as regular function
+                return transformFn(json);
             }
-            maxID = Math.max(id, maxID);
-        }
-        return maxID;
+        });
     }
     /**
-     *  Get the number of fields of an object
-     *  @static
-     *  @param {Object} obj - The object to count fields
-     *  @returns {number}
+     * Converts a list of JSON objects into a `Map<number, T>`,
+     * using a provided transform function or constructor.
+     * @param jsonList - An array of JSON objects. Each must contain an `id` field (numeric).
+     * @param transformFn - Either a class constructor or a plain function to transform each JSON object into type `T`.
+     * @param ids - List of ids that will be filled (provide an empty array).
+     * @returns A map where:
+     *   - The key is the `id` property of each JSON object.
+     *   - The value is the transformed object of type `T`.
      */
-    static countFields(obj) {
-        if (obj.__count__ !== undefined) { // Old FF
-            return obj.__count__;
-        }
-        if (Object.keys) { // ES5
-            return Object.keys(obj).length;
-        }
-        // Everything else:
-        let c = 0;
-        for (let p in obj) {
-            if (obj.hasOwnProperty(p)) {
-                c += 1;
+    static readJSONMap(jsonList = [], transformFn, ids) {
+        return new Map(jsonList.map((json) => {
+            let item;
+            if (typeof transformFn === 'function' && 'prototype' in transformFn) {
+                // Called as constructor
+                item = new transformFn(json);
             }
-        }
-        return c;
+            else {
+                // Called as regular function
+                item = transformFn(json);
+            }
+            const id = json.id ?? 0;
+            if (ids) {
+                ids.push(id);
+            }
+            return [id, item];
+        }));
     }
     /**
-     *  Get the index of an object in a array containing a property with a
-     *  specific value.
-     *  @static
-     *  @param {Object[]} array - The array to check
-     *  @param {string} attr - The attribute of the object to check
-     *  @param {any} value - The value to check on the object attribute
-     *  @returns {number}
+     * Get the maximum numeric key in a Map.
+     * @param {Map<number, unknown>} map - The map to check.
+     * @returns {number} The maximum key in the map, or 0 if the map is empty.
+     */
+    static getMapMaxID(map) {
+        return map.size > 0 ? Math.max(...map.keys()) : 0;
+    }
+    /**
+     * Converts an array into a Map, using array indices as keys (1-based).
+     * @param array - The array to convert.
+     * @returns A map where each value from the array is mapped to its index + 1.
+     */
+    static arrayToMap(array) {
+        return new Map(array.map((value, index) => [index + 1, value]));
+    }
+    /**
+     * Converts a Map with numeric keys into an array, using the keys as indices.
+     * @param map - The map to convert.
+     * @returns An array where each value is placed at the index corresponding to its key in the map.
+     */
+    static mapToArray(map) {
+        const result = [];
+        for (const [id, value] of map.entries()) {
+            result[id] = value;
+        }
+        return result;
+    }
+    /**
+     * Convert an array into a Map where keys start at 1.
+     *
+     * Example:
+     *   ["a", "b"] → Map { 1 => "a", 2 => "b" }
+     *
+     * @template T - The type of the array elements.
+     * @param {T[]} array - The input array.
+     * @returns {Map<number, T>} A Map with 1-based indexes as keys.
      */
     static indexOfProp(array, attr, value) {
-        for (let i = 0, l = array.length; i < l; i++) {
-            if (array[i][attr] === value) {
-                return i;
-            }
-        }
-        return -1;
-    }
-    /**
-     * Fill the screen with the said color
-     *
-     * @static
-     * @param {number} r - the red color
-     * @param {number} g - the green color
-     * @param {number} b - the blue color
-     * @param {number} a - the alpha value
-     * @memberof Utils
-     */
-    static fillScreen(r, g, b, a) {
-        let color = `rgba(${r},${g},${b},${a})`;
-        const rect = new Rectangle(0, 0, ScreenResolution.CANVAS_WIDTH, ScreenResolution.CANVAS_HEIGHT);
-        Platform.ctx.fillStyle = color;
-        Platform.ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
-    }
-    /**
-      * Remove an element from an array.
-      */
-    static removeFromArray(array, element) {
-        let index = array.indexOf(element);
-        if (index === -1) {
-            return false;
-        }
-        else {
-            array.splice(index, 1);
-            return true;
-        }
+        return array.findIndex((item) => item[attr] === value);
     }
 }
-/** Link the fontSize and the fontName to a string that can be used by the
-*   canvasHUD
-*   @static
-*   @param {number} fontSize - The fontSize
-*   @param {string} fontName - The fontName
-*   @param {boolean} bold - Indicate if the text is bold
-*   @param {boolean} italic - Indicate if the text is italic
-*   @returns {string}
-*/
-Utils.createFont = function (fontSize, fontName, bold, italic) {
-    return (bold ? "bold " : "") + (italic ? "italic " : "") + fontSize +
-        "px " + "\"" + fontName + "\"";
-};
-export { Utils };

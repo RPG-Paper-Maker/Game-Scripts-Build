@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,12 +8,10 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Enum } from '../Common/index.js';
+import { ALIGN, ORIENTATION_WINDOW } from '../Common/index.js';
 import { Rectangle, WindowBox, WindowChoices } from '../Core/index.js';
-import { Datas, Graphic, Manager, Scene } from '../index.js';
+import { Data, Graphic, Manager, Scene } from '../index.js';
 import { MenuBase } from './MenuBase.js';
-var Align = Enum.Align;
-var OrientationWindow = Enum.OrientationWindow;
 /**
  * The scene menu describing players statistics.
  *
@@ -49,7 +47,7 @@ class MenuDescriptionState extends MenuBase {
     createWindowTop() {
         const rect = new Rectangle(20, 20, 200, 30);
         const options = {
-            content: new Graphic.Text(this.title, { align: Align.Center }),
+            content: new Graphic.Text(this.title, { align: ALIGN.CENTER }),
         };
         this.windowTop = new WindowBox(rect.x, rect.y, rect.width, rect.height, options);
     }
@@ -60,7 +58,7 @@ class MenuDescriptionState extends MenuBase {
      */
     createWindowTabs() {
         const rect = new Rectangle(50, 60, 110, WindowBox.SMALL_SLOT_HEIGHT);
-        const options = { orientation: OrientationWindow.Horizontal, nbItemsMax: 4 };
+        const options = { orientation: ORIENTATION_WINDOW.HORIZONTAL, nbItemsMax: 4 };
         const listHeroes = [];
         for (let i = 0; i < this.party().length; i++) {
             listHeroes[i] = new Graphic.PlayerDescription(this.party()[i]);
@@ -93,7 +91,7 @@ class MenuDescriptionState extends MenuBase {
      */
     action(isKey, options = {}) {
         if (Scene.MenuBase.checkCancelMenu(isKey, options)) {
-            Datas.Systems.soundCancel.playSound();
+            Data.Systems.soundCancel.playSound();
             Manager.Stack.pop();
         }
     }
@@ -158,7 +156,7 @@ class MenuDescriptionState extends MenuBase {
      * @memberof MenuDescriptionState
      */
     onKeyPressedAndRepeat(key) {
-        let res = Scene.Base.prototype.onKeyPressedAndRepeat.call(Scene.Map.current, key);
+        const res = Scene.Base.prototype.onKeyPressedAndRepeat.call(Scene.Map.current, key);
         this.move(true, { key: key });
         return res;
     }

@@ -1,0 +1,36 @@
+/*
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
+
+    RPG Paper Maker engine is under proprietary license.
+    This source code is also copyrighted.
+
+    Use Commercial edition for commercial use of your games.
+    See RPG Paper Maker EULA here:
+        http://rpg-paper-maker.com/index.php/eula.
+*/
+import { Paths, Platform } from '../Common/index.js';
+import { Base } from './Base.js';
+/**
+ * Handles all variable data.
+ */
+export class Variables {
+    /**
+     * Get the variable name by ID.
+     */
+    static get(id) {
+        return Base.get(id, this.names, 'variable name');
+    }
+    /**
+     * Read the JSON file associated with variables.
+     */
+    static async read() {
+        const json = (await Platform.parseFileJSON(Paths.FILE_VARIABLES));
+        this.names = new Map();
+        for (const page of json.variables) {
+            for (const variable of page.list) {
+                this.names.set(variable.id, variable.name);
+            }
+        }
+    }
+}
+Variables.VARIABLES_PER_PAGE = 25;

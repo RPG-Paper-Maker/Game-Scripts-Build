@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,8 +8,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { Manager, Model } from '../index.js';
 import { Base } from './Base.js';
-import { System, Manager } from '../index.js';
 /** @class
  *  An event command for removing a picture.
  *  @extends EventCommand.Base
@@ -18,10 +18,10 @@ import { System, Manager } from '../index.js';
 class RemoveAPicture extends Base {
     constructor(command) {
         super();
-        let iterator = {
-            i: 0
+        const iterator = {
+            i: 0,
         };
-        this.index = System.DynamicValue.createValueCommand(command, iterator);
+        this.index = Model.DynamicValue.createValueCommand(command, iterator);
     }
     /**
      *  Update and check if the event is finished.
@@ -31,7 +31,7 @@ class RemoveAPicture extends Base {
      *  @returns {number} The number of node to pass
      */
     update(currentState, object, state) {
-        let currentIndex = this.index.getValue();
+        const currentIndex = this.index.getValue();
         for (let i = 0, l = Manager.Stack.displayedPictures.length; i < l; i++) {
             if (currentIndex === Manager.Stack.displayedPictures[i][0]) {
                 Manager.Stack.displayedPictures.splice(i, 1);

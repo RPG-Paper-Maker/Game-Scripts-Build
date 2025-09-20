@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Datas, Graphic, Manager } from "../index.js";
+import { Data, Graphic, Manager } from "../index.js";
 import { ScreenResolution } from '../Common/index.js';
 import { Bitmap } from './Bitmap.js';
 import { Rectangle } from './Rectangle.js';
@@ -100,7 +100,7 @@ class SpinBox extends Bitmap {
     updateValue(value) {
         if (value !== this.value) {
             this.value = value;
-            Datas.Systems.soundCursor.playSound();
+            Data.Systems.soundCursor.playSound();
             this.windowBox.content.setValue(value);
             Manager.Stack.requestPaintHUD = true;
         }
@@ -158,7 +158,7 @@ class SpinBox extends Bitmap {
      *  Update the widget.
      */
     update() {
-        let t = new Date().getTime();
+        const t = new Date().getTime();
         if (t - this.mouseArrowTime >= WindowChoices.TIME_WAIT_MOUSE_ARROW) {
             this.mouseArrowTime = t;
             // If pressing on arrow up
@@ -179,19 +179,19 @@ class SpinBox extends Bitmap {
      */
     onKeyPressedAndRepeat(key) {
         if (this.active) {
-            let t = new Date().getTime();
+            const t = new Date().getTime();
             if (t - this.startTime >= WindowChoices.TIME_WAIT_PRESS) {
                 this.startTime = t;
-                if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls.Down)) {
+                if (Data.Keyboards.isKeyEqual(key, Data.Keyboards.menuControls.Down)) {
                     this.goDown();
                 }
-                else if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls.Up)) {
+                else if (Data.Keyboards.isKeyEqual(key, Data.Keyboards.menuControls.Up)) {
                     this.goUp();
                 }
-                else if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls.Right)) {
+                else if (Data.Keyboards.isKeyEqual(key, Data.Keyboards.menuControls.Right)) {
                     this.goRight();
                 }
-                else if (Datas.Keyboards.isKeyEqual(key, Datas.Keyboards.menuControls.Left)) {
+                else if (Data.Keyboards.isKeyEqual(key, Data.Keyboards.menuControls.Left)) {
                     this.goLeft();
                 }
             }
@@ -207,17 +207,17 @@ class SpinBox extends Bitmap {
         if (this.active) {
             this.isMouseInArrowDown = false;
             this.isMouseInArrowUp = false;
-            const ws = Datas.Systems.getCurrentWindowSkin();
+            const ws = Data.Systems.getCurrentWindowSkin();
             const arrowWidth = ScreenResolution.getScreenXY(ws.arrowUpDown[2]);
             const arrowHeight = ScreenResolution.getScreenXY(ws.arrowUpDown[3]);
             if (this.value < this.max) {
-                let rect = new Rectangle(this.x + (this.w - arrowWidth) / 2, this.y - arrowHeight / 2 - 1, arrowWidth, arrowHeight);
+                const rect = new Rectangle(this.x + (this.w - arrowWidth) / 2, this.y - arrowHeight / 2 - 1, arrowWidth, arrowHeight);
                 if (rect.isInside(x, y)) {
                     this.isMouseInArrowUp = true;
                 }
             }
             if (this.value > this.min) {
-                let rect = new Rectangle(this.x + (this.w - arrowWidth) / 2, this.y + this.h + 1, arrowWidth, arrowHeight);
+                const rect = new Rectangle(this.x + (this.w - arrowWidth) / 2, this.y + this.h + 1, arrowWidth, arrowHeight);
                 if (rect.isInside(x, y)) {
                     this.isMouseInArrowDown = true;
                 }
@@ -230,7 +230,7 @@ class SpinBox extends Bitmap {
     draw() {
         this.windowBox.draw();
         if (this.active) {
-            const ws = Datas.Systems.getCurrentWindowSkin();
+            const ws = Data.Systems.getCurrentWindowSkin();
             if (this.value < this.max) {
                 ws.drawArrowUp(this.oX + (this.oW - ws.arrowUpDown[2]) / 2, this.oY - ws.arrowUpDown[3] / 2 - 1);
             }

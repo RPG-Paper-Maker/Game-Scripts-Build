@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,10 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { Data, Graphic } from "../index.js";
+import { ALIGN, Constants, ScreenResolution } from '../Common/index.js';
 import { Base } from './Base.js';
-import { Graphic, Datas } from "../index.js";
-import { Constants, Utils, Enum, ScreenResolution } from '../Common/index.js';
-var Align = Enum.Align;
 /** @class
  *  The graphic displaying all experience + currencies
  */
@@ -19,13 +18,13 @@ class RewardsTop extends Base {
     constructor(xp, currencies) {
         super();
         // Experience
-        this.graphicXP = new Graphic.Text(Datas.BattleSystems.getExpStatistic()
-            .name() + Constants.STRING_COLON + Constants.STRING_SPACE + xp);
+        this.graphicXP = new Graphic.Text(Data.BattleSystems.getExpStatistic().name() + ':' + ' ' + xp);
         // Currencies
         this.graphicCurrencies = [];
-        for (let id in currencies) {
-            this.graphicCurrencies.push(Graphic.TextIcon.createFromSystem(Utils
-                .numToString(currencies[id]), Datas.Systems.getCurrency(parseInt(id)), { align: Align.Left }));
+        for (const id in currencies) {
+            this.graphicCurrencies.push(Graphic.TextIcon.createFromSystem(String(currencies[id]), Data.Systems.getCurrency(parseInt(id)), {
+                align: ALIGN.LEFT,
+            }));
         }
     }
     /**
@@ -48,18 +47,17 @@ class RewardsTop extends Base {
     draw(x, y, w, h) {
         // Calculating offset for centering
         let offsetWidth = this.graphicXP.textWidth;
-        +ScreenResolution
-            .getScreenMinXY(Constants.LARGE_SPACE);
+        ScreenResolution.getScreenMinXY(Constants.LARGE_SPACE);
         let i, l;
         for (i = 0, l = this.graphicCurrencies.length; i < l; i++) {
-            offsetWidth += this.graphicCurrencies[i].getWidth() + ScreenResolution
-                .getScreenMinXY(i < l - 1 ? Constants.LARGE_SPACE : 0);
+            offsetWidth +=
+                this.graphicCurrencies[i].getWidth() +
+                    ScreenResolution.getScreenMinXY(i < l - 1 ? Constants.LARGE_SPACE : 0);
         }
-        offsetWidth = ((w - offsetWidth) / 2);
+        offsetWidth = (w - offsetWidth) / 2;
         // Experience
         this.graphicXP.draw(x + offsetWidth, y, w, h);
-        offsetWidth += this.graphicXP.textWidth + ScreenResolution
-            .getScreenMinXY(Constants.LARGE_SPACE);
+        offsetWidth += this.graphicXP.textWidth + ScreenResolution.getScreenMinXY(Constants.LARGE_SPACE);
         // Currencies
         let currency;
         for (i = 0, l = this.graphicCurrencies.length; i < l; i++) {

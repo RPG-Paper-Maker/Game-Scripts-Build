@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -9,8 +9,6 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 export * from "./Base.js";
-export * from "./MenuBase.js";
-export * from "./MenuBase.js";
 export * from "./Battle.js";
 export * from "./BattleAnimation.js";
 export * from "./BattleEndTurn.js";
@@ -27,6 +25,7 @@ export * from "./LoadGame.js";
 export * from "./Loading.js";
 export * from "./Map.js";
 export * from "./Menu.js";
+export * from "./MenuBase.js";
 export * from "./MenuDescriptionState.js";
 export * from "./MenuEnterAName.js";
 export * from "./MenuEquip.js";

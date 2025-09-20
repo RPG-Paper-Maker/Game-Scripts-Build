@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Platform, Utils } from '../Common/index.js';
+import { Platform } from '../Common/index.js';
 import { EventCommand, Manager, Scene } from '../index.js';
 import { Node } from './index.js';
 /** @class
@@ -18,9 +18,9 @@ import { Node } from './index.js';
  *  state)
  *  @param {MapObject} object - Current map object
  *  @param {number} state - Current state of map object reaction
- *  @param {System.DynamicValue[]} parameters - All the parameters coming with
+ *  @param {Model.DynamicValue[]} parameters - All the parameters coming with
  *  this reaction
- *  @param {[System.Event, number]} - event The current time events
+ *  @param {[Model.Event, number]} - event The current time events
  *  @param {Node} [command=reaction.getFirstCommand()] - The current command (by
  *  default the first reaction command)
  */
@@ -56,7 +56,7 @@ class ReactionInterpreter {
      *  Update current object and parameters (for variables).
      */
     updateObjectParameters() {
-        // Update for getValue() in System.DynamicValue
+        // Update for getValue() in Model.DynamicValue
         ReactionInterpreter.currentObject = this.currentMapObject;
         ReactionInterpreter.currentParameters = this.currentParameters;
     }
@@ -115,10 +115,10 @@ class ReactionInterpreter {
         this.updateObjectParameters();
         // Update can return different type of values
         ReactionInterpreter.currentReaction = this;
-        let result = this.currentCommand.data.update(this.currentCommandState, this.currentMapObject, this.currentState);
+        const result = this.currentCommand.data.update(this.currentCommandState, this.currentMapObject, this.currentState);
         let value = null;
         // If the value is a string, then it can only be a label call
-        if (Utils.isString(result)) {
+        if (typeof result === 'string') {
             let tab;
             for (let i = 0, l = this.currentReaction.labels.length; i < l; i++) {
                 tab = this.currentReaction.labels[i];

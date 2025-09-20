@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,17 +8,16 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Datas } from "../index.js";
-import { Enum } from '../Common/index.js';
-/** @class
- *  An animation instance.
- *  @param {number} id - The ID of the status
+import { Data } from "../index.js";
+import { PICTURE_KIND } from '../Common/index.js';
+/**
+ * Runtime instance of an animation (plays, loops, draws, triggers sounds).
  */
-class Animation {
+export class Animation {
     constructor(id, loop = false) {
-        this.system = Datas.Animations.get(id);
-        if (this.system) {
-            this.picture = Datas.Pictures.getPictureCopy(Enum.PictureKind.Animations, this.system.pictureID);
+        this.model = Data.Animations.get(id);
+        if (this.model) {
+            this.picture = Data.Pictures.getPictureCopy(PICTURE_KIND.ANIMATIONS, this.model.pictureID);
             this.frame = 0;
             this.loop = loop;
         }
@@ -29,24 +28,19 @@ class Animation {
     update() {
         this.frame++;
         if (this.loop) {
-            this.frame = this.frame % this.system.frames.length;
+            this.frame %= this.model.maxFrameID;
         }
     }
     /**
      *  Draw the animation on top of battler.
      */
     playSounds(conditionKind) {
-        if (this.system) {
-            this.system.playSounds(this.frame, conditionKind);
-        }
+        this.model?.playSounds(this.frame, conditionKind);
     }
     /**
      *  Draw the animation on top of battler.
      */
     draw(battler) {
-        if (this.system) {
-            this.system.draw(this.picture, this.frame, battler);
-        }
+        this.model?.draw(this.picture, this.frame, battler);
     }
 }
-export { Animation };

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -9,102 +9,79 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import * as THREE from 'three';
-import { Utils } from '../Common/index.js';
-import { Datas } from '../index.js';
+import { Mathf, Utils } from '../Common/index.js';
+import { Data } from '../index.js';
 import { CustomGeometry } from './CustomGeometry.js';
 import { MapElement } from './MapElement.js';
-import { Sprite } from './Sprite.js';
-/** @class
- *  A land in the map.
- *  @extends MapElement
+import { Rectangle } from './Rectangle.js';
+/**
+ * A land element placed on the map grid.
  */
-class Land extends MapElement {
-    constructor() {
-        super();
-    }
+export class Land extends MapElement {
     /**
-     *  Read the JSON associated to the land
-     *  @param {Record<string, any>} json - Json object describing the land
-     */
-    read(json) {
-        super.read(json);
-        this.up = Utils.defaultValue(json.up, true);
-        this.texture = json.t;
-        if (this.texture.length === 2) {
-            this.texture.push(1);
-            this.texture.push(1);
-        }
-    }
-    /**
-     *  Return the rect index.
-     *  @param {number} width
-     *  @returns {number}
+     * Compute the index of this land’s texture rectangle in a texture atlas.
      */
     getIndex(width) {
-        return this.texture[0] + this.texture[1] * width;
+        return this.texture.x + this.texture.y * width;
     }
     /**
-     *  Update the geometry associated to this land and return the collision
-     *  result.
-     *  @param {Core.CustomGeometry} geometry - The geometry asoociated to the
-     *  autotiles
-     *  @param {CollisionSquare} collision - The collision square
-     *  @param {Position} position - The position
-     *  @param {number} width - The texture total width
-     *  @param {number} height - The texture total height
-     *  @param {number} x - The x texture position
-     *  @param {number} y - The y texture position
-     *  @param {number} w - The w texture size
-     *  @param {number} h - The h texture size
-     *  @param {number} count - The faces count
-     *  @returns {StructCollision}
+     * Update the geometry for this land tile and optionally generate collision data.
+     *
+     * @param geometry - The custom geometry instance to update with vertices, indices and UVs.
+     * @param collision - The collision square definition for this tile.
+     * @param position - The tile’s position in the map grid.
+     * @param x - The X texture coordinate (in pixels).
+     * @param y - The Y texture coordinate (in pixels).
+     * @param w - The texture width (in pixels).
+     * @param h - The texture height (in pixels).
+     * @param count - The current face count used for indexing.
+     * @returns A {@link StructMapElementCollision} describing collision data, or `null` if no collision should be applied.
      */
     updateGeometryLand(geometry, collision, position, width, height, x, y, w, h, count) {
         const localPosition = position.toVector3();
-        let a = localPosition.x;
+        const a = localPosition.x;
         let yLayerOffset = position.layer * 0.05;
         if (!this.up) {
             yLayerOffset *= -1;
         }
-        let b = localPosition.y + yLayerOffset;
-        let c = localPosition.z;
-        let objCollision = null;
+        const b = localPosition.y + yLayerOffset;
+        const c = localPosition.z;
         // Vertices
-        const vecA = new THREE.Vector3(a - Datas.Systems.SQUARE_SIZE / 2, b, c - Datas.Systems.SQUARE_SIZE / 2);
-        const vecB = new THREE.Vector3(a + Datas.Systems.SQUARE_SIZE / 2, b, c - Datas.Systems.SQUARE_SIZE / 2);
-        const vecC = new THREE.Vector3(a + Datas.Systems.SQUARE_SIZE / 2, b, c + Datas.Systems.SQUARE_SIZE / 2);
-        const vecD = new THREE.Vector3(a - Datas.Systems.SQUARE_SIZE / 2, b, c + Datas.Systems.SQUARE_SIZE / 2);
-        let center = new THREE.Vector3(a, b, c);
-        Sprite.rotateQuadEuler(vecA, vecB, vecC, vecD, center, position.toRotationEuler());
-        // Vertices
+        const vecA = new THREE.Vector3(a - Data.Systems.SQUARE_SIZE / 2, b, c - Data.Systems.SQUARE_SIZE / 2);
+        const vecB = new THREE.Vector3(a + Data.Systems.SQUARE_SIZE / 2, b, c - Data.Systems.SQUARE_SIZE / 2);
+        const vecC = new THREE.Vector3(a + Data.Systems.SQUARE_SIZE / 2, b, c + Data.Systems.SQUARE_SIZE / 2);
+        const vecD = new THREE.Vector3(a - Data.Systems.SQUARE_SIZE / 2, b, c + Data.Systems.SQUARE_SIZE / 2);
+        const center = new THREE.Vector3(a, b, c);
+        Mathf.rotateQuadEuler(vecA, vecB, vecC, vecD, center, position.toRotationEuler());
         geometry.pushQuadVertices(vecA, vecB, vecC, vecD);
         // Indices
         geometry.pushQuadIndices(count * 4);
         // UVs
-        let coefX = MapElement.COEF_TEX / width;
-        let coefY = MapElement.COEF_TEX / height;
+        const coefX = MapElement.COEF_TEX / width;
+        const coefY = MapElement.COEF_TEX / height;
         x += coefX;
         y += coefY;
         w -= coefX * 2;
         h -= coefY * 2;
-        let texA = new THREE.Vector2();
-        let texB = new THREE.Vector2();
-        let texC = new THREE.Vector2();
-        let texD = new THREE.Vector2();
+        const texA = new THREE.Vector2();
+        const texB = new THREE.Vector2();
+        const texC = new THREE.Vector2();
+        const texD = new THREE.Vector2();
         CustomGeometry.uvsQuadToTex(texA, texB, texC, texD, x, y, w, h);
         geometry.pushQuadUVs(texA, texB, texC, texD);
         // Collision
+        let objCollision = null;
         if (collision !== null) {
-            let rect = collision.rect;
+            const rect = collision.rect;
             if (!collision.hasAllDirections() || collision.terrain > 0) {
-                if (rect === null) {
-                    rect = [0, 0, Datas.Systems.SQUARE_SIZE, Datas.Systems.SQUARE_SIZE];
-                }
-                rect = [a + rect[0], b + 0.5, c + rect[1], rect[2], rect[3], 1, 0];
+                let rectB = rect === null
+                    ? [0, 0, Data.Systems.SQUARE_SIZE, Data.Systems.SQUARE_SIZE]
+                    : [rect.x, rect.y, rect.width, rect.height];
+                rectB = [a + rectB[0], b + 0.5, c + rectB[1], rectB[2], rectB[3], 1, 0];
                 objCollision = {
                     p: position,
                     l: localPosition,
-                    b: rect,
+                    b: rectB,
                     cs: collision,
                 };
             }
@@ -112,12 +89,19 @@ class Land extends MapElement {
                 objCollision = {
                     p: position,
                     l: localPosition,
-                    b: [a + rect[0], b + 0.5, c + rect[1], rect[2], rect[3], 1, 0],
+                    b: [a + rect.x, b + 0.5, c + rect.y, rect.width, rect.height, 1, 0],
                     cs: null,
                 };
             }
         }
         return objCollision;
     }
+    /**
+     * Read and initialize this land tile from JSON data.
+     */
+    read(json) {
+        super.read(json);
+        this.up = Utils.valueOrDefault(json.up, true);
+        this.texture = Rectangle.createFromArray(json.t);
+    }
 }
-export { Land };

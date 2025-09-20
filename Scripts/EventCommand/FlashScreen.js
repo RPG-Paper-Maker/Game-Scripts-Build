@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { Platform, ScreenResolution, Utils } from '../Common/index.js';
+import { Data, Manager, Model } from '../index.js';
 import { Base } from './Base.js';
-import { System, Datas, Manager } from '../index.js';
-import { Utils, Platform, ScreenResolution } from '../Common/index.js';
 /** @class
  *  An event command for flashing screen.
  *  @extends EventCommand.Base
@@ -19,12 +19,12 @@ import { Utils, Platform, ScreenResolution } from '../Common/index.js';
 class FlashScreen extends Base {
     constructor(command) {
         super();
-        let iterator = {
-            i: 0
+        const iterator = {
+            i: 0,
         };
-        this.colorID = System.DynamicValue.createValueCommand(command, iterator);
-        this.isWaitEnd = Utils.numToBool(command[iterator.i++]);
-        this.time = System.DynamicValue.createValueCommand(command, iterator);
+        this.colorID = Model.DynamicValue.createValueCommand(command, iterator);
+        this.isWaitEnd = Utils.numberToBool(command[iterator.i++]);
+        this.time = Model.DynamicValue.createValueCommand(command, iterator);
         this.parallel = !this.isWaitEnd;
     }
     /**
@@ -32,15 +32,15 @@ class FlashScreen extends Base {
      *  @returns {Record<string, any>} The current state
      */
     initialize() {
-        let time = this.time.getValue() * 1000;
-        let color = Datas.Systems.getColor(this.colorID.getValue());
+        const time = this.time.getValue() * 1000;
+        const color = Data.Systems.getColor(this.colorID.getValue());
         return {
             parallel: this.isWaitEnd,
             time: time,
             timeLeft: time,
             color: color.getHex(),
             finalDifA: -color.alpha,
-            a: color.alpha
+            a: color.alpha,
         };
     }
     /**
@@ -66,8 +66,7 @@ class FlashScreen extends Base {
                 timeRate = dif / currentState.time;
             }
             // Update values
-            currentState.a = currentState.a + (timeRate * currentState
-                .finalDifA);
+            currentState.a = currentState.a + timeRate * currentState.finalDifA;
             Manager.Stack.requestPaintHUD = true;
             return currentState.timeLeft === 0 ? 1 : 0;
         }

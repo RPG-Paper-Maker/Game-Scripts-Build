@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2023 Wano
+    RPG Paper Maker Copyright (C) 2017-2025 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Graphic, Manager } from "../index.js";
-import { Enum, Utils } from '../Common/index.js';
+import { ALIGN } from '../Common/index.js';
 import { Base } from './Base.js';
 /** @class
  *  The graphic displaying spinbox inside.
@@ -19,7 +19,7 @@ class SpinBox extends Base {
     constructor(value, times = true) {
         super();
         this.times = times;
-        this.graphicTimes = new Graphic.Text("x");
+        this.graphicTimes = new Graphic.Text('x');
         this.setValue(value);
     }
     /**
@@ -32,8 +32,8 @@ class SpinBox extends Base {
     setValue(value) {
         if (this.value !== value) {
             this.value = value;
-            this.graphicValue = new Graphic.Text(Utils.numToString(value), {
-                align: this.times ? Enum.Align.Right : Enum.Align.Center
+            this.graphicValue = new Graphic.Text(String(value), {
+                align: this.times ? ALIGN.RIGHT : ALIGN.CENTER,
             });
             Manager.Stack.requestPaintHUD = true;
         }
