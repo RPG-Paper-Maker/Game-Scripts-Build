@@ -69,6 +69,9 @@ export class Pictures {
             const list = new Map();
             for (const jsonPicture of jsonList) {
                 const id = jsonPicture.id ?? 0;
+                if (id === 0 || id === -1) {
+                    continue;
+                }
                 const picture = new Picture(jsonPicture);
                 picture.kind = k;
                 await picture.checkBase64();

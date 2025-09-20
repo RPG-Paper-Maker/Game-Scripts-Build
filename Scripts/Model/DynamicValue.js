@@ -173,7 +173,7 @@ export class DynamicValue extends Base {
                 }
                 return forceVariable ? this.value : Game.current.getVariable(this.value);
             case DYNAMIC_VALUE_KIND.PARAMETER:
-                return ReactionInterpreter.currentParameters[this.value].getValue();
+                return ReactionInterpreter.currentParameters.get(this.value).getValue();
             case DYNAMIC_VALUE_KIND.PROPERTY:
                 return ReactionInterpreter.currentObject.properties[this.value];
             case DYNAMIC_VALUE_KIND.CLASS:
