@@ -149,8 +149,9 @@ export class Utils {
      * @param array - The array to convert.
      * @returns A map where each value from the array is mapped to its index + 1.
      */
-    static arrayToMap(array) {
-        return new Map(array.map((value, index) => [index + 1, value]));
+    static arrayToMap(array, removeFirst = false) {
+        const arr = removeFirst ? array.slice(1) : array;
+        return new Map(arr.map((value, index) => [index + 1, value]));
     }
     /**
      * Converts a Map with numeric keys into an array, using the keys as indices.

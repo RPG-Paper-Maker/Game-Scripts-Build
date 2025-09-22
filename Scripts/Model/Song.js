@@ -38,7 +38,7 @@ export class Song extends Base {
      * Get the folder path for a given song kind.
      */
     static getFolder(kind, isBR, dlc) {
-        return ((isBR ? Data.Systems.PATH_BR : dlc ? `${Data.Systems.PATH_DLCS}/${dlc}` : Platform.ROOT_DIRECTORY) +
+        return ((isBR ? Data.Systems.PATH_BR + '/' : dlc ? `${Data.Systems.PATH_DLCS}/${dlc}/` : Platform.ROOT_DIRECTORY) +
             this.getLocalFolder(kind));
     }
     /**
@@ -89,7 +89,7 @@ export class Song extends Base {
      * Load the song as a base64 string when not on desktop and not br.
      */
     async checkBase64() {
-        if (!Platform.IS_DESKTOP && !this.isBR) {
+        if (!Platform.IS_DESKTOP && !this.isBR && Platform.WEB_DEV) {
             this.base64 = await Platform.loadFile(`${Platform.ROOT_DIRECTORY.slice(0, -1)}${Song.getLocalFolder(this.kind)}/${this.name}`);
         }
     }

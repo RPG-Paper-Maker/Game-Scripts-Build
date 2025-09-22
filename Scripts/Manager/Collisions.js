@@ -839,7 +839,6 @@ class Collisions {
      */
     static checkObjects3D(mapPortion, jpositionAfter, positionAfter, testedCollisions, object) {
         const objects3D = this.getCollisionsWithOverflows(mapPortion, 'boundingBoxesObjects3D', jpositionAfter, Scene.Map.current.overflowObjects3D);
-        console.log(Scene.Map.current.overflowObjects3D);
         if (objects3D !== null) {
             let objCollision;
             for (let i = 0, l = objects3D.length; i < l; i++) {

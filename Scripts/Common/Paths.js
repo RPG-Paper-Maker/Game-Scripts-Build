@@ -64,11 +64,11 @@ Paths.FILE_LANGS = Platform.ROOT_DIRECTORY + 'langs.json';
 // Asset folders
 // -------------------------------------------------------------------------
 // Media types
-Paths.PICTURES = '/Images';
-Paths.VIDEOS = '/Videos';
-Paths.FONTS = '/Fonts';
-Paths.SONGS = '/Songs/';
-Paths.SHAPES = '/Shapes/';
+Paths.PICTURES = 'Images';
+Paths.VIDEOS = 'Videos';
+Paths.FONTS = 'Fonts';
+Paths.SONGS = 'Songs/';
+Paths.SHAPES = 'Shapes/';
 // HUD and UI
 Paths.HUD = Paths.PICTURES + '/HUD/';
 Paths.TEXTURES2D = Paths.PICTURES + '/Textures2D/';
@@ -103,7 +103,11 @@ Paths.OBJ_COLLISIONS = Paths.SHAPES + 'Collisions';
 // Scripts, plugins, shaders, saves
 // -------------------------------------------------------------------------
 /** Base path for game scripts (adjusted for web builds). */
-Paths.SCRIPTS = (Platform.WEB_DEV && !Platform.IS_DESKTOP ? '.' + window.location.pathname : '') + 'Scripts/';
+Paths.SCRIPTS = (Platform.WEB_DEV && !Platform.IS_DESKTOP
+    ? '.' + window.location.pathname
+    : Platform.IS_DESKTOP
+        ? ''
+        : Platform.ROOT_DIRECTORY) + 'Scripts/';
 Paths.PLUGINS = Platform.ROOT_DIRECTORY + 'Plugins/';
 Paths.SHADERS = Paths.SCRIPTS + 'Shaders/';
 Paths.SAVES = Platform.ROOT_DIRECTORY + 'Saves';

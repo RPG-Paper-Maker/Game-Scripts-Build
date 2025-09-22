@@ -76,9 +76,9 @@ class Game {
         // Items
         this.items = Utils.readJSONList(json.itm, (element) => new Item(element.kind, element.id, element.nb));
         // Currencies
-        this.currencies = Utils.arrayToMap(json.cur);
-        this.currenciesEarned = Utils.arrayToMap(json.cure);
-        this.currenciesUsed = Utils.arrayToMap(json.curu);
+        this.currencies = Utils.arrayToMap(json.cur, true);
+        this.currenciesEarned = Utils.arrayToMap(json.cure, true);
+        this.currenciesUsed = Utils.arrayToMap(json.curu, true);
         // Heroes
         this.teamHeroes = Utils.readJSONList(json.th, (element) => new Player(element.kind, element.id, element.instid, element.sk, element.status, element.name, element));
         this.reserveHeroes = Utils.readJSONList(json.sh, (element) => new Player(element.kind, element.id, element.instid, element.sk, element.status, element.name, element));
