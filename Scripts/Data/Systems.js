@@ -189,7 +189,7 @@ export class Systems {
         // Path BR
         this.PATH_BR = Platform.WEB_DEV ? './BR' : Paths.FILES + json.pathBR;
         // Path DLC
-        this.PATH_DLCS = Paths.FILES + (await Platform.parseFileJSON(Paths.FILE_DLCS)).p;
+        this.PATH_DLCS = Paths.FILES + json.pathDLCS;
         // Hero beginning
         this.ID_MAP_START_HERO = json.idMapHero;
         this.heroMapPosition = Position.createFromArray(json.hmp);
