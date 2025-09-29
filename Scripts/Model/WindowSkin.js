@@ -240,7 +240,7 @@ export class WindowSkin extends Base {
         this.borderBot = Rectangle.createFromArray(json.b);
         this.background = Rectangle.createFromArray(json.back);
         this.backgroundSelection = Rectangle.createFromArray(json.backs);
-        this.backgroundRepeat = Rectangle.createFromArray(json.backr);
+        this.backgroundRepeat = json.backr;
         this.arrowEndMessage = Rectangle.createFromArray(json.aem);
         this.arrowTargetSelection = Rectangle.createFromArray(json.ats);
         this.arrowUpDown = Rectangle.createFromArray(json.aud);
