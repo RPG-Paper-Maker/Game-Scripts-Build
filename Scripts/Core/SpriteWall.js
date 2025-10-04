@@ -68,8 +68,8 @@ class SpriteWall extends MapElement {
         center.add(localPosition);
         // Getting UV coordinates
         const textureRect = new Rectangle(this.kind, 0, 1, Math.floor(height / Data.Systems.SQUARE_SIZE));
-        let x = (textureRect[0] * Data.Systems.SQUARE_SIZE) / width;
-        let y = textureRect[1];
+        let x = (textureRect.x * Data.Systems.SQUARE_SIZE) / width;
+        let y = textureRect.y;
         let w = Data.Systems.SQUARE_SIZE / width;
         let h = 1.0;
         const coefX = MapElement.COEF_TEX / width;
@@ -110,7 +110,7 @@ class SpriteWall extends MapElement {
                         0,
                     ],
                     w: 0,
-                    h: textureRect[3],
+                    h: textureRect.height,
                     k: true,
                 });
                 const climbing = picture.getSquaresClimbing(textureRect);
@@ -120,7 +120,7 @@ class SpriteWall extends MapElement {
                         l: localPosition,
                         b: [
                             localPosition.x + x,
-                            localPosition.y + Math.floor((textureRect[3] * Data.Systems.SQUARE_SIZE - y) / 2),
+                            localPosition.y + Math.floor((textureRect.height * Data.Systems.SQUARE_SIZE - y) / 2),
                             localPosition.z,
                             rect.width,
                             rect.height,
@@ -130,7 +130,7 @@ class SpriteWall extends MapElement {
                             0,
                         ],
                         w: 0,
-                        h: textureRect[3],
+                        h: textureRect.height,
                         k: true,
                         cl: true,
                     });
