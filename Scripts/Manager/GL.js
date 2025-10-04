@@ -45,10 +45,6 @@ class GL {
         this.SHADER_FIX_VERTEX = json;
         json = await Platform.loadFile(Paths.SHADERS + 'default.frag', true);
         this.SHADER_FIX_FRAGMENT = json;
-        json = await Platform.loadFile(Paths.SHADERS + 'default.vert', true);
-        this.SHADER_FACE_VERTEX = json;
-        json = await Platform.loadFile(Paths.SHADERS + 'default.frag', true);
-        this.SHADER_FACE_FRAGMENT = json;
     }
     /**
      *  Set the camera aspect while resizing the window.
