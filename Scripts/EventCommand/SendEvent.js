@@ -68,7 +68,7 @@ class SendEvent extends Base {
      *  @returns {number} The number of node to pass
      */
     update(currentState, object, state) {
-        Manager.Events.sendEvent(object, this.targetKind, this.targetID ? this.targetID.getValue() : -1, this.isSystem, this.eventID, Utils.arrayToMap(Model.DynamicValue.mapWithParametersProperties(this.parameters)), this.senderNoReceiver, this.onlyTheClosest);
+        Manager.Events.sendEvent(object, this.targetKind, this.targetID ? this.targetID.getValue() : -1, this.isSystem, this.eventID, Utils.arrayToMap(Model.DynamicValue.mapWithParametersProperties(this.parameters), true), this.senderNoReceiver, this.onlyTheClosest);
         return 1;
     }
 }

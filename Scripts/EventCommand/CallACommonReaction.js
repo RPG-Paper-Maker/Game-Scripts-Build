@@ -63,7 +63,7 @@ class CallACommonReaction extends Base {
                 }
                 parameters[id] = parameter;
             }
-            currentState.interpreter = new ReactionInterpreter(object, Data.CommonEvents.getCommonReaction(this.commonReactionID), object, state, Utils.arrayToMap(parameters));
+            currentState.interpreter = new ReactionInterpreter(object, Data.CommonEvents.getCommonReaction(this.commonReactionID), object, state, Utils.arrayToMap(parameters, true));
         }
         const previousBlocking = ReactionInterpreter.blockingHero;
         ReactionInterpreter.blockingHero = currentState.interpreter.currentReaction.blockingHero;

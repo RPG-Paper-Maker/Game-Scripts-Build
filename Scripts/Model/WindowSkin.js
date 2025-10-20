@@ -32,8 +32,8 @@ export class WindowSkin extends Base {
      */
     drawElement(r, x, y, w = r.width, h = r.height, zoom = 1.0, positionResize = true) {
         this.picture.draw({
-            x: x,
-            y: y,
+            x,
+            y,
             w: w * zoom,
             h: h * zoom,
             sx: r.x,
