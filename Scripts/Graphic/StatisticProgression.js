@@ -86,7 +86,7 @@ class StatisticProgression extends Base {
      *  @returns {number}
      */
     getHeight() {
-        return this.listStatsNames.length * ScreenResolution.getScreenMinXY(Constants.HUGE_SPACE);
+        return this.listStatsNames.length * Constants.HUGE_SPACE;
     }
     /**
      *  Drawing the player description.
