@@ -25,6 +25,7 @@ export class HeroTroopBattleTest extends Base {
         for (const equipment of this.equipments) {
             equipment.equip(player);
         }
+        player.updateAllStatsValues();
     }
     /**
      * Read the JSON associated to the hero troop battle test.
