@@ -1008,9 +1008,10 @@ class Collisions {
         const w = objCollision.rw;
         const h = objCollision.rh;
         // If not in the height, no test
+        /*
         if (positionAfter.y < y || positionAfter.y > y + h) {
             return [false, null];
-        }
+        }*/
         // if w = 0, check height
         if (w === 0) {
             const pass = forceNever ||
