@@ -136,6 +136,20 @@ export class Utils {
             return [id, item];
         }));
     }
+    static readJSONMapKeyValue(jsonList = [], transformFn) {
+        return new Map(jsonList.map((json) => {
+            let item;
+            if (typeof transformFn === 'function' && 'prototype' in transformFn) {
+                // Called as constructor
+                item = new transformFn(json.v);
+            }
+            else {
+                // Called as regular function
+                item = transformFn(json.v);
+            }
+            return [json.k, item];
+        }));
+    }
     /**
      * Get the maximum numeric key in a Map.
      * @param {Map<number, unknown>} map - The map to check.

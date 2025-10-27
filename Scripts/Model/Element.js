@@ -13,6 +13,6 @@ export class Element extends Icon {
      */
     read(json) {
         super.read(json);
-        this.efficiency = Utils.readJSONMap(json.e, DynamicValue);
+        this.efficiency = Utils.readJSONMapKeyValue(json.e, DynamicValue);
     }
 }
