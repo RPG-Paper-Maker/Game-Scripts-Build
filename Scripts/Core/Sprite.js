@@ -191,6 +191,7 @@ class Sprite extends MapElement {
                 });
             }
             const climbing = Scene.Map.current.mapProperties.tileset.picture.getSquaresClimbing(this.textureRect);
+            console.log(climbing);
             for (const [x, y] of climbing) {
                 objCollision.push({
                     p: position,
