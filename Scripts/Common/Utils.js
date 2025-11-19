@@ -165,7 +165,7 @@ export class Utils {
      */
     static arrayToMap(array, removeFirst = false) {
         const arr = removeFirst ? array.slice(1) : array;
-        return new Map(arr.map((value, index) => [index + 1, value]));
+        return new Map(arr.map((value, index) => [index + 1, value]).filter(([_, v]) => v !== undefined));
     }
     /**
      * Converts a Map with numeric keys into an array, using the keys as indices.

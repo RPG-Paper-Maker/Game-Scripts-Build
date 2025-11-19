@@ -391,7 +391,7 @@ export class Effect extends Base {
      * @returns Always `true`, since the action was initiated.
      */
     executeCommonReaction(forceReaction) {
-        const reactionInterpreter = new ReactionInterpreter(null, Data.CommonEvents.getCommonReaction(this.commonReaction.commonReactionID), null, null, Utils.arrayToMap(this.commonReaction.parameters));
+        const reactionInterpreter = new ReactionInterpreter(null, Data.CommonEvents.getCommonReaction(this.commonReaction.commonReactionID), null, null, Utils.arrayToMap(this.commonReaction.parameters, true));
         Manager.Stack.top.reactionInterpretersEffects.push(reactionInterpreter);
         Manager.Stack.top.reactionInterpreters.push(reactionInterpreter);
         if (forceReaction) {

@@ -733,7 +733,7 @@ class Map extends Base {
         }
         points = new THREE.Points(geometry, material);
         points.position.set(Scene.Map.current.camera.target.position.x, Scene.Map.current.camera.target.position.y, Scene.Map.current.camera.target.position.z);
-        points.renderOrder = 1;
+        points.renderOrder = 100;
         this.scene.add(points);
         if (current) {
             this.weatherPoints = points;
