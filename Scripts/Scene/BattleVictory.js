@@ -329,12 +329,10 @@ class BattleVictory {
                         offset =
                             (Scene.Battle.START_CAMERA_DISTANCE / this.battle.mapCameraDistance) *
                                 Scene.Battle.TRANSITION_ZOOM_TIME;
-                        console.log(this.battle.sceneMap.camera.distance);
                         this.battle.sceneMap.camera.distance =
                             ((new Date().getTime() - this.battle.time - offset) /
                                 (Scene.Battle.TRANSITION_ZOOM_TIME - offset)) *
                                 this.battle.mapCameraDistance;
-                        console.log(this.battle.sceneMap.camera.distance);
                         if (this.battle.sceneMap.camera.distance >= this.battle.mapCameraDistance) {
                             this.battle.sceneMap.camera.distance = this.battle.mapCameraDistance;
                         }
