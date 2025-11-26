@@ -391,10 +391,6 @@ class Battle extends Map {
                     break;
             }
         }
-        if (this.sceneMap) {
-            this.sceneMap.camera.distance = this.mapCameraDistance;
-            this.sceneMap.camera.update();
-        }
     }
     /**
      *  Handle battle key pressed according to step.
