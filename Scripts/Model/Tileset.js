@@ -34,7 +34,7 @@ export class Tileset extends Base {
      */
     read(json) {
         this.id = json.id;
-        this.picture = Data.Pictures.get(PICTURE_KIND.TILESETS, json.pic);
+        this.picture = Data.Pictures.get(PICTURE_KIND.TILESETS, json.pic ?? -1);
         this.battleMap = DynamicValue.readOrDefaultDatabase(json.bm, 1);
     }
 }
