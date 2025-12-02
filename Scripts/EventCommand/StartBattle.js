@@ -39,7 +39,27 @@ class StartBattle extends Base {
                 this.troopID = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
             case 1: // If random troop in map properties
-            // TODO
+                if (Scene.Map.current.mapProperties.randomBattles.length > 0) {
+                    const totalPriorities = Scene.Map.current.mapProperties.randomBattles.reduce((sum, randomBattle) => sum + randomBattle.priority.getValue(), 0);
+                    let r = Math.random() * totalPriorities;
+                    let selectedBattle = null;
+                    for (const battle of Scene.Map.current.mapProperties.randomBattles) {
+                        r -= battle.priority.getValue();
+                        if (r <= 0) {
+                            selectedBattle = battle;
+                            break;
+                        }
+                    }
+                    if (selectedBattle === null) {
+                        selectedBattle =
+                            Scene.Map.current.mapProperties.randomBattles[Scene.Map.current.mapProperties.randomBattles.length - 1];
+                    }
+                    this.troopID = Model.DynamicValue.createNumber(selectedBattle.troopID.getValue());
+                }
+                else {
+                    this.troopID = Model.DynamicValue.createNumber(1);
+                }
+                break;
         }
         // Battle map
         this.battleMapType = command[iterator.i++];

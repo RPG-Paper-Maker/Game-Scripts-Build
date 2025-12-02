@@ -91,9 +91,7 @@ class MapPortion {
             return;
         }
         const material = Scene.Map.current.textureTileset;
-        const texture = Manager.GL.getMaterialTexture(material);
-        const width = texture ? texture.image.width : 0;
-        const height = texture ? texture.image.height : 0;
+        const { width, height } = Manager.GL.getMaterialTextureSize(material);
         const geometry = new CustomGeometry();
         const layers = [];
         let count = 0;
@@ -214,8 +212,8 @@ class MapPortion {
         const staticGeometry = new CustomGeometry();
         const faceGeometry = new CustomGeometryFace();
         let staticCount = 0, faceCount = 0;
-        const texture = Manager.GL.getMaterialTexture(material);
-        if (texture) {
+        const { width, height } = Manager.GL.getMaterialTextureSize(material);
+        if (width > 0 && height > 0) {
             let s, position, sprite, localPosition, collisions, resultUpdate;
             for (let i = 0, l = json.length; i < l; i++) {
                 s = json[i];
@@ -223,12 +221,12 @@ class MapPortion {
                 sprite = new Sprite(s.v);
                 localPosition = position.toVector3();
                 if (sprite.kind === ELEMENT_MAP_KIND.SPRITES_FACE) {
-                    resultUpdate = sprite.updateGeometry(faceGeometry, texture.image.width, texture.image.height, position, faceCount, true, localPosition);
+                    resultUpdate = sprite.updateGeometry(faceGeometry, width, height, position, faceCount, true, localPosition);
                     faceCount = resultUpdate[0];
                     collisions = resultUpdate[1];
                 }
                 else {
-                    resultUpdate = sprite.updateGeometry(staticGeometry, texture.image.width, texture.image.height, position, staticCount, true, localPosition);
+                    resultUpdate = sprite.updateGeometry(staticGeometry, width, height, position, staticCount, true, localPosition);
                     staticCount = resultUpdate[0];
                     collisions = resultUpdate[1];
                 }
@@ -298,9 +296,9 @@ class MapPortion {
                     hash.set(sprite.id, obj);
                 }
             }
-            const texture = Manager.GL.getMaterialTexture(material);
-            if (texture) {
-                const result = sprite.updateGeometry(geometry, position, texture.image.width, texture.image.height, pictureID, count);
+            const { width, height } = Manager.GL.getMaterialTextureSize(material);
+            if (width > 0 && height > 0) {
+                const result = sprite.updateGeometry(geometry, position, width, height, pictureID, count);
                 obj.c = result[0];
                 this.updateCollisionSprite(result[1], position);
             }

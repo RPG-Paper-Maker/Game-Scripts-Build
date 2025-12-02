@@ -18,9 +18,9 @@ import { CustomGeometry } from './CustomGeometry.js';
 class Mountains {
     constructor(bundle) {
         this.bundle = bundle;
-        const texture = Manager.GL.getMaterialTexture(bundle.material);
-        this.width = texture.image.width;
-        this.height = texture.image.height;
+        const { width, height } = Manager.GL.getMaterialTextureSize(bundle.material);
+        this.width = width;
+        this.height = height;
         this.geometry = new CustomGeometry();
         this.count = 0;
         this.mesh = null;

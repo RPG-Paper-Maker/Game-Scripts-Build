@@ -18,9 +18,9 @@ import { CustomGeometry } from './CustomGeometry.js';
 export class Autotiles {
     constructor(bundle) {
         this.bundle = bundle;
-        const texture = Manager.GL.getMaterialTexture(bundle.material);
-        this.width = texture?.image?.width ?? 0;
-        this.height = texture?.image?.height ?? 0;
+        const { width, height } = Manager.GL.getMaterialTextureSize(bundle.material);
+        this.width = width;
+        this.height = height;
         this.geometry = new CustomGeometry();
         this.mesh = null;
         this.index = 0;

@@ -202,6 +202,12 @@ class GL {
         position.project(camera);
         return new THREE.Vector2(position.x * widthHalf + widthHalf, -(position.y * heightHalf) + heightHalf);
     }
+    static getMaterialTextureSize(material) {
+        return {
+            width: material?.map?.image?.width ?? 0,
+            height: material?.map?.image?.height ?? 0,
+        };
+    }
 }
 GL.textureLoader = new THREE.TextureLoader();
 GL.raycaster = new THREE.Raycaster();
