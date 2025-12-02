@@ -301,7 +301,6 @@ class Collisions {
         const jpositionAfter = Position.createFromVector3(positionAfter);
         const positionBeforePlus = new THREE.Vector3();
         const positionAfterPlus = new THREE.Vector3();
-        const testedCollisions = [];
         let yMountain = null;
         // Squares to inspect according to the direction of the object
         const [startI, endI, startJ, endJ, startK, endK] = object.getSquaresBB();
@@ -322,7 +321,7 @@ class Collisions {
                     portion = Scene.Map.current.getLocalPortion(Portion.createFromVector3(positionAfterPlus));
                     mapPortion = Scene.Map.current.getMapPortionFromPortion(portion);
                     if (mapPortion) {
-                        result = this.check(mapPortion, jpositionBefore, new Position(jpositionAfter.x + i, jpositionAfter.y + j, jpositionAfter.z + k), positionAfter, object, direction, testedCollisions);
+                        result = this.check(mapPortion, jpositionBefore, new Position(jpositionAfter.x + i, jpositionAfter.y + j, jpositionAfter.z + k), positionAfter, object, direction);
                         if (result[0] === null) {
                             // If not already climbing, be sure that the before position can colide with climbling sprite
                             if (!object.isClimbing) {
@@ -334,7 +333,7 @@ class Collisions {
                                             portion = Scene.Map.current.getLocalPortion(Portion.createFromVector3(positionBeforePlus));
                                             mapPortion = Scene.Map.current.getMapPortionFromPortion(portion);
                                             if (mapPortion) {
-                                                const [b, y] = this.checkSprites(mapPortion, new Position(jpositionBefore.x + i2, jpositionBefore.y + j2, jpositionBefore.z + k2), [], object);
+                                                const [b, y] = this.checkSprites(mapPortion, new Position(jpositionBefore.x + i2, jpositionBefore.y + j2, jpositionBefore.z + k2), object);
                                                 // If before and after collides, get up!
                                                 if (b === null) {
                                                     object.updateMeshBBPosition(object.currentBoundingBox, bbSettings, positionAfter);
@@ -489,7 +488,7 @@ class Collisions {
                                                         const climbingUp = object.isClimbingUp;
                                                         object.isClimbingUp = false;
                                                         object.updateMeshBBPosition(object.currentBoundingBox, bbSettings, positionBottom);
-                                                        let [b, y, o] = this.checkSprites(mapPortion, jpositionBottom, [], object);
+                                                        let [b, y, o] = this.checkSprites(mapPortion, jpositionBottom, object);
                                                         if (b === null) {
                                                             // Check if after moving the collision still occurs. If not, go down
                                                             const positionBottomAfter = positionAfter.clone();
@@ -508,7 +507,7 @@ class Collisions {
                                                                         if (mapPortion) {
                                                                             const jpositionBottomAfter = Position.createFromVector3(positionAfterPlus);
                                                                             object.updateMeshBBPosition(object.currentBoundingBox, bbSettings, positionBottomAfter);
-                                                                            b = this.checkSprites(mapPortion, jpositionBottomAfter, [], object)[0];
+                                                                            b = this.checkSprites(mapPortion, jpositionBottomAfter, object)[0];
                                                                             if (b === null) {
                                                                                 object.updateMeshBBPosition(object.currentBoundingBox, bbSettings, positionAfter);
                                                                                 object.isClimbingUp = climbingUp;
@@ -580,26 +579,25 @@ class Collisions {
      *  @param {THREE.Vector3} positionAfter - The position after collision
      *  @param {MapObject} object - The map object collision test
      *  @param {THREE.Vector3} direction - The direction collision
-     *  @param {StructMapElementCollision[]} testedCollisions - The object
      *  collisions that were already tested
      *  @returns {boolean}
      */
-    static check(mapPortion, jpositionBefore, jpositionAfter, positionAfter, object, direction, testedCollisions) {
+    static check(mapPortion, jpositionBefore, jpositionAfter, positionAfter, object, direction) {
         // Check sprites and climbing
-        let [isCollision, yMountain, o] = this.checkSprites(mapPortion, jpositionAfter, testedCollisions, object);
+        let [isCollision, yMountain, o] = this.checkSprites(mapPortion, jpositionAfter, object);
         // Climbing
         if (isCollision || yMountain !== null) {
             return [isCollision, yMountain, o];
         }
         // Check mountain collision first for elevation
-        [isCollision, yMountain] = this.checkMountains(mapPortion, jpositionAfter, positionAfter, testedCollisions, object);
+        [isCollision, yMountain] = this.checkMountains(mapPortion, jpositionAfter, positionAfter, object);
         if (isCollision) {
             return [isCollision, yMountain, ORIENTATION.NONE];
         }
         // Check other tests
         return [
-            this.checkLands(mapPortion, jpositionBefore, jpositionAfter, object, direction, testedCollisions) ||
-                this.checkObjects3D(mapPortion, jpositionAfter, positionAfter, testedCollisions, object),
+            this.checkLands(mapPortion, jpositionBefore, jpositionAfter, object, direction) ||
+                this.checkObjects3D(mapPortion, jpositionAfter, positionAfter, object),
             yMountain,
             ORIENTATION.NONE,
         ];
@@ -612,28 +610,25 @@ class Collisions {
      *  @param {Position} jpositionAfter - The json position after collision
      *  @param {MapObject} object - The map object collision test
      *  @param {THREE.Vector3} direction - The direction collision
-     *  @param {StructMapElementCollision[]} testedCollisions - The object
      *  collisions that were already tested
      *  @returns {boolean}
      */
-    static checkLands(mapPortion, jpositionBefore, jpositionAfter, object, direction, testedCollisions) {
+    static checkLands(mapPortion, jpositionBefore, jpositionAfter, object, direction) {
         const index = jpositionAfter.toIndex();
         const lands = mapPortion.boundingBoxesLands[index];
         if (lands !== null) {
             let objCollision, boundingBox, collision;
             for (let i = 0, l = lands.length; i < l; i++) {
                 objCollision = lands[i];
-                if (testedCollisions.indexOf(objCollision) === -1) {
-                    testedCollisions.push(objCollision);
-                    if (objCollision !== null) {
-                        boundingBox = objCollision.b;
-                        collision = objCollision.cs;
-                        if (this.checkIntersectionLand(collision, boundingBox, object) ||
-                            this.checkDirections(jpositionBefore, jpositionAfter, collision, boundingBox, direction, object)) {
-                            return true;
-                        }
+                if (objCollision !== null) {
+                    boundingBox = objCollision.b;
+                    collision = objCollision.cs;
+                    if (this.checkIntersectionLand(collision, boundingBox, object) ||
+                        this.checkDirections(jpositionBefore, jpositionAfter, collision, boundingBox, direction, object)) {
+                        return true;
                     }
                 }
+                //}
             }
         }
         return false;
@@ -745,49 +740,45 @@ class Collisions {
      *  @static
      *  @param {MapPortion} mapPortion - The map portion to check
      *  @param {Position} jpositionAfter - The json position after collision
-     *  @param {StructMapElementCollision[]} testedCollisions - The object
      *  collisions that were already tested
      *  @param {MapObject} object - The map object collision test
      *  @returns {boolean}
      */
-    static checkSprites(mapPortion, jpositionAfter, testedCollisions, object) {
+    static checkSprites(mapPortion, jpositionAfter, object) {
         const sprites = this.getCollisionsWithOverflows(mapPortion, 'boundingBoxesSprites', jpositionAfter, Scene.Map.current.overflowSprites);
         let tested = false;
         if (sprites !== null) {
             let objCollision;
             for (let i = 0, l = sprites.length; i < l; i++) {
                 objCollision = sprites[i];
-                if (testedCollisions.indexOf(objCollision) === -1) {
-                    testedCollisions.push(objCollision);
-                    if (this.checkIntersectionSprite(objCollision.b, objCollision.k, object, objCollision.cr)) {
-                        if (objCollision.cl) {
-                            const speed = object.speed.getValue() *
-                                MapObject.SPEED_NORMAL *
-                                Manager.Stack.averageElapsedTime *
-                                Data.Systems.SQUARE_SIZE *
-                                Data.Systems.climbingSpeed.getValue();
-                            const limitTop = objCollision.b[1] + Math.ceil(objCollision.b[4] / 2);
-                            const limitBot = objCollision.b[1] - Math.ceil(objCollision.b[4] / 2);
-                            const y = object.isClimbingUp
-                                ? Math.min(object.position.y + speed, limitTop)
-                                : Math.max(object.position.y - speed, limitBot);
-                            if (y === object.position.y) {
-                                continue;
-                            }
-                            const angle = objCollision.b[6];
-                            let force = false, front = false;
-                            if (angle === 0 || angle === 180) {
-                                force = true;
-                                front = true;
-                            }
-                            else if (angle === 90 || angle === 270) {
-                                force = true;
-                            }
-                            return [null, y, object.getOrientationBetweenPosition(objCollision.l, force, front)];
+                if (this.checkIntersectionSprite(objCollision.b, objCollision.k, object, objCollision.cr)) {
+                    if (objCollision.cl) {
+                        const speed = object.speed.getValue() *
+                            MapObject.SPEED_NORMAL *
+                            Manager.Stack.averageElapsedTime *
+                            Data.Systems.SQUARE_SIZE *
+                            Data.Systems.climbingSpeed.getValue();
+                        const limitTop = objCollision.b[1] + Math.ceil(objCollision.b[4] / 2);
+                        const limitBot = objCollision.b[1] - Math.ceil(objCollision.b[4] / 2);
+                        const y = object.isClimbingUp
+                            ? Math.min(object.position.y + speed, limitTop)
+                            : Math.max(object.position.y - speed, limitBot);
+                        if (y === object.position.y) {
+                            continue;
                         }
-                        if (!object.isClimbing) {
-                            tested = true;
+                        const angle = objCollision.b[6];
+                        let force = false, front = false;
+                        if (angle === 0 || angle === 180) {
+                            force = true;
+                            front = true;
                         }
+                        else if (angle === 90 || angle === 270) {
+                            force = true;
+                        }
+                        return [null, y, object.getOrientationBetweenPosition(objCollision.l, force, front)];
+                    }
+                    if (!object.isClimbing) {
+                        tested = true;
                     }
                 }
             }
@@ -832,28 +823,24 @@ class Collisions {
      *  @param {MapPortion} mapPortion - The map portion to check
      *  @param {Position} jpositionAfter - The json position after collision
      *  @param {THREE.Vector3} positionAfter - The position after collision
-     *  @param {StructMapElementCollision[]} testedCollisions - The object
      *  collisions that were already tested
      *  @param {MapObject} object - The map object collision test
      *  @returns {boolean}
      */
-    static checkObjects3D(mapPortion, jpositionAfter, positionAfter, testedCollisions, object) {
+    static checkObjects3D(mapPortion, jpositionAfter, positionAfter, object) {
         const objects3D = this.getCollisionsWithOverflows(mapPortion, 'boundingBoxesObjects3D', jpositionAfter, Scene.Map.current.overflowObjects3D);
         if (objects3D !== null) {
             let objCollision;
             for (let i = 0, l = objects3D.length; i < l; i++) {
                 objCollision = objects3D[i];
-                if (testedCollisions.indexOf(objCollision) === -1) {
-                    testedCollisions.push(objCollision);
-                    if (objCollision.id) {
-                        if (this.checkCustomObject3D(objCollision, object, positionAfter)) {
-                            return true;
-                        }
+                if (objCollision.id) {
+                    if (this.checkCustomObject3D(objCollision, object, positionAfter)) {
+                        return true;
                     }
-                    else {
-                        if (this.checkIntersectionSprite(objCollision.b, objCollision.k, object, objCollision.cr)) {
-                            return true;
-                        }
+                }
+                else {
+                    if (this.checkIntersectionSprite(objCollision.b, objCollision.k, object, objCollision.cr)) {
+                        return true;
                     }
                 }
             }
@@ -932,17 +919,16 @@ class Collisions {
      *  @param {MapPortion} mapPortion - The map portion to check
      *  @param {Position} jpositionAfter - The json position after collision
      *  @param {THREE.Vector3} positionAfter - The position after collision
-     *  @param {StructMapElementCollision[]} testedCollisions - The object collisions that were
      *  already tested
      *  @param {MapObject} object - The map object collision test
      *  @returns {boolean}
      */
-    static checkMountains(mapPortion, jpositionAfter, positionAfter, testedCollisions, object) {
+    static checkMountains(mapPortion, jpositionAfter, positionAfter, object) {
         let yMountain = null;
         const mountains = this.getCollisionsWithOverflows(mapPortion, 'boundingBoxesMountains', jpositionAfter, Scene.Map.current.overflowMountains);
         let block = false;
         for (const mountain of mountains) {
-            const result = this.checkMountain(mapPortion, jpositionAfter, positionAfter, testedCollisions, object, mountain, yMountain, block);
+            const result = this.checkMountain(mapPortion, jpositionAfter, positionAfter, object, mountain, yMountain, block);
             if (result[0]) {
                 return [result[1], result[2]];
             }
@@ -959,32 +945,28 @@ class Collisions {
      *  @param {MapPortion} mapPortion - The map portion to check
      *  @param {Position} jpositionAfter - The json position after collision
      *  @param {THREE.Vector3} positionAfter - The position after collision
-     *  @param {StructMapElementCollision[]} testedCollisions - The object
-     *  collisions that were already tested
      *  @param {MapObject} object - The map object collision test
      *  @param {StructMapElementCollision} objCollision - The object collision
      *  @param {number} yMountain - The y mountain collision
      *  @param {boolean} block - The block mountain collision
      *  @returns {[boolean, boolean, number]}
      */
-    static checkMountain(mapPortion, jpositionAfter, positionAfter, testedCollisions, object, objCollision, yMountain, block) {
-        if (testedCollisions.indexOf(objCollision) === -1) {
-            testedCollisions.push(objCollision);
-            const result = this.checkIntersectionMountain(mapPortion, jpositionAfter, positionAfter, objCollision, object);
-            if (result[0]) {
-                if (result[1] === null) {
-                    return [true, result[0], result[1]];
-                }
-                else {
-                    block = true;
-                }
+    static checkMountain(mapPortion, jpositionAfter, positionAfter, object, objCollision, yMountain, block) {
+        const result = this.checkIntersectionMountain(mapPortion, jpositionAfter, positionAfter, objCollision, object);
+        if (result[0]) {
+            if (result[1] === null) {
+                return [true, result[0], result[1]];
             }
-            else if (result[1] !== null) {
-                if (yMountain === null || yMountain < result[1]) {
-                    yMountain = result[1];
-                }
+            else {
+                block = true;
             }
         }
+        else if (result[1] !== null) {
+            if (yMountain === null || yMountain < result[1]) {
+                yMountain = result[1];
+            }
+        }
+        //}
         return [false, block, yMountain];
     }
     /**
