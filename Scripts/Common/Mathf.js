@@ -14,6 +14,9 @@
  * This class is non-instantiable: all members are static.
  */
 export class Mathf {
+    static roundDecimalFour(num) {
+        return Math.round(num * 1e4) / 1e4;
+    }
     /**
      * Cosine with rounding to reduce floating errors.
      * @param v Angle in radians.
