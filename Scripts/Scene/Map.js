@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import * as THREE from 'three';
-import { Constants, Inputs, Interpreter, Paths, PICTURE_KIND, Platform, ScreenResolution, TARGET_KIND, Utils, } from '../Common/index.js';
+import { Constants, DYNAMIC_VALUE_KIND, Inputs, Interpreter, Paths, PICTURE_KIND, Platform, ScreenResolution, TARGET_KIND, Utils, } from '../Common/index.js';
 import { Autotiles, Camera, Frame, Game, MapPortion, Portion, ReactionInterpreter, } from '../Core/index.js';
 import { Data, Manager, Model, Scene } from '../index.js';
 import { Base } from './Base.js';
@@ -963,7 +963,7 @@ class Map extends Base {
                 Manager.Events.sendEvent(null, 2, 0, true, 3, Utils.arrayToMap([
                     Model.DynamicValue.createMessage(key),
                     Model.DynamicValue.createSwitch(false),
-                    Model.DynamicValue.createSwitch(false),
+                    Model.DynamicValue.create(DYNAMIC_VALUE_KIND.ANYTHING)
                 ]), true, false);
             }
             super.onKeyPressed(key);
