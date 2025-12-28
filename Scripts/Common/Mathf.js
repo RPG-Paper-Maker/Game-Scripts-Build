@@ -8,12 +8,16 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+var _b;
 /**
  * Static math utilities used across the engine.
  *
  * This class is non-instantiable: all members are static.
  */
 export class Mathf {
+    /**
+     * Rounds a number to **4 decimal places** using standard rounding.
+     */
     static roundDecimalFour(num) {
         return Math.round(num * 1e4) / 1e4;
     }
@@ -184,6 +188,7 @@ export class Mathf {
         this.rotateVertexEuler(vecD, center, euler);
     }
 }
+_b = Mathf;
 /**
  * Comparison operator table.
  * Index mapping is expected by callers:
@@ -204,9 +209,9 @@ Mathf.OPERATORS_COMPARE = Object.freeze([
  */
 Mathf.OPERATORS_NUMBERS = Object.freeze([
     (_a, b) => b,
-    (a, b) => a + b,
-    (a, b) => a - b,
-    (a, b) => a * b,
-    (a, b) => a / b,
+    (a, b) => _b.roundDecimalFour(a + b),
+    (a, b) => _b.roundDecimalFour(a - b),
+    (a, b) => _b.roundDecimalFour(a * b),
+    (a, b) => _b.roundDecimalFour(a / b),
     (a, b) => a % b,
 ]);

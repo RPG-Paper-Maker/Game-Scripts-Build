@@ -161,14 +161,12 @@ class MoveCamera extends Base {
                 Scene.Map.current.camera.update();
                 // If time = 0, then this is the end of the command
                 if (currentState.timeLeft === 0) {
-                    console.log(Scene.Map.current.camera.horizontalAngle);
                     Inputs.updateLockedKeysAngles(currentState.initialH);
                     return 1;
                 }
             }
             return 0;
         }
-        console.log(Scene.Map.current.camera.getThreeCamera().position);
         return 1;
     }
 }
