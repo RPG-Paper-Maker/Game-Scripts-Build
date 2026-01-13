@@ -132,6 +132,12 @@ class MoveCamera extends Base {
                     }
                     timeRate = difNb / currentState.time;
                 }
+                // Rotation
+                Scene.Map.current.camera.addHorizontalAngle(timeRate * currentState.finalDifH);
+                Scene.Map.current.camera.addVerticalAngle(timeRate * currentState.finalDifV);
+                if (this.rotationTargetOffset) {
+                    Scene.Map.current.camera.updateTargetOffset();
+                }
                 // Move
                 let positionOffset = new THREE.Vector3(timeRate * currentState.finalDifPosition.x, timeRate * currentState.finalDifPosition.y, timeRate * currentState.finalDifPosition.z);
                 Scene.Map.current.camera.getThreeCamera().position.add(positionOffset);
@@ -149,12 +155,6 @@ class MoveCamera extends Base {
                     Scene.Map.current.camera.updateAngles();
                 }
                 Scene.Map.current.camera.updateDistance();
-                // Rotation
-                Scene.Map.current.camera.addHorizontalAngle(timeRate * currentState.finalDifH);
-                Scene.Map.current.camera.addVerticalAngle(timeRate * currentState.finalDifV);
-                if (this.rotationTargetOffset) {
-                    Scene.Map.current.camera.updateTargetOffset();
-                }
                 // Zoom
                 Scene.Map.current.camera.distance += timeRate * currentState.finalDifDistance;
                 // Update

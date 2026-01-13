@@ -29,7 +29,6 @@ class BattleAnimation {
      */
     initialize() {
         let content;
-        console.log(this.battle.battleCommandKind);
         switch (this.battle.battleCommandKind) {
             case EFFECT_SPECIAL_ACTION_KIND.APPLY_WEAPONS:
                 this.battle.informationText = this.battle.attackSkill.getMessage(this.battle.user);

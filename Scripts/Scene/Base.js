@@ -77,13 +77,13 @@ class Base {
             }
         }
         // Updating all reactions
-        let effectIndex, i, l;
-        for (i = 0, l = this.reactionInterpreters.length; i < l; i++) {
-            reaction = this.reactionInterpreters[i];
+        let effectIndex;
+        const reactionInterpreters = [...this.reactionInterpreters];
+        for (const reaction of reactionInterpreters) {
             reaction.update();
             if (reaction.isFinished()) {
                 reaction.updateFinish();
-                endingReactions.push(i);
+                endingReactions.push(reaction);
                 effectIndex = this.reactionInterpretersEffects.indexOf(reaction);
                 if (effectIndex !== -1) {
                     this.reactionInterpretersEffects.splice(effectIndex, 1);
@@ -95,9 +95,7 @@ class Base {
             }
         }
         // Deleting finished reactions
-        for (i = endingReactions.length - 1; i >= 0; i--) {
-            this.reactionInterpreters.splice(endingReactions[i], 1);
-        }
+        this.reactionInterpreters = this.reactionInterpreters.filter((reaction) => !endingReactions.includes(reaction));
     }
     /**
      *  Update all the parallel commands from the scenes.
