@@ -79,6 +79,7 @@ class Collisions {
         box.updateMatrixWorld();
         // Compute bounding box manually
         if (box.geometry.boundingBox === null) {
+            console.log('a');
             box.geometry.computeBoundingBox();
         }
     }
@@ -108,6 +109,7 @@ class Collisions {
         box.updateMatrixWorld();
         // Compute bounding box manually
         if (box.geometry.boundingBox === null) {
+            console.log('b');
             box.geometry.computeBoundingBox();
         }
     }
@@ -139,6 +141,8 @@ class Collisions {
         box.updateMatrixWorld();
         // Compute bounding box manually
         if (box.geometry.boundingBox === null) {
+            console.log('c');
+            console.log(box.geometry.attributes.position.array);
             box.geometry.computeBoundingBox();
         }
     }

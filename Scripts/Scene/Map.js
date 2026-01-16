@@ -963,7 +963,7 @@ class Map extends Base {
                 Manager.Events.sendEvent(null, 2, 0, true, 3, Utils.arrayToMap([
                     Model.DynamicValue.createMessage(key),
                     Model.DynamicValue.createSwitch(false),
-                    Model.DynamicValue.create(DYNAMIC_VALUE_KIND.ANYTHING)
+                    Model.DynamicValue.create(DYNAMIC_VALUE_KIND.ANYTHING),
                 ]), true, false);
             }
             super.onKeyPressed(key);
