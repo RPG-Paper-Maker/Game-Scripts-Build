@@ -77,17 +77,12 @@ class Base {
             }
         }
         // Updating all reactions
-        let effectIndex;
-        const reactionInterpreters = [...this.reactionInterpreters];
+        const reactionInterpreters = [...this.reactionInterpreters, ...this.reactionInterpretersEffects];
         for (const reaction of reactionInterpreters) {
             reaction.update();
             if (reaction.isFinished()) {
                 reaction.updateFinish();
                 endingReactions.push(reaction);
-                effectIndex = this.reactionInterpretersEffects.indexOf(reaction);
-                if (effectIndex !== -1) {
-                    this.reactionInterpretersEffects.splice(effectIndex, 1);
-                }
             }
             // If changed map, STOP
             if (!Scene.Map.current || Manager.Stack.top.loading) {
@@ -96,6 +91,7 @@ class Base {
         }
         // Deleting finished reactions
         this.reactionInterpreters = this.reactionInterpreters.filter((reaction) => !endingReactions.includes(reaction));
+        this.reactionInterpretersEffects = this.reactionInterpretersEffects.filter((reaction) => !endingReactions.includes(reaction));
     }
     /**
      *  Update all the parallel commands from the scenes.

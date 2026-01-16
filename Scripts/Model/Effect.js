@@ -393,7 +393,6 @@ export class Effect extends Base {
     executeCommonReaction(forceReaction) {
         const reactionInterpreter = new ReactionInterpreter(null, Data.CommonEvents.getCommonReaction(this.commonReaction.commonReactionID), null, null, Utils.arrayToMap(this.commonReaction.parameters, true));
         Manager.Stack.top.reactionInterpretersEffects.push(reactionInterpreter);
-        Manager.Stack.top.reactionInterpreters.push(reactionInterpreter);
         if (forceReaction) {
             Manager.Stack.top.updateInterpreters();
             if (Manager.Stack.top.reactionInterpretersEffects.length === 0) {
