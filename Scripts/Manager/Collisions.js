@@ -79,7 +79,6 @@ class Collisions {
         box.updateMatrixWorld();
         // Compute bounding box manually
         if (box.geometry.boundingBox === null) {
-            console.log('a');
             box.geometry.computeBoundingBox();
         }
     }
@@ -90,6 +89,10 @@ class Collisions {
      *  @param {number[]} boundingBox - The bounding box list parameters
      */
     static applyBoxSpriteTransforms(box, boundingBox, isFixSprite = false, center = [0, 0, 0]) {
+        // Avoid NaN values if scale values are 0
+        boundingBox[3] = Mathf.nearZeroValue(boundingBox[3]);
+        boundingBox[4] = Mathf.nearZeroValue(boundingBox[4]);
+        boundingBox[5] = Mathf.nearZeroValue(boundingBox[5]);
         // Cancel previous geometry transforms
         box.geometry.translate(-box['previousTranslate'][0] + box['previousCenter'][0], -box['previousTranslate'][1] + box['previousCenter'][1], -box['previousTranslate'][2] + box['previousCenter'][2]);
         const geometry = box.geometry;
@@ -109,7 +112,6 @@ class Collisions {
         box.updateMatrixWorld();
         // Compute bounding box manually
         if (box.geometry.boundingBox === null) {
-            console.log('b');
             box.geometry.computeBoundingBox();
         }
     }
@@ -120,7 +122,10 @@ class Collisions {
      *  @param {number[]} boundingBox - The bounding box list parameters
      */
     static applyOrientedBoxTransforms(box, boundingBox, center = [0, 0, 0]) {
-        const size = Math.floor(boundingBox[3] / Math.sqrt(2));
+        let size = Math.floor(boundingBox[3] / Math.sqrt(2));
+        // Avoid NaN values if scale values are 0
+        size = Mathf.nearZeroValue(size);
+        boundingBox[4] = Mathf.nearZeroValue(boundingBox[4]);
         // Cancel previous geometry transforms
         box.geometry.translate(-box['previousTranslate'][0], -box['previousTranslate'][1], -box['previousTranslate'][2]);
         const geometry = box.geometry;
@@ -141,8 +146,6 @@ class Collisions {
         box.updateMatrixWorld();
         // Compute bounding box manually
         if (box.geometry.boundingBox === null) {
-            console.log('c');
-            console.log(box.geometry.attributes.position.array);
             box.geometry.computeBoundingBox();
         }
     }
