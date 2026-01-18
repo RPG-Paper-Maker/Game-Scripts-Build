@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Data, Manager, Scene } from "../index.js";
-import { ANIMATION_EFFECT_CONDITION_KIND, ANIMATION_POSITION_KIND, BATTLE_STEP, CHARACTER_KIND, EFFECT_KIND, EFFECT_SPECIAL_ACTION_KIND, ITEM_KIND, } from '../Common/index.js';
+import { ANIMATION_EFFECT_CONDITION_KIND, ANIMATION_POSITION_KIND, ArrayUtils, BATTLE_STEP, CHARACTER_KIND, EFFECT_KIND, EFFECT_SPECIAL_ACTION_KIND, ITEM_KIND, } from '../Common/index.js';
 import { Animation, Game } from '../Core/index.js';
 // -------------------------------------------------------
 //
@@ -85,16 +85,18 @@ class BattleAnimation {
                 this.battle.user.setAttacking();
                 break;
             case EFFECT_SPECIAL_ACTION_KIND.OPEN_SKILLS:
-            case EFFECT_SPECIAL_ACTION_KIND.NONE:
+            case EFFECT_SPECIAL_ACTION_KIND.NONE: {
                 this.battle.animationUser = new Animation(content.animationUserID.getValue());
                 this.battle.animationTarget = new Animation(content.animationTargetID.getValue());
                 this.battle.effects = content.getEffects();
-                if (this.battle.effects.find((effect) => effect.specialActionKind === EFFECT_SPECIAL_ACTION_KIND.APPLY_WEAPONS)) {
-                    this.addWeaponsEffects();
+                const index = this.battle.effects.findIndex((effect) => effect.specialActionKind === EFFECT_SPECIAL_ACTION_KIND.APPLY_WEAPONS);
+                if (index !== -1) {
+                    this.addWeaponsEffects(index);
                 }
                 content.cost();
                 this.battle.user.setUsingSkill();
                 break;
+            }
             case EFFECT_SPECIAL_ACTION_KIND.OPEN_ITEMS:
                 const graphic = this.battle.windowChoicesItems.getCurrentContent();
                 this.battle.animationUser = new Animation(content.animationUserID.getValue());
@@ -132,7 +134,7 @@ class BattleAnimation {
             this.battle.animationTarget = null;
         }
     }
-    addWeaponsEffects() {
+    addWeaponsEffects(index = -1) {
         if (this.battle.user.player.kind === CHARACTER_KIND.HERO) {
             const equipments = this.battle.user.player.equip;
             let j, m, gameItem, weapon;
@@ -144,7 +146,12 @@ class BattleAnimation {
                     this.battle.animationTarget = new Animation(weapon.animationTargetID.getValue());
                     const effects = weapon.getEffects();
                     for (j = 0, m = effects.length; j < m; j++) {
-                        this.battle.effects.push(effects[j]);
+                        if (index === -1) {
+                            this.battle.effects.push(effects[j]);
+                        }
+                        else {
+                            ArrayUtils.insert(this.battle.effects, index + j, effects[j]);
+                        }
                     }
                 }
             }
