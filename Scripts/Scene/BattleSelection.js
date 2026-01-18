@@ -261,6 +261,7 @@ class BattleSelection {
      *  @param {{ key?: string, x?: number, y?: number }} [options={}]
      */
     onCommandSelected(isKey, options = {}) {
+        console.log(this.battle.battleCommandKind);
         switch (this.battle.battleCommandKind) {
             case EFFECT_SPECIAL_ACTION_KIND.OPEN_SKILLS:
                 const skill = this.battle.windowChoicesSkills.getCurrentContent().system;

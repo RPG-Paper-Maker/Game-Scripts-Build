@@ -445,7 +445,7 @@ class WindowChoices extends Bitmap {
      *  @param {Object} base - The base object to apply with callback
      */
     onMouseUp(x, y, base) {
-        if (this.currentSelectedIndex !== -1 && Inputs.mouseLeftPressed && this.isInside(x, y)) {
+        if (this.currentSelectedIndex !== -1 && Inputs.mouseLeftPressed) {
             const callback = this.listCallBacks[this.currentSelectedIndex];
             if (callback !== null) {
                 // Play a sound according to callback result
