@@ -61,6 +61,9 @@ class Base {
      *  Translate the scene if possible.
      */
     translate() { }
+    getAllReactionInterpreters() {
+        return [...this.reactionInterpreters, ...this.reactionInterpretersEffects];
+    }
     /**
      *  Update all the reaction interpreters from the scenes.
      */
@@ -77,7 +80,8 @@ class Base {
             }
         }
         // Updating all reactions
-        const reactionInterpreters = [...this.reactionInterpreters, ...this.reactionInterpretersEffects];
+        const reactionInterpreters = this.getAllReactionInterpreters();
+        console.log(reactionInterpreters);
         for (const reaction of reactionInterpreters) {
             reaction.update();
             if (reaction.isFinished()) {
@@ -164,7 +168,7 @@ class Base {
      *  @param {number} key - the key ID
      */
     onKeyPressed(key) {
-        for (const reaction of this.reactionInterpreters) {
+        for (const reaction of this.getAllReactionInterpreters()) {
             reaction.onKeyPressed(key);
         }
     }
@@ -173,7 +177,7 @@ class Base {
      *  @param {number} key - the key ID
      */
     onKeyReleased(key) {
-        for (const reaction of this.reactionInterpreters) {
+        for (const reaction of this.getAllReactionInterpreters()) {
             reaction.onKeyReleased(key);
         }
     }
@@ -183,7 +187,7 @@ class Base {
      *  @return {boolean}
      */
     onKeyPressedRepeat(key) {
-        for (const reaction of this.reactionInterpreters) {
+        for (const reaction of this.getAllReactionInterpreters()) {
             reaction.onKeyPressedRepeat(key);
         }
         return true;
@@ -194,7 +198,7 @@ class Base {
      *  @return {boolean}
      */
     onKeyPressedAndRepeat(key) {
-        for (const reaction of this.reactionInterpreters) {
+        for (const reaction of this.getAllReactionInterpreters()) {
             reaction.onKeyPressedAndRepeat(key);
         }
         return true;
@@ -205,7 +209,7 @@ class Base {
      *  @param {number} y - The y mouse position on screen
      */
     onMouseDown(x, y) {
-        for (const reaction of this.reactionInterpreters) {
+        for (const reaction of this.getAllReactionInterpreters()) {
             reaction.onMouseDown(x, y);
         }
     }
@@ -215,7 +219,7 @@ class Base {
      *  @param {number} y - The y mouse position on screen
      */
     onMouseMove(x, y) {
-        for (const reaction of this.reactionInterpreters) {
+        for (const reaction of this.getAllReactionInterpreters()) {
             reaction.onMouseMove(x, y);
         }
     }
@@ -225,7 +229,7 @@ class Base {
      *  @param {number} y - The y mouse position on screen
      */
     onMouseUp(x, y) {
-        for (const reaction of this.reactionInterpreters) {
+        for (const reaction of this.getAllReactionInterpreters()) {
             reaction.onMouseUp(x, y);
         }
     }
@@ -237,7 +241,7 @@ class Base {
      *  Draw the HUD contents on the scene.
      */
     drawHUD() {
-        for (const reaction of this.reactionInterpreters) {
+        for (const reaction of this.getAllReactionInterpreters()) {
             reaction.drawHUD();
         }
         for (const command of this.parallelCommands) {
