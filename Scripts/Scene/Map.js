@@ -58,7 +58,6 @@ class Map extends Base {
         await this.readMapProperties();
         this.initializeSunLight();
         this.initializeCamera();
-        this.orientation = this.camera.getMapOrientation();
         this.initializePortionsObjects();
         await this.loadTextures();
         this.loadCollisions();
@@ -876,6 +875,9 @@ class Map extends Base {
             Scene.Map.autotilesOffset.setY((Scene.Map.autotileFrame.value * Autotiles.COUNT_LIST * 2 * Data.Systems.SQUARE_SIZE) /
                 Constants.MAX_PICTURE_SIZE);
         }
+        // Update scene game (interpreters)
+        this.mapProperties.startupObject.update();
+        super.update();
         // Update camera
         this.camera.forceNoHide = true;
         this.camera.update();
@@ -912,9 +914,6 @@ class Map extends Base {
         });
         this.updateWeather(false);
         this.updateWeather();
-        // Update scene game (interpreters)
-        this.mapProperties.startupObject.update();
-        super.update();
         // Update camera hiding
         if (Game.current !== null && Data.Systems.moveCameraOnBlockView.getValue()) {
             this.camera.forceNoHide = false;
@@ -948,7 +947,7 @@ class Map extends Base {
         }
         // Update portion
         if (Scene.Map.current.updateCurrentPortion()) {
-            this.loadPortions(true);
+            this.loadPortions(true).catch(console.error);
             this.loading = true;
         }
     }

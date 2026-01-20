@@ -58,7 +58,6 @@ class MoveCamera extends Base {
      *  @returns {Record<string, any>} The current state
      */
     initialize() {
-        Scene.Map.current.camera.update();
         const time = this.time.getValue() * 1000;
         const operation = Mathf.OPERATORS_NUMBERS[this.operation];
         const finalX = operation(Scene.Map.current.camera.getThreeCamera().position.x, this.x.getValue() * (this.xSquare ? Data.Systems.SQUARE_SIZE : 1));
@@ -78,6 +77,7 @@ class MoveCamera extends Base {
             timeLeft: time,
             targetID: this.targetID === null ? null : this.targetID.getValue(),
             target: null,
+            targetLastPosition: Scene.Map.current.camera.target.position.clone(),
         };
     }
     /**
@@ -96,6 +96,7 @@ class MoveCamera extends Base {
                 else {
                     MapObject.search(currentState.targetID, (result) => {
                         currentState.target = result.object;
+                        Scene.Map.current.camera.targetLastPosition = null;
                     }, object);
                 }
                 currentState.waitingObject = true;
@@ -132,6 +133,9 @@ class MoveCamera extends Base {
                     }
                     timeRate = difNb / currentState.time;
                 }
+                if (currentState.target) {
+                    Scene.Map.current.camera.targetLastPosition = null;
+                }
                 // Rotation
                 Scene.Map.current.camera.addHorizontalAngle(timeRate * currentState.finalDifH);
                 Scene.Map.current.camera.addVerticalAngle(timeRate * currentState.finalDifV);
@@ -154,11 +158,9 @@ class MoveCamera extends Base {
                 if (currentState.finalDifH === 0 && currentState.finalDifV === 0) {
                     Scene.Map.current.camera.updateAngles();
                 }
-                Scene.Map.current.camera.updateDistance();
                 // Zoom
+                Scene.Map.current.camera.updateDistance();
                 Scene.Map.current.camera.distance += timeRate * currentState.finalDifDistance;
-                // Update
-                Scene.Map.current.camera.update();
                 // If time = 0, then this is the end of the command
                 if (currentState.timeLeft === 0) {
                     Inputs.updateLockedKeysAngles(currentState.initialH);

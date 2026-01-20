@@ -474,7 +474,7 @@ class MapObject {
                     : this.currentStateInstance.indexX;
             this.orientationEye = this.currentStateInstance.setWithCamera
                 ? this.currentStateInstance.indexY
-                : Mathf.mod(Scene.Map.current.orientation + this.currentStateInstance.indexY - 2, 4);
+                : Mathf.mod(Scene.Map.current.camera.getMapOrientation() + this.currentStateInstance.indexY - 2, 4);
             this.updateOrientation();
             let result;
             const positionTranformation = Position.createFromVector3(this.position);
@@ -1253,8 +1253,9 @@ class MapObject {
      *  Update the orientation according to the camera position
      */
     updateOrientation() {
-        this.orientation = Mathf.mod((Scene.Map.current.orientation - 2) * 3 + this.orientationEye, 4);
-        this.climbOrientation = Mathf.mod((Scene.Map.current.orientation - 2) * 3 + this.climbOrientationEye, 4);
+        const mapOrientation = Scene.Map.current.camera.getMapOrientation();
+        this.orientation = Mathf.mod((mapOrientation - 2) * 3 + this.orientationEye, 4);
+        this.climbOrientation = Mathf.mod((mapOrientation - 2) * 3 + this.climbOrientationEye, 4);
         if (this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.OBJECT_3D) {
             let angle = 0;
             switch (this.orientationEye) {

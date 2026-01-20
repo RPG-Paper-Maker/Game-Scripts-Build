@@ -39,7 +39,7 @@ class MoveObject extends Base {
             this.kind = command[iterator.i++];
             if (this.kind >= COMMAND_MOVE_KIND.MOVE_NORTH && this.kind <= COMMAND_MOVE_KIND.MOVE_BACK) {
                 this.parameters.push({
-                    square: !Utils.numberToBool(command[iterator.i++]),
+                    square: command[iterator.i++] === 0,
                 });
                 switch (this.kind) {
                     case COMMAND_MOVE_KIND.MOVE_NORTH:
@@ -87,7 +87,7 @@ class MoveObject extends Base {
                 }
             }
             else if (this.kind === COMMAND_MOVE_KIND.JUMP) {
-                const square = !Utils.numberToBool(command[iterator.i++]);
+                const square = command[iterator.i++] === 0;
                 const x = Model.DynamicValue.createValueCommand(command, iterator);
                 const y = Model.DynamicValue.createValueCommand(command, iterator);
                 const yPlus = Model.DynamicValue.createValueCommand(command, iterator);
@@ -96,7 +96,7 @@ class MoveObject extends Base {
                 const peakYPlus = Model.DynamicValue.createValueCommand(command, iterator);
                 const time = Model.DynamicValue.createValueCommand(command, iterator);
                 this.parameters.push({
-                    square: square,
+                    square,
                     x: x,
                     y: y,
                     yPlus: yPlus,
@@ -639,7 +639,7 @@ class MoveObject extends Base {
      */
     turnNorth(currentState, object, parameters) {
         if (object) {
-            object.lookAt((ORIENTATION.NORTH + (this.isCameraOrientation ? Scene.Map.current.orientation : 0)) % 4);
+            object.lookAt((ORIENTATION.NORTH + (this.isCameraOrientation ? Scene.Map.current.camera.getMapOrientation() : 0)) % 4);
             return true;
         }
         return ORIENTATION.NORTH;
@@ -653,7 +653,7 @@ class MoveObject extends Base {
      */
     turnSouth(currentState, object, parameters) {
         if (object) {
-            object.lookAt((ORIENTATION.SOUTH + (this.isCameraOrientation ? Scene.Map.current.orientation : 0)) % 4);
+            object.lookAt((ORIENTATION.SOUTH + (this.isCameraOrientation ? Scene.Map.current.camera.getMapOrientation() : 0)) % 4);
             return true;
         }
         return ORIENTATION.SOUTH;
@@ -667,7 +667,7 @@ class MoveObject extends Base {
      */
     turnWest(currentState, object, parameters) {
         if (object) {
-            object.lookAt((ORIENTATION.WEST + (this.isCameraOrientation ? Scene.Map.current.orientation : 0)) % 4);
+            object.lookAt((ORIENTATION.WEST + (this.isCameraOrientation ? Scene.Map.current.camera.getMapOrientation() : 0)) % 4);
             return true;
         }
         return ORIENTATION.WEST;
@@ -681,7 +681,7 @@ class MoveObject extends Base {
      */
     turnEast(currentState, object, parameters) {
         if (object) {
-            object.lookAt((ORIENTATION.EAST + (this.isCameraOrientation ? Scene.Map.current.orientation : 0)) % 4);
+            object.lookAt((ORIENTATION.EAST + (this.isCameraOrientation ? Scene.Map.current.camera.getMapOrientation() : 0)) % 4);
             return true;
         }
         return ORIENTATION.EAST;

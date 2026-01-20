@@ -268,6 +268,9 @@ class MenuShop extends MenuBase {
      *  Update informations to display.
      */
     synchronize() {
+        if (this.windowChoicesList.listContents.length === 0) {
+            return;
+        }
         this.windowBoxInformation.content = this.windowChoicesList.getCurrentContent();
         if (this.windowBoxInformation.content) {
             let owned = 0;
