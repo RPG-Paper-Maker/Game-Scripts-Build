@@ -148,7 +148,7 @@ class MenuEquip extends MenuBase {
         let item, systemItem;
         let type, nbItem;
         const player = Game.current.teamHeroes[this.windowChoicesTabs.currentSelectedIndex];
-        let j, m, characteristic, allow, characteristics;
+        let allow;
         for (let i = 0, l = Game.current.items.length; i < l; i++) {
             item = Game.current.items[i];
             if (item.kind !== ITEM_KIND.ITEM) {

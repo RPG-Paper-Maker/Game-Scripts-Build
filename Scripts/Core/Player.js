@@ -1011,7 +1011,7 @@ class Player {
         // Also add weapons and armors
         for (const equipment of this.equip) {
             if (equipment) {
-                characteristics = characteristics.concat(equipment.system.characteristics);
+                characteristics = [...equipment.system.characteristics, ...characteristics];
             }
         }
         return characteristics;
@@ -1071,23 +1071,21 @@ class Player {
     canEquipWeaponArmor(weaponArmor) {
         const characteristics = this.getCharacteristics();
         for (const characteristic of characteristics) {
-            if (characteristic.kind === CHARACTERISTIC_KIND.ALLOW_FORBID_CHANGE &&
+            if (characteristic.kind === CHARACTERISTIC_KIND.ALLOW_FORBID_EQUIP &&
                 ((weaponArmor.kind === ITEM_KIND.WEAPON &&
                     characteristic.isAllowEquipWeapon &&
                     weaponArmor.system.type === characteristic.equipWeaponTypeID.getValue()) ||
                     (weaponArmor.kind === ITEM_KIND.ARMOR &&
                         !characteristic.isAllowEquipWeapon &&
-                        weaponArmor.system.type === characteristic.equipArmorTypeID.getValue())) &&
-                !characteristic.isAllowEquip) {
-                return false;
+                        weaponArmor.system.type === characteristic.equipArmorTypeID.getValue()))) {
+                return characteristic.isAllowEquip;
             }
-            if (characteristic.kind === CHARACTERISTIC_KIND.ALLOW_FORBID_CHANGE &&
-                !characteristic.isAllowChangeEquipment) {
+            if (characteristic.kind === CHARACTERISTIC_KIND.ALLOW_FORBID_CHANGE) {
                 const type = weaponArmor.kind === ITEM_KIND.WEAPON
                     ? Data.BattleSystems.getWeaponKind(weaponArmor.system.type)
                     : Data.BattleSystems.getArmorKind(weaponArmor.system.type);
                 if (type.equipments[characteristic.changeEquipmentID.getValue()]) {
-                    return false;
+                    return characteristic.isAllowChangeEquipment;
                 }
             }
         }
