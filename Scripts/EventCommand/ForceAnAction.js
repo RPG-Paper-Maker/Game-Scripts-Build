@@ -167,6 +167,8 @@ class ForceAnAction extends Base {
         // Register step and substep for going back to it after action done
         map.previousStep = map.step;
         map.previousSubStep = map.subStep;
+        map.previousCurrentEffectIndex = map.currentEffectIndex;
+        map.previousEffects = map.effects;
         // Start animation
         map.changeStep(BATTLE_STEP.ANIMATION);
         return null;

@@ -81,7 +81,6 @@ class Base {
         }
         // Updating all reactions
         const reactionInterpreters = this.getAllReactionInterpreters();
-        console.log(reactionInterpreters);
         for (const reaction of reactionInterpreters) {
             reaction.update();
             if (reaction.isFinished()) {

@@ -336,6 +336,8 @@ class BattleAnimation {
                             this.battle.forceAnAction = false;
                             this.battle.step = this.battle.previousStep;
                             this.battle.subStep = this.battle.previousSubStep;
+                            this.battle.currentEffectIndex = this.battle.previousCurrentEffectIndex;
+                            this.battle.effects = this.battle.previousEffects;
                             return;
                         }
                         else {
