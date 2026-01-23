@@ -22,7 +22,7 @@ export class Color extends Base {
      * @param r - Red channel (0–255).
      * @param g - Green channel (0–255).
      * @param b - Blue channel (0–255).
-     * @param a - Alpha channel (0–255, defaults to 255).
+     * @param a - Alpha channel (0–1, defaults to 1).
      */
     static createColor(r, g, b, a) {
         const color = new Color();
@@ -64,14 +64,14 @@ export class Color extends Base {
      * @param r - Red channel (0–255).
      * @param g - Green channel (0–255).
      * @param b - Blue channel (0–255).
-     * @param a - Alpha channel (0–255, defaults to 255).
+     * @param a - Alpha channel (0–1, defaults to 1).
      */
-    initialize(r, g, b, a = 255) {
+    initialize(r, g, b, a = 1) {
         this.red = r;
         this.green = g;
         this.blue = b;
         this.alpha = a / 255;
-        this.rgb = `rgb(${this.red}, ${this.green}, ${this.blue})`;
+        this.rgb = `rgba(${this.red}, ${this.green}, ${this.blue}, ${this.alpha})`;
         this.color = new THREE.Color(this.rgb);
     }
     /**
