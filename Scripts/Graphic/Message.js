@@ -319,23 +319,23 @@ class Message extends Graphic.Base {
                 break;
             case TAG_KIND.SIZE:
                 size = result.cs;
-                result.cs = Data.Systems.getFontSize(value).getValue();
+                result.cs = Data.Systems.getFontSize(Number(value)).getValue();
                 break;
             case TAG_KIND.FONT:
                 font = result.cf;
-                result.cf = Data.Systems.getFontName(value).getName();
+                result.cf = Data.Systems.getFontName(Number(value)).getName();
                 break;
             case TAG_KIND.TEXT_COLOR:
                 textColor = result.ctc;
-                result.ctc = Data.Systems.getColor(value);
+                result.ctc = Data.Systems.getColor(Number(value));
                 break;
             case TAG_KIND.BACK_COLOR:
                 backColor = result.cbc;
-                result.cbc = Data.Systems.getColor(value);
+                result.cbc = Data.Systems.getColor(Number(value));
                 break;
             case TAG_KIND.STROKE_COLOR:
                 strokeColor = result.csc;
-                result.csc = Data.Systems.getColor(value);
+                result.csc = Data.Systems.getColor(Number(value));
                 break;
         }
         if (node.firstChild !== null) {
@@ -433,6 +433,7 @@ class Message extends Graphic.Base {
         }
         const newX = x + (this.faceset.empty ? 0 : ScreenResolution.getScreenX(Data.Systems.facesetScalingWidth));
         const newY = y + ScreenResolution.getScreenMinXY(Constants.HUGE_SPACE);
+        const textAreaWidth = w - (newX - x);
         let offsetY = 0;
         let align = ALIGN.NONE;
         let c = this.heights.length - 1;
@@ -444,6 +445,7 @@ class Message extends Graphic.Base {
             // New line
             if (graphic === null) {
                 offsetY += this.heights[c--] * 2;
+                offsetX = 0;
                 align = ALIGN.NONE;
                 j++;
             }
@@ -472,11 +474,24 @@ class Message extends Graphic.Base {
                         w: Data.Systems.iconsSize,
                         h: Data.Systems.iconsSize,
                     });
+                    offsetX += this.positions[i];
                 }
                 else {
-                    graphic.draw(newX + offsetX, newY + offsetY, graphic.oW, graphic.oH);
+                    const textGraphic = graphic;
+                    if (textAreaWidth > 0 && offsetX > 0 && offsetX + this.positions[i] > textAreaWidth) {
+                        offsetY += textGraphic.fontSize * 2;
+                        offsetX = 0;
+                    }
+                    const availableW = textAreaWidth > 0 ? textAreaWidth - offsetX : 0;
+                    textGraphic.draw(newX + offsetX, newY + offsetY, availableW, graphic.oH);
+                    if (textGraphic.lines.length > 1) {
+                        offsetY += (textGraphic.lines.length - 1) * textGraphic.fontSize * 2;
+                        offsetX = 0;
+                    }
+                    else {
+                        offsetX += this.positions[i];
+                    }
                 }
-                offsetX += this.positions[i];
             }
         }
     }

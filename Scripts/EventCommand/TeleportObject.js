@@ -142,6 +142,7 @@ class TeleportObject extends Base {
                                 // Initialize time event again to reinclude time repeat off
                                 Game.current.hero.initializeTimeEvents();
                                 Manager.Stack.replace(map);
+                                Scene.Map.current = map;
                                 currentState.distance = null;
                             }
                             else {
