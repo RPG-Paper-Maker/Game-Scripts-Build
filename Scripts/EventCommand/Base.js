@@ -15,6 +15,7 @@
 class Base {
     constructor() {
         this.parallel = false;
+        this.disabled = false;
     }
     /**
      * Initialize the current state.

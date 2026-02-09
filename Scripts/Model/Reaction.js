@@ -45,6 +45,9 @@ export class Reaction extends Base {
             if (command instanceof EventCommand.Comment) {
                 continue;
             }
+            if (jsonCommand.d) {
+                command.disabled = true;
+            }
             // Add node
             const node = parent.add(command);
             // If text before choice, make a link
