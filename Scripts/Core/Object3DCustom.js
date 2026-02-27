@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2025 Wano
+    RPG Paper Maker Copyright (C) 2017-2026 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -51,8 +51,15 @@ class Object3DCustom extends Object3D {
      *  Get the center vector.
      *  @returns {Vector3}
      */
+    getShapeKindAndID() {
+        if (this.datas.gltfID !== -1) {
+            return [CUSTOM_SHAPE_KIND.GLTF, this.datas.gltfID];
+        }
+        return [CUSTOM_SHAPE_KIND.OBJ, this.datas.objID];
+    }
     getCenterVector() {
-        return Data.Shapes.get(CUSTOM_SHAPE_KIND.OBJ, this.datas.objID).geometry.center.clone();
+        const [kind, id] = this.getShapeKindAndID();
+        return Data.Shapes.get(kind, id).geometry.center.clone();
     }
     /**
      *  Update the geometry of a group of objects 3D cutom with the same
@@ -64,7 +71,8 @@ class Object3DCustom extends Object3D {
      */
     updateGeometry(geometry, position, count) {
         const localPosition = position.toVector3();
-        const modelGeometry = Data.Shapes.get(CUSTOM_SHAPE_KIND.OBJ, this.datas.objID).geometry;
+        const [kind, shapeID] = this.getShapeKindAndID();
+        const modelGeometry = Data.Shapes.get(kind, shapeID).geometry;
         const vertices = modelGeometry.vertices;
         const uvs = modelGeometry.uvs;
         const scale = this.datas.scale;

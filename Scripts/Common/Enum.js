@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2025 Wano
+    RPG Paper Maker Copyright (C) 2017-2026 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -425,6 +425,7 @@ export var CUSTOM_SHAPE_KIND;
     CUSTOM_SHAPE_KIND[CUSTOM_SHAPE_KIND["OBJ"] = 1] = "OBJ";
     CUSTOM_SHAPE_KIND[CUSTOM_SHAPE_KIND["MTL"] = 2] = "MTL";
     CUSTOM_SHAPE_KIND[CUSTOM_SHAPE_KIND["COLLISIONS"] = 3] = "COLLISIONS";
+    CUSTOM_SHAPE_KIND[CUSTOM_SHAPE_KIND["GLTF"] = 4] = "GLTF";
 })(CUSTOM_SHAPE_KIND || (CUSTOM_SHAPE_KIND = {}));
 /** Enum for the different object collision kind. */
 export var OBJECT_COLLISION_KIND;

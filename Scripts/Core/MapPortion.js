@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2025 Wano
+    RPG Paper Maker Copyright (C) 2017-2026 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import * as THREE from 'three';
-import { Constants, ELEMENT_MAP_KIND, SHAPE_KIND } from '../Common/index.js';
+import { Constants, CUSTOM_SHAPE_KIND, ELEMENT_MAP_KIND, SHAPE_KIND } from '../Common/index.js';
 import { Data, Manager, Model, Scene } from '../index.js';
 import { Autotile } from './Autotile.js';
 import { Autotiles } from './Autotiles.js';
@@ -380,6 +380,31 @@ class MapPortion {
                 pictureID = Data.SpecialElements.getObject3D(datas.id).pictureID;
             }
             if (datas) {
+                // GLTF with no user texture: use embedded materials directly
+                if (datas.shapeKind === SHAPE_KIND.CUSTOM && datas.gltfID !== -1 && pictureID === -1) {
+                    const shape = Data.Shapes.get(CUSTOM_SHAPE_KIND.GLTF, datas.gltfID);
+                    if (shape?.gltfScene) {
+                        const clone = shape.gltfScene.clone();
+                        const s = Data.Systems.SQUARE_SIZE * datas.scale;
+                        clone.scale.set(s * position.scaleX, s * position.scaleY, s * position.scaleZ);
+                        const localPosition = position.toVector3();
+                        clone.position.copy(localPosition);
+                        clone.rotation.set((position.angleX * Math.PI) / 180, (position.angleY * Math.PI) / 180, (position.angleZ * Math.PI) / 180);
+                        clone.renderOrder = -1;
+                        if (Scene.Map.current.mapProperties.isSunLight) {
+                            clone.traverse((child) => {
+                                if (child instanceof THREE.Mesh) {
+                                    child.receiveShadow = true;
+                                    child.castShadow = true;
+                                }
+                            });
+                        }
+                        clone.layers.enable(1);
+                        this.staticObjects3DList.push(clone);
+                        Scene.Map.current.scene.add(clone);
+                    }
+                    continue;
+                }
                 let obj3D;
                 switch (datas.shapeKind) {
                     case SHAPE_KIND.BOX:

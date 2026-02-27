@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2025 Wano
+    RPG Paper Maker Copyright (C) 2017-2026 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -99,6 +99,7 @@ Paths.MUSIC_EFFECTS = Paths.SONGS + 'MusicEffects';
 Paths.OBJ = Paths.SHAPES + 'OBJ';
 Paths.MTL = Paths.SHAPES + 'MTL';
 Paths.OBJ_COLLISIONS = Paths.SHAPES + 'Collisions';
+Paths.GLTF = Paths.SHAPES + 'GLTF';
 // -------------------------------------------------------------------------
 // Scripts, plugins, shaders, saves
 // -------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2025 Wano
+    RPG Paper Maker Copyright (C) 2017-2026 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -362,6 +362,9 @@ export class SpecialElements {
         texture.image = await Picture2D.loadImage(Platform.canvasRendering.toDataURL());
         texture.needsUpdate = true;
         textureMountain.material = Manager.GL.createMaterial({ texture, side: THREE.BackSide });
+        textureMountain.material.polygonOffset = true;
+        textureMountain.material.polygonOffsetFactor = 1;
+        textureMountain.material.polygonOffsetUnits = 1;
         this.texturesMountains.set(id, textureMountain);
     }
     /**
@@ -373,12 +376,23 @@ export class SpecialElements {
         if (pictureID === undefined) {
             pictureID = object3D.pictureID;
         }
+        if (pictureID === -1) {
+            return Manager.GL.loadTextureEmpty();
+        }
         let textureObject3D = this.texturesObjects3D.get(pictureID);
         if (textureObject3D === undefined) {
             const picture = Data.Pictures.get(PICTURE_KIND.OBJECTS_3D, pictureID);
             if (picture) {
                 const path = picture.getPath();
-                textureObject3D = path ? await Manager.GL.loadTexture(path) : Manager.GL.loadTextureEmpty();
+                if (path) {
+                    textureObject3D = await Manager.GL.loadTexture(path);
+                    textureObject3D.polygonOffset = true;
+                    textureObject3D.polygonOffsetFactor = 1;
+                    textureObject3D.polygonOffsetUnits = 1;
+                }
+                else {
+                    textureObject3D = Manager.GL.loadTextureEmpty();
+                }
             }
             else {
                 textureObject3D = Manager.GL.loadTextureEmpty();

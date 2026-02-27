@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2025 Wano
+    RPG Paper Maker Copyright (C) 2017-2026 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Manager, Model } from "../index.js";
+import { Data, Manager, Model } from "../index.js";
 import { GAME_OVER_COMMAND_KIND, Interpreter, Platform, Utils } from '../Common/index.js';
 import { Game } from '../Core/index.js';
 import { Localization } from './Localization.js';
@@ -35,9 +35,18 @@ export class GameOverCommand extends Localization {
         }
     }
     /**
+     * Stop the game over video if it is playing.
+     */
+    static stopGameOverVideo() {
+        if (!Data.TitlescreenGameover.isGameOverBackgroundImage) {
+            Manager.Videos.stop();
+        }
+    }
+    /**
      * Callback function for continuing the game (load last save).
      */
     continue() {
+        GameOverCommand.stopGameOverVideo();
         if (Game.current.slot === -1) {
             // No save slot → start new game
             Model.TitleCommand.startNewGame();
@@ -52,6 +61,7 @@ export class GameOverCommand extends Localization {
      * Callback function for going back to title screen.
      */
     titleScreen() {
+        GameOverCommand.stopGameOverVideo();
         Manager.Stack.popAll();
         Manager.Stack.pushTitleScreen();
         return true;

@@ -1,5 +1,5 @@
 /*
-    RPG Paper Maker Copyright (C) 2017-2025 Wano
+    RPG Paper Maker Copyright (C) 2017-2026 Wano
 
     RPG Paper Maker engine is under proprietary license.
     This source code is also copyrighted.
@@ -47,6 +47,9 @@ export class Object3D extends SpecialElement {
     }
     /** Get shape object. */
     getObj() {
+        if (this.gltfID !== -1) {
+            return Data.Shapes.get(CUSTOM_SHAPE_KIND.GLTF, this.gltfID);
+        }
         return Data.Shapes.get(CUSTOM_SHAPE_KIND.OBJ, this.objID);
     }
     /** Get collision shape object. */
@@ -59,6 +62,7 @@ export class Object3D extends SpecialElement {
         this.id = json.id;
         this.shapeKind = Utils.valueOrDefault(json.sk, SHAPE_KIND.BOX);
         this.objID = Utils.valueOrDefault(json.oid, -1);
+        this.gltfID = Utils.valueOrDefault(json.gid, -1);
         this.mtlID = Utils.valueOrDefault(json.mid, -1);
         this.collisionKind = Utils.valueOrDefault(json.ck, OBJECT_COLLISION_KIND.NONE);
         this.collisionCustomID = Utils.valueOrDefault(json.ccid, -1);
