@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Manager, Model, Scene } from "../index.js";
-import { ITEM_KIND } from '../Common/index.js';
+import { DYNAMIC_VALUE_KIND, ITEM_KIND } from '../Common/index.js';
 import { Game, Item } from '../Core/index.js';
 import { Base } from './Base.js';
 /** @class
@@ -77,18 +77,45 @@ class StartShopMenu extends Base {
                 }
                 list[i] = new Item(system.selectionItem, id, stock, system);
             }
+            if (!this.isRestock) {
+                for (const kindStr of Object.keys(stocks)) {
+                    const kind = parseInt(kindStr);
+                    for (const idStr of Object.keys(stocks[kind])) {
+                        const extraId = parseInt(idStr);
+                        if (!this.items.some((s) => s.selectionItem === kind && s.getItem().id === extraId)) {
+                            const shopItem = new Model.ShopItem();
+                            shopItem.selectionItem = kind;
+                            const idVal = Model.DynamicValue.create(DYNAMIC_VALUE_KIND.NUMBER, extraId);
+                            switch (kind) {
+                                case ITEM_KIND.ITEM:
+                                    shopItem.itemID = idVal;
+                                    break;
+                                case ITEM_KIND.WEAPON:
+                                    shopItem.weaponID = idVal;
+                                    break;
+                                case ITEM_KIND.ARMOR:
+                                    shopItem.armorID = idVal;
+                                    break;
+                            }
+                            shopItem.selectionPrice = false;
+                            shopItem.selectionStock = false;
+                            list.push(new Item(kind, extraId, stocks[kind][extraId], shopItem));
+                        }
+                    }
+                }
+            }
         }
         else {
-            if (!this.isRestock) {
-                for (let i = 0, l = this.items.length; i < l; i++) {
-                    system = this.items[i];
-                    id = system.getItem().id;
-                    stock = system.getStock();
-                    stocks[system.selectionItem][id] = stock;
+            for (let i = 0, l = this.items.length; i < l; i++) {
+                system = this.items[i];
+                id = system.getItem().id;
+                stock = system.getStock();
+                stocks[system.selectionItem][id] = stock;
+                if (!this.isRestock) {
                     list[i] = new Item(system.selectionItem, id, stock, system);
                 }
-                Game.current.shops[shopID] = stocks;
             }
+            Game.current.shops[shopID] = stocks;
         }
         return this.isRestock
             ? {
