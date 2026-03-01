@@ -94,6 +94,7 @@ export class Main {
      */
     static loop() {
         requestAnimationFrame(Main.loop);
+        Main.clock.update();
         Main.delta += Main.clock.getDelta();
         if (Main.delta > 1 / Main.maxFPS) {
             // Update if everything is loaded
@@ -111,6 +112,7 @@ export class Main {
             Manager.Stack.averageElapsedTime = (Manager.Stack.averageElapsedTime + Manager.Stack.elapsedTime) / 2;
             Manager.Stack.lastUpdateTime = new Date().getTime();
             Main.frames++;
+            Main.clockFPS.update();
             Main.time += Main.clockFPS.getDelta();
             if (Main.time >= 1) {
                 Main.FPS = Main.frames;
@@ -121,8 +123,8 @@ export class Main {
         }
     }
 }
-Main.clock = new THREE.Clock();
-Main.clockFPS = new THREE.Clock();
+Main.clock = new THREE.Timer();
+Main.clockFPS = new THREE.Timer();
 Main.delta = 0;
 Main.maxFPS = 60;
 Main.FPS = 0;
