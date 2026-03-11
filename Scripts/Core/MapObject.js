@@ -1,0 +1,1578 @@
+/*
+    RPG Paper Maker Copyright (C) 2017-2026 Wano
+
+    RPG Paper Maker engine is under proprietary license.
+    This source code is also copyrighted.
+
+    Use Commercial edition for commercial use of your games.
+    See RPG Paper Maker EULA here:
+        http://rpg-paper-maker.com/index.php/eula.
+*/
+import * as THREE from 'three';
+import { CUSTOM_SHAPE_KIND, ELEMENT_MAP_KIND, Mathf, OBJECT_MOVING_KIND, ORIENTATION, Paths, PICTURE_KIND, Platform, SHAPE_KIND, Utils, } from '../Common/index.js';
+import { Data, Manager, Model, Scene } from '../index.js';
+import { CollisionSquare } from './CollisionSquare.js';
+import { CustomGeometry } from './CustomGeometry.js';
+import { Frame } from './Frame.js';
+import { Game } from './Game.js';
+import { MapElement } from './MapElement.js';
+import { MapPortion } from './MapPortion.js';
+import { Object3DBox } from './Object3DBox.js';
+import { Object3DCustom } from './Object3DCustom.js';
+import { Portion } from './Portion.js';
+import { Position } from './Position.js';
+import { Rectangle } from './Rectangle.js';
+import { Sprite } from './Sprite.js';
+/**
+ * Object in local map that can move.
+ *
+ * @class MapObject
+ */
+class MapObject {
+    constructor(system, position, isHero = false) {
+        this.moving = false;
+        this.isClimbing = false;
+        this.isClimbingUp = true;
+        this.climbOrientationEye = ORIENTATION.NONE;
+        this.climbOrientation = ORIENTATION.NONE;
+        this.isOrientationStopWalk = false;
+        this.currentCenterOffset = new THREE.Vector3();
+        this.currentAngle = new THREE.Vector3();
+        this.currentScale = new THREE.Vector3();
+        this.gltfGroup = null;
+        this.animationMixer = null;
+        this._currentGltfAnimIndex = -2;
+        this.system = system;
+        this.id = system.id;
+        this.position = position;
+        this.isHero = isHero;
+        this.previousPosition = position;
+        this.mesh = null;
+        this.meshBoundingBox = null;
+        this.currentBoundingBox = null;
+        this.boundingBoxSettings = null;
+        this.frame = new Frame(0);
+        this.orientationEye = ORIENTATION.SOUTH;
+        this.orientation = this.orientationEye;
+        this.width = 1;
+        this.height = 1;
+        this.moveFrequencyTick = 0;
+        this.isStartup = position === undefined;
+        this.isInScene = false;
+        this.receivedOneEvent = false;
+        this.movingState = null;
+        this.previousOrientation = null;
+        this.otherMoveCommand = null;
+        this.yMountain = null;
+        this.currentOrientationStop = false;
+        this.currentOrientationClimbing = false;
+        if (!this.isHero) {
+            this.initializeProperties();
+        }
+    }
+    /**
+     *  Search an object in the map.
+     *  @static
+     *  @param {number} objectID - The object ID searched
+     */
+    static search(objectID, callback, thisObject) {
+        let result = this.searchInMap(objectID, thisObject);
+        if (result === null) {
+            (async () => {
+                // If this object is out of the map for some reasons
+                if (objectID === -1 && thisObject) {
+                    objectID = thisObject.system.id;
+                }
+                result = await this.searchOutMap(objectID);
+                callback.call(null, result);
+            })();
+        }
+        else {
+            callback.call(null, result);
+        }
+    }
+    /**
+     *  Search an object that is already loaded. Return null if not found.
+     *  @static
+     *  @param {number} objectID - The object ID searched
+     *  @param {MapObject} object - This object
+     *  @returns {Promise<StructSearchResult>}
+     */
+    static searchInMap(objectID, thisObject) {
+        let object = null;
+        switch (objectID) {
+            case -1: // This object
+                if (thisObject) {
+                    objectID = thisObject.system.id;
+                    if (thisObject.isInScene) {
+                        object = thisObject;
+                    }
+                    if (thisObject.isHero || thisObject.isStartup) {
+                        return {
+                            object: thisObject,
+                            id: objectID,
+                            datas: null,
+                        };
+                    }
+                }
+                else {
+                    return null;
+                }
+                break;
+            case 0: // Hero
+                return {
+                    object: Game.current.hero,
+                    id: Game.current.hero.system.id,
+                    datas: null,
+                };
+            default:
+                break;
+        }
+        // Check if direct
+        const position = Scene.Map.current.mapProperties.allObjects.get(objectID);
+        if (!position && Scene.Map.current.isBattleMap && Scene.Map.current.id === Game.current.currentMapID) {
+            // Ignore if is in battle and same map
+            return null;
+        }
+        if (!position) {
+            // If cannot find, inform that the object doesn't exist in the map
+            Platform.showErrorMessage("Can't find object with ID" +
+                objectID +
+                ' in map ' +
+                Scene.Map.current.mapProperties.name() +
+                '. Please check where ' +
+                'this ID is used and remove it.');
+        }
+        const globalPortion = position.getGlobalPortion();
+        const mapsData = Game.current.getPortionData(Scene.Map.current.id, globalPortion);
+        if (object !== null) {
+            return {
+                object: object,
+                id: objectID,
+                datas: mapsData,
+            };
+        }
+        // First search in the moved objects
+        const movedObjects = mapsData.m;
+        let moved = null;
+        let i, l;
+        for (i = 0, l = movedObjects.length; i < l; i++) {
+            if (movedObjects[i].system.id === objectID) {
+                moved = movedObjects[i];
+                break;
+            }
+        }
+        if (moved !== null) {
+            return {
+                object: moved,
+                id: objectID,
+                kind: 0,
+                index: i,
+                list: null,
+                datas: mapsData,
+            };
+        }
+        // If not moving, search directly in portion
+        const localPortion = Scene.Map.current.getLocalPortion(globalPortion);
+        if (Scene.Map.current.isInPortion(localPortion)) {
+            const mapPortion = Scene.Map.current.getMapPortionFromPortion(localPortion);
+            if (!mapPortion) {
+                return null;
+            }
+            const objects = mapPortion.objectsList;
+            for (i = 0, l = objects.length; i < l; i++) {
+                if (objects[i].system.id === objectID) {
+                    moved = objects[i];
+                    break;
+                }
+            }
+            if (moved === null) {
+                if (Scene.Map.current.id === Data.Systems.ID_MAP_START_HERO && Game.current.hero.id === objectID) {
+                    return {
+                        object: Game.current.hero,
+                        id: objectID,
+                        kind: 1,
+                        index: -1,
+                        list: null,
+                        datas: mapsData,
+                    };
+                }
+                else {
+                    return null;
+                }
+            }
+            else {
+                return {
+                    object: moved,
+                    id: objectID,
+                    kind: 1,
+                    index: i,
+                    list: objects,
+                    datas: mapsData,
+                };
+            }
+        }
+        else {
+            // Load the file if not already in temp
+            return null;
+        }
+    }
+    /**
+     *  Search an object that is not loaded yet.
+     *  @static
+     *  @param {number} objectID - The object ID searched
+     *  @returns {Promise<StructSearchResult>}
+     */
+    static async searchOutMap(objectID) {
+        const position = Scene.Map.current.mapProperties.allObjects.get(objectID);
+        if (!position && Scene.Map.current.isBattleMap && Scene.Map.current.id === Game.current.currentMapID) {
+            // Ignore if is in battle and same map
+            return null;
+        }
+        if (!position) {
+            Platform.showErrorMessage('Trying to access an object ID ' + objectID + " that doesn't exists. Please check your commands.");
+        }
+        const globalPortion = position.getGlobalPortion();
+        const mapsData = Game.current.getPortionData(Scene.Map.current.id, globalPortion);
+        const json = await Platform.parseFileJSON(Paths.FILE_MAPS + Scene.Map.current.mapFilename + '/' + globalPortion.getFileName());
+        const mapPortion = new MapPortion(globalPortion);
+        const moved = mapPortion.getObjFromID(json, objectID);
+        if (moved === null) {
+            if (Scene.Map.current.id === Data.Systems.ID_MAP_START_HERO && Game.current.hero.id === objectID) {
+                return {
+                    object: Game.current.hero,
+                    id: objectID,
+                    kind: 2,
+                    index: -1,
+                    list: null,
+                    datas: mapsData,
+                };
+            }
+            else {
+                return null;
+            }
+        }
+        else {
+            return {
+                object: moved,
+                id: objectID,
+                kind: 2,
+                index: -1,
+                list: null,
+                datas: mapsData,
+            };
+        }
+    }
+    /**
+     *  Read the JSON associated to the object.
+     *  @param {Record<string, any>} json - Json object describing the object
+     */
+    read(json) {
+        this.position = Position.createFromArray(json.k).toVector3();
+        this.system = new Model.MapObject(json.v);
+    }
+    /**
+     *  Initialize objet properties.
+     */
+    initializeProperties() {
+        let mapProp, mapStatesOpts;
+        if (this.isHero) {
+            mapProp = Game.current.heroProperties;
+            mapStatesOpts = Game.current.heroStatesOptions;
+        }
+        else if (this.isStartup) {
+            mapProp = Game.current.startupProperties[Scene.Map.current.id];
+            mapStatesOpts = [];
+            if (mapProp === undefined) {
+                mapProp = [];
+            }
+        }
+        else {
+            const obj = Scene.Map.current.mapProperties.allObjects.get(this.system.id);
+            if (obj === undefined) {
+                Platform.showErrorMessage('Object linking issue ' + Scene.Map.current.mapProperties.id);
+            }
+            const portion = obj.getGlobalPortion();
+            const portionData = Game.current.getPortionData(Scene.Map.current.id, portion);
+            let indexProp = -1;
+            if (portionData.pi) {
+                indexProp = portionData.pi.indexOf(this.system.id);
+            }
+            mapProp = indexProp === -1 ? [] : portionData.p[indexProp];
+            indexProp = -1;
+            if (portionData.soi) {
+                indexProp = portionData.soi.indexOf(this.system.id);
+            }
+            mapStatesOpts = indexProp === -1 ? [] : portionData.so[indexProp];
+        }
+        // Properties
+        this.properties = [];
+        let i, l, prop, propValue;
+        for (i = 0, l = this.system.properties.length; i < l; i++) {
+            prop = this.system.properties[i];
+            propValue = mapProp[prop.id - 1];
+            this.properties[prop.id] = Utils.valueOrDefault(propValue, prop.initialValue.getValue());
+        }
+        // States
+        this.statesInstance = [];
+        let stateSystem, stateValue, state;
+        for (i = 0, l = this.system.states.length; i < l; i++) {
+            stateSystem = this.system.states[i];
+            stateValue = mapStatesOpts[stateSystem.id - 1];
+            state = stateSystem.copyInstance();
+            this.statesInstance[i] = state;
+            if (stateValue !== undefined) {
+                state.graphicID = Utils.valueOrDefault(stateValue.gid, stateSystem.graphicID);
+                state.graphicKind = Utils.valueOrDefault(stateValue.gk, stateSystem.graphicKind);
+                state.rectTileset = stateValue.gt
+                    ? Rectangle.createFromArray(stateValue.gt)
+                    : stateSystem.rectTileset.clone();
+                state.indexX = Utils.valueOrDefault(stateValue.gix, stateSystem.indexX);
+                state.indexY = Utils.valueOrDefault(stateValue.giy, stateSystem.indexY);
+                state.speedID = Utils.valueOrDefault(stateValue.sid, stateSystem.speedID);
+                state.frequencyID = Utils.valueOrDefault(stateValue.fid, stateSystem.frequencyID);
+                state.moveAnimation = Utils.valueOrDefault(stateValue.ma, stateSystem.moveAnimation);
+                state.stopAnimation = Utils.valueOrDefault(stateValue.sa, stateSystem.stopAnimation);
+                state.climbAnimation = Utils.valueOrDefault(stateValue.ca, stateSystem.climbAnimation);
+                state.directionFix = Utils.valueOrDefault(stateValue.df, stateSystem.directionFix);
+                state.through = Utils.valueOrDefault(stateValue.t, stateSystem.through);
+                state.setWithCamera = Utils.valueOrDefault(stateValue.swc, stateSystem.setWithCamera);
+                state.pixelOffset = Utils.valueOrDefault(stateValue.po, stateSystem.pixelOffset);
+                state.keepPosition = Utils.valueOrDefault(stateValue.kp, stateSystem.keepPosition);
+            }
+        }
+    }
+    /**
+     *  Initialize time events (reactions to event time).
+     */
+    initializeTimeEvents() {
+        const l = this.system.timeEvents.length;
+        this.timeEventsEllapsed = new Array(l);
+        for (let i = 0; i < l; i++) {
+            this.timeEventsEllapsed[i] = [this.system.timeEvents[i], new Date().getTime()];
+        }
+    }
+    /**
+     *  Update time events.
+     */
+    updateTimeEvents() {
+        if (!this.timeEventsEllapsed) {
+            return;
+        }
+        // First run detection state
+        if (this.currentState && this.currentState.detection !== null) {
+            this.currentState.detection.update(null, this, null);
+        }
+        // Run other time events
+        const removeList = [];
+        let i, l, events, event, timeEllapsed, interval, repeat;
+        for (i = 0, l = this.timeEventsEllapsed.length; i < l; i++) {
+            events = this.timeEventsEllapsed[i];
+            event = events[0];
+            timeEllapsed = events[1];
+            interval = event.parameters.get(1).value;
+            if (new Date().getTime() - timeEllapsed >= interval.getValue() * 1000) {
+                repeat = event.parameters.get(2).value;
+                if (this.receiveEvent(this, true, 1, Utils.arrayToMap([interval, repeat]), this.states, events)) {
+                    if (!repeat.getValue()) {
+                        removeList.push(i);
+                    }
+                }
+                else {
+                    return;
+                }
+            }
+        }
+        // Remove useless no repeat events
+        for (i = removeList.length - 1; i >= 0; i--) {
+            this.timeEventsEllapsed.splice(removeList[i], 1);
+        }
+    }
+    /**
+     *  Update the current state (graphics to display), also update the mesh.
+     */
+    async changeState() {
+        const angle = this.mesh ? this.mesh.rotation.y : 0;
+        // Updating the current state
+        if (this.isHero) {
+            this.states = Game.current.heroStates;
+        }
+        else if (this.isStartup) {
+            if (!Game.current.startupStates.hasOwnProperty(Scene.Map.current.id)) {
+                Game.current.startupStates[Scene.Map.current.id] = [1];
+            }
+            this.states = Game.current.startupStates[Scene.Map.current.id];
+        }
+        else {
+            const pos = Scene.Map.current.mapProperties.allObjects.get(this.system.id);
+            if (pos === undefined) {
+                Platform.showErrorMessage('Object linking issue ' + Scene.Map.current.mapProperties.id);
+            }
+            const portion = pos.getGlobalPortion();
+            const portionData = Game.current.getPortionData(Scene.Map.current.id, portion);
+            let indexState = -1;
+            if (portionData.si) {
+                indexState = portionData.si.indexOf(this.system.id);
+            }
+            this.states =
+                indexState === -1
+                    ? [this.system.states.length > 0 ? this.system.states[0].id : 1]
+                    : portionData.s[indexState];
+        }
+        const previousStateInstance = this.currentStateInstance;
+        this.currentState = null;
+        this.currentStateInstance = null;
+        this.currentOrientationStop = false;
+        this.currentOrientationClimbing = false;
+        this.isOrientationStopWalk = false;
+        let state;
+        for (let i = this.system.states.length - 1; i >= 0; i--) {
+            state = this.system.states[i];
+            if (this.states.indexOf(state.id) !== -1) {
+                this.currentState = state;
+                this.currentStateInstance = this.statesInstance[i];
+                break;
+            }
+        }
+        // Reinitialize time events chrono
+        if (previousStateInstance !== this.currentStateInstance) {
+            this.initializeTimeEvents();
+        }
+        // Remove previous mesh
+        this.removeFromScene();
+        this.gltfGroup = null;
+        if (this.animationMixer) {
+            this.animationMixer.stopAllAction();
+            this.animationMixer = null;
+        }
+        this._currentGltfAnimIndex = -2;
+        // Update mesh
+        if (this.isStartup || !Scene.Map.current.textureTileset) {
+            return;
+        }
+        let material = null;
+        let objectData;
+        if (this.currentStateInstance !== null) {
+            if (this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.OBJECT_3D) {
+                objectData = Data.SpecialElements.getObject3D(this.currentStateInstance.graphicID);
+                material = await Data.SpecialElements.loadObject3DTexture(objectData.id);
+            }
+            else {
+                material =
+                    this.currentStateInstance.graphicID === 0
+                        ? Scene.Map.current.textureTileset
+                        : Data.Pictures.texturesCharacters.get(this.currentStateInstance.graphicID);
+            }
+        }
+        if (material && this.isHero && Manager.GL.getMaterialTexture(material)) {
+            // For opacity purposes
+            material = Manager.GL.cloneMaterial(material);
+        }
+        this.meshBoundingBox = [];
+        const texture = Manager.GL.getMaterialTexture(material);
+        let isGltfNoTexture = false;
+        if (!texture && this.currentStateInstance?.graphicKind === ELEMENT_MAP_KIND.OBJECT_3D) {
+            const gltfCheckData = Data.SpecialElements.getObject3D(this.currentStateInstance.graphicID);
+            isGltfNoTexture = gltfCheckData.shapeKind === SHAPE_KIND.CUSTOM && gltfCheckData.gltfID !== -1;
+        }
+        this.position.set(this.position.x - this.currentCenterOffset.x, this.position.y, this.position.z - this.currentCenterOffset.z);
+        this.currentCenterOffset.set(0, 0, 0);
+        this.currentAngle.set(0, 0, 0);
+        this.currentScale.set(1, 1, 1);
+        if (this.currentState !== null && !this.isNone() && (texture || isGltfNoTexture)) {
+            this.speed = Data.Systems.getSpeed(this.currentStateInstance.speedID);
+            this.frequency = Data.Systems.getFrequency(this.currentStateInstance.frequencyID);
+            this.frame.value =
+                this.currentStateInstance.indexX >= Data.Systems.FRAMES
+                    ? Data.Systems.FRAMES - 1
+                    : this.currentStateInstance.indexX;
+            this.orientationEye = this.currentStateInstance.setWithCamera
+                ? this.currentStateInstance.indexY
+                : Mathf.mod(Scene.Map.current.camera.getMapOrientation() + this.currentStateInstance.indexY - 2, 4);
+            this.updateOrientation();
+            let result;
+            const positionTranformation = Position.createFromVector3(this.position);
+            positionTranformation.centerX = this.currentStateInstance.centerX.getValue();
+            positionTranformation.centerZ = this.currentStateInstance.centerZ.getValue();
+            positionTranformation.angleX = this.currentStateInstance.angleX.getValue();
+            positionTranformation.angleY = this.currentStateInstance.angleY.getValue();
+            positionTranformation.angleZ = this.currentStateInstance.angleZ.getValue();
+            positionTranformation.scaleX = this.currentStateInstance.scaleX.getValue();
+            positionTranformation.scaleY = this.currentStateInstance.scaleY.getValue();
+            positionTranformation.scaleZ = this.currentStateInstance.scaleZ.getValue();
+            if (this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.OBJECT_3D) {
+                positionTranformation.x = -1 / 2;
+                positionTranformation.y = 0;
+                positionTranformation.yPixels = 0;
+                positionTranformation.z = -1 / 2;
+                const objectData = Data.SpecialElements.getObject3D(this.currentStateInstance.graphicID);
+                let object3D;
+                switch (objectData.shapeKind) {
+                    case SHAPE_KIND.BOX:
+                        object3D = Object3DBox.create(objectData);
+                        result = object3D.createGeometry(positionTranformation);
+                        break;
+                    case SHAPE_KIND.CUSTOM:
+                        object3D = Object3DCustom.create(objectData);
+                        result = object3D.createGeometry(positionTranformation);
+                        if (objectData.gltfID !== -1 && isGltfNoTexture) {
+                            const gltfShape = Data.Shapes.get(CUSTOM_SHAPE_KIND.GLTF, objectData.gltfID);
+                            if (gltfShape?.gltfScene) {
+                                this.gltfGroup = gltfShape.gltfScene.clone(true);
+                                const s = Data.Systems.SQUARE_SIZE * objectData.scale;
+                                this.gltfGroup.scale.set(s * positionTranformation.scaleX, s * positionTranformation.scaleY, s * positionTranformation.scaleZ);
+                                let initOrientAngle = 0;
+                                switch (this.orientationEye) {
+                                    case ORIENTATION.EAST:
+                                        initOrientAngle = 90;
+                                        break;
+                                    case ORIENTATION.NORTH:
+                                        initOrientAngle = 180;
+                                        break;
+                                    case ORIENTATION.WEST:
+                                        initOrientAngle = 270;
+                                        break;
+                                }
+                                this.gltfGroup.rotation.set((positionTranformation.angleX * Math.PI) / 180, (initOrientAngle + positionTranformation.angleY) * (Math.PI / 180), (positionTranformation.angleZ * Math.PI) / 180);
+                                this.gltfGroup.renderOrder = 1;
+                                if (Scene.Map.current.mapProperties.isSunLight) {
+                                    this.gltfGroup.traverse((child) => {
+                                        if (child instanceof THREE.Mesh) {
+                                            child.receiveShadow = true;
+                                            child.castShadow = true;
+                                        }
+                                    });
+                                }
+                                this.animationMixer = new THREE.AnimationMixer(this.gltfGroup);
+                            }
+                        }
+                        break;
+                }
+                // Correct position offset (left / top)
+                if (!previousStateInstance ||
+                    previousStateInstance.graphicKind !== ELEMENT_MAP_KIND.OBJECT_3D ||
+                    (this.currentStateInstance.previousGraphicKind !== undefined &&
+                        this.currentStateInstance.previousGraphicKind !== ELEMENT_MAP_KIND.OBJECT_3D)) {
+                }
+            }
+            else {
+                let x, y;
+                if (this.currentStateInstance.graphicID === 0) {
+                    x = this.currentStateInstance.rectTileset.x;
+                    y = this.currentStateInstance.rectTileset.y;
+                    this.width = this.currentStateInstance.rectTileset.width;
+                    this.height = this.currentStateInstance.rectTileset.height;
+                }
+                else {
+                    x = 0;
+                    y = 0;
+                    const { width, height } = Manager.GL.getMaterialTextureSize(material);
+                    this.width = width / Data.Systems.SQUARE_SIZE / Data.Systems.FRAMES;
+                    this.height =
+                        height /
+                            Data.Systems.SQUARE_SIZE /
+                            Data.Pictures.get(PICTURE_KIND.CHARACTERS, this.currentStateInstance.graphicID).getRows();
+                    this.currentOrientationStop =
+                        this.currentStateInstance.indexY >= 4 && this.currentStateInstance.indexY <= 7;
+                    this.currentOrientationClimbing = this.currentStateInstance.indexY >= 8;
+                    this.isOrientationStopWalk = !Data.Pictures.get(PICTURE_KIND.CHARACTERS, this.currentStateInstance.graphicID).isStopAnimation;
+                }
+                const sprite = Sprite.create(this.currentStateInstance.graphicKind, new Rectangle(x, y, this.width, this.height));
+                result = sprite.createGeometry(this.width, this.height, this.currentStateInstance.graphicID === 0, positionTranformation);
+                this.currentCenterOffset.set(positionTranformation.getPixelsCenterX() - Data.Systems.SQUARE_SIZE / 2, 0, positionTranformation.getPixelsCenterZ() - Data.Systems.SQUARE_SIZE / 2);
+            }
+            const geometry = result[0];
+            const objCollision = result[1];
+            this.mesh = new THREE.Mesh(geometry, material);
+            if (isGltfNoTexture) {
+                this.mesh = null;
+            }
+            this.currentAngle.set(positionTranformation.angleX, positionTranformation.angleY, positionTranformation.angleZ);
+            this.currentScale.set(positionTranformation.scaleX, positionTranformation.scaleY, positionTranformation.scaleZ);
+            this.position.set(this.position.x + this.currentCenterOffset.x, this.position.y, this.position.z + this.currentCenterOffset.z);
+            if (this.mesh !== null) {
+                if (Scene.Map.current.mapProperties.isSunLight) {
+                    this.mesh.receiveShadow = true;
+                    this.mesh.castShadow = true;
+                    this.mesh.customDepthMaterial = material.userData.customDepthMaterial;
+                }
+                this.mesh.position.set(this.position.x, this.position.y, this.position.z);
+                this.mesh.renderOrder = 1;
+            }
+            this.boundingBoxSettings = objCollision[1][0];
+            if (this.boundingBoxSettings) {
+                if (this.currentStateInstance.graphicID === 0) {
+                    const picture = Scene.Map.current.mapProperties.tileset.picture;
+                    this.boundingBoxSettings.squares = picture
+                        ? picture.getSquaresForTexture(this.currentStateInstance.rectTileset)
+                        : [];
+                }
+                if (this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.OBJECT_3D) {
+                    this.boundingBoxSettings.b = [this.boundingBoxSettings.b];
+                }
+                this.updateBB(this.position);
+            }
+            else {
+                this.boundingBoxSettings = null;
+            }
+            this.updateUVs();
+            this.updateAngle(angle);
+        }
+        else {
+            this.mesh = null;
+            this.boundingBoxSettings = null;
+            this.speed =
+                this.currentState === null
+                    ? Model.DynamicValue.createNumberDouble(1)
+                    : Data.Systems.getSpeed(this.currentStateInstance.speedID);
+            this.frequency =
+                this.currentState === null
+                    ? Model.DynamicValue.createNumberDouble(0)
+                    : Data.Systems.getFrequency(this.currentStateInstance.frequencyID);
+            this.width = 0;
+            this.height = 0;
+        }
+        this.updateTerrain();
+        // Add to the scene
+        this.addToScene();
+    }
+    /**
+     *  Simulate moving object position.
+     *  @param {Orientation} orientation - The orientation to move
+     *  @param {number} distance - The distance
+     *  @param {number} angle - The angle
+     *  @returns {Vector3}
+     */
+    getFuturPosition(orientation, distance, angle) {
+        let position = new THREE.Vector3(this.previousPosition.x, this.previousPosition.y, this.previousPosition.z);
+        // The speed depends on the time elapsed since the last update
+        const w = Scene.Map.current.mapProperties.length * Data.Systems.SQUARE_SIZE;
+        const h = Scene.Map.current.mapProperties.width * Data.Systems.SQUARE_SIZE;
+        let xPlus, zPlus, res;
+        if (orientation === ORIENTATION.SOUTH || this.previousOrientation === ORIENTATION.SOUTH) {
+            xPlus = distance * Mathf.cos((angle * Math.PI) / 180.0);
+            zPlus = distance * Mathf.sin((angle * Math.PI) / 180.0);
+            res = position.z - zPlus;
+            if (res >= 0 && res < h) {
+                position.setZ(res);
+            }
+            res = position.x - xPlus;
+            if (res >= 0 && res < w) {
+                position.setX(res);
+            }
+        }
+        if (orientation === ORIENTATION.WEST || this.previousOrientation === ORIENTATION.WEST) {
+            xPlus = distance * Mathf.cos(((angle - 90.0) * Math.PI) / 180.0);
+            zPlus = distance * Mathf.sin(((angle - 90.0) * Math.PI) / 180.0);
+            res = position.x + xPlus;
+            if (res >= 0 && res < w) {
+                position.setX(res);
+            }
+            res = position.z + zPlus;
+            if (res >= 0 && res < h) {
+                position.setZ(res);
+            }
+        }
+        if (orientation === ORIENTATION.NORTH || this.previousOrientation === ORIENTATION.NORTH) {
+            xPlus = distance * Mathf.cos((angle * Math.PI) / 180.0);
+            zPlus = distance * Mathf.sin((angle * Math.PI) / 180.0);
+            res = position.z + zPlus;
+            if (res >= 0 && res < h) {
+                position.setZ(res);
+            }
+            res = position.x + xPlus;
+            if (res >= 0 && res < w) {
+                position.setX(res);
+            }
+        }
+        if (orientation === ORIENTATION.EAST || this.previousOrientation === ORIENTATION.EAST) {
+            xPlus = distance * Mathf.cos(((angle - 90.0) * Math.PI) / 180.0);
+            zPlus = distance * Mathf.sin(((angle - 90.0) * Math.PI) / 180.0);
+            res = position.x - xPlus;
+            if (res >= 0 && res < w) {
+                position.setX(res);
+            }
+            res = position.z - zPlus;
+            if (res >= 0 && res < h) {
+                position.setZ(res);
+            }
+        }
+        // Collision
+        this.updateBBPosition(position);
+        let yMountain = null;
+        let blocked = false;
+        let o = ORIENTATION.NONE;
+        let i, result;
+        const l = this.meshBoundingBox?.length ?? 0;
+        for (i = 0; i < l; i++) {
+            this.currentBoundingBox = this.meshBoundingBox[i];
+            result = Manager.Collisions.checkRay(this.position, position, this, this.boundingBoxSettings.b[i]);
+            if (result[1] !== null) {
+                yMountain = result[1];
+            }
+            if (result[0] || result[0] === null) {
+                blocked = result[0];
+                if (blocked === null) {
+                    o = result[2];
+                    continue;
+                }
+            }
+        }
+        if (blocked || (blocked === null && yMountain !== null)) {
+            position = this.position.clone();
+        }
+        /* If not blocked and possible Y up/down, check if there is no collision
+        on top */
+        if (!blocked && yMountain !== null) {
+            position.setY(yMountain);
+            this.updateBBPosition(position);
+            for (i = 0; i < l; i++) {
+                this.currentBoundingBox = this.meshBoundingBox[i];
+                result = Manager.Collisions.checkRay(this.position, position, this, this.boundingBoxSettings.b[i], true);
+                if (result[0]) {
+                    position = this.position;
+                    break;
+                }
+            }
+        }
+        this.updateBBPosition(this.position);
+        return [position, blocked === null && yMountain !== null, o];
+    }
+    /**
+     *  Check collision with another object.
+     *  @param {MapObject} object - The other map object
+     *  @returns {boolean}
+     */
+    checkCollisionObject(object) {
+        let i, j, l, m;
+        for (i = 0, l = this.meshBoundingBox.length; i < l; i++) {
+            for (j = 0, m = object.meshBoundingBox.length; j < m; j++) {
+                if (this.meshBoundingBox[i].geometry.boundingBox.intersectsBox(object.meshBoundingBox[j].geometry.boundingBox)) {
+                    if (Manager.Collisions.obbVSobb(this.meshBoundingBox[i].geometry, object.meshBoundingBox[j].geometry)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    /**
+     *  Check the collision detection.
+     *  @returns {Vector3}
+     */
+    checkCollisionDetection() {
+        const l = this.meshBoundingBox?.length ?? 0;
+        for (let i = 0; i < l; i++) {
+            if (Manager.Collisions.obbVSobb(this.meshBoundingBox[i].geometry, Manager.Collisions.getBBBoxDetection(true).geometry)) {
+                return true;
+            }
+        }
+        // If no bounding box, use only one square by default
+        if (l === 0) {
+            Manager.Collisions.applyBoxSpriteTransforms(Manager.Collisions.BB_BOX_DEFAULT_DETECTION, [
+                this.position.x,
+                this.position.y + Data.Systems.SQUARE_SIZE / 2,
+                this.position.z,
+                Data.Systems.SQUARE_SIZE,
+                Data.Systems.SQUARE_SIZE,
+                Data.Systems.SQUARE_SIZE,
+                0,
+                0,
+                0,
+            ]);
+            if (Manager.Collisions.obbVSobb(Manager.Collisions.BB_BOX_DEFAULT_DETECTION.geometry, Manager.Collisions.getBBBoxDetection(true).geometry, false)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
+     *  Only updates the bounding box mesh position.
+     *  @param {Vector3} position - Position to update
+     */
+    updateBB(position) {
+        if (this.currentStateInstance.graphicKind !== ELEMENT_MAP_KIND.OBJECT_3D &&
+            this.currentStateInstance.graphicID !== 0) {
+            this.boundingBoxSettings.squares =
+                Scene.Map.current.collisions[PICTURE_KIND.CHARACTERS][this.currentStateInstance.graphicID][this.getStateIndex()];
+        }
+        this.removeBBFromScene();
+        // If state option through, ignore BB
+        if (this.currentStateInstance.through) {
+            return;
+        }
+        let box;
+        switch (this.currentStateInstance.graphicKind) {
+            case ELEMENT_MAP_KIND.SPRITES_FIX:
+            case ELEMENT_MAP_KIND.SPRITES_FACE: {
+                this.boundingBoxSettings.b = [];
+                for (let i = 0, l = this.boundingBoxSettings.squares.length; i < l; i++) {
+                    this.boundingBoxSettings.b.push(CollisionSquare.getBB(this.boundingBoxSettings.squares[i], this.width, this.height));
+                    if (this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.SPRITES_FIX) {
+                        box = Manager.Collisions.createBox();
+                        Manager.Collisions.applyBoxSpriteTransforms(box, [
+                            position.x + this.currentScale.x * this.boundingBoxSettings.b[i][0],
+                            position.y + this.currentScale.y * this.boundingBoxSettings.b[i][1],
+                            position.z + this.currentScale.z * this.boundingBoxSettings.b[i][2],
+                            this.currentScale.x * this.boundingBoxSettings.b[i][3],
+                            this.currentScale.y * this.boundingBoxSettings.b[i][4],
+                            this.currentScale.z * this.boundingBoxSettings.b[i][5],
+                            this.currentAngle.y,
+                            this.currentAngle.x,
+                            this.currentAngle.z,
+                        ], true, [0, this.boundingBoxSettings.b[i][1] / 2 / Data.Systems.SQUARE_SIZE, 0]);
+                    }
+                    else {
+                        box = Manager.Collisions.createOrientedBox();
+                        Manager.Collisions.applyOrientedBoxTransforms(box, [
+                            position.x + this.currentScale.x * this.boundingBoxSettings.b[i][0],
+                            position.y + this.currentScale.y * this.boundingBoxSettings.b[i][1],
+                            position.z + this.currentScale.x * this.boundingBoxSettings.b[i][2],
+                            this.currentScale.x * this.boundingBoxSettings.b[i][3],
+                            this.currentScale.y * this.boundingBoxSettings.b[i][4],
+                            1,
+                            0,
+                            0,
+                            0,
+                        ]);
+                    }
+                    this.meshBoundingBox.push(box);
+                }
+                break;
+            }
+            case ELEMENT_MAP_KIND.OBJECT_3D:
+                box = Manager.Collisions.createBox();
+                Manager.Collisions.applyBoxSpriteTransforms(box, [
+                    position.x + this.boundingBoxSettings.b[0][0],
+                    position.y + this.boundingBoxSettings.b[0][1],
+                    position.z + this.boundingBoxSettings.b[0][2],
+                    this.boundingBoxSettings.b[0][3],
+                    this.boundingBoxSettings.b[0][4],
+                    this.boundingBoxSettings.b[0][5],
+                    this.boundingBoxSettings.b[0][6],
+                    this.boundingBoxSettings.b[0][7],
+                    this.boundingBoxSettings.b[0][8],
+                ]);
+                this.meshBoundingBox.push(box);
+                break;
+        }
+        this.addBBToScene();
+    }
+    /**
+     *  Only updates the bounding box mesh position.
+     *  @param {Vector3} position - Position to update
+     */
+    updateBBPosition(position) {
+        if (this.meshBoundingBox) {
+            for (let i = 0, l = this.meshBoundingBox.length; i < l; i++) {
+                this.updateMeshBBPosition(this.meshBoundingBox[i], this.boundingBoxSettings.b[i], position);
+            }
+        }
+    }
+    /**
+     *  Only updates the current bounding box mesh position.
+     *  @param {Vector3} position - Position to update
+     */
+    updateMeshBBPosition(mesh, bbSettings, position) {
+        if (this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.SPRITES_FIX ||
+            this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.OBJECT_3D) {
+            Manager.Collisions.applyBoxSpriteTransforms(mesh, [
+                position.x + this.currentScale.x * bbSettings[0],
+                position.y + this.currentScale.y * bbSettings[1],
+                position.z + this.currentScale.z * bbSettings[2],
+                this.currentScale.x * bbSettings[3],
+                this.currentScale.y * bbSettings[4],
+                this.currentScale.z * bbSettings[5],
+                this.currentAngle.y,
+                this.currentAngle.x,
+                this.currentAngle.z,
+            ]);
+        }
+        else if (this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.SPRITES_FACE) {
+            Manager.Collisions.applyOrientedBoxTransforms(mesh, [
+                position.x + this.currentScale.x * bbSettings[0],
+                position.y + this.currentScale.y * bbSettings[1],
+                position.z + this.currentScale.x * bbSettings[2],
+                this.currentScale.x * bbSettings[3],
+                this.currentScale.y * bbSettings[4],
+                1,
+                0,
+                0,
+                0,
+            ]);
+        }
+    }
+    /**
+     *  Move the object (one step).
+     *  @param {Orientation} orientation - Orientation to move
+     *  @param {number} limit - Max distance to go
+     *  @param {number} angle - The angle
+     *  @param {boolean} isCameraOrientation - Indicate if this should take
+     *  account of camera orientation
+     *  @returns {number[]}
+     */
+    move(orientation, limit, angle, isCameraOrientation) {
+        if (this.removed || !this.speed) {
+            return [0, 0];
+        }
+        // Set position
+        let speed = this.speed.getValue() *
+            MapObject.SPEED_NORMAL *
+            Manager.Stack.averageElapsedTime *
+            Data.Systems.SQUARE_SIZE;
+        if (this.previousOrientation !== null && this.previousOrientation !== this.orientation) {
+            // If already climbing, ignore
+            if (this.isClimbing && this.previousOrientation % 2 !== this.orientation % 2) {
+                return [0, 0];
+            }
+            speed *= Math.SQRT1_2;
+        }
+        // Remove from move
+        this.removeMoveTemp();
+        const normalDistance = Math.min(limit, speed);
+        const [position, isClimbing, o] = this.getFuturPosition(orientation, normalDistance, angle);
+        const distance = position.equals(this.position) ? 0 : normalDistance;
+        if (this.previousOrientation !== null) {
+            orientation = this.previousOrientation;
+        }
+        if (isCameraOrientation) {
+            orientation = Mathf.mod(orientation + Scene.Map.current.camera.getMapOrientation() - 2, 4);
+        }
+        this.position.set(position.x, position.y, position.z);
+        // Update orientation
+        const climbOrientationEye = this.climbOrientationEye;
+        if (o !== ORIENTATION.NONE) {
+            this.climbOrientationEye = o;
+        }
+        if (this.currentStateInstance && !this.currentStateInstance.directionFix) {
+            this.orientationEye = orientation;
+            orientation = this.orientation;
+            if (this.currentStateInstance && this.currentStateInstance.setWithCamera) {
+                this.updateOrientation();
+            }
+            if (this.orientation !== orientation || this.climbOrientationEye !== climbOrientationEye) {
+                this.updateUVs();
+            }
+        }
+        this.moving = true;
+        this.isClimbing = isClimbing;
+        // Add to moving objects
+        this.addMoveTemp();
+        // Add to game steps infos
+        if (this.isHero && distance > 0) {
+            Game.current.steps++;
+        }
+        // Update terrrain
+        this.updateTerrain();
+        return [distance, normalDistance];
+    }
+    /**
+     *  Teleport the object.
+     *  @param {Vector3} position - Position to teleport
+     */
+    teleport(position) {
+        if (this.removed) {
+            return;
+        }
+        // Remove from move
+        this.removeMoveTemp();
+        // Set position
+        this.position.set(position.x, position.y, position.z);
+        this.previousPosition.set(position.x, position.y, position.z);
+        if (this.movingState && this.movingState.position) {
+            this.movingState.position.set(position.x, position.y, position.z);
+        }
+        this.updateBBPosition(position);
+        this.moving = true;
+        // Add to moving objects
+        this.addMoveTemp();
+        // Update terrrain
+        this.updateTerrain();
+    }
+    /**
+     *  Jump the object (one step).
+     *  @param {Vector3} start - The start position of the jump
+     *  @param {Vector3} end - The end position of the jump
+     *  @param {number} peak - The y peak
+     *  @param {number} currentTime - The current time for jump animation
+     *  @param {number} finalTime - The total final time for complete jump animation
+     *  @returns {number}
+     */
+    jump(start, end, peak, currentTime, finalTime) {
+        if (this.removed) {
+            return finalTime;
+        }
+        // Remove from move
+        this.removeMoveTemp();
+        // Set position
+        const a = -(peak - start.y) / ((finalTime / 2) * (finalTime / 2));
+        let coef = 1;
+        if (start.y !== end.y) {
+            const tEnd = Math.sqrt((end.y - peak) / a);
+            const reduce = finalTime / 2 - tEnd;
+            coef = (finalTime - reduce) / finalTime;
+        }
+        currentTime = Math.min(currentTime + Manager.Stack.elapsedTime, finalTime);
+        const t = currentTime * coef - finalTime / 2;
+        const y = a * (t * t) + peak;
+        let x = (currentTime / finalTime) * (end.x - start.x) + start.x;
+        let z = (currentTime / finalTime) * (end.z - start.z) + start.z;
+        this.position.set(x, y, z);
+        this.updateBBPosition(this.position);
+        // Update orientation
+        if (this.currentStateInstance && !this.currentStateInstance.directionFix) {
+            let orientation = this.orientationEye;
+            x = end.x - start.x;
+            z = end.z - start.z;
+            if (x !== 0) {
+                orientation = x > 0 ? ORIENTATION.EAST : ORIENTATION.WEST;
+            }
+            else if (z !== 0) {
+                orientation = z > 0 ? ORIENTATION.SOUTH : ORIENTATION.NORTH;
+            }
+            this.orientationEye = orientation;
+            orientation = this.orientation;
+            if (this.currentStateInstance && this.currentStateInstance.setWithCamera) {
+                this.updateOrientation();
+            }
+            if (this.orientation !== orientation) {
+                this.updateUVs();
+            }
+        }
+        // Add to moving objects
+        this.addMoveTemp();
+        // Update terrrain
+        this.updateTerrain();
+        return currentTime;
+    }
+    /**
+     *  Look a direction.
+     *  @param {Vector3} orientation - The direction to look at.
+     */
+    lookAt(oriention) {
+        if (this.removed) {
+            return;
+        }
+        this.orientationEye = oriention;
+        oriention = this.orientation;
+        if (this.currentStateInstance && this.currentStateInstance.setWithCamera) {
+            this.updateOrientation();
+        }
+        if (this.orientation !== oriention) {
+            this.updateUVs();
+        }
+    }
+    /**
+     *  Remove datas move temp
+     */
+    removeMoveTemp() {
+        if (!this.isHero) {
+            const previousPortion = Position.createFromVector3(this.position).getGlobalPortion();
+            let objects = Game.current.getPortionData(Scene.Map.current.id, previousPortion);
+            // Remove from the moved objects in or out of the portion
+            let movedObjects = objects.mout;
+            let index;
+            if (movedObjects) {
+                index = movedObjects.indexOf(this);
+                if (index !== -1) {
+                    movedObjects.splice(index, 1);
+                }
+            }
+            movedObjects = objects.min;
+            if (movedObjects) {
+                index = movedObjects.indexOf(this);
+                if (index !== -1) {
+                    movedObjects.splice(index, 1);
+                }
+            }
+            // Add to moved objects of the original portion if not done yet
+            const originalPortion = Scene.Map.current.mapProperties.allObjects.get(this.system.id).getGlobalPortion();
+            objects = Game.current.getPortionData(Scene.Map.current.id, originalPortion);
+            movedObjects = objects.m;
+            if (movedObjects && movedObjects.indexOf(this) === -1) {
+                movedObjects.push(this);
+                movedObjects = Scene.Map.current.getMapPortionFromPortion(Scene.Map.current.getLocalPortion(originalPortion)).objectsList;
+                index = movedObjects.indexOf(this);
+                if (index !== -1) {
+                    movedObjects.splice(index, 1);
+                }
+            }
+        }
+    }
+    /**
+     *  Add to datas move temp
+     */
+    addMoveTemp() {
+        if (!this.isHero) {
+            const afterPortion = Position.createFromVector3(this.position).getGlobalPortion();
+            const objects = Game.current.getPortionData(Scene.Map.current.id, afterPortion);
+            const originalPortion = Scene.Map.current.mapProperties.allObjects.get(this.system.id).getGlobalPortion();
+            if (!originalPortion.equals(afterPortion)) {
+                objects.mout.push(this);
+            }
+            else {
+                objects.min.push(this);
+            }
+            // Add or remove from scene
+            if (Scene.Map.current.isInPortion(Scene.Map.current.getLocalPortion(afterPortion))) {
+                this.addToScene();
+            }
+            else {
+                this.removeFromScene();
+            }
+        }
+    }
+    /**
+     *  Add object mesh to scene
+     */
+    addToScene() {
+        if (!this.isInScene && (this.mesh !== null || this.gltfGroup !== null)) {
+            if (this.mesh !== null) {
+                Scene.Map.current.scene.add(this.mesh);
+            }
+            if (this.gltfGroup !== null) {
+                Scene.Map.current.scene.add(this.gltfGroup);
+            }
+            this.isInScene = true;
+        }
+    }
+    /**
+     *  Add bounding boxes mesh to scene
+     */
+    addBBToScene() {
+        if (Data.Systems.showBB) {
+            for (let i = 0, l = this.meshBoundingBox.length; i < l; i++) {
+                Scene.Map.current.scene.add(this.meshBoundingBox[i]);
+            }
+        }
+    }
+    /**
+     *  remove object mesh from scene
+     */
+    removeFromScene() {
+        if (this.isInScene) {
+            if (this.mesh !== null) {
+                Scene.Map.current.scene.remove(this.mesh);
+            }
+            if (this.gltfGroup !== null) {
+                Scene.Map.current.scene.remove(this.gltfGroup);
+            }
+            this.removeBBFromScene();
+            this.isInScene = false;
+        }
+    }
+    /**
+     *  Remove bounding boxes mesh from scene
+     */
+    removeBBFromScene() {
+        if (Data.Systems.showBB) {
+            for (let i = 0, l = this.meshBoundingBox.length; i < l; i++) {
+                Scene.Map.current.scene.remove(this.meshBoundingBox[i]);
+            }
+        }
+        this.meshBoundingBox = [];
+    }
+    /**
+     *  Receive an event.
+     *  @param {MapObject} sender - The sender of this event
+     *  @param {boolean} isSystem - Indicate if it is an event System
+     *  @param {number} eventID - The event ID
+     *  @param {Parameter[]} parameters - List of all the parameters
+     *  @param {number[]} states - List of all the current states of the object
+     *  @param {number[]} events - The time events list
+     *  @returns {boolean}
+     */
+    receiveEvent(sender, isSystem, eventID, parameters, states, events) {
+        // Option only one event per frame
+        if ((this.system.isEventFrame && this.receivedOneEvent) || this.removed) {
+            return false;
+        }
+        // Option can be triggered be another object
+        if (!this.system.canBeTriggeredAnotherObject) {
+            for (const interpreter of Manager.Stack.top.reactionInterpreters) {
+                if (interpreter.currentMapObject !== this && interpreter.currentMapObject != sender) {
+                    return false;
+                }
+            }
+            for (const interpreter of Manager.Stack.top.parallelCommands) {
+                if (interpreter.currentMapObject !== this && interpreter.currentMapObject != sender) {
+                    return false;
+                }
+            }
+        }
+        let test = false;
+        let i, j, l, m, state, reactions;
+        for (i = 0, l = states.length; i < l; i++) {
+            state = states[i];
+            reactions = this.system.getReactions(isSystem, eventID, states[i], parameters);
+            for (j = 0, m = reactions.length; j < m; j++) {
+                Manager.Stack.top.addReaction(sender, reactions[j], this, state, parameters, events);
+                // If sender is in this map and no fix, look at the object
+                if (sender && sender.position && sender !== this && !this.currentStateInstance.directionFix) {
+                    this.orientationEye = this.getOrientationBetween(sender);
+                }
+                this.receivedOneEvent = true;
+                test = true;
+                if (this.system.isEventFrame) {
+                    return true;
+                }
+            }
+        }
+        return test;
+    }
+    /**
+     *  Update according to camera angle.
+     *  @param {number} angle - The camera angle
+     */
+    update(angle = 0) {
+        if (this.removed) {
+            return;
+        }
+        if (this.moveFrequencyTick > 0) {
+            this.moveFrequencyTick -= Manager.Stack.elapsedTime;
+        }
+        // Graphic updates
+        if (this.mesh !== null) {
+            let frame = false;
+            const orientation = this.orientation;
+            if (this.moving) {
+                // If moving, update frame
+                if (this.currentStateInstance.moveAnimation) {
+                    frame = this.frame.update(Data.Systems.mapFrameDuration.getValue() / this.speed.getValue());
+                }
+                // Update mesh position
+                const offset = this.currentStateInstance.pixelOffset && this.frame.value % 2 !== 0 ? 1 : 0;
+                this.mesh.position.set(this.position.x, this.position.y + offset, this.position.z);
+            }
+            else {
+                if (this.currentStateInstance.stopAnimation && !this.isClimbing) {
+                    frame = this.frame.update(Data.Systems.mapFrameDuration.getValue() / this.speed.getValue());
+                }
+                else {
+                    frame = this.frame.value !== this.currentStateInstance.indexX;
+                    this.frame.value = this.currentStateInstance.indexX;
+                }
+                // Update mesh position
+                const offset = this.currentStateInstance.stopAnimation &&
+                    this.isOrientationStopWalk &&
+                    this.currentStateInstance.pixelOffset &&
+                    this.frame.value % 2 !== 0
+                    ? 1
+                    : 0;
+                this.mesh.position.set(this.position.x, this.position.y + offset, this.position.z);
+                // Update angle
+                if (this.currentStateInstance && this.currentStateInstance.setWithCamera) {
+                    this.updateOrientation();
+                }
+            }
+            this.updateAngle(angle);
+            // Update mesh
+            if (frame || orientation !== this.orientation) {
+                this.updateUVs();
+            }
+        }
+        // GLTF group update
+        if (this.gltfGroup !== null) {
+            this.gltfGroup.position.set(this.position.x, this.position.y, this.position.z);
+            if (this.currentStateInstance) {
+                const userAngleY = this.currentStateInstance.angleY.getValue() * (Math.PI / 180);
+                const prevX = this.gltfGroup.userData.prevX ?? this.position.x;
+                const prevZ = this.gltfGroup.userData.prevZ ?? this.position.z;
+                this.gltfGroup.userData.prevX = this.position.x;
+                this.gltfGroup.userData.prevZ = this.position.z;
+                const dx = this.position.x - prevX;
+                const dz = this.position.z - prevZ;
+                if (dx !== 0 || dz !== 0) {
+                    this.gltfGroup.userData.gltfTargetAngle = Math.atan2(dx, dz) + userAngleY;
+                }
+                else if (this.gltfGroup.userData.gltfTargetAngle === undefined) {
+                    let initAngle = 0;
+                    switch (this.orientationEye) {
+                        case ORIENTATION.EAST:
+                            initAngle = Math.PI / 2;
+                            break;
+                        case ORIENTATION.NORTH:
+                            initAngle = Math.PI;
+                            break;
+                        case ORIENTATION.WEST:
+                            initAngle = (3 * Math.PI) / 2;
+                            break;
+                    }
+                    this.gltfGroup.userData.gltfTargetAngle = initAngle + userAngleY;
+                    this.gltfGroup.rotation.y = this.gltfGroup.userData.gltfTargetAngle;
+                }
+                if (this.gltfGroup.userData.gltfTargetAngle !== undefined) {
+                    const target = this.gltfGroup.userData.gltfTargetAngle;
+                    const current = this.gltfGroup.rotation.y;
+                    const diff = ((((target - current + Math.PI) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)) - Math.PI;
+                    const t = Math.min(1, (Manager.Stack.elapsedTime / 1000) * 15);
+                    this.gltfGroup.rotation.y = current + diff * t;
+                }
+            }
+            if (this.animationMixer) {
+                this.updateGltfAnimation();
+                this.animationMixer.update(Manager.Stack.elapsedTime / 1000);
+            }
+        }
+        // Moving
+        this.updateMovingState();
+        // Time events
+        this.receivedOneEvent = false;
+        this.updateTimeEvents();
+        // Positions
+        if (this.position) {
+            this.previousPosition = this.position;
+            this.upPosition = new THREE.Vector3(this.position.x, this.position.y + this.height * Data.Systems.SQUARE_SIZE, this.position.z);
+            this.halfPosition = new THREE.Vector3(this.position.x, this.position.y + (this.height * Data.Systems.SQUARE_SIZE) / 2, this.position.z);
+        }
+        // Climbing up
+        if (!this.moving) {
+            this.isClimbingUp = true;
+            this.previousOrientation = null;
+        }
+        this.moving = false;
+    }
+    /**
+     *  Update moving state.
+     */
+    updateMovingState() {
+        if (!this.removed && this.currentState && this.currentState.objectMovingKind !== OBJECT_MOVING_KIND.FIX) {
+            const interpreter = Scene.Map.current.addReaction(null, this.currentState.route, this, this.currentState.id, new Map(), null, true);
+            if (interpreter !== null) {
+                this.movingState = interpreter.currentCommandState;
+            }
+        }
+    }
+    /**
+     *  Update GLTF animation based on moving state.
+     */
+    updateGltfAnimation() {
+        if (!this.animationMixer || !this.gltfGroup || !this.currentStateInstance)
+            return;
+        const objectData = Data.SpecialElements.getObject3D(this.currentStateInstance.graphicID);
+        const shape = Data.Shapes.get(CUSTOM_SHAPE_KIND.GLTF, objectData.gltfID);
+        if (!shape?.gltfAnimations?.length)
+            return;
+        const animIndex = this.moving ? objectData.moveAnimationIndex : objectData.stopAnimationIndex;
+        if (animIndex === this._currentGltfAnimIndex)
+            return;
+        this._currentGltfAnimIndex = animIndex;
+        this.animationMixer.stopAllAction();
+        if (animIndex >= 0 && animIndex < shape.gltfAnimations.length) {
+            const action = this.animationMixer.clipAction(shape.gltfAnimations[animIndex]);
+            action.setLoop(THREE.LoopRepeat, Infinity);
+            action.play();
+        }
+    }
+    /**
+     *  Update sprite faces angles.
+     *  @param {number} angle - The camera angle
+     */
+    updateAngle(angle) {
+        if (this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.SPRITES_FACE) {
+            this.mesh.rotation.y = angle;
+        }
+    }
+    /**
+     *  Update the orientation according to the camera position
+     */
+    updateOrientation() {
+        const mapOrientation = Scene.Map.current.camera.getMapOrientation();
+        this.orientation = Mathf.mod((mapOrientation - 2) * 3 + this.orientationEye, 4);
+        this.climbOrientation = Mathf.mod((mapOrientation - 2) * 3 + this.climbOrientationEye, 4);
+        if (this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.OBJECT_3D) {
+            let angle = 0;
+            switch (this.orientationEye) {
+                case ORIENTATION.SOUTH:
+                    angle = 0;
+                    break;
+                case ORIENTATION.EAST:
+                    angle = 90;
+                    break;
+                case ORIENTATION.NORTH:
+                    angle = 180;
+                    break;
+                case ORIENTATION.WEST:
+                    angle = 270;
+                    break;
+            }
+            if (this.mesh) {
+                this.mesh.rotation.y = (angle * Math.PI) / 180.0;
+            }
+        }
+    }
+    /**
+     *  Update the UVs coordinates according to frame and orientation
+     */
+    updateUVs() {
+        if (this.mesh !== null &&
+            !this.isNone() &&
+            this.currentStateInstance.graphicKind !== ELEMENT_MAP_KIND.OBJECT_3D) {
+            const { width, height } = Manager.GL.getMaterialTextureSize(this.mesh.material);
+            let w, h, x, y;
+            if (this.currentStateInstance.graphicID === 0) {
+                w = (this.width * Data.Systems.SQUARE_SIZE) / width;
+                h = (this.height * Data.Systems.SQUARE_SIZE) / height;
+                x = (this.currentStateInstance.rectTileset.x * Data.Systems.SQUARE_SIZE) / width;
+                y = (this.currentStateInstance.rectTileset.y * Data.Systems.SQUARE_SIZE) / height;
+            }
+            else {
+                w = (this.width * Data.Systems.SQUARE_SIZE) / width;
+                h = (this.height * Data.Systems.SQUARE_SIZE) / height;
+                x = (this.frame.value >= Data.Systems.FRAMES ? Data.Systems.FRAMES - 1 : this.frame.value) * w;
+                y = this.isClimbing ? this.climbOrientation : this.orientation;
+                const p = Data.Pictures.get(PICTURE_KIND.CHARACTERS, this.currentStateInstance.graphicID);
+                if (this.currentOrientationClimbing || (this.currentStateInstance.climbAnimation && this.isClimbing)) {
+                    if (p.isClimbAnimation) {
+                        if (p.isStopAnimation) {
+                            y += 8;
+                        }
+                        else {
+                            y += 4;
+                        }
+                    }
+                }
+                else if (this.currentOrientationStop || (this.currentStateInstance.stopAnimation && !this.moving)) {
+                    if (p.isStopAnimation) {
+                        y += 4;
+                    }
+                }
+                y *= h;
+            }
+            const coefX = MapElement.COEF_TEX / width;
+            const coefY = MapElement.COEF_TEX / height;
+            x += coefX;
+            y += coefY;
+            w -= coefX * 2;
+            h -= coefY * 2;
+            const texA = new THREE.Vector2();
+            const texB = new THREE.Vector2();
+            const texC = new THREE.Vector2();
+            const texD = new THREE.Vector2();
+            CustomGeometry.uvsQuadToTex(texA, texB, texC, texD, x, y, w, h);
+            // Update geometry
+            this.mesh.geometry.pushQuadUVs(texA, texB, texC, texD);
+            this.mesh.geometry.updateUVs();
+        }
+    }
+    /**
+     *  Update the material
+     */
+    updateMaterial() {
+        if (!this.isNone()) {
+            this.mesh.material =
+                this.currentStateInstance.graphicID === 0
+                    ? Scene.Map.current.textureTileset
+                    : Data.Pictures.texturesCharacters.get(this.currentStateInstance.graphicID);
+        }
+        else {
+            this.mesh = null;
+        }
+    }
+    /**
+     *  Get the state index.
+     *  @returns {number}
+     */
+    getStateIndex() {
+        return this.frame.value + this.orientation * Data.Systems.FRAMES;
+    }
+    /**
+     *  Check if graphics is none.
+     *  @returns {boolean}
+     */
+    isNone() {
+        return (this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.NONE ||
+            this.currentStateInstance.graphicID === -1);
+    }
+    /**
+     *  Get the orientation between two objects.
+     *  @param {Core.MapObject} object
+     *  @returns {Orientation}
+     */
+    getOrientationBetween(object) {
+        return this.getOrientationBetweenPosition(object.position);
+    }
+    /**
+     *  Get the orientation between an object and a position.
+     *  @param {Vector3} position
+     *  @returns {Orientation}
+     */
+    getOrientationBetweenPosition(position, force = false, front = false) {
+        const x = Math.abs(position.x - this.position.x);
+        const z = Math.abs(position.z - this.position.z);
+        let orientation = this.orientationEye;
+        if ((!force && x >= z) || (force && !front)) {
+            if (position.x >= this.position.x) {
+                orientation = ORIENTATION.EAST;
+            }
+            else if (position.x < this.position.x) {
+                orientation = ORIENTATION.WEST;
+            }
+        }
+        else {
+            if (position.z >= this.position.z) {
+                orientation = ORIENTATION.SOUTH;
+            }
+            else if (position.z < this.position.z) {
+                orientation = ORIENTATION.NORTH;
+            }
+        }
+        return orientation;
+    }
+    /**
+     *  Update the terrain the object is currently on.
+     */
+    updateTerrain() {
+        this.terrain = 0;
+        if (!Scene.Map.current.loading && this.position) {
+            const mapPortion = Scene.Map.current.getMapPortionFromPortion(Scene.Map.current.getLocalPortion(Portion.createFromVector3(this.position)));
+            if (mapPortion) {
+                const position = Position.createFromVector3(this.position);
+                const boundingBoxes = mapPortion.boundingBoxesLands[position.toIndex()];
+                if (boundingBoxes.length > 0) {
+                    const collision = boundingBoxes[boundingBoxes.length - 1];
+                    this.terrain = collision && collision.cs ? collision.cs.terrain : 0;
+                }
+            }
+        }
+    }
+    /**
+     *  Get all the squares positions where you need to check collision.
+     */
+    getSquaresBB(direction = new THREE.Vector3()) {
+        let startI, endI, startJ, endJ, startK, endK;
+        if (direction.x > 0) {
+            startI = 0;
+            endI = this.boundingBoxSettings.w + 1;
+        }
+        else if (direction.x < 0) {
+            startI = -this.boundingBoxSettings.w - 1;
+            endI = 0;
+        }
+        else {
+            startI = -this.boundingBoxSettings.w - 1;
+            endI = this.boundingBoxSettings.w + 1;
+        }
+        if (this.boundingBoxSettings.k) {
+            startK = 0;
+            endK = 0;
+        }
+        else if (direction.z > 0) {
+            startK = 0;
+            endK = this.boundingBoxSettings.w + 1;
+        }
+        else if (direction.z < 0) {
+            startK = -this.boundingBoxSettings.w - 1;
+            endK = 0;
+        }
+        else {
+            startK = -this.boundingBoxSettings.w - 1;
+            endK = this.boundingBoxSettings.w + 1;
+        }
+        startJ = 0;
+        endJ = 0;
+        return [startI, endI, startJ, endJ, startK, endK];
+    }
+}
+MapObject.SPEED_NORMAL = 0.004666;
+export { MapObject };
