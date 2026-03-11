@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import * as THREE from 'three';
+import * as THREE from 'three/webgpu';
 import { Common, Core, Data, EventCommand, Graphic, Main, Manager, Model, Scene } from '../index.js';
 /**
  * A static class for evaluating dynamic formulas or scripts in a sandboxed context.

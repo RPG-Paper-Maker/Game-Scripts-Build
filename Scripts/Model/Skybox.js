@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import * as THREE from 'three';
+import * as THREE from 'three/webgpu';
 import { PICTURE_KIND, Utils } from '../Common/index.js';
 import { Data, Manager } from '../index.js';
 import { Base } from './Base.js';
@@ -25,14 +25,8 @@ export class Skybox extends Base {
     createTextures() {
         return [this.left, this.right, this.top, this.bot, this.front, this.back].map((side) => {
             const texture = Manager.GL.textureLoader.load(Data.Pictures.get(PICTURE_KIND.SKYBOXES, side).getPath());
-            texture.wrapS = THREE.RepeatWrapping;
             texture.repeat.x = -1;
-            return Manager.GL.createMaterial({
-                texture: texture,
-                side: THREE.BackSide,
-                shadows: false,
-                flipY: true,
-            });
+            return Manager.GL.createMaterial({ texture, side: THREE.BackSide, unlit: true, flipY: true });
         });
     }
     /**

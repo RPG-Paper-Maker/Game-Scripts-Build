@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import * as THREE from 'three';
+import * as THREE from 'three/webgpu';
 import { Constants, CUSTOM_SHAPE_KIND, Mathf, ORIENTATION } from '../Common/index.js';
 import { CustomGeometry, Game, MapObject, Portion, Position, } from '../Core/index.js';
 import { Data, Manager, Scene } from '../index.js';
@@ -1236,9 +1236,9 @@ class Collisions {
         return false;
     }
 }
-Collisions.BB_MATERIAL = new THREE.MeshBasicMaterial();
-Collisions.BB_MATERIAL_DETECTION = new THREE.MeshBasicMaterial();
-Collisions.BB_EMPTY_MATERIAL = new THREE.MeshBasicMaterial({ visible: false });
+Collisions.BB_MATERIAL = new THREE.MeshBasicNodeMaterial();
+Collisions.BB_MATERIAL_DETECTION = new THREE.MeshBasicNodeMaterial();
+Collisions.BB_EMPTY_MATERIAL = new THREE.MeshBasicNodeMaterial({ visible: false });
 Collisions.BB_BOX = Collisions.createBox();
 Collisions.BB_ORIENTED_BOX = Collisions.createOrientedBox();
 Collisions.BB_BOX_DETECTION = Collisions.createBox(true);

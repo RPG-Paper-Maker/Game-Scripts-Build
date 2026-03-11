@@ -8,8 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import * as THREE from 'three';
-import { Paths, Platform, ScreenResolution, Utils } from '../Common/index.js';
+import { BRDF_Lambert, diffuseColor, dot, Fn, lights, mix, normalView, texture, uniform, uv, vec2, vec3, vec4, } from 'three/tsl';
+import * as THREE from 'three/webgpu';
+import { Platform, ScreenResolution, Utils } from '../Common/index.js';
 import { Data } from '../index.js';
 import { Stack } from './Stack.js';
 /** @class
@@ -24,8 +25,8 @@ class GL {
      *  Initialize the openGL stuff.
      *  @static
      */
-    static initialize() {
-        this.renderer = new THREE.WebGLRenderer({ antialias: Data.Systems.antialias, alpha: true });
+    static async initialize() {
+        this.renderer = new THREE.WebGPURenderer({ antialias: Data.Systems.antialias, alpha: true });
         this.renderer.autoClear = false;
         this.renderer.setSize(ScreenResolution.CANVAS_WIDTH, ScreenResolution.CANVAS_HEIGHT, true);
         this.renderer.shadowMap.enabled = true;
@@ -33,6 +34,7 @@ class GL {
         if (Data.Systems.antialias) {
             this.renderer.setPixelRatio(2);
         }
+        await this.renderer.init();
         document.body.appendChild(this.renderer.domElement);
     }
     /**
@@ -40,11 +42,19 @@ class GL {
      *  @static
      */
     static async load() {
-        // Shaders
-        let json = await Platform.loadFile(Paths.SHADERS + 'default.vert', true);
-        this.SHADER_FIX_VERTEX = json;
-        json = await Platform.loadFile(Paths.SHADERS + 'default.frag', true);
-        this.SHADER_FIX_FRAGMENT = json;
+        this.allLights = [];
+        this.lightingModel = new THREE.LightingModel();
+        this.lightingModel.direct = function ({ lightDirection, lightColor, reflectedLight }) {
+            const dotNL = normalView.dot(lightDirection).clamp();
+            const irradiance = dotNL.mul(lightColor);
+            reflectedLight.directDiffuse.addAssign(irradiance.mul(vec4(BRDF_Lambert({ diffuseColor: diffuseColor.rgb }))));
+        };
+        this.lightingModel.indirect = function (builder) {
+            const { ambientOcclusion, irradiance, reflectedLight } = builder.context;
+            reflectedLight.indirectDiffuse.addAssign(irradiance.mul(BRDF_Lambert({ diffuseColor })));
+            reflectedLight.indirectDiffuse.mulAssign(ambientOcclusion);
+        };
+        this.lightingModelContext = lights(this.allLights).context({ lightingModel: this.lightingModel });
     }
     /**
      *  Set the camera aspect while resizing the window.
@@ -91,15 +101,12 @@ class GL {
      *  @returns {THREE.Material}
      */
     static loadTextureEmpty() {
-        const material = new THREE.MeshPhongMaterial();
-        material.userData.uniforms = {
-            t: { value: undefined },
-        };
+        const material = new THREE.MeshPhongNodeMaterial();
         return material;
     }
     /**
      *  Create a material from texture.
-     *  @returns {THREE.MeshPhongMaterial}
+     *  @returns {THREE.MeshPhongNodeMaterial}
      */
     static createMaterial(opts) {
         if (!opts.texture) {
@@ -110,25 +117,12 @@ class GL {
         opts.texture.flipY = opts.flipY ? true : false;
         opts.texture.wrapS = THREE.RepeatWrapping;
         opts.texture.wrapT = THREE.RepeatWrapping;
-        opts.repeat = Utils.valueOrDefault(opts.repeat, 1.0);
+        opts.texture.colorSpace = THREE.SRGBColorSpace;
         opts.opacity = Utils.valueOrDefault(opts.opacity, 1.0);
         opts.shadows = Utils.valueOrDefault(opts.shadows, true);
         opts.side = Utils.valueOrDefault(opts.side, THREE.DoubleSide);
-        const fragment = this.SHADER_FIX_FRAGMENT;
-        const vertex = this.SHADER_FIX_VERTEX;
-        const screenTone = this.screenTone;
-        const uniforms = opts.uniforms
-            ? opts.uniforms
-            : {
-                offset: { value: new THREE.Vector2() },
-                colorD: { value: screenTone },
-                repeat: { value: opts.repeat },
-                enableShadows: { value: opts.shadows },
-            };
-        // Program cache key for multiple shader programs
-        const key = fragment === this.SHADER_FIX_FRAGMENT ? 0 : 1;
         // Create material
-        const material = new THREE.MeshPhongMaterial({
+        const material = new THREE.MeshPhongNodeMaterial({
             map: opts.texture,
             side: opts.side,
             transparent: true,
@@ -137,43 +131,36 @@ class GL {
             shininess: 0,
             specular: new THREE.Color(0x000000),
         });
-        material.userData.uniforms = uniforms;
-        material.userData.customDepthMaterial = new THREE.MeshDepthMaterial({
-            depthPacking: THREE.RGBADepthPacking,
-            map: opts.texture,
-            alphaTest: 0.5,
-        });
-        // Edit shader information before compiling shader
-        material.onBeforeCompile = (shader) => {
-            shader.fragmentShader = fragment;
-            shader.vertexShader = vertex;
-            shader.uniforms.colorD = uniforms.colorD;
-            shader.uniforms.reverseH = { value: opts.flipX };
-            shader.uniforms.repeat = { value: opts.repeat };
-            shader.uniforms.offset = uniforms.offset;
-            shader.uniforms.enableShadows = { value: opts.shadows };
-            material.userData.uniforms = shader.uniforms;
-            // Important to run a unique shader only once and be able to use
-            // multiple shader with before compile
-            material.customProgramCacheKey = () => {
-                return '' + key;
-            };
+        const u = {
+            offset: uniform(new THREE.Vector2()),
+            colorD: uniform(this.screenTone),
+            opacity: uniform(opts.opacity),
         };
+        material.userData.uniforms = u;
+        const colorShader = Fn(() => {
+            const coords = vec2(uv().add(u.offset)).mul(vec2(opts.texture.repeat));
+            const tex = texture(opts.texture, coords);
+            const color = vec3(tex).add(vec3(u.colorD));
+            const intensity = vec3(dot(color, vec3(0.2125, 0.7154, 0.0721)));
+            return vec4(mix(intensity, color, u.colorD.w), tex.a);
+        });
+        material.colorNode = colorShader();
+        if (opts.unlit) {
+            material.lights = false;
+        }
+        else {
+            material.lightsNode = opts.shadows ? GL.lightingModelContext : lights();
+        }
         return material;
     }
     static cloneMaterial(material) {
         return this.createMaterial({
             texture: material.map,
-            flipY: material.map.flipY,
-            side: material.side,
-            repeat: material.userData.uniforms.repeat.value,
-            opacity: material.opacity,
-            shadows: material.userData.uniforms.enableShadows.value,
         });
     }
     /**
      *  Get material THREE.Texture (if exists).
-     *  @param {THREE.MeshPhongMaterial}
+     *  @param {THREE.MeshPhongNodeMaterial}
      *  @returns {THREE.Texture}
      */
     static getMaterialTexture(material) {
@@ -212,4 +199,5 @@ class GL {
 GL.textureLoader = new THREE.TextureLoader();
 GL.raycaster = new THREE.Raycaster();
 GL.screenTone = new THREE.Vector4(0, 0, 0, 1);
+GL.allLights = [];
 export { GL };

@@ -8,8 +8,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import * as THREE from 'three/webgpu';
+import { GLTFLoader } from '../Libs/examples/jsm/loaders/GLTFLoader.js';
 import { CUSTOM_SHAPE_KIND, Paths, Platform, Utils } from '../Common/index.js';
 import { CustomGeometry } from '../Core/index.js';
 import { Data, Manager } from '../index.js';

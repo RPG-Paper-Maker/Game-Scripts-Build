@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import * as THREE from 'three';
+import * as THREE from 'three/webgpu';
 import { CHARACTER_KIND, GROUP_KIND, Paths, Platform, Utils } from '../Common/index.js';
 import { Data, Manager, Model, Scene } from '../index.js';
 import { Chrono } from './Chrono.js';
