@@ -44,7 +44,7 @@ class GameOver extends Base {
             this.pictureBackground = await Picture2D.createWithID(Data.TitlescreenGameover.gameOverBackgroundImageID, PICTURE_KIND.GAME_OVER, { cover: true });
         }
         else {
-            await Manager.Videos.play(Data.Videos.get(Data.TitlescreenGameover.gameOverBackgroundVideoID).getPath());
+            await Manager.Videos.play(Data.Videos.get(Data.TitlescreenGameover.gameOverBackgroundVideoID).getPath(), null, true);
         }
         // Windows
         const commandsNb = Data.TitlescreenGameover.gameOverCommands.length;

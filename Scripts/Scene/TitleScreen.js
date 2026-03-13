@@ -44,7 +44,7 @@ class TitleScreen extends Base {
             this.pictureBackground = await Picture2D.createWithID(Data.TitlescreenGameover.titleBackgroundImageID, PICTURE_KIND.TITLE_SCREEN, { cover: true });
         }
         else {
-            await Manager.Videos.play(Data.Videos.get(Data.TitlescreenGameover.titleBackgroundVideoID).getPath());
+            await Manager.Videos.play(Data.Videos.get(Data.TitlescreenGameover.titleBackgroundVideoID).getPath(), null, true);
         }
         // Windows
         const commandsNb = Data.TitlescreenGameover.titleCommands.length;
