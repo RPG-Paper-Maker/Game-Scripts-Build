@@ -8,8 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import * as THREE from 'three/webgpu';
-import { uniform } from 'three/tsl';
+import * as THREE from 'three';
 import { ALIGN, ALIGN_VERTICAL, BATTLER_STEP, ELEMENT_MAP_KIND, Interpreter, } from '../Common/index.js';
 import { ProgressionTable } from '../Model/index.js';
 import { Data, Graphic, Manager, Scene } from '../index.js';
@@ -93,8 +92,11 @@ export class Battler {
             const copiedTexture = texture.clone();
             const material = Manager.GL.createMaterial({
                 texture: copiedTexture,
+                uniforms: {
+                    colorD: { type: 'v4', value: Manager.GL.screenTone.clone() },
+                    offset: { type: 'v2', value: this.animationOffset },
+                },
             });
-            this.animationOffset = material.userData.uniforms.offset.value;
             const { width, height } = Manager.GL.getMaterialTextureSize(material);
             this.width = width / Data.Systems.SQUARE_SIZE / Data.Systems.battlersFrames;
             this.height = height / Data.Systems.SQUARE_SIZE / Data.Systems.battlersColumns;
@@ -183,10 +185,10 @@ export class Battler {
         this.active = active;
         const material = this.mesh.material;
         if (active) {
-            material.userData.uniforms.colorD = uniform(Manager.GL.screenTone);
+            material.userData.uniforms.colorD.value.copy(Manager.GL.screenTone);
         }
         else {
-            material.userData.uniforms.colorD = uniform(Manager.GL.screenTone.clone().subScalar(0.3));
+            material.userData.uniforms.colorD.value.copy(Manager.GL.screenTone.clone().subScalar(0.3));
         }
     }
     /**

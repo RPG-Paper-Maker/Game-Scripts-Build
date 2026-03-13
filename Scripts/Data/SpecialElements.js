@@ -8,8 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import * as THREE from 'three/webgpu';
-import { uniform } from 'three/tsl';
+import * as THREE from 'three';
 import { Constants, Paths, PICTURE_KIND, Platform, Utils } from '../Common/index.js';
 import { Autotiles, Game, Picture2D, TextureBundle } from '../Core/index.js';
 import { Data, Manager, Scene } from '../index.js';
@@ -182,9 +181,9 @@ export class SpecialElements {
         texture.image = await Picture2D.loadImage(Platform.canvasRendering.toDataURL());
         texture.needsUpdate = true;
         textureAutotile.material = Manager.GL.createMaterial({ texture });
-        textureAutotile.material.userData.uniforms.offset = textureAutotile.isAnimated
-            ? uniform(Scene.Map.autotilesOffset)
-            : uniform(new THREE.Vector2());
+        textureAutotile.material.userData.uniforms.offset.value = textureAutotile.isAnimated
+            ? Scene.Map.autotilesOffset
+            : new THREE.Vector2();
         this.texturesAutotiles.get(id).push(textureAutotile);
     }
     /**

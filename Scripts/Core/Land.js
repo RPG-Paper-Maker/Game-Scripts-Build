@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import * as THREE from 'three/webgpu';
+import * as THREE from 'three';
 import { Mathf, Utils } from '../Common/index.js';
 import { Data } from '../index.js';
 import { CustomGeometry } from './CustomGeometry.js';
