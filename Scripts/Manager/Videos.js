@@ -26,6 +26,7 @@ class Videos {
         Platform.canvasVideos.classList.remove('hidden');
         if (!this.paused) {
             Platform.canvasVideos.src = src;
+            Platform.canvasVideos.load();
         }
         this.removeEndedEventListener();
         if (endedHandler !== null) {
@@ -34,7 +35,16 @@ class Videos {
         this.currentEndedHandler = endedHandler;
         Platform.canvasVideos.loop = loop;
         this.paused = false;
-        await Platform.canvasVideos.play();
+        try {
+            await Platform.canvasVideos.play();
+            return true;
+        }
+        catch (e) {
+            if (e.name === 'NotAllowedError') {
+                return false;
+            }
+            throw e;
+        }
     }
     /**
      *  Pause the current video.

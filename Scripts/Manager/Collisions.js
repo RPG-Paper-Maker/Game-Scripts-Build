@@ -77,10 +77,8 @@ class Collisions {
         box['previousCenter'] = [0, 0, 0];
         // Update geometry now
         box.updateMatrixWorld();
-        // Compute bounding box manually
-        if (box.geometry.boundingBox === null) {
-            box.geometry.computeBoundingBox();
-        }
+        // Compute bounding box
+        box.geometry.computeBoundingBox();
     }
     /**
      *  Apply transform for sprite bounding box.
@@ -110,10 +108,8 @@ class Collisions {
         box['previousCenter'] = center;
         // Update geometry now
         box.updateMatrixWorld();
-        // Compute bounding box manually
-        if (box.geometry.boundingBox === null) {
-            box.geometry.computeBoundingBox();
-        }
+        // Compute bounding box
+        box.geometry.computeBoundingBox();
     }
     /**
      *  Apply transform for oriented bounding box.
@@ -144,10 +140,42 @@ class Collisions {
         box['previousCenter'] = center;
         // Update geometry now
         box.updateMatrixWorld();
-        // Compute bounding box manually
-        if (box.geometry.boundingBox === null) {
-            box.geometry.computeBoundingBox();
+        // Compute bounding box
+        box.geometry.computeBoundingBox();
+    }
+    /**
+     *  Get a bounding box mesh. When showBB is true, create a temporary visible
+     *  copy that flashes in the scene.
+     *  @static
+     *  @returns {THREE.Mesh}
+     */
+    static getBBBox() {
+        if (Data.Systems.showBB) {
+            const box = Collisions.createBox();
+            this.BB_BOX = box;
+            Scene.Map.current.scene.add(box);
+            setTimeout(() => {
+                Scene.Map.current.scene.remove(box);
+            }, 1);
         }
+        return this.BB_BOX;
+    }
+    /**
+     *  Get an oriented bounding box mesh. When showBB is true, create a
+     *  temporary visible copy that flashes in the scene.
+     *  @static
+     *  @returns {THREE.Mesh}
+     */
+    static getBBOrientedBox() {
+        if (Data.Systems.showBB) {
+            const box = Collisions.createOrientedBox();
+            this.BB_ORIENTED_BOX = box;
+            Scene.Map.current.scene.add(box);
+            setTimeout(() => {
+                Scene.Map.current.scene.remove(box);
+            }, 1);
+        }
+        return this.BB_ORIENTED_BOX;
     }
     /**
      *  Get a bounding box mesh for detection. Keep the same existing one or
@@ -677,8 +705,9 @@ class Collisions {
         if (collision !== null) {
             return false;
         }
-        this.applyBoxLandTransforms(this.BB_BOX, boundingBox);
-        return this.obbVSobb(object.currentBoundingBox.geometry, this.BB_BOX.geometry);
+        const box = this.getBBBox();
+        this.applyBoxLandTransforms(box, boundingBox);
+        return this.obbVSobb(object.currentBoundingBox.geometry, box.geometry);
     }
     /**
      *  Check directions
@@ -805,12 +834,14 @@ class Collisions {
             return false;
         }
         if (fix) {
-            this.applyBoxSpriteTransforms(this.BB_BOX, boundingBox, true, center);
-            return this.obbVSobb(object.currentBoundingBox.geometry, this.BB_BOX.geometry);
+            const box = this.getBBBox();
+            this.applyBoxSpriteTransforms(box, boundingBox, true, center);
+            return this.obbVSobb(object.currentBoundingBox.geometry, box.geometry);
         }
         else {
-            this.applyOrientedBoxTransforms(this.BB_ORIENTED_BOX, boundingBox, center);
-            return this.obbVSobb(object.currentBoundingBox.geometry, this.BB_ORIENTED_BOX.geometry);
+            const box = this.getBBOrientedBox();
+            this.applyOrientedBoxTransforms(box, boundingBox, center);
+            return this.obbVSobb(object.currentBoundingBox.geometry, box.geometry);
         }
     }
     static getCollisionsWithOverflows(mapPortion, boundingBoxPropertyName, jpositionAfter, overflow) {
@@ -872,9 +903,7 @@ class Collisions {
         }
         if (this.currentCustomObject3D) {
             this.currentCustomObject3D.position.set(objCollision.l.x, objCollision.l.y, objCollision.l.z);
-            this.currentCustomObject3D.setRotationFromAxisAngle(new THREE.Vector3(1, 0, 0), objCollision.b[6]);
-            this.currentCustomObject3D.setRotationFromAxisAngle(new THREE.Vector3(0, 1, 0), objCollision.b[7]);
-            this.currentCustomObject3D.setRotationFromAxisAngle(new THREE.Vector3(0, 0, 1), objCollision.b[8]);
+            this.currentCustomObject3D.rotation.set((objCollision.b[7] * Math.PI) / 180.0, (objCollision.b[6] * Math.PI) / 180.0, (objCollision.b[8] * Math.PI) / 180.0, 'XYZ');
             Scene.Map.current.scene.add(this.currentCustomObject3D);
             if (Data.Systems.showBB) {
                 this.currentCustomObject3D.material = this.BB_MATERIAL;
@@ -1186,7 +1215,8 @@ class Collisions {
             }
             // If angle limit, block — compute per-side angle from actual side width
             const sideAngle = sideW === 0 ? 90 : (Math.atan(h / sideW) * 180) / Math.PI;
-            if (forceAlways || (!forceNever && sideAngle > Data.Systems.mountainCollisionAngle.getValue())) {
+            if (forceAlways ||
+                (!forceNever && sideAngle > Data.Systems.mountainCollisionAngle.getValue())) {
                 // Check if floor existing on top of the mountain angle
                 isFloor =
                     jposition.y === jpositionAfter.y

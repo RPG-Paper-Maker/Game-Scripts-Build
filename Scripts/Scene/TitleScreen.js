@@ -8,9 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Constants, PICTURE_KIND, ScreenResolution } from '../Common/index.js';
+import { ALIGN, ALIGN_VERTICAL, Constants, PICTURE_KIND, ScreenResolution } from '../Common/index.js';
 import { Game, Picture2D, WindowBox, WindowChoices } from '../Core/index.js';
-import { Data, Manager } from '../index.js';
+import { Data, Graphic, Manager } from '../index.js';
 import { Base } from './Base.js';
 /**
  *  The Scene displaying the game title screen.
@@ -20,6 +20,11 @@ import { Base } from './Base.js';
 class TitleScreen extends Base {
     constructor() {
         super();
+        /**
+         *  Whether video autoplay was blocked by the browser (requires user interaction first).
+         *  @type {boolean}
+         */
+        this.videoBlocked = false;
     }
     /**
      *  @inheritdoc
@@ -44,7 +49,19 @@ class TitleScreen extends Base {
             this.pictureBackground = await Picture2D.createWithID(Data.TitlescreenGameover.titleBackgroundImageID, PICTURE_KIND.TITLE_SCREEN, { cover: true });
         }
         else {
-            await Manager.Videos.play(Data.Videos.get(Data.TitlescreenGameover.titleBackgroundVideoID).getPath(), null, true);
+            const played = await Manager.Videos.play(Data.Videos.get(Data.TitlescreenGameover.titleBackgroundVideoID).getPath(), null, true);
+            if (!played) {
+                this.videoBlocked = true;
+                this.graphicClickToStart = new Graphic.Text('Click anywhere to start', {
+                    x: 0,
+                    y: 0,
+                    w: ScreenResolution.SCREEN_X,
+                    h: ScreenResolution.SCREEN_Y,
+                    align: ALIGN.CENTER,
+                    verticalAlign: ALIGN_VERTICAL.CENTER,
+                    fontSize: 20,
+                });
+            }
         }
         // Windows
         const commandsNb = Data.TitlescreenGameover.titleCommands.length;
@@ -69,13 +86,19 @@ class TitleScreen extends Base {
      *  @inheritdoc
      */
     update() {
-        this.windowChoicesCommands.update();
+        if (!this.videoBlocked) {
+            this.windowChoicesCommands.update();
+        }
     }
     /**
      *  @inheritdoc
      *  @param {number} key - the key ID
      */
     onKeyPressed(key) {
+        if (this.videoBlocked) {
+            this.resumeVideoBackground();
+            return;
+        }
         this.windowChoicesCommands.onKeyPressed(key, this.windowChoicesCommands.getCurrentContent().datas);
     }
     /**
@@ -84,6 +107,9 @@ class TitleScreen extends Base {
      *  @return {*}  {boolean}
      */
     onKeyPressedAndRepeat(key) {
+        if (this.videoBlocked) {
+            return true;
+        }
         return this.windowChoicesCommands.onKeyPressedAndRepeat(key);
     }
     /**
@@ -96,7 +122,18 @@ class TitleScreen extends Base {
      *  @inheritdoc
      */
     onMouseUp(x, y) {
+        if (this.videoBlocked) {
+            this.resumeVideoBackground();
+            return;
+        }
         this.windowChoicesCommands.onMouseUp(x, y, this.windowChoicesCommands.getCurrentContent().datas);
+    }
+    /**
+     *  Retry video playback after user interaction unblocked autoplay.
+     */
+    resumeVideoBackground() {
+        this.videoBlocked = false;
+        Manager.Videos.play(Data.Videos.get(Data.TitlescreenGameover.titleBackgroundVideoID).getPath(), null, true).catch(console.error);
     }
     /**
      *  @inheritdoc
@@ -105,7 +142,12 @@ class TitleScreen extends Base {
         if (Data.TitlescreenGameover.isTitleBackgroundImage) {
             this.pictureBackground.draw();
         }
-        this.windowChoicesCommands.draw();
+        if (this.videoBlocked) {
+            this.graphicClickToStart.draw();
+        }
+        else {
+            this.windowChoicesCommands.draw();
+        }
     }
 }
 export { TitleScreen };
