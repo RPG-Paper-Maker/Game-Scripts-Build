@@ -43,6 +43,9 @@ class Videos {
             if (e.name === 'NotAllowedError') {
                 return false;
             }
+            if (e.name === 'AbortError') {
+                return false;
+            }
             throw e;
         }
     }
