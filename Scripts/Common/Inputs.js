@@ -68,9 +68,9 @@ export class Inputs {
         document.addEventListener('mousedown', this.onMouseDown.bind(this), false);
         document.addEventListener('mouseup', this.onMouseUp.bind(this), false);
         document.addEventListener('mousemove', this.onMouseMove.bind(this), false);
-        document.addEventListener('touchstart', this.onTouchStart.bind(this), false);
-        document.addEventListener('touchend', this.onTouchEnd.bind(this), false);
-        document.addEventListener('touchmove', this.onTouchMove.bind(this), false);
+        document.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: false });
+        document.addEventListener('touchend', this.onTouchEnd.bind(this), { passive: false });
+        document.addEventListener('touchmove', this.onTouchMove.bind(this), { passive: false });
     }
     /**
      * Handles `keydown` events:
@@ -176,6 +176,7 @@ export class Inputs {
         if (!this.isReady() || !Data.Systems.isMouseControls) {
             return;
         }
+        event.preventDefault();
         this.lastTouchTime = Date.now();
         this.mouseLeftPressed = true;
         this.mouseFirstPressX = event.touches[0].pageX;
@@ -191,6 +192,7 @@ export class Inputs {
         if (!this.isReady() || !Data.Systems.isMouseControls) {
             return;
         }
+        event.preventDefault();
         this.mouseX = event.touches[0].pageX;
         this.mouseY = event.touches[0].pageY;
         Manager.Stack.onMouseMove(this.mouseX, this.mouseY);
@@ -200,10 +202,11 @@ export class Inputs {
      * - Simulates mouse button release.
      * - Calls stack mouse up handler.
      */
-    static onTouchEnd(_event) {
+    static onTouchEnd(event) {
         if (!this.isReady() || !Data.Systems.isMouseControls) {
             return;
         }
+        event.preventDefault();
         this.lastTouchTime = Date.now();
         Manager.Stack.onMouseUp(this.mouseX, this.mouseY);
         this.mouseLeftPressed = false;
