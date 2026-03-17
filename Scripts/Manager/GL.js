@@ -30,11 +30,7 @@ class GL {
         this.renderer.setSize(ScreenResolution.CANVAS_WIDTH, ScreenResolution.CANVAS_HEIGHT, true);
         this.renderer.shadowMap.enabled = true;
         this.renderer.setPixelRatio(window.devicePixelRatio);
-<<<<<<< HEAD:Scripts/System/Manager/GL.js
-        if (Datas.Systems.antialias) {
-=======
         if (Data.Systems.antialias) {
->>>>>>> web-3.0.0:Scripts/Manager/GL.js
             this.renderer.setPixelRatio(2);
         }
         document.body.appendChild(this.renderer.domElement);

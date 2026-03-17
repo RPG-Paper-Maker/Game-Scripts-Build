@@ -173,16 +173,10 @@ class BattleVictory {
                     this.battle.finishedXP = false;
                     player.stepLevelUp = 0;
                     this.battle.windowStatisticProgression.content = new Graphic.StatisticProgression(this.battle.user.player);
-<<<<<<< HEAD:Scripts/System/Scene/BattleVictory.js
-                    h = this.battle
-                        .windowStatisticProgression.content.getHeight() +
-                        WindowBox.HUGE_PADDING_BOX[0] + WindowBox.HUGE_PADDING_BOX[2];
-=======
                     h =
                         this.battle.windowStatisticProgression.content.getHeight() +
                             WindowBox.HUGE_PADDING_BOX[0] +
                             WindowBox.HUGE_PADDING_BOX[2];
->>>>>>> web-3.0.0:Scripts/Scene/BattleVictory.js
                     this.battle.windowStatisticProgression.setH(h);
                     Data.BattleSystems.battleLevelUp.playSound();
                     this.battle.subStep = 2;

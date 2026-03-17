@@ -437,20 +437,6 @@ class BattleSelection {
             case 2:
                 if (!this.battle.userTarget) {
                     if (isKey) {
-<<<<<<< HEAD:Scripts/System/Scene/BattleSelection.js
-                        if (Datas.Keyboards.isKeyEqual(options.key, Datas
-                            .Keyboards.menuControls.Up) || Datas.Keyboards
-                            .isKeyEqual(options.key, this.battle.subStep === 0 ?
-                            Datas.Keyboards.menuControls.Left : Datas.Keyboards
-                            .menuControls.Right)) {
-                            index = this.indexArrowUp();
-                        }
-                        else if (Datas.Keyboards.isKeyEqual(options.key, Datas
-                            .Keyboards.menuControls.Down) || Datas.Keyboards
-                            .isKeyEqual(options.key, this.battle.subStep === 0 ?
-                            Datas.Keyboards.menuControls.Right : Datas.Keyboards
-                            .menuControls.Left)) {
-=======
                         if (Data.Keyboards.isKeyEqual(options.key, Data.Keyboards.menuControls.Up) ||
                             Data.Keyboards.isKeyEqual(options.key, this.battle.subStep === 0
                                 ? Data.Keyboards.menuControls.Left
@@ -461,7 +447,6 @@ class BattleSelection {
                             Data.Keyboards.isKeyEqual(options.key, this.battle.subStep === 0
                                 ? Data.Keyboards.menuControls.Right
                                 : Data.Keyboards.menuControls.Left)) {
->>>>>>> web-3.0.0:Scripts/Scene/BattleSelection.js
                             index = this.indexArrowDown();
                         }
                     }

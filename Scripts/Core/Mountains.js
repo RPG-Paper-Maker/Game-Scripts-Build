@@ -32,11 +32,7 @@ class Mountains {
      *  @param {number} pictureID - The current mountain picture ID
      */
     updateGeometry(position, mountain, pictureID) {
-<<<<<<< HEAD:Scripts/System/Core/Mountains.js
-        let res = mountain.updateGeometry(this.geometry, this.bundle, position, pictureID, this.count);
-=======
         const res = mountain.updateGeometry(this.geometry, this.bundle, position, pictureID, this.count);
->>>>>>> web-3.0.0:Scripts/Core/Mountains.js
         this.count = res[0];
         return res[1];
     }

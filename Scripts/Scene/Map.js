@@ -616,18 +616,6 @@ class Map extends Base {
             if (special) {
                 let pictureID = undefined;
                 switch (kind) {
-<<<<<<< HEAD:Scripts/System/Scene/Map.js
-                    case Enum.PictureKind.Autotiles:
-                        pictureID = Game.current.textures.autotiles[id];
-                        break;
-                    case Enum.PictureKind.Mountains:
-                        pictureID = Game.current.textures.mountains[id];
-                        break;
-                    case Enum.PictureKind.Walls:
-                        pictureID = Game.current.textures.walls[id];
-                        break;
-                    case Enum.PictureKind.Objects3D:
-=======
                     case PICTURE_KIND.AUTOTILES:
                         pictureID = Game.current.textures.autotiles[id];
                         break;
@@ -638,18 +626,13 @@ class Map extends Base {
                         pictureID = Game.current.textures.walls[id];
                         break;
                     case PICTURE_KIND.OBJECTS_3D:
->>>>>>> web-3.0.0:Scripts/Scene/Map.js
                         pictureID = Game.current.textures.objects3D[id];
                         break;
                 }
                 if (pictureID === undefined) {
                     pictureID = special.pictureID;
                 }
-<<<<<<< HEAD:Scripts/System/Scene/Map.js
-                picture = Datas.Pictures.get(kind, pictureID);
-=======
                 picture = Data.Pictures.get(kind, pictureID);
->>>>>>> web-3.0.0:Scripts/Scene/Map.js
                 if (picture) {
                     picture.readCollisions();
                 }
@@ -947,11 +930,7 @@ class Map extends Base {
             pointer.setY(-pointer.y);
             this.updateCameraHiding(pointer);
             if (this.camera.isHiding()) {
-<<<<<<< HEAD:Scripts/System/Scene/Map.js
-                this.updateCameraHiding(new Vector2(0, 0));
-=======
                 this.updateCameraHiding(new THREE.Vector2(0, 0));
->>>>>>> web-3.0.0:Scripts/Scene/Map.js
                 this.camera.update();
             }
             let opacity = 1;

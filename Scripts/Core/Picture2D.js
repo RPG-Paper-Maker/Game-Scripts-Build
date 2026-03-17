@@ -193,11 +193,7 @@ class Picture2D extends Bitmap {
             if (this.centered) {
                 if (this.reverse) {
                     Platform.ctx.scale(-1, 1);
-<<<<<<< HEAD:Scripts/System/Core/Picture2D.js
-                    Platform.ctx.translate(-x - (w / 2), y - (h / 2));
-=======
                     Platform.ctx.translate(-x - w / 2, y - h / 2);
->>>>>>> web-3.0.0:Scripts/Core/Picture2D.js
                 }
                 else {
                     Platform.ctx.translate(x - w / 2, y - h / 2);

@@ -358,16 +358,10 @@ class MoveObject extends Base {
         const distances = object.move(orientation, Data.Systems.SQUARE_SIZE - currentState.distance, angle, this.isCameraOrientation);
         currentState.distance += distances[0];
         currentState.normalDistance += distances[1];
-<<<<<<< HEAD:Scripts/System/EventCommand/MoveObject.js
-        if (!square || (square && currentState.normalDistance >= Datas.Systems
-            .SQUARE_SIZE) || (square && currentState.distance >= Datas.Systems
-            .SQUARE_SIZE || (distances[0] === 0))) {
-=======
         if (!square ||
             (square && currentState.normalDistance >= Data.Systems.SQUARE_SIZE) ||
             (square && currentState.distance >= Data.Systems.SQUARE_SIZE) ||
             distances[0] === 0) {
->>>>>>> web-3.0.0:Scripts/EventCommand/MoveObject.js
             if (distances[0] === 0 && square && !this.isIgnore) {
                 currentState.position = null;
                 object.moving = true;

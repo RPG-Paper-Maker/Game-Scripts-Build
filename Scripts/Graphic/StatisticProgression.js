@@ -21,20 +21,6 @@ class StatisticProgression extends Base {
         this.player = player;
         this.listStatsProgression = [];
         let id, statistic, value, txt, graphic;
-<<<<<<< HEAD:Scripts/System/Graphic/StatisticProgression.js
-        for (let i = 0, l = Datas.BattleSystems.statisticsOrder.length; i < l; i++) {
-            id = Datas.BattleSystems.statisticsOrder[i];
-            if (id !== Datas.BattleSystems.idLevelStatistic && id !== Datas
-                .BattleSystems.idExpStatistic) {
-                statistic = Datas.BattleSystems.getStatistic(id);
-                if (statistic.isRes || this.player[statistic
-                    .getBeforeAbbreviation()] === undefined) {
-                    continue;
-                }
-                value = this.player[statistic.getAbbreviationNext()] - this
-                    .player[statistic.getBeforeAbbreviation()];
-                txt = value >= 0 ? "+" : "-";
-=======
         for (let i = 0, l = Data.BattleSystems.statisticsIDs.length; i < l; i++) {
             id = Data.BattleSystems.statisticsIDs[i];
             if (id !== Data.BattleSystems.idLevelStatistic && id !== Data.BattleSystems.idExpStatistic) {
@@ -44,7 +30,6 @@ class StatisticProgression extends Base {
                 }
                 value = this.player[statistic.getAbbreviationNext()] - this.player[statistic.getBeforeAbbreviation()];
                 txt = value >= 0 ? '+' : '-';
->>>>>>> web-3.0.0:Scripts/Graphic/StatisticProgression.js
                 graphic = new Graphic.Text(txt + value);
                 if (value > 0) {
                     graphic.color = Model.Color.GREEN;
@@ -66,21 +51,11 @@ class StatisticProgression extends Base {
         this.maxLength = 0;
         this.maxProgressionLength = 0;
         let id, statistic, graphic, txt;
-<<<<<<< HEAD:Scripts/System/Graphic/StatisticProgression.js
-        for (let i = 0, l = Datas.BattleSystems.statisticsOrder.length; i < l; i++) {
-            id = Datas.BattleSystems.statisticsOrder[i];
-            if (id !== Datas.BattleSystems.idLevelStatistic && id !== Datas
-                .BattleSystems.idExpStatistic) {
-                statistic = Datas.BattleSystems.getStatistic(id);
-                if (statistic.isRes || this.player[statistic
-                    .getBeforeAbbreviation()] === undefined) {
-=======
         for (let i = 0, l = Data.BattleSystems.statisticsIDs.length; i < l; i++) {
             id = Data.BattleSystems.statisticsIDs[i];
             if (id !== Data.BattleSystems.idLevelStatistic && id !== Data.BattleSystems.idExpStatistic) {
                 statistic = Data.BattleSystems.getStatistic(id);
                 if (statistic.isRes || this.player[statistic.getBeforeAbbreviation()] === undefined) {
->>>>>>> web-3.0.0:Scripts/Graphic/StatisticProgression.js
                     continue;
                 }
                 graphic = new Graphic.Text(statistic.name() + ':');

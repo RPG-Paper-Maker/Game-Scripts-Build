@@ -453,16 +453,9 @@ class MapObject {
         let material = null;
         let objectData;
         if (this.currentStateInstance !== null) {
-<<<<<<< HEAD:Scripts/System/Core/MapObject.js
-            if (this.currentStateInstance.graphicKind === ElementMapKind.Object3D) {
-                objectDatas = Datas.SpecialElements.objects[this
-                    .currentStateInstance.graphicID];
-                material = Scene.Map.current.texturesObjects3D[objectDatas.id];
-=======
             if (this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.OBJECT_3D) {
                 objectData = Data.SpecialElements.getObject3D(this.currentStateInstance.graphicID);
                 material = await Data.SpecialElements.loadObject3DTexture(objectData.id);
->>>>>>> web-3.0.0:Scripts/Core/MapObject.js
             }
             else {
                 material =
@@ -776,16 +769,6 @@ class MapObject {
         }
         // If no bounding box, use only one square by default
         if (l === 0) {
-<<<<<<< HEAD:Scripts/System/Core/MapObject.js
-            Manager.Collisions.applyBoxSpriteTransforms(Manager.Collisions
-                .BB_BOX_DEFAULT_DETECTION, [this.position.x, this.position.y +
-                    (Datas.Systems.SQUARE_SIZE / 2), this.position.z, Datas.Systems
-                    .SQUARE_SIZE, Datas.Systems.SQUARE_SIZE, Datas.Systems
-                    .SQUARE_SIZE, 0, 0, 0]);
-            if (Manager.Collisions.obbVSobb(Manager.Collisions
-                .BB_BOX_DEFAULT_DETECTION.geometry, Manager
-                .Collisions.getBBBoxDetection(true).geometry, false)) {
-=======
             Manager.Collisions.applyBoxSpriteTransforms(Manager.Collisions.BB_BOX_DEFAULT_DETECTION, [
                 this.position.x,
                 this.position.y + Data.Systems.SQUARE_SIZE / 2,
@@ -798,7 +781,6 @@ class MapObject {
                 0,
             ]);
             if (Manager.Collisions.obbVSobb(Manager.Collisions.BB_BOX_DEFAULT_DETECTION.geometry, Manager.Collisions.getBBBoxDetection(true).geometry, false)) {
->>>>>>> web-3.0.0:Scripts/Core/MapObject.js
                 return true;
             }
         }
@@ -821,40 +803,6 @@ class MapObject {
         }
         let box;
         switch (this.currentStateInstance.graphicKind) {
-<<<<<<< HEAD:Scripts/System/Core/MapObject.js
-            case ElementMapKind.SpritesFix:
-            case ElementMapKind.SpritesFace:
-                {
-                    this.boundingBoxSettings.b = new Array;
-                    for (let i = 0, l = this.boundingBoxSettings.squares.length; i < l; i++) {
-                        this.boundingBoxSettings.b.push(CollisionSquare.getBB(this
-                            .boundingBoxSettings.squares[i], this.width, this.height));
-                        if (this.currentStateInstance.graphicKind === ElementMapKind.SpritesFix) {
-                            box = Manager.Collisions.createBox();
-                            Manager.Collisions.applyBoxSpriteTransforms(box, [
-                                position.x + (this.currentScale.x * this.boundingBoxSettings.b[i][0]),
-                                position.y + (this.currentScale.y * this.boundingBoxSettings.b[i][1]),
-                                position.z + (this.currentScale.z * this.boundingBoxSettings.b[i][2]),
-                                this.currentScale.x * this.boundingBoxSettings.b[i][3],
-                                this.currentScale.y * this.boundingBoxSettings.b[i][4],
-                                this.currentScale.z * this.boundingBoxSettings.b[i][5],
-                                this.currentAngle.y,
-                                this.currentAngle.x,
-                                this.currentAngle.z
-                            ], true, this.boundingBoxSettings.b[i][1] / 2 / Datas.Systems.SQUARE_SIZE);
-                        }
-                        else {
-                            box = Manager.Collisions.createOrientedBox();
-                            Manager.Collisions.applyOrientedBoxTransforms(box, [
-                                position.x + (this.currentScale.x * this.boundingBoxSettings.b[i][0]),
-                                position.y + (this.currentScale.y * this.boundingBoxSettings.b[i][1]),
-                                position.z + (this.currentScale.x * this.boundingBoxSettings.b[i][2]),
-                                this.currentScale.x * this.boundingBoxSettings.b[i][3],
-                                this.currentScale.y * this.boundingBoxSettings.b[i][4],
-                            ]);
-                        }
-                        this.meshBoundingBox.push(box);
-=======
             case ELEMENT_MAP_KIND.SPRITES_FIX:
             case ELEMENT_MAP_KIND.SPRITES_FACE: {
                 this.boundingBoxSettings.b = [];
@@ -873,7 +821,6 @@ class MapObject {
                             this.currentAngle.x,
                             this.currentAngle.z,
                         ], true, [0, this.boundingBoxSettings.b[i][1] / 2 / Data.Systems.SQUARE_SIZE, 0]);
->>>>>>> web-3.0.0:Scripts/Core/MapObject.js
                     }
                     else {
                         box = Manager.Collisions.createOrientedBox();
@@ -930,36 +877,19 @@ class MapObject {
         if (this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.SPRITES_FIX ||
             this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.OBJECT_3D) {
             Manager.Collisions.applyBoxSpriteTransforms(mesh, [
-<<<<<<< HEAD:Scripts/System/Core/MapObject.js
-                position.x + (this.currentScale.x * bbSettings[0]),
-                position.y + (this.currentScale.y * bbSettings[1]),
-                position.z + (this.currentScale.z * bbSettings[2]),
-=======
                 position.x + this.currentScale.x * bbSettings[0],
                 position.y + this.currentScale.y * bbSettings[1],
                 position.z + this.currentScale.z * bbSettings[2],
->>>>>>> web-3.0.0:Scripts/Core/MapObject.js
                 this.currentScale.x * bbSettings[3],
                 this.currentScale.y * bbSettings[4],
                 this.currentScale.z * bbSettings[5],
                 this.currentAngle.y,
                 this.currentAngle.x,
-<<<<<<< HEAD:Scripts/System/Core/MapObject.js
-                this.currentAngle.z
-=======
                 this.currentAngle.z,
->>>>>>> web-3.0.0:Scripts/Core/MapObject.js
             ]);
         }
         else if (this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.SPRITES_FACE) {
             Manager.Collisions.applyOrientedBoxTransforms(mesh, [
-<<<<<<< HEAD:Scripts/System/Core/MapObject.js
-                position.x + (this.currentScale.x * bbSettings[0]),
-                position.y + (this.currentScale.y * bbSettings[1]),
-                position.z + (this.currentScale.x * bbSettings[2]),
-                this.currentScale.x * bbSettings[3],
-                this.currentScale.y * bbSettings[4]
-=======
                 position.x + this.currentScale.x * bbSettings[0],
                 position.y + this.currentScale.y * bbSettings[1],
                 position.z + this.currentScale.x * bbSettings[2],
@@ -969,7 +899,6 @@ class MapObject {
                 0,
                 0,
                 0,
->>>>>>> web-3.0.0:Scripts/Core/MapObject.js
             ]);
         }
     }

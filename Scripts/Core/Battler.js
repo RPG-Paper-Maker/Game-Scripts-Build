@@ -305,11 +305,7 @@ export class Battler {
             this.moving = false;
             time = Battler.TIME_MOVE;
         }
-<<<<<<< HEAD:Scripts/System/Core/Battler.js
-        newX = progression.getProgressionAt(time, Battler.TIME_MOVE, true);
-=======
         const newX = progression.getProgressionAt(time, Battler.TIME_MOVE, true);
->>>>>>> web-3.0.0:Scripts/Core/Battler.js
         if (this.mesh.position.x !== newX) {
             this.mesh.position.setX(newX);
             this.upPosition.setX(newX);

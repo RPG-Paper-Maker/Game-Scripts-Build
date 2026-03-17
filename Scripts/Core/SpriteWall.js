@@ -47,16 +47,6 @@ class SpriteWall extends MapElement {
      *  @return {any[]}
      */
     updateGeometry(geometry, position, width, height, pictureID, count) {
-<<<<<<< HEAD:Scripts/System/Core/SpriteWall.js
-        let vecA = new Vector3(-0.5, 1.0, 0.0);
-        let vecB = new Vector3(0.5, 1.0, 0.0);
-        let vecC = new Vector3(0.5, 0.0, 0.0);
-        let vecD = new Vector3(-0.5, 0.0, 0.0);
-        let center = new Vector3();
-        let size = new Vector3(Datas.Systems.SQUARE_SIZE, height, 0);
-        let angle = position.angleY;
-        let localPosition = position.toVector3();
-=======
         const vecA = new THREE.Vector3(-0.5, 1.0, 0.0);
         const vecB = new THREE.Vector3(0.5, 1.0, 0.0);
         const vecC = new THREE.Vector3(0.5, 0.0, 0.0);
@@ -65,7 +55,6 @@ class SpriteWall extends MapElement {
         const size = new THREE.Vector3(Data.Systems.SQUARE_SIZE, height, 0);
         const angle = position.angleY;
         const localPosition = position.toVector3();
->>>>>>> web-3.0.0:Scripts/Core/SpriteWall.js
         // Scale
         vecA.multiply(size);
         vecB.multiply(size);
@@ -99,11 +88,7 @@ class SpriteWall extends MapElement {
         let collisions = [];
         const wall = Data.SpecialElements.getWall(this.id);
         if (wall) {
-<<<<<<< HEAD:Scripts/System/Core/SpriteWall.js
-            let picture = Datas.Pictures.get(PictureKind.Walls, pictureID);
-=======
             const picture = Data.Pictures.get(PICTURE_KIND.WALLS, pictureID);
->>>>>>> web-3.0.0:Scripts/Core/SpriteWall.js
             if (picture) {
                 collisions = picture.getSquaresForWall(textureRect);
             }
