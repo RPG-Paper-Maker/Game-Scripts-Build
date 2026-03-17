@@ -1,0 +1,161 @@
+/*
+    RPG Paper Maker Copyright (C) 2017-2026 Wano
+
+    RPG Paper Maker engine is under proprietary license.
+    This source code is also copyrighted.
+
+    Use Commercial edition for commercial use of your games.
+    See RPG Paper Maker EULA here:
+        http://rpg-paper-maker.com/index.php/eula.
+*/
+import * as THREE from 'three';
+import { PICTURE_KIND } from '../Common/index.js';
+import { Data } from '../index.js';
+import { CustomGeometry } from './CustomGeometry.js';
+import { MapElement } from './MapElement.js';
+import { Rectangle } from './Rectangle.js';
+import { Sprite } from './Sprite.js';
+/** @class
+ *  A sprite in the map.
+ *  @extends MapElement
+ *  @param {Record<string, any>} - [json=undefined] Json object describing the
+ *  wall
+ */
+class SpriteWall extends MapElement {
+    constructor(json) {
+        super();
+        if (json) {
+            this.read(json);
+        }
+    }
+    /**
+     *  Read the JSON associated to the sprite wall.
+     *  @param {Record<string, any>} - json Json object describing the wall
+     */
+    read(json) {
+        super.read(json);
+        this.id = json.w;
+        this.kind = json.t;
+    }
+    /**
+     *  Update the geometry of a group of sprite walls with the same material.
+     *  @param {THREE.Geometry} geometry - The geometry
+     *  @param {Position} position - The position
+     *  @param {number} width - The total width of the texture
+     *  @param {number} height - The total height of the texture
+     *  @param {number} count - The faces count
+     *  @return {any[]}
+     */
+    updateGeometry(geometry, position, width, height, pictureID, count) {
+<<<<<<< HEAD:Scripts/System/Core/SpriteWall.js
+        let vecA = new Vector3(-0.5, 1.0, 0.0);
+        let vecB = new Vector3(0.5, 1.0, 0.0);
+        let vecC = new Vector3(0.5, 0.0, 0.0);
+        let vecD = new Vector3(-0.5, 0.0, 0.0);
+        let center = new Vector3();
+        let size = new Vector3(Datas.Systems.SQUARE_SIZE, height, 0);
+        let angle = position.angleY;
+        let localPosition = position.toVector3();
+=======
+        const vecA = new THREE.Vector3(-0.5, 1.0, 0.0);
+        const vecB = new THREE.Vector3(0.5, 1.0, 0.0);
+        const vecC = new THREE.Vector3(0.5, 0.0, 0.0);
+        const vecD = new THREE.Vector3(-0.5, 0.0, 0.0);
+        const center = new THREE.Vector3();
+        const size = new THREE.Vector3(Data.Systems.SQUARE_SIZE, height, 0);
+        const angle = position.angleY;
+        const localPosition = position.toVector3();
+>>>>>>> web-3.0.0:Scripts/Core/SpriteWall.js
+        // Scale
+        vecA.multiply(size);
+        vecB.multiply(size);
+        vecC.multiply(size);
+        vecD.multiply(size);
+        // Move to coords
+        vecA.add(localPosition);
+        vecB.add(localPosition);
+        vecC.add(localPosition);
+        vecD.add(localPosition);
+        center.add(localPosition);
+        // Getting UV coordinates
+        const textureRect = new Rectangle(this.kind, 0, 1, Math.floor(height / Data.Systems.SQUARE_SIZE));
+        let x = (textureRect.x * Data.Systems.SQUARE_SIZE) / width;
+        let y = textureRect.y;
+        let w = Data.Systems.SQUARE_SIZE / width;
+        let h = 1.0;
+        const coefX = MapElement.COEF_TEX / width;
+        const coefY = MapElement.COEF_TEX / height;
+        x += coefX;
+        y += coefY;
+        w -= coefX * 2;
+        h -= coefY * 2;
+        const texA = new THREE.Vector2();
+        const texB = new THREE.Vector2();
+        const texC = new THREE.Vector2();
+        const texD = new THREE.Vector2();
+        CustomGeometry.uvsQuadToTex(texA, texB, texC, texD, x, y, w, h);
+        // Collision
+        const objCollision = [];
+        let collisions = [];
+        const wall = Data.SpecialElements.getWall(this.id);
+        if (wall) {
+<<<<<<< HEAD:Scripts/System/Core/SpriteWall.js
+            let picture = Datas.Pictures.get(PictureKind.Walls, pictureID);
+=======
+            const picture = Data.Pictures.get(PICTURE_KIND.WALLS, pictureID);
+>>>>>>> web-3.0.0:Scripts/Core/SpriteWall.js
+            if (picture) {
+                collisions = picture.getSquaresForWall(textureRect);
+            }
+            let rect;
+            for (let i = 0, l = collisions.length; i < l; i++) {
+                rect = collisions[i];
+                objCollision.push({
+                    p: position,
+                    l: localPosition,
+                    b: [
+                        localPosition.x,
+                        localPosition.y + Math.floor((textureRect.height * Data.Systems.SQUARE_SIZE - rect.y) / 2),
+                        localPosition.z,
+                        rect.width,
+                        rect.height - 0.001, // Small offset for climbing collisions stuff
+                        1,
+                        angle,
+                        0,
+                        0,
+                    ],
+                    w: 0,
+                    h: textureRect.height,
+                    k: true,
+                });
+                const climbing = picture.getSquaresClimbing(textureRect);
+                for (const [x, y] of climbing) {
+                    objCollision.push({
+                        p: position,
+                        l: localPosition,
+                        b: [
+                            localPosition.x + x,
+                            localPosition.y + Math.floor((textureRect.height * Data.Systems.SQUARE_SIZE - y) / 2),
+                            localPosition.z,
+                            rect.width,
+                            rect.height,
+                            1,
+                            angle,
+                            0,
+                            0,
+                        ],
+                        w: 0,
+                        h: textureRect.height,
+                        k: true,
+                        cl: true,
+                    });
+                }
+            }
+        }
+        // Add sprite to geometry
+        Sprite.rotateSprite(vecA, vecB, vecC, vecD, center, angle, Sprite.Y_AXIS);
+        count = Sprite.addStaticSpriteToGeometry(geometry, vecA, vecB, vecC, vecD, texA, texB, texC, texD, count);
+        return [count, objCollision];
+    }
+}
+export { SpriteWall };

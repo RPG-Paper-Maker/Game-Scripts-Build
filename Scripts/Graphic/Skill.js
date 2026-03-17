@@ -1,0 +1,50 @@
+/*
+    RPG Paper Maker Copyright (C) 2017-2026 Wano
+
+    RPG Paper Maker engine is under proprietary license.
+    This source code is also copyrighted.
+
+    Use Commercial edition for commercial use of your games.
+    See RPG Paper Maker EULA here:
+        http://rpg-paper-maker.com/index.php/eula.
+*/
+import { ALIGN } from '../Common/index.js';
+import { Data, Graphic } from '../index.js';
+import { Base } from './Base.js';
+/** @class
+ *  The graphic displaying the player skills informations in skill menu.
+ *  @extends Graphic.Base
+ *  @param {Skill} skill - The current selected skill
+ */
+class Skill extends Base {
+    constructor(skill) {
+        super();
+        this.system = Data.Skills.get(skill.id);
+        this.graphicName = Graphic.TextIcon.createFromSystem(this.system.name(), this.system);
+        this.graphicCost = new Graphic.Text(this.system.getCostString(), { align: ALIGN.RIGHT });
+        this.graphicInformations = new Graphic.SkillItem(this.system);
+    }
+    /**
+     *  Drawing the skill in choice box.
+     *  @param {number} x - The x position to draw graphic
+     *  @param {number} y - The y position to draw graphic
+     *  @param {number} w - The width dimention to draw graphic
+     *  @param {number} h - The height dimention to draw graphic
+     */
+    drawChoice(x, y, w, h) {
+        this.graphicName.draw(x, y, w, h);
+        this.graphicCost.draw(x, y, w, h);
+    }
+    /**
+     *  Drawing the skill description.
+     *  @param {number} x - The x position to draw graphic
+     *  @param {number} y - The y position to draw graphic
+     *  @param {number} w - The width dimention to draw graphic
+     *  @param {number} h - The height dimention to draw graphic
+     */
+    draw(x, y, w, h) {
+        this.graphicInformations.draw(x, y, w, h);
+        this.graphicCost.draw(x, y, w, 0);
+    }
+}
+export { Skill };

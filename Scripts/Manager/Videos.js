@@ -1,0 +1,79 @@
+/*
+    RPG Paper Maker Copyright (C) 2017-2026 Wano
+
+    RPG Paper Maker engine is under proprietary license.
+    This source code is also copyrighted.
+
+    Use Commercial edition for commercial use of your games.
+    See RPG Paper Maker EULA here:
+        http://rpg-paper-maker.com/index.php/eula.
+*/
+import { Platform } from '../Common/index.js';
+/** @class
+ *  The manager for songs.
+ *  @static
+ */
+class Videos {
+    constructor() {
+        throw new Error('This is a static class');
+    }
+    /**
+     *  Play the video.
+     *  @param {string} src
+     *  @param {EventListener} endedHandler
+     */
+    static async play(src, endedHandler = null, loop = false) {
+        Platform.canvasVideos.classList.remove('hidden');
+        if (!this.paused) {
+            Platform.canvasVideos.src = src;
+            Platform.canvasVideos.load();
+        }
+        this.removeEndedEventListener();
+        if (endedHandler !== null) {
+            Platform.canvasVideos.addEventListener('ended', endedHandler, false);
+        }
+        this.currentEndedHandler = endedHandler;
+        Platform.canvasVideos.loop = loop;
+        this.paused = false;
+        try {
+            await Platform.canvasVideos.play();
+            return true;
+        }
+        catch (e) {
+            if (e.name === 'NotAllowedError') {
+                return false;
+            }
+            if (e.name === 'AbortError') {
+                return false;
+            }
+            throw e;
+        }
+    }
+    /**
+     *  Pause the current video.
+     */
+    static pause() {
+        Platform.canvasVideos.pause();
+        this.paused = true;
+    }
+    /**
+     *  Stop the current video.
+     */
+    static stop() {
+        Platform.canvasVideos.classList.add('hidden');
+        Platform.canvasVideos.pause();
+        Platform.canvasVideos.src = '';
+        Platform.canvasVideos.loop = false;
+        this.removeEndedEventListener();
+    }
+    /**
+     *  Remove ended event listener.
+     */
+    static removeEndedEventListener() {
+        if (this.currentEndedHandler !== null) {
+            Platform.canvasVideos.removeEventListener('ended', this.currentEndedHandler, false);
+        }
+    }
+}
+Videos.paused = false;
+export { Videos };

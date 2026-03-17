@@ -1,0 +1,310 @@
+/*
+    RPG Paper Maker Copyright (C) 2017-2026 Wano
+
+    RPG Paper Maker engine is under proprietary license.
+    This source code is also copyrighted.
+
+    Use Commercial edition for commercial use of your games.
+    See RPG Paper Maker EULA here:
+        http://rpg-paper-maker.com/index.php/eula.
+*/
+import { SONG_KIND } from '../Common/index.js';
+import { Data, Model } from '../index.js';
+import { ProgressionTable } from '../Model/index.js';
+/** @class
+ *  The manager for songs.
+ *  @static
+ */
+class Songs {
+    constructor() {
+        throw new Error('This is a static class');
+    }
+    /**
+     *  Initialize all the lists according to SONG_KIND.
+     */
+    static initialize() {
+        Model.PlaySong.currentPlayingMusic = new Model.PlaySong(SONG_KIND.MUSIC);
+        this.volumes[SONG_KIND.MUSIC] = 0;
+        this.volumes[SONG_KIND.BACKGROUND_SOUND] = 0;
+        this.volumes[SONG_KIND.MUSIC_EFFECT] = 0;
+        this.starts[SONG_KIND.MUSIC] = null;
+        this.starts[SONG_KIND.BACKGROUND_SOUND] = null;
+        this.starts[SONG_KIND.MUSIC_EFFECT] = null;
+        this.ends[SONG_KIND.MUSIC] = null;
+        this.ends[SONG_KIND.BACKGROUND_SOUND] = null;
+        this.ends[SONG_KIND.MUSIC_EFFECT] = null;
+        this.current[SONG_KIND.MUSIC] = null;
+        this.current[SONG_KIND.BACKGROUND_SOUND] = null;
+        this.current[SONG_KIND.MUSIC_EFFECT] = null;
+        this.currentSounds = [];
+    }
+    /**
+     *  Play a music.
+     *  @param {SONG_KIND} kind - The kind of the song
+     *  @param {number} id - The id of the song
+     *  @param {number} volume - The volume of the song
+     *  @param {number} start - The start of the song
+     *  @param {number} end - The end of the song
+     */
+    static playMusic(kind, id, volume, start, end) {
+        if (id < 1) {
+            switch (kind) {
+                case SONG_KIND.MUSIC:
+                    this.stopMusic(0);
+                    break;
+                case SONG_KIND.BACKGROUND_SOUND:
+                    break;
+            }
+            return;
+        }
+        switch (kind) {
+            case SONG_KIND.MUSIC:
+                this.isMusicNone = false;
+                break;
+            case SONG_KIND.BACKGROUND_SOUND:
+                break;
+        }
+        if (this.current[kind] !== null) {
+            this.current[kind].stop();
+        }
+        const song = Data.Songs.get(kind, id);
+        if (song) {
+            song.load();
+            const howl = song.howl;
+            howl.volume(volume);
+            howl.seek(start);
+            howl.play();
+            this.volumes[kind] = volume;
+            this.starts[kind] = start;
+            this.ends[kind] = end;
+            this.current[kind] = howl;
+        }
+    }
+    /**
+     *  Stop a song.
+     *  @static
+     *  @param {SONG_KIND} kind - The kind of song to stop
+     *  @param {number} time - The date seconds value in the first call of stop
+     *  @param {number} seconds - The seconds needed for entirely stop the song
+     *  @param {number} id - For sounds only, to know which sound should be stopped
+     *  @param {boolean} pause - Indicates if the song needs to be paused instead
+     *  of stoppped
+     *  @returns {boolean} Indicates if the song is stopped
+     */
+    static stopSong(kind, time, seconds, id = -1, pause = false) {
+        Model.PlaySong.currentPlayingMusic = new Model.PlaySong(SONG_KIND.MUSIC);
+        const current = new Date().getTime();
+        const ellapsedTime = current - time;
+        const currentHowl = kind === SONG_KIND.SOUND ? this.currentSounds[id] : this.current[kind];
+        if (!currentHowl) {
+            return true;
+        }
+        if (ellapsedTime >= seconds * 1000) {
+            currentHowl.volume(0);
+            if (pause) {
+                currentHowl.pause();
+            }
+            else {
+                currentHowl.stop();
+                this.current[kind] = null;
+            }
+            return true;
+        }
+        else {
+            currentHowl.volume((this.volumes[kind] * (100 - (ellapsedTime / (seconds * 1000)) * 100)) / 100);
+            return false;
+        }
+    }
+    /**
+     *  Unpause a song.
+     *  @static
+     *  @param {SONG_KIND} kind - The kind of song to unpause
+     *  @param {number} time - The date seconds value in the first call of
+     *  unpause
+     *  @param {number} seconds - The seconds needed for entirely play the song
+     *  @returns {boolean} Indicate if the song is played with all volume
+     */
+    static unpauseSong(kind, time, seconds) {
+        const current = new Date().getTime();
+        const ellapsedTime = current - time;
+        const currentHowl = this.current[kind];
+        if (currentHowl === null) {
+            return true;
+        }
+        if (ellapsedTime >= seconds * 1000) {
+            currentHowl.volume(this.volumes[kind]);
+            return true;
+        }
+        else {
+            currentHowl.volume(this.volumes[kind] * (ellapsedTime / (seconds * 1000)));
+            return false;
+        }
+    }
+    /**
+     *  Play a sound.
+     *  @static
+     *  @param {number} id - The id of the sound
+     *  @param {number} volume - The volume of the sound
+     */
+    static playSound(id, volume) {
+        if (id === -1) {
+            return;
+        }
+        const sound = Data.Songs.get(SONG_KIND.SOUND, id);
+        if (sound) {
+            const howl = new Howl({
+                src: [sound.getPath()],
+                volume: volume,
+            });
+            this.currentSounds[id] = howl;
+            howl.play();
+        }
+    }
+    /**
+     *  Play a music effect.
+     *  @static
+     *  @param {number} id - The id of the sound
+     *  @param {number} volume - The volume of the sound
+     *  @param {Record<string, any>} - currentState The current state command
+     */
+    static playMusicEffect(id, volume, currentState) {
+        if (id === -1 || currentState.end) {
+            return true;
+        }
+        if (this.currentStateMusicEffect === null) {
+            this.currentStateMusicEffect = currentState;
+        }
+        if (this.currentStateMusicEffect !== currentState) {
+            return true;
+        }
+        if (this.musicEffectStep === 0) {
+            this.playMusic(SONG_KIND.MUSIC_EFFECT, id, volume, null, null);
+            this.musicEffectStep++;
+        }
+        if (this.musicEffectStep === 1) {
+            if (this.stopSong(SONG_KIND.MUSIC, currentState.timeStop, 0, -1, true)) {
+                this.musicEffectStep++;
+            }
+        }
+        if (this.musicEffectStep === 2) {
+            if (this.current[SONG_KIND.MUSIC_EFFECT] === null || !this.current[SONG_KIND.MUSIC_EFFECT].playing()) {
+                if (this.current[SONG_KIND.MUSIC_EFFECT] !== null) {
+                    this.current[SONG_KIND.MUSIC_EFFECT].stop();
+                    this.current[SONG_KIND.MUSIC_EFFECT] = null;
+                }
+                if (this.current[SONG_KIND.MUSIC] !== null) {
+                    this.current[SONG_KIND.MUSIC].play();
+                }
+                currentState.timePlay = new Date().getTime();
+                this.musicEffectStep++;
+            }
+        }
+        if (this.musicEffectStep === 3) {
+            if (this.unpauseSong(SONG_KIND.MUSIC, currentState.timePlay, 0.5)) {
+                this.musicEffectStep = 0;
+                this.currentStateMusicEffect = null;
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
+     *  Update songs positions or other stuff.
+     *  @static
+     *  @param {SONG_KIND} kind - The song kind
+     */
+    static updateByKind(kind) {
+        const howl = this.current[kind];
+        if (howl !== null && howl.playing()) {
+            if (this.ends[kind] && howl.seek() >= this.ends[kind]) {
+                howl.seek(this.starts[kind]);
+            }
+        }
+    }
+    /**
+     *  Update songs positions or other stuffs.
+     */
+    static update() {
+        this.updateByKind(SONG_KIND.MUSIC);
+        this.updateByKind(SONG_KIND.BACKGROUND_SOUND);
+        this.updateProgressionMusic();
+    }
+    /**
+     *  Stop the music (with progression).
+     *  @param {number} time - The time to stop
+     */
+    static stopMusic(time) {
+        this.isMusicNone = true;
+        this.stopSong(SONG_KIND.MUSIC, time, 0, -1, false);
+        this.initializeProgressionMusic(this.current[SONG_KIND.MUSIC] === null ? 0 : this.current[SONG_KIND.MUSIC].volume(), 0, 0, time);
+    }
+    /**
+     *  Initialize progression music (for stop).
+     *  @param {number} i - The initial volume
+     *  @param {number} f - The final volume
+     *  @param {number} equation - The equation kind
+     *  @param {number} end - The end of the song
+     */
+    static initializeProgressionMusic(i, f, equation, end) {
+        this.progressionMusic = ProgressionTable.createFromNumbers(i, f, equation);
+        this.progressionMusicTime = new Date().getTime();
+        this.progressionMusicEnd = end;
+        this.isProgressionMusicEnd = false;
+    }
+    /**
+     *  Update the progression music
+     */
+    static updateProgressionMusic() {
+        if (!this.isProgressionMusicEnd) {
+            let tick = new Date().getTime() - this.progressionMusicTime;
+            if (tick >= this.progressionMusicEnd) {
+                tick = this.progressionMusicEnd;
+                this.isProgressionMusicEnd = true;
+            }
+            const howl = this.current[SONG_KIND.MUSIC];
+            if (howl) {
+                howl.volume(this.progressionMusic.getProgressionAt(tick, this.progressionMusicEnd) / 100);
+                if (howl.volume() === 0) {
+                    howl.stop();
+                }
+                else if (!this.isMusicNone && !howl.playing()) {
+                    howl.play();
+                }
+            }
+        }
+    }
+    /**
+     *  Stop all the songs
+     */
+    static stopAll() {
+        if (this.current[SONG_KIND.MUSIC] !== null) {
+            this.current[SONG_KIND.MUSIC].stop();
+            this.current[SONG_KIND.MUSIC] = null;
+        }
+        if (this.current[SONG_KIND.BACKGROUND_SOUND] !== null) {
+            this.current[SONG_KIND.BACKGROUND_SOUND].stop();
+            this.current[SONG_KIND.BACKGROUND_SOUND] = null;
+        }
+        if (this.current[SONG_KIND.MUSIC_EFFECT] !== null) {
+            this.current[SONG_KIND.MUSIC_EFFECT].stop();
+            this.current[SONG_KIND.MUSIC_EFFECT] = null;
+            this.musicEffectStep = 0;
+        }
+        for (const sound of this.currentSounds) {
+            if (sound) {
+                sound.stop();
+            }
+        }
+        this.currentSounds = [];
+    }
+}
+Songs.musicEffectStep = 0;
+Songs.isProgressionMusicEnd = true;
+Songs.isMusicNone = true;
+Songs.volumes = [];
+Songs.starts = [];
+Songs.ends = [];
+Songs.current = [];
+Songs.progressionMusic = null;
+Songs.currentStateMusicEffect = null;
+export { Songs };

@@ -1,0 +1,195 @@
+/*
+    RPG Paper Maker Copyright (C) 2017-2026 Wano
+
+    RPG Paper Maker engine is under proprietary license.
+    This source code is also copyrighted.
+
+    Use Commercial edition for commercial use of your games.
+    See RPG Paper Maker EULA here:
+        http://rpg-paper-maker.com/index.php/eula.
+*/
+/**
+ * Static utility class providing helper functions for value handling,
+ * formatting, JSON parsing, and array/object manipulation.
+ */
+export class Utils {
+    /**
+     * Returns the default value if the given value is `undefined`, otherwise returns the value.
+     * @template T
+     * @param value - The value to check
+     * @param defaultValue - The default value to return if `value` is undefined
+     * @returns The resolved value
+     */
+    static valueOrDefault(value, defaultValue) {
+        return value === undefined ? defaultValue : value;
+    }
+    /**
+     * Converts a number (1 or 0) into a boolean.
+     * @param num - The number
+     * @returns True if `num` is 1, otherwise false
+     */
+    static numberToBool(num) {
+        return num === 1;
+    }
+    /**
+     * Converts a boolean into a number (true → 1, false → 0).
+     * @param b - The boolean
+     * @returns The number representation
+     */
+    static boolToNumber(b) {
+        return b ? 1 : 0;
+    }
+    /**
+     * Converts a total number of seconds into a formatted time string (HH:MM:SS).
+     * @param total - Total number of seconds
+     * @returns A formatted string
+     */
+    static getStringDate(total) {
+        return (this.formatNumber(Math.floor(total / 3600), 4) +
+            ':' +
+            this.formatNumber(Math.floor((total % 3600) / 60), 2) +
+            ':' +
+            this.formatNumber(Math.floor(total % 60), 2));
+    }
+    /**
+     * Formats a number with leading zeros according to a given size.
+     * @param num - The number
+     * @param size - The total length
+     * @returns A formatted string
+     */
+    static formatNumber(num, size) {
+        return num.toString().padStart(size, '0');
+    }
+    /**
+     * Returns a formatted string containing an ID and name.
+     * @param id - The ID
+     * @param name - The name
+     * @returns A formatted string
+     */
+    static getIDName(id, name) {
+        return `<> ${this.formatNumber(id, 4)}: ${name}`;
+    }
+    /**
+     * Builds a font string usable by canvas contexts.
+     * @param fontSize - Font size in pixels
+     * @param fontName - Font family name
+     * @param bold - Whether the font is bold
+     * @param italic - Whether the font is italic
+     * @returns A CSS-compatible font string
+     */
+    static createFont(fontSize, fontName, bold, italic) {
+        return `${bold ? 'bold ' : ''}${italic ? 'italic ' : ''}${fontSize}px "${fontName}"`;
+    }
+    /**
+     * Reads a JSON list and returns an array of objects of type `T`,
+     * ordered by the `id` property in ascending order.
+     * @typeParam T - The type of object to construct from each JSON entry.
+     * @param jsonList - The array of JSON objects to read and process. Defaults to empty array.
+     * @param transformFn - A constructor function (`new`) or a custom function to create an instance of `T`.
+     *  @param ordered - indicates if the list should be sorted by `id`.
+     * @returns An array of objects of type `T` sorted by `id` if wanted.
+     * @throws Will throw an error if `transformFn` is not provided.
+     * @remarks
+     * JSON entries without an `id` will default to `0` for sorting purposes.
+     */
+    static readJSONList(jsonList = [], transformFn, ordered = false) {
+        const list = jsonList;
+        if (ordered) {
+            list.sort((a, b) => (a.id ?? 0) - (b.id ?? 0));
+        }
+        return list.map((json) => {
+            if (transformFn.prototype && typeof transformFn === 'function') {
+                // Called as constructor
+                return new transformFn(json);
+            }
+            else {
+                // Called as regular function
+                return transformFn(json);
+            }
+        });
+    }
+    /**
+     * Converts a list of JSON objects into a `Map<number, T>`,
+     * using a provided transform function or constructor.
+     * @param jsonList - An array of JSON objects. Each must contain an `id` field (numeric).
+     * @param transformFn - Either a class constructor or a plain function to transform each JSON object into type `T`.
+     * @param ids - List of ids that will be filled (provide an empty array).
+     * @returns A map where:
+     *   - The key is the `id` property of each JSON object.
+     *   - The value is the transformed object of type `T`.
+     */
+    static readJSONMap(jsonList = [], transformFn, ids) {
+        return new Map(jsonList.map((json) => {
+            let item;
+            if (typeof transformFn === 'function' && 'prototype' in transformFn) {
+                // Called as constructor
+                item = new transformFn(json);
+            }
+            else {
+                // Called as regular function
+                item = transformFn(json);
+            }
+            const id = json.id ?? 0;
+            if (ids) {
+                ids.push(id);
+            }
+            return [id, item];
+        }));
+    }
+    static readJSONMapKeyValue(jsonList = [], transformFn) {
+        return new Map(jsonList.map((json) => {
+            let item;
+            if (typeof transformFn === 'function' && 'prototype' in transformFn) {
+                // Called as constructor
+                item = new transformFn(json.v);
+            }
+            else {
+                // Called as regular function
+                item = transformFn(json.v);
+            }
+            return [json.k, item];
+        }));
+    }
+    /**
+     * Get the maximum numeric key in a Map.
+     * @param {Map<number, unknown>} map - The map to check.
+     * @returns {number} The maximum key in the map, or 0 if the map is empty.
+     */
+    static getMapMaxID(map) {
+        return map.size > 0 ? Math.max(...map.keys()) : 0;
+    }
+    /**
+     * Converts an array into a Map, using array indices as keys (1-based).
+     * @param array - The array to convert.
+     * @returns A map where each value from the array is mapped to its index + 1.
+     */
+    static arrayToMap(array, removeFirst = false) {
+        const arr = removeFirst ? array.slice(1) : array;
+        return new Map(arr.map((value, index) => [index + 1, value]).filter(([_, v]) => v !== undefined));
+    }
+    /**
+     * Converts a Map with numeric keys into an array, using the keys as indices.
+     * @param map - The map to convert.
+     * @returns An array where each value is placed at the index corresponding to its key in the map.
+     */
+    static mapToArray(map) {
+        const result = [];
+        for (const [id, value] of map.entries()) {
+            result[id] = value;
+        }
+        return result;
+    }
+    /**
+     * Convert an array into a Map where keys start at 1.
+     *
+     * Example:
+     *   ["a", "b"] → Map { 1 => "a", 2 => "b" }
+     *
+     * @template T - The type of the array elements.
+     * @param {T[]} array - The input array.
+     * @returns {Map<number, T>} A Map with 1-based indexes as keys.
+     */
+    static indexOfProp(array, attr, value) {
+        return array.findIndex((item) => item[attr] === value);
+    }
+}
