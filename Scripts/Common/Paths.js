@@ -105,7 +105,7 @@ Paths.GLTF = Paths.SHAPES + 'GLTF';
 // -------------------------------------------------------------------------
 /** Base path for game scripts (adjusted for web builds). */
 Paths.SCRIPTS = (Platform.WEB_DEV && !Platform.IS_DESKTOP
-    ? '.' + window.location.pathname
+    ? window.location.pathname
     : Platform.IS_DESKTOP
         ? ''
         : Platform.ROOT_DIRECTORY) + 'Scripts/';
