@@ -267,6 +267,9 @@ class Battle extends Map {
             this.forceEndBattle = false;
         }
         super.update();
+        if (Scene.Map.current !== this) {
+            return;
+        }
         // Y angle
         const vector = new THREE.Vector3();
         this.camera.getThreeCamera().getWorldDirection(vector);
