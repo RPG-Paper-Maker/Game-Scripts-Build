@@ -81,12 +81,12 @@ class Player extends Base {
         // Faceset
         this.faceset = Data.Pictures.getPictureCopy(PICTURE_KIND.FACESETS, player.getFacesetID());
         if (this.reverse) {
-            this.faceset.setLeft(Data.Systems.getCurrentWindowSkin().borderBotLeft[2]);
+            this.faceset.setLeft(Data.Systems.getCurrentWindowSkin().borderBotLeft.width);
         }
         else {
-            this.faceset.setRight(true, Data.Systems.getCurrentWindowSkin().borderBotRight[2]);
+            this.faceset.setRight(true, Data.Systems.getCurrentWindowSkin().borderBotRight.width);
         }
-        this.faceset.setBot(true, Data.Systems.getCurrentWindowSkin().borderBotRight[3]);
+        this.faceset.setBot(true, Data.Systems.getCurrentWindowSkin().borderBotRight.height);
         this.faceset.reverse = this.reverse;
         // Battler
         this.battler = Data.Pictures.getPictureCopy(PICTURE_KIND.BATTLERS, player.getBattlerID());
@@ -101,10 +101,10 @@ class Player extends Base {
      */
     updateReverse(reverse) {
         if (reverse) {
-            this.faceset.setLeft(Data.Systems.getCurrentWindowSkin().borderBotLeft[2]);
+            this.faceset.setLeft(Data.Systems.getCurrentWindowSkin().borderBotLeft.width);
         }
         else {
-            this.faceset.setRight(true, Data.Systems.getCurrentWindowSkin().borderBotRight[2]);
+            this.faceset.setRight(true, Data.Systems.getCurrentWindowSkin().borderBotRight.width);
         }
         this.faceset.reverse = reverse;
         this.reverse = reverse;
