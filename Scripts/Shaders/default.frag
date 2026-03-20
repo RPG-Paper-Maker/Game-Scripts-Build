@@ -52,16 +52,8 @@ void main() {
 		// inline sRGB decode (TODO: Remove this code when https://crbug.com/1256340 is solved)
 		sampledDiffuseColor = vec4( mix( pow( sampledDiffuseColor.rgb * 0.9478672986 + vec3( 0.0521327014 ), vec3( 2.4 ) ), sampledDiffuseColor.rgb * 0.0773993808, vec3( lessThanEqual( sampledDiffuseColor.rgb, vec3( 0.04045 ) ) ) ), sampledDiffuseColor.w );
 	#endif
-	diffuseColor *= sampledDiffuseColor;
+	diffuseColor *= vec4(mix(pow(sampledDiffuseColor.rgb * 0.9478672986 + vec3(0.0521327014), vec3(2.4)), sampledDiffuseColor.rgb * 0.0773993808, vec3(lessThanEqual(sampledDiffuseColor.rgb, vec3(0.04045)))), sampledDiffuseColor.a);
 	if (enableShadows && sampledDiffuseColor.a >= 1.0) {
-		#ifdef USE_MAP
-			vec4 sampledDiffuseColor = texture2D( map, coords );
-			#ifdef DECODE_VIDEO_TEXTURE
-				// use inline sRGB decode until browsers properly support SRGB8_ALPHA8 with video textures (#26516)
-				sampledDiffuseColor = sRGBTransferEOTF( sampledDiffuseColor );
-			#endif
-			diffuseColor *= sampledDiffuseColor;
-		#endif
 		#include <color_fragment>
 		#include <alphamap_fragment>
 		#include <alphatest_fragment>
