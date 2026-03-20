@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { IO, Paths, Platform, TITLE_SETTING_KIND, Utils } from '../Common/index.js';
+import { Paths, Platform, TITLE_SETTING_KIND, Utils } from '../Common/index.js';
 import { Languages } from './Languages.js';
 /**
  * Handles all application settings.
@@ -41,8 +41,12 @@ export class Settings {
      * Read the settings file.
      */
     static async read() {
-        const json = (await Platform.parseFileJSON(Paths.FILE_SETTINGS));
         this.kb = new Map();
+        this.currentLanguage = Languages.getMainLanguageID();
+        if (!(await Platform.fileExists(Paths.FILE_SETTINGS))) {
+            return;
+        }
+        const json = (await Platform.parseFileJSON(Paths.FILE_SETTINGS));
         const jsonObjs = json[TITLE_SETTING_KIND.KEYBOARD_ASSIGNMENT];
         for (const id in jsonObjs) {
             this.kb.set(Number(id), jsonObjs[id]);
@@ -60,6 +64,6 @@ export class Settings {
         }
         json[TITLE_SETTING_KIND.KEYBOARD_ASSIGNMENT] = jsonObjs;
         json[TITLE_SETTING_KIND.LANGUAGE] = this.currentLanguage;
-        await IO.saveFile(Paths.FILE_SETTINGS, json);
+        await Platform.writeFile(Paths.FILE_SETTINGS, json);
     }
 }

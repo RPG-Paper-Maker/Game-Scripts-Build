@@ -92,6 +92,14 @@ export class Platform {
     static async registerSave(_slot, path, json) {
         await IO.saveFile(path, json);
     }
+    /**
+     * Write a file.
+     * @param path - File path.
+     * @param json - json data.
+     */
+    static async writeFile(path, json) {
+        await IO.saveFile(path, json);
+    }
     // -------------------------------------------------------------------------
     // Error handling
     // -------------------------------------------------------------------------

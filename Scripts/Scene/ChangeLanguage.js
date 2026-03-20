@@ -150,6 +150,13 @@ class ChangeLanguage extends Base {
         Data.Systems.soundCancel.playSound();
         Manager.Stack.pop();
     }
+    translate() {
+        this.windowBoxLanguage.content.setText(Data.Languages.extras.language.name());
+        this.windowBoxTop.content.setText(Data.Languages.extras.languageSelectedDescription.name());
+        this.windowBoxConfirm.content.setText(Data.Languages.extras.languageSelectedDescription.name());
+        this.windowChoicesConfirm.listContents[0].setText(Data.Languages.extras.yes.name());
+        this.windowChoicesConfirm.listContents[1].setText(Data.Languages.extras.no.name());
+    }
     /**
      *  Update the scene.
      */
