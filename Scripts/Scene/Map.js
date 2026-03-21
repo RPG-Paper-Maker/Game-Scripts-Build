@@ -1121,6 +1121,13 @@ class Map extends Base {
             }
         }
         // Clear scene
+        const sceneObjects = [];
+        this.scene.traverse((obj) => sceneObjects.push(obj));
+        for (const obj of sceneObjects) {
+            if (obj instanceof THREE.Mesh) {
+                obj?.geometry?.dispose();
+            }
+        }
         for (i = this.scene.children.length - 1; i >= 0; i--) {
             this.scene.remove(this.scene.children[i]);
         }
