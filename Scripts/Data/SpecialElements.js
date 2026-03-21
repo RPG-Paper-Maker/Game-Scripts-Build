@@ -286,6 +286,9 @@ export class SpecialElements {
      * Load a mountain ID and add it to context rendering.
      */
     static async loadTextureMountain(textureMountain, texture, picture, offset, id) {
+        if (!picture) {
+            return null;
+        }
         const picture2D = await Picture2D.create(picture);
         const width = 3;
         const height = 3;
