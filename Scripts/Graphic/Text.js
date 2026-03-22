@@ -43,6 +43,8 @@ class Text extends Base {
         : null, } = {}) {
         super(x, y, w, h);
         this.lastW = 0;
+        this.lastWFull = 0;
+        this.lastLineWidth = 0;
         this.zoom = 1;
         this.align = align;
         this.fontName = fontName;
@@ -55,7 +57,7 @@ class Text extends Base {
         this.setFontSize(fontSize);
         this.setText(Utils.valueOrDefault(text, ''));
     }
-    wrapText(maxWidth) {
+    wrapText(maxWidth, firstLineMaxWidth = maxWidth) {
         const text = this.text.replace('\\n', '\n');
         const lines = text.split('\n');
         const words = [];
@@ -71,20 +73,24 @@ class Text extends Base {
         }
         this.lines = [];
         let currentLine = words[0];
+        let isFirstLine = true;
         for (let i = 1, l = words.length; i < l; i++) {
             const word = words[i];
             if (word === '\n') {
                 this.lines.push(currentLine);
                 currentLine = words[++i];
+                isFirstLine = false;
                 continue;
             }
+            const limit = isFirstLine ? firstLineMaxWidth : maxWidth;
             const width = Platform.ctx.measureText(currentLine + ' ' + word).width + (this.strokeColor === null ? 0 : 2);
-            if (width < maxWidth) {
+            if (width < limit) {
                 currentLine += ' ' + word;
             }
             else {
                 this.lines.push(currentLine);
                 currentLine = word;
+                isFirstLine = false;
             }
         }
         this.lines.push(currentLine);
@@ -140,6 +146,10 @@ class Text extends Base {
                 this.textWidth = size;
             }
         }
+        this.lastLineWidth = l > 0
+            ? Platform.ctx.measureText(this.lines[l - 1]).width +
+                (this.strokeColor === null ? 0 : ScreenResolution.getScreenMinXY(2))
+            : 0;
         this.textHeight = this.fontSize * 2 * l;
     }
     /**
@@ -149,7 +159,7 @@ class Text extends Base {
      *  @param {number} [w=this.w] - The width dimention to draw graphic
      *  @param {number} [h=this.h] - The height dimention to draw graphic
      */
-    drawChoice(x = this.x, y = this.y, w = this.w, h = this.h) {
+    drawChoice(x = this.x, y = this.y, w = this.w, h = this.h, continuationX, wFull) {
         // Correcting x and y according to alignment
         let xBack = x;
         if (this.zoom !== 1) {
@@ -158,24 +168,35 @@ class Text extends Base {
             this.measureText();
         }
         // Wrap text if != 0
-        if (this.lastW !== w && w !== 0) {
+        const effectiveWFull = wFull ?? w;
+        if ((this.lastW !== w || this.lastWFull !== effectiveWFull) && w !== 0) {
             this.lastW = w;
+            this.lastWFull = effectiveWFull;
             this.updateContextFont();
-            this.wrapText(w);
+            this.wrapText(effectiveWFull, w);
         }
         const textWidth = this.textWidth;
         const textHeight = this.fontSize + ScreenResolution.getScreenMinXY(this.strokeColor === null ? 0 : 2);
         switch (this.align) {
             case ALIGN.LEFT:
                 x += ScreenResolution.getScreenMinXY(1);
+                if (continuationX !== undefined) {
+                    continuationX += ScreenResolution.getScreenMinXY(1);
+                }
                 break;
             case ALIGN.RIGHT:
                 x += w - ScreenResolution.getScreenMinXY(1);
                 xBack = x - textWidth;
+                if (continuationX !== undefined) {
+                    continuationX += effectiveWFull - ScreenResolution.getScreenMinXY(1);
+                }
                 break;
             case ALIGN.CENTER:
                 x += w / 2;
                 xBack = x - textWidth / 2;
+                if (continuationX !== undefined) {
+                    continuationX += effectiveWFull / 2;
+                }
                 break;
         }
         switch (this.verticalAlign) {
@@ -205,10 +226,11 @@ class Text extends Base {
             Platform.ctx.strokeStyle = this.strokeColor.rgb;
             yOffset = 0;
             for (i = 0; i < l; i++) {
-                Platform.ctx.strokeText(this.lines[i], x - 1, y - 1 + yOffset);
-                Platform.ctx.strokeText(this.lines[i], x - 1, y + 1 + yOffset);
-                Platform.ctx.strokeText(this.lines[i], x + 1, y - 1 + yOffset);
-                Platform.ctx.strokeText(this.lines[i], x + 1, y + 1 + yOffset);
+                const cx = i === 0 || continuationX === undefined ? x : continuationX;
+                Platform.ctx.strokeText(this.lines[i], cx - 1, y - 1 + yOffset);
+                Platform.ctx.strokeText(this.lines[i], cx - 1, y + 1 + yOffset);
+                Platform.ctx.strokeText(this.lines[i], cx + 1, y - 1 + yOffset);
+                Platform.ctx.strokeText(this.lines[i], cx + 1, y + 1 + yOffset);
                 yOffset += lineHeight;
             }
         }
@@ -216,7 +238,8 @@ class Text extends Base {
         Platform.ctx.fillStyle = this.color.rgb;
         yOffset = 0;
         for (i = 0; i < l; i++) {
-            Platform.ctx.fillText(this.lines[i], x, y + yOffset);
+            const cx = i === 0 || continuationX === undefined ? x : continuationX;
+            Platform.ctx.fillText(this.lines[i], cx, y + yOffset);
             yOffset += lineHeight;
         }
         // Fix font back
@@ -232,8 +255,8 @@ class Text extends Base {
      *  @param {number} [w=this.oW] - The width dimention to draw graphic
      *  @param {number} [h=this.oH] - The height dimention to draw graphic
      */
-    draw(x = this.x, y = this.y, w = this.w, h = this.h) {
-        this.drawChoice(x, y, w, h);
+    draw(x = this.x, y = this.y, w = this.w, h = this.h, continuationX, wFull) {
+        this.drawChoice(x, y, w, h, continuationX, wFull);
     }
 }
 export { Text };
