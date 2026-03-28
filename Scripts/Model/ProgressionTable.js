@@ -137,6 +137,8 @@ class ProgressionTable extends Base {
         this.table = new Map();
         if (json.t) {
             for (const entry of json.t) {
+                if (!entry)
+                    continue;
                 this.table.set(entry.k, entry.v);
             }
         }

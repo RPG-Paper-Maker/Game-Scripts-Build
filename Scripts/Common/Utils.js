@@ -97,7 +97,7 @@ export class Utils {
         if (ordered) {
             list.sort((a, b) => (a.id ?? 0) - (b.id ?? 0));
         }
-        return list.map((json) => {
+        return list.filter((json) => json != null).map((json) => {
             if (transformFn.prototype && typeof transformFn === 'function') {
                 // Called as constructor
                 return new transformFn(json);
@@ -119,7 +119,7 @@ export class Utils {
      *   - The value is the transformed object of type `T`.
      */
     static readJSONMap(jsonList = [], transformFn, ids) {
-        return new Map(jsonList.map((json) => {
+        return new Map(jsonList.filter((json) => json != null).map((json) => {
             let item;
             if (typeof transformFn === 'function' && 'prototype' in transformFn) {
                 // Called as constructor
@@ -137,7 +137,7 @@ export class Utils {
         }));
     }
     static readJSONMapKeyValue(jsonList = [], transformFn) {
-        return new Map(jsonList.map((json) => {
+        return new Map(jsonList.filter((json) => json != null).map((json) => {
             let item;
             if (typeof transformFn === 'function' && 'prototype' in transformFn) {
                 // Called as constructor
