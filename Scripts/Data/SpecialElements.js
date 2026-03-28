@@ -98,6 +98,9 @@ export class SpecialElements {
     static async loadTextureAutotile(textureAutotile, texture, picture, offset, isAnimated) {
         const frames = isAnimated ? Data.Systems.autotilesFrames : 1;
         const picture2D = await Picture2D.create(picture);
+        if (!picture2D.image) {
+            return [textureAutotile, texture, offset];
+        }
         // Check if correct format size
         this.checkPictureSize('autotile', picture.name, picture2D.image.width, picture2D.image.height, 2 * Data.Systems.SQUARE_SIZE * frames, 3 * Data.Systems.SQUARE_SIZE, false, false);
         // Get width and height
@@ -201,11 +204,11 @@ export class SpecialElements {
                 const picture = Data.Pictures.get(PICTURE_KIND.WALLS, pictureID);
                 if (picture) {
                     textureWall = await this.loadTextureWall(picture, id);
+                    picture.readCollisions();
                 }
                 else {
                     textureWall = Manager.GL.loadTextureEmpty();
                 }
-                picture.readCollisions();
             }
             else {
                 textureWall = Manager.GL.loadTextureEmpty();
@@ -219,6 +222,9 @@ export class SpecialElements {
      */
     static async loadTextureWall(picture, id) {
         const picture2D = await Picture2D.create(picture);
+        if (!picture2D.image) {
+            return Manager.GL.loadTextureEmpty();
+        }
         const texture = new THREE.Texture();
         const w = picture2D.image.width;
         const h = picture2D.image.height;
@@ -290,6 +296,9 @@ export class SpecialElements {
             return null;
         }
         const picture2D = await Picture2D.create(picture);
+        if (!picture2D.image) {
+            return null;
+        }
         const width = 3;
         const height = 3;
         const size = 9;
