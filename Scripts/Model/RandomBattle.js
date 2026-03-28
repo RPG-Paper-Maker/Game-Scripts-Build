@@ -58,5 +58,6 @@ export class RandomBattle extends Base {
             ? []
             : Utils.readJSONList(json.terrains, (obj) => DynamicValue.readOrDefaultNumber(obj.value));
         this.resetCurrentNumberSteps();
+        this.updateCurrentPriority();
     }
 }

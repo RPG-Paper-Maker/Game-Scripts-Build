@@ -89,13 +89,13 @@ export class MapProperties extends Localization {
         if (!triggered) {
             return;
         }
-        const rand = Mathf.random(0, 100);
+        const rand = Mathf.random(1, 100);
         const battles = this.randomBattles.filter((b) => b.currentPriority > 0 && b.currentNumberSteps >= this.maxNumberSteps);
         const total = battles.reduce((sum, b) => sum + b.currentPriority, 0);
         let cumulative = 0;
         let chosen = null;
         for (const battle of battles) {
-            cumulative += (battle.priority.getValue() / total) * 100;
+            cumulative += (battle.currentPriority / total) * 100;
             if (rand <= cumulative) {
                 chosen = battle;
                 break;
