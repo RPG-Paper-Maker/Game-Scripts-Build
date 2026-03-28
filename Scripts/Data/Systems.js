@@ -37,6 +37,12 @@ export class Systems {
         return Base.get(id, this.currencies, 'currency');
     }
     /**
+     * Check if a currency with the given ID exists in the system.
+     */
+    static hasCurrency(id) {
+        return this.currencies.has(id);
+    }
+    /**
      * Get the window skin by ID safely.
      */
     static getWindowSkin(id) {
