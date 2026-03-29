@@ -44,11 +44,8 @@ class TitleScreen extends Base {
         Manager.GL.screenTone.set(0, 0, 0, 1);
         // Destroy pictures
         Manager.Stack.displayedPictures = [];
-        // Creating background
-        if (Data.TitlescreenGameover.isTitleBackgroundImage) {
-            this.pictureBackground = await Picture2D.createWithID(Data.TitlescreenGameover.titleBackgroundImageID, PICTURE_KIND.TITLE_SCREEN, { cover: true });
-        }
-        else {
+        // Creating background (video plays behind, image draws on top)
+        if (Data.TitlescreenGameover.isTitleBackgroundVideo) {
             const played = await Manager.Videos.play(Data.Videos.get(Data.TitlescreenGameover.titleBackgroundVideoID).getPath(), null, true);
             if (!played) {
                 this.videoBlocked = true;
@@ -62,6 +59,9 @@ class TitleScreen extends Base {
                     fontSize: 20,
                 });
             }
+        }
+        if (Data.TitlescreenGameover.isTitleBackgroundImage) {
+            this.pictureBackground = await Picture2D.createWithID(Data.TitlescreenGameover.titleBackgroundImageID, PICTURE_KIND.TITLE_SCREEN, { cover: true });
         }
         // Windows
         const commandsNb = Data.TitlescreenGameover.titleCommands.length;
@@ -86,7 +86,7 @@ class TitleScreen extends Base {
      *  @inheritdoc
      */
     update() {
-        if (this.videoBlocked && !Platform.canvasVideos.paused) {
+        if (Data.TitlescreenGameover.isTitleBackgroundVideo && this.videoBlocked && !Platform.canvasVideos.paused) {
             this.videoBlocked = false;
         }
         if (!this.videoBlocked) {
@@ -146,7 +146,7 @@ class TitleScreen extends Base {
      *  @inheritdoc
      */
     drawHUD() {
-        if (Data.TitlescreenGameover.isTitleBackgroundImage) {
+        if (Data.TitlescreenGameover.isTitleBackgroundImage && this.pictureBackground) {
             this.pictureBackground.draw();
         }
         if (this.videoBlocked) {

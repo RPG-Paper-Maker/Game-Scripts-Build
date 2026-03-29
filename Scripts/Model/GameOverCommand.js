@@ -38,7 +38,7 @@ export class GameOverCommand extends Localization {
      * Stop the game over video if it is playing.
      */
     static stopGameOverVideo() {
-        if (!Data.TitlescreenGameover.isGameOverBackgroundImage) {
+        if (Data.TitlescreenGameover.isGameOverBackgroundVideo) {
             Manager.Videos.stop();
         }
     }

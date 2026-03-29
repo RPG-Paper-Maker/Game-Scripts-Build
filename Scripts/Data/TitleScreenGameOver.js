@@ -71,6 +71,7 @@ export class TitlescreenGameover {
         const json = (await Platform.parseFileJSON(Paths.FILE_TITLE_SCREEN_GAME_OVER));
         // Title screen
         this.isTitleBackgroundImage = Utils.valueOrDefault(json.itbi, true);
+        this.isTitleBackgroundVideo = Utils.valueOrDefault(json.itbv, false);
         this.titleBackgroundImageID = Utils.valueOrDefault(json.tb, 1);
         this.titleBackgroundVideoID = Utils.valueOrDefault(json.tbv, 1);
         this.titleMusic = new PlaySong(SONG_KIND.MUSIC, json.tm);
@@ -83,6 +84,7 @@ export class TitlescreenGameover {
         }
         // Game over
         this.isGameOverBackgroundImage = Utils.valueOrDefault(json.isGameOverBackgroundImage, true);
+        this.isGameOverBackgroundVideo = Utils.valueOrDefault(json.isGameOverBackgroundVideo, false);
         this.gameOverBackgroundImageID = Utils.valueOrDefault(json.gameOverBackgroundImage, 1);
         this.gameOverBackgroundVideoID = Utils.valueOrDefault(json.gameOverBackgroundVideo, 1);
         this.gameOverMusic = new PlaySong(SONG_KIND.MUSIC, json.gameOverMusic);

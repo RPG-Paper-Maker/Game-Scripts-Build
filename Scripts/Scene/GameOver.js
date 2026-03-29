@@ -39,12 +39,12 @@ class GameOver extends Base {
         // Stop all songs and videos
         Manager.Videos.stop();
         Manager.Songs.stopAll();
-        // Creating background
+        // Creating background (video plays behind, image draws on top)
+        if (Data.TitlescreenGameover.isGameOverBackgroundVideo) {
+            await Manager.Videos.play(Data.Videos.get(Data.TitlescreenGameover.gameOverBackgroundVideoID).getPath(), null, true);
+        }
         if (Data.TitlescreenGameover.isGameOverBackgroundImage) {
             this.pictureBackground = await Picture2D.createWithID(Data.TitlescreenGameover.gameOverBackgroundImageID, PICTURE_KIND.GAME_OVER, { cover: true });
-        }
-        else {
-            await Manager.Videos.play(Data.Videos.get(Data.TitlescreenGameover.gameOverBackgroundVideoID).getPath(), null, true);
         }
         // Windows
         const commandsNb = Data.TitlescreenGameover.gameOverCommands.length;
@@ -106,7 +106,7 @@ class GameOver extends Base {
      *  @inheritdoc
      */
     drawHUD() {
-        if (Data.TitlescreenGameover.isGameOverBackgroundImage) {
+        if (Data.TitlescreenGameover.isGameOverBackgroundImage && this.pictureBackground) {
             this.pictureBackground.draw();
         }
         this.windowChoicesCommands.draw();
