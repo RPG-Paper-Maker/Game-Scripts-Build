@@ -331,16 +331,16 @@ export class DynamicValue extends Base {
                 }
                 break;
             case DYNAMIC_VALUE_KIND.CUSTOM_LIST:
-                this.customList = Utils.readJSONList(json.customList.list, (jsonParameter) => DynamicValue.readOrDefaultNumber(jsonParameter.value));
+                this.customList = Utils.readJSONList(json.customList?.list, (jsonParameter) => DynamicValue.readOrDefaultNumber(jsonParameter.value));
                 break;
             case DYNAMIC_VALUE_KIND.VECTOR2:
-                this.x = DynamicValue.readFromJSON(json.x);
-                this.y = DynamicValue.readFromJSON(json.y);
+                this.x = DynamicValue.readOrNone(json.x);
+                this.y = DynamicValue.readOrNone(json.y);
                 break;
             case DYNAMIC_VALUE_KIND.VECTOR3:
-                this.x = DynamicValue.readFromJSON(json.x);
-                this.y = DynamicValue.readFromJSON(json.y);
-                this.z = DynamicValue.readFromJSON(json.z);
+                this.x = DynamicValue.readOrNone(json.x);
+                this.y = DynamicValue.readOrNone(json.y);
+                this.z = DynamicValue.readOrNone(json.z);
                 break;
             default:
                 break;

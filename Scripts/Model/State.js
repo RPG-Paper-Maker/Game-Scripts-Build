@@ -20,7 +20,6 @@ import { Reaction } from './Reaction.js';
 export class State extends Base {
     constructor(json) {
         super(json);
-        this.detection = null;
     }
     /**
      * Create a new plain object instance of this state.
