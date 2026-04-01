@@ -59,7 +59,7 @@ class Object3DCustom extends Object3D {
     }
     getCenterVector() {
         const [kind, id] = this.getShapeKindAndID();
-        return Data.Shapes.get(kind, id).geometry.center.clone();
+        return Data.Shapes.get(kind, id)?.geometry.center.clone() ?? new THREE.Vector3();
     }
     /**
      *  Update the geometry of a group of objects 3D cutom with the same
@@ -72,7 +72,10 @@ class Object3DCustom extends Object3D {
     updateGeometry(geometry, position, count) {
         const localPosition = position.toVector3();
         const [kind, shapeID] = this.getShapeKindAndID();
-        const modelGeometry = Data.Shapes.get(kind, shapeID).geometry;
+        const modelGeometry = Data.Shapes.get(kind, shapeID)?.geometry;
+        if (!modelGeometry) {
+            return [count, []];
+        }
         const vertices = modelGeometry.vertices;
         const uvs = modelGeometry.uvs;
         const scale = this.datas.scale;
@@ -130,7 +133,10 @@ class Object3DCustom extends Object3D {
             });
         }
         else if (this.datas.collisionKind === OBJECT_COLLISION_KIND.CUSTOM) {
-            const obj = Data.Shapes.get(CUSTOM_SHAPE_KIND.COLLISIONS, this.datas.collisionCustomID).geometry;
+            const obj = Data.Shapes.get(CUSTOM_SHAPE_KIND.COLLISIONS, this.datas.collisionCustomID)?.geometry;
+            if (!obj) {
+                return [count, objCollision];
+            }
             const w = obj.w * scale * position.scaleX;
             const h = obj.h * scale * position.scaleY;
             const d = obj.d * scale * position.scaleZ;
