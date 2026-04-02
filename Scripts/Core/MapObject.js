@@ -455,7 +455,9 @@ class MapObject {
         if (this.currentStateInstance !== null) {
             if (this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.OBJECT_3D) {
                 objectData = Data.SpecialElements.getObject3D(this.currentStateInstance.graphicID);
-                material = await Data.SpecialElements.loadObject3DTexture(objectData.id);
+                if (objectData) {
+                    material = await Data.SpecialElements.loadObject3DTexture(objectData.id);
+                }
             }
             else {
                 material =
@@ -473,7 +475,7 @@ class MapObject {
         let isGltfNoTexture = false;
         if (!texture && this.currentStateInstance?.graphicKind === ELEMENT_MAP_KIND.OBJECT_3D) {
             const gltfCheckData = Data.SpecialElements.getObject3D(this.currentStateInstance.graphicID);
-            isGltfNoTexture = gltfCheckData.shapeKind === SHAPE_KIND.CUSTOM && gltfCheckData.gltfID !== -1;
+            isGltfNoTexture = gltfCheckData?.shapeKind === SHAPE_KIND.CUSTOM && gltfCheckData?.gltfID !== -1;
         }
         this.position.set(this.position.x - this.currentCenterOffset.x, this.position.y, this.position.z - this.currentCenterOffset.z);
         this.currentCenterOffset.set(0, 0, 0);
@@ -1350,6 +1352,8 @@ class MapObject {
         if (!this.animationMixer || !this.gltfGroup || !this.currentStateInstance)
             return;
         const objectData = Data.SpecialElements.getObject3D(this.currentStateInstance.graphicID);
+        if (!objectData)
+            return;
         const shape = Data.Shapes.get(CUSTOM_SHAPE_KIND.GLTF, objectData.gltfID);
         if (!shape?.gltfAnimations?.length)
             return;
