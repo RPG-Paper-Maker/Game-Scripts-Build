@@ -123,7 +123,7 @@ class WindowBox extends Bitmap {
             if (!isChoice && this.limitContent) {
                 Platform.ctx.save();
                 Platform.ctx.beginPath();
-                Platform.ctx.rect(contentDimension[0], contentDimension[1] - ScreenResolution.getScreenY(this.padding[3] / 2), contentDimension[2], contentDimension[3] + ScreenResolution.getScreenY(this.padding[3]));
+                Platform.ctx.rect(contentDimension[0], ScreenResolution.getScreenY(this.oY), contentDimension[2], ScreenResolution.getScreenY(this.oH));
                 Platform.ctx.clip();
             }
             if (isChoice) {

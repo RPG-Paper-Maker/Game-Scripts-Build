@@ -27,6 +27,7 @@ class Equip extends Base {
         // All the graphics
         this.graphicEquipmentName = new Graphic.Text(Data.BattleSystems.getEquipment(id).name(), isPossible ? {} : { color: Model.Color.GREY });
         this.graphicEquipment = new Graphic.Text(equiped === null ? '-' : equiped.system.name(), isPossible ? {} : { color: Model.Color.GREY });
+        this.graphicEquipment.ellipsis = true;
     }
     /**
      *  Drawing the equipment kind and equipment name.
@@ -37,7 +38,8 @@ class Equip extends Base {
      */
     drawChoice(x, y, w, h) {
         this.graphicEquipmentName.draw(x, y, w, h);
-        this.graphicEquipment.draw(x + this.length + ScreenResolution.getScreenMinXY(Constants.LARGE_SPACE), y, w, h);
+        const offset = this.length + ScreenResolution.getScreenMinXY(Constants.LARGE_SPACE);
+        this.graphicEquipment.draw(x + offset, y, w - offset, h);
     }
     /**
      *  Drawing the equipment kind and equipment name.

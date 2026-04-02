@@ -23,6 +23,7 @@ class SkillItem extends Base {
         // All the graphics
         this.graphicElements = [];
         this.graphicName = Graphic.TextIcon.createFromSystem(system.name(), this.system);
+        this.graphicName.graphicText.ellipsis = true;
         if (this.system.hasType) {
             this.graphicType = new Graphic.Text(system.getType().name(), {
                 fontSize: Constants.MEDIUM_FONT_SIZE,
@@ -32,7 +33,7 @@ class SkillItem extends Base {
             verticalAlign: ALIGN_VERTICAL.TOP,
         });
         if (this.system.hasTARGET_KIND) {
-            this.graphicTarget = new Graphic.Text(Data.Languages.extras.target.name() + ': ' + system.getTargetKindString(), { align: ALIGN.RIGHT, fontSize: Constants.MEDIUM_FONT_SIZE });
+            this.graphicTarget = new Graphic.Text(Data.Languages.extras.target.name() + ': ' + system.getTargetKindString(), { align: ALIGN.RIGHT });
         }
         this.graphicEffects = [];
         let i, l, effect, txt, graphic, graphicIcon;
@@ -40,7 +41,7 @@ class SkillItem extends Base {
             effect = this.system.effects[i];
             txt = effect.toString();
             if (txt) {
-                graphic = new Graphic.Text(txt, { fontSize: Constants.MEDIUM_FONT_SIZE });
+                graphic = new Graphic.Text(txt);
                 this.graphicEffects.push(graphic);
             }
             if (effect.isDamageElement) {
@@ -58,9 +59,7 @@ class SkillItem extends Base {
         for (i = 0, l = this.system.characteristics.length; i < l; i++) {
             txt = this.system.characteristics[i].toString();
             if (txt) {
-                this.graphicCharacteristics.push(new Graphic.Text(txt, {
-                    fontSize: Constants.MEDIUM_FONT_SIZE,
-                }));
+                this.graphicCharacteristics.push(new Graphic.Text(txt));
             }
         }
     }
@@ -81,9 +80,11 @@ class SkillItem extends Base {
      *  @param {number} w - The width dimention to draw graphic
      *  @param {number} h - The height dimention to draw graphic
      */
-    draw(x, y, w, h) {
+    draw(x, y, w, h, rightNameOffset = 0) {
         let offsetY = 0;
-        this.graphicName.draw(x, y, w, 0);
+        const iconScreenSize = ScreenResolution.getScreenMinXY(Data.Systems.iconsSize);
+        const nameOffset = this.graphicElements.length * (iconScreenSize + this.graphicName.space) + rightNameOffset;
+        this.graphicName.draw(x, y, w - nameOffset, 0);
         offsetY += this.graphicName.getMaxHeight();
         if (this.system.hasTARGET_KIND) {
             this.graphicTarget.draw(x, y + offsetY, w, 0);
@@ -115,22 +116,23 @@ class SkillItem extends Base {
             pictureIcon = graphicText['elementIcon'];
             if (pictureIcon) {
                 graphicText.measureText();
+                const iconScreenSize = ScreenResolution.getScreenMinXY(Data.Systems.iconsSize);
                 pictureIcon.draw({
-                    x: x + graphicText.textWidth + ScreenResolution.getScreenMinXY(Constants.MEDIUM_SPACE),
-                    y: y + offsetY - ScreenResolution.getScreenMinXY(Data.Systems.iconsSize) / 2,
+                    x: Math.min(x + graphicText.textWidth + ScreenResolution.getScreenMinXY(Constants.MEDIUM_SPACE), x + w - iconScreenSize),
+                    y: y + offsetY - iconScreenSize / 2,
                     sw: Data.Systems.iconsSize,
                     sh: Data.Systems.iconsSize,
                     w: Data.Systems.iconsSize,
                     h: Data.Systems.iconsSize,
                 });
             }
-            offsetY += graphicText.fontSize + ScreenResolution.getScreenMinXY(Constants.MEDIUM_SPACE);
+            offsetY += graphicText.textHeight - graphicText.fontSize + ScreenResolution.getScreenMinXY(Constants.MEDIUM_SPACE);
         }
         offsetY += ScreenResolution.getScreenMinXY(Constants.LARGE_SPACE);
         for (i = 0, l = this.graphicCharacteristics.length; i < l; i++) {
             graphicText = this.graphicCharacteristics[i];
             graphicText.draw(x, y + offsetY, w, 0);
-            offsetY += graphicText.fontSize + ScreenResolution.getScreenMinXY(Constants.MEDIUM_SPACE);
+            offsetY += graphicText.textHeight - graphicText.fontSize + ScreenResolution.getScreenMinXY(Constants.MEDIUM_SPACE);
         }
     }
 }

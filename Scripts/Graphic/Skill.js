@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { ALIGN } from '../Common/index.js';
+import { ALIGN, Constants, ScreenResolution } from '../Common/index.js';
 import { Data, Graphic } from '../index.js';
 import { Base } from './Base.js';
 /** @class
@@ -21,6 +21,7 @@ class Skill extends Base {
         super();
         this.system = Data.Skills.get(skill.id);
         this.graphicName = Graphic.TextIcon.createFromSystem(this.system.name(), this.system);
+        this.graphicName.graphicText.ellipsis = true;
         this.graphicCost = new Graphic.Text(this.system.getCostString(), { align: ALIGN.RIGHT });
         this.graphicInformations = new Graphic.SkillItem(this.system);
     }
@@ -32,8 +33,9 @@ class Skill extends Base {
      *  @param {number} h - The height dimention to draw graphic
      */
     drawChoice(x, y, w, h) {
-        this.graphicName.draw(x, y, w, h);
+        const offset = this.graphicCost.textWidth + ScreenResolution.getScreenMinXY(Constants.MEDIUM_SPACE);
         this.graphicCost.draw(x, y, w, h);
+        this.graphicName.draw(x, y, w - offset, h);
     }
     /**
      *  Drawing the skill description.
@@ -43,7 +45,8 @@ class Skill extends Base {
      *  @param {number} h - The height dimention to draw graphic
      */
     draw(x, y, w, h) {
-        this.graphicInformations.draw(x, y, w, h);
+        const costOffset = this.graphicCost.textWidth + ScreenResolution.getScreenMinXY(Constants.MEDIUM_SPACE);
+        this.graphicInformations.draw(x, y, w, h, costOffset);
         this.graphicCost.draw(x, y, w, 0);
     }
 }

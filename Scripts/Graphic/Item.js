@@ -23,6 +23,7 @@ class Item extends Base {
         // All the graphics
         nbItem = nbItem === undefined ? item.nb : nbItem;
         this.graphicName = Graphic.TextIcon.createFromSystem('', this.item.system, {}, possible ? {} : { color: Model.Color.GREY });
+        this.graphicName.graphicText.ellipsis = true;
         this.updateName(nbItem);
         if (item.shop === undefined) {
             this.graphicNb = new Graphic.Text('x' + nbItem, { align: ALIGN.RIGHT });
@@ -63,7 +64,6 @@ class Item extends Base {
      *  @param {number} h - The height dimention to draw graphic
      */
     drawChoice(x, y, w, h) {
-        this.graphicName.draw(x, y, w, h);
         let offset = 0;
         let graphic;
         for (let i = this.graphicCurrencies.length - 1; i >= 0; i--) {
@@ -73,7 +73,9 @@ class Item extends Base {
         }
         if (this.graphicNb) {
             this.graphicNb.draw(x - offset, y, w, h);
+            offset += this.graphicNb.textWidth + ScreenResolution.getScreenMinXY(Constants.MEDIUM_SPACE);
         }
+        this.graphicName.draw(x, y, w - offset, h);
     }
     /**
      *  Drawing the item description.
