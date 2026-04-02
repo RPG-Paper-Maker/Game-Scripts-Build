@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { ALIGN, Platform, ScreenResolution } from '../Common/index.js';
+import { ALIGN } from '../Common/index.js';
 import { Data, Graphic, Scene } from '../index.js';
 /** @class
  *   A scene for the loading.
@@ -28,8 +28,6 @@ class Loading extends Scene.Base {
     /** Draw the HUD scene
      */
     drawHUD() {
-        Platform.ctx.fillStyle = '#000000';
-        Platform.ctx.fillRect(0, 0, ScreenResolution.CANVAS_WIDTH, ScreenResolution.CANVAS_HEIGHT);
         this.text.draw();
     }
 }
