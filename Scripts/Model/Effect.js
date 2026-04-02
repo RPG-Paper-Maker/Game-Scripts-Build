@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { CHARACTER_KIND, DAMAGES_KIND, EFFECT_KIND, EFFECT_SPECIAL_ACTION_KIND, Interpreter, Mathf, Utils, } from '../Common/index.js';
+import { CHARACTER_KIND, DAMAGES_KIND, DYNAMIC_VALUE_KIND, EFFECT_KIND, EFFECT_SPECIAL_ACTION_KIND, Interpreter, Mathf, Utils, } from '../Common/index.js';
 import { Game, Player, ReactionInterpreter } from '../Core/index.js';
 import { Data, Manager, Scene } from '../index.js';
 import { Base } from './Base.js';
@@ -398,7 +398,20 @@ export class Effect extends Base {
      * @returns Always `true`, since the action was initiated.
      */
     executeCommonReaction(forceReaction) {
-        const reactionInterpreter = new ReactionInterpreter(null, Data.CommonEvents.getCommonReaction(this.commonReaction.commonReactionID), null, null, Utils.arrayToMap(this.commonReaction.parameters, true));
+        const reaction = Data.CommonEvents.getCommonReaction(this.commonReaction.commonReactionID);
+        const parameters = [...this.commonReaction.parameters];
+        // Apply default values from the common reaction definition for missing/DEFAULT parameters
+        let v, parameter, k;
+        for (const [id, reactionParameter] of reaction.parameters.entries()) {
+            v = reactionParameter.value;
+            parameter = parameters[id];
+            k = parameter ? parameter.kind : DYNAMIC_VALUE_KIND.NONE;
+            if (k > DYNAMIC_VALUE_KIND.UNKNOWN && k <= DYNAMIC_VALUE_KIND.DEFAULT) {
+                parameter = k === DYNAMIC_VALUE_KIND.DEFAULT ? v : DynamicValue.create(k, null);
+            }
+            parameters[id] = parameter;
+        }
+        const reactionInterpreter = new ReactionInterpreter(null, reaction, null, null, Utils.arrayToMap(parameters, true));
         Manager.Stack.top.reactionInterpretersEffects.push(reactionInterpreter);
         if (forceReaction) {
             Manager.Stack.top.updateInterpreters();
