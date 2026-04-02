@@ -17,9 +17,9 @@ import { Base } from './Base.js';
  *  @extends Scene.Base
  */
 class TitleSettings extends Base {
-    constructor(title) {
+    constructor(titleCommand) {
         super();
-        this.title = title;
+        this.titleCommand = titleCommand;
     }
     /**
      *  Load async stuff.
@@ -31,7 +31,7 @@ class TitleSettings extends Base {
         }
         // Creating windows
         this.windowSettings = new WindowBox(Constants.HUGE_SPACE, Constants.HUGE_SPACE, WindowBox.MEDIUM_SLOT_WIDTH, WindowBox.LARGE_SLOT_HEIGHT, {
-            content: new Graphic.Text(this.title, { align: ALIGN.CENTER }),
+            content: new Graphic.Text(this.titleCommand.name(), { align: ALIGN.CENTER }),
             padding: WindowBox.SMALL_SLOT_PADDING,
         });
         this.windowInformations = new WindowBox(Constants.HUGE_SPACE + WindowBox.MEDIUM_SLOT_WIDTH + Constants.LARGE_SPACE, Constants.HUGE_SPACE, ScreenResolution.SCREEN_X - 2 * Constants.HUGE_SPACE - WindowBox.MEDIUM_SLOT_WIDTH - Constants.LARGE_SPACE, WindowBox.LARGE_SLOT_HEIGHT, {
@@ -55,7 +55,11 @@ class TitleSettings extends Base {
     /**
      *  Translate the scene if possible.
      */
-    translate() { }
+    translate() {
+        this.windowSettings.content.setText(this.titleCommand.name());
+        this.windowChoicesMain.setContentsCallbacks(Data.TitlescreenGameover.getTitleSettingsCommandsContent(), Data.TitlescreenGameover.getTitleSettingsCommandsActions(), this.windowChoicesMain.currentSelectedIndex);
+        this.windowInformations.content = this.windowChoicesMain.getCurrentContent();
+    }
     /**
      *  @inheritdoc
      */
