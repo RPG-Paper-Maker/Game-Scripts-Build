@@ -103,6 +103,10 @@ class Confirm extends Base {
      */
     onKeyPressed(key) {
         this.action(true, { key: key });
+        if (Scene.MenuBase.checkCancelMenu(true, { key: key })) {
+            Data.Systems.soundCancel.playSound();
+            Manager.Stack.pop();
+        }
     }
     /**
      *  @inheritdoc
