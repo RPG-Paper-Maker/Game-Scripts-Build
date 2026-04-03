@@ -47,6 +47,7 @@ export class Status extends Icon {
         this.restrictionKind = Utils.valueOrDefault(json.restrictionKind, STATUS_RESTRICTIONS_KIND.NONE);
         this.priority = DynamicValue.readOrDefaultNumber(json.priority);
         this.battlerPosition = DynamicValue.readOrDefaultNumber(json.battlerPosition);
+        this.isReleaseIfDead = Utils.valueOrDefault(json.isReleaseIfDead, true);
         this.isReleaseAtEndBattle = Utils.valueOrDefault(json.isReleaseAtEndBattle, false);
         this.isReleaseAfterAttacked = Utils.valueOrDefault(json.isReleaseAfterAttacked, false);
         this.chanceReleaseAfterAttacked = DynamicValue.readOrDefaultNumberDouble(json.chanceReleaseAfterAttacked);
