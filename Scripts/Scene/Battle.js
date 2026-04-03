@@ -611,13 +611,15 @@ class Battle extends Map {
      *  Draw the battle HUD according to step.
      */
     drawHUD() {
-        // Draw all battlers special HUD
+        // Draw all battlers special HUD (skip during victory/defeat to hide status icons)
         let i, l;
-        for (i = 0, l = this.battlers[CHARACTER_KIND.HERO].length; i < l; i++) {
-            this.battlers[CHARACTER_KIND.HERO][i].drawHUD();
-        }
-        for (i = 0, l = this.battlers[CHARACTER_KIND.MONSTER].length; i < l; i++) {
-            this.battlers[CHARACTER_KIND.MONSTER][i].drawHUD();
+        if (this.step !== BATTLE_STEP.VICTORY) {
+            for (i = 0, l = this.battlers[CHARACTER_KIND.HERO].length; i < l; i++) {
+                this.battlers[CHARACTER_KIND.HERO][i].drawHUD();
+            }
+            for (i = 0, l = this.battlers[CHARACTER_KIND.MONSTER].length; i < l; i++) {
+                this.battlers[CHARACTER_KIND.MONSTER][i].drawHUD();
+            }
         }
         // Draw HUD according to step
         switch (this.step) {
