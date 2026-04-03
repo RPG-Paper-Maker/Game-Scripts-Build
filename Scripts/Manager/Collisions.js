@@ -1031,7 +1031,7 @@ class Collisions {
                 -(!forceAlways &&
                     y + h <= positionAfter.y + Data.Systems.mountainCollisionHeight.getValue());
             if (Mathf.isPointOnRectangle(point, x, x + Data.Systems.SQUARE_SIZE, z, z + Data.Systems.SQUARE_SIZE)) {
-                return pass ? [false, positionAfter.y - y - h === 0 ? null : y + h] : [true, null];
+                return pass ? [false, positionAfter.y >= y + h ? null : y + h] : [true, null];
             }
             else {
                 if (!pass) {
@@ -1079,7 +1079,7 @@ class Collisions {
                     -(!forceAlways &&
                         y + h <= positionAfter.y + Data.Systems.mountainCollisionHeight.getValue());
                 if (Mathf.isPointOnRectangle(point, x, x + Data.Systems.SQUARE_SIZE, z, z + Data.Systems.SQUARE_SIZE)) {
-                    return pass ? [false, positionAfter.y - y - h === 0 ? null : y + h] : [true, null];
+                    return pass ? [false, positionAfter.y >= y + h ? null : y + h] : [true, null];
                 }
                 else if (!pass) {
                     const vertices = object.currentBoundingBox.geometry.getVertices();
