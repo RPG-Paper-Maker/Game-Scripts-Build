@@ -10,7 +10,7 @@
 */
 import * as THREE from 'three';
 import { CUSTOM_SHAPE_KIND, ELEMENT_MAP_KIND, Mathf, OBJECT_MOVING_KIND, ORIENTATION, Paths, PICTURE_KIND, Platform, SHAPE_KIND, Utils, } from '../Common/index.js';
-import { Data, Manager, Model, Scene } from '../index.js';
+import { Core, Data, Manager, Model, Scene } from '../index.js';
 import { CollisionSquare } from './CollisionSquare.js';
 import { CustomGeometry } from './CustomGeometry.js';
 import { Frame } from './Frame.js';
@@ -494,6 +494,7 @@ class MapObject {
             this.updateOrientation();
             let result;
             const positionTranformation = Position.createFromVector3(this.position);
+            Core.ReactionInterpreter.currentObject = this;
             positionTranformation.centerX = this.currentStateInstance.centerX.getValue();
             positionTranformation.centerZ = this.currentStateInstance.centerZ.getValue();
             positionTranformation.angleX = this.currentStateInstance.angleX.getValue();
@@ -1278,6 +1279,7 @@ class MapObject {
         if (this.gltfGroup !== null) {
             this.gltfGroup.position.set(this.position.x, this.position.y, this.position.z);
             if (this.currentStateInstance) {
+                Core.ReactionInterpreter.currentObject = this;
                 const userAngleY = this.currentStateInstance.angleY.getValue() * (Math.PI / 180);
                 const prevX = this.gltfGroup.userData.prevX ?? this.position.x;
                 const prevZ = this.gltfGroup.userData.prevZ ?? this.position.z;
