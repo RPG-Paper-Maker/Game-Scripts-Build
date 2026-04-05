@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { ALIGN, Utils } from '../Common/index.js';
+import { ALIGN, Constants, Utils } from '../Common/index.js';
 import { WindowBox } from '../Core/index.js';
 import { Data, Graphic, Manager, Model, Scene } from '../index.js';
 import { Base } from './Base.js';
@@ -70,7 +70,9 @@ class ShowText extends Base {
         this.windowMain.padding[3] = Utils.valueOrDefault(Data.Systems.dbOptions.v_pBottom, 0);
         this.windowMain.updateDimensions();
         this.windowMain.content.update();
-        this.windowInterlocutor.content.setText(this.interlocutor.getValue());
+        const nameTagText = this.windowInterlocutor.content;
+        nameTagText.setFontSize(Utils.valueOrDefault(Data.Systems.dbOptions.v_tSize, Constants.DEFAULT_FONT_SIZE));
+        nameTagText.setText(this.interlocutor.getValue());
         return {
             clicked: false,
             frame: 0,

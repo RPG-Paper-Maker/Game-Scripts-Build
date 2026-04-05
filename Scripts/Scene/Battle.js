@@ -126,6 +126,10 @@ class Battle extends Map {
     isDefined(kind, index, target) {
         const battler = this.battlers[kind][index];
         if (target) {
+            const hasTargetFormula = this.skill && this.skill.targetConditionFormula.getValue() !== null;
+            if (!hasTargetFormula && battler.player.isDead()) {
+                return false;
+            }
             return !battler.hidden && (!this.skill || this.skill.isPossible(battler.player));
         }
         return (battler.active &&
@@ -269,6 +273,20 @@ class Battle extends Map {
         super.update();
         if (Scene.Map.current !== this) {
             return;
+        }
+        if ((this.transitionZoom || this.transitionColor) &&
+            Game.current !== null &&
+            Game.current.hero.currentStateInstance) {
+            const heroVector = new THREE.Vector3();
+            this.sceneMap.camera.getThreeCamera().getWorldDirection(heroVector);
+            Game.current.hero.updateAngle(Math.atan2(heroVector.x, heroVector.z) + Math.PI);
+            if (Game.current.hero.currentStateInstance.setWithCamera) {
+                const prevMap = Scene.Map.current;
+                Scene.Map.current = this.sceneMap;
+                Game.current.hero.updateOrientation();
+                Game.current.hero.updateUVs();
+                Scene.Map.current = prevMap;
+            }
         }
         // Y angle
         const vector = new THREE.Vector3();
