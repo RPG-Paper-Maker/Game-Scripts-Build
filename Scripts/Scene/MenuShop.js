@@ -454,7 +454,12 @@ class MenuShop extends MenuBase {
                         this.equip(shopItem);
                         this.windowBoxUseItem.content.hideArrow = true;
                     }
-                    this.synchronize();
+                    if (this.isBuy()) {
+                        this.updateItemsList();
+                    }
+                    else {
+                        this.synchronize();
+                    }
                     this.step = 1;
                     Manager.Stack.requestPaintHUD = true;
                 }
