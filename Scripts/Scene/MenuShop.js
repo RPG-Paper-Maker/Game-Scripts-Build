@@ -40,7 +40,6 @@ class MenuShop extends MenuBase {
         super.create();
         this.createAllWindows();
         this.updateItemsList();
-        this.synchronize();
     }
     /**
      *  Create all the windows.
@@ -96,18 +95,23 @@ class MenuShop extends MenuBase {
      *  Create the choice tab window for sorting items kind.
      */
     createWindowChoicesItemsKind() {
-        const rect = new Rectangle(Constants.MEDIUM_SPACE, Constants.HUGE_SPACE + WindowBox.SMALL_SLOT_HEIGHT + Constants.LARGE_SPACE, WindowBox.SMALL_SLOT_WIDTH, WindowBox.SMALL_SLOT_HEIGHT);
+        const rect = new Rectangle(Constants.MEDIUM_SPACE, Constants.HUGE_SPACE + WindowBox.SMALL_SLOT_HEIGHT + Constants.LARGE_SPACE, ScreenResolution.SCREEN_X - Constants.MEDIUM_SPACE * 2, WindowBox.SMALL_SLOT_HEIGHT);
         let l = Data.Systems.inventoryFilters.length;
         const list = [];
         let i;
         for (i = 0, l = Data.Systems.inventoryFilters.length; i < l; i++) {
             list[i] = new Graphic.Text(Data.Systems.inventoryFilters[i].name(), { align: ALIGN.CENTER });
-            list[i].ellipsis = true;
         }
+        // Per-tab widths adapted to each filter name text, capped at 150px with ellipsis
+        const MAX_TAB_WIDTH = 150;
+        const choiceWidths = list.map((text) => {
+            text.ellipsis = true;
+            return Math.min(MAX_TAB_WIDTH, Math.max(50, ScreenResolution.getScreenXReverse(text.textWidth) + 24));
+        });
         const options = {
             orientation: ORIENTATION_WINDOW.HORIZONTAL,
-            nbItemsMax: list.length,
             padding: [0, 0, 0, 0],
+            choiceWidths: choiceWidths,
         };
         this.windowChoicesItemsKind = new WindowChoices(rect.x, rect.y, rect.width, rect.height, list, options);
         l = list.length;
@@ -269,6 +273,7 @@ class MenuShop extends MenuBase {
         this.windowChoicesList.unselect();
         this.windowChoicesList.offsetSelectedIndex = this.positionChoice[indexTab].offset;
         this.windowChoicesList.select(this.positionChoice[indexTab].index);
+        this.synchronize();
     }
     /**
      *  Update informations to display.
@@ -448,8 +453,8 @@ class MenuShop extends MenuBase {
                     if (this.step === 4 && this.windowChoicesConfirmEquip.currentSelectedIndex === 0) {
                         this.equip(shopItem);
                         this.windowBoxUseItem.content.hideArrow = true;
-                        this.synchronize();
                     }
+                    this.synchronize();
                     this.step = 1;
                     Manager.Stack.requestPaintHUD = true;
                 }
