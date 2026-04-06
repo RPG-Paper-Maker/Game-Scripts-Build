@@ -142,6 +142,7 @@ class MapObject {
                 Scene.Map.current.mapProperties.name() +
                 '. Please check where ' +
                 'this ID is used and remove it.');
+            return null;
         }
         const globalPortion = position.getGlobalPortion();
         const mapsData = Game.current.getPortionData(Scene.Map.current.id, globalPortion);
@@ -407,6 +408,7 @@ class MapObject {
             const pos = Scene.Map.current.mapProperties.allObjects.get(this.system.id);
             if (pos === undefined) {
                 Platform.showErrorMessage('Object linking issue ' + Scene.Map.current.mapProperties.id);
+                return;
             }
             const portion = pos.getGlobalPortion();
             const portionData = Game.current.getPortionData(Scene.Map.current.id, portion);
@@ -798,7 +800,7 @@ class MapObject {
         if (this.currentStateInstance.graphicKind !== ELEMENT_MAP_KIND.OBJECT_3D &&
             this.currentStateInstance.graphicID !== 0) {
             this.boundingBoxSettings.squares =
-                Scene.Map.current.collisions[PICTURE_KIND.CHARACTERS][this.currentStateInstance.graphicID][this.getStateIndex()];
+                Scene.Map.current.collisions[PICTURE_KIND.CHARACTERS][this.currentStateInstance.graphicID]?.[this.getStateIndex()] ?? [];
         }
         this.removeBBFromScene();
         // If state option through, ignore BB
