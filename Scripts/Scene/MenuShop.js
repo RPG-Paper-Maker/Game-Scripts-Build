@@ -294,8 +294,8 @@ class MenuShop extends MenuBase {
                 }
             }
             this.windowBoxOwned.content.setText(Data.Languages.extras.owned.name() + ': ' + owned);
+            this.windowBoxUseItem.content.updateGraphicCharactersEquip(this.windowBoxInformation.content.item);
         }
-        this.windowBoxUseItem.content.updateGraphicCharactersEquip(this.windowBoxInformation.content.item);
     }
     /**
      *  Move tab according to key.
@@ -416,6 +416,7 @@ class MenuShop extends MenuBase {
                 else if (Scene.MenuBase.checkCancelMenu(isKey, options)) {
                     Data.Systems.soundCancel.playSound();
                     this.step = 0;
+                    Manager.Stack.requestPaintHUD = true;
                 }
                 break;
             case 2:
@@ -465,7 +466,7 @@ class MenuShop extends MenuBase {
                 }
                 else if (Scene.MenuBase.checkCancelMenu(isKey, options)) {
                     Data.Systems.soundCancel.playSound();
-                    this.step = graphic.item.system.isWeaponArmor() ? 3 : 1;
+                    this.step = (this.isBuy() && graphic.item.system.isWeaponArmor()) ? 3 : 1;
                     Manager.Stack.requestPaintHUD = true;
                 }
                 break;
