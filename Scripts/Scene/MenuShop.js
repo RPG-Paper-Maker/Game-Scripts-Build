@@ -480,7 +480,7 @@ class MenuShop extends MenuBase {
             case 3:
                 if (Scene.MenuBase.checkActionMenu(isKey, options)) {
                     Data.Systems.soundConfirmation.playSound();
-                    this.spinBox.max = graphic.item.nb;
+                    this.spinBox.max = graphic.item.getMaxBuy();
                     this.spinBox.updateValue(1);
                     this.step = 2;
                     Manager.Stack.requestPaintHUD = true;
@@ -513,7 +513,9 @@ class MenuShop extends MenuBase {
                 break;
             case 3:
                 this.windowBoxUseItem.content.move(isKey, options);
-                this.updateEquipmentStats();
+                if (this.windowBoxUseItem.content.graphicCharacters.length > 0) {
+                    this.updateEquipmentStats();
+                }
                 break;
             case 4:
                 this.windowChoicesConfirmEquip.move(isKey, options);
