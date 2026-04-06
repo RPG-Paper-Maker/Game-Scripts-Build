@@ -57,7 +57,7 @@ export class TroopReactionConditions extends Base {
                         throw new Error(`No max value for stat ${stat.name()}`);
                     }
                     const compareValue = this.statisticCompare.getValue();
-                    return Mathf.OPERATORS_COMPARE[this.statisticOPERATION_KIND](this.statisticCompareUnit ? statValue / statValueMax : statValue, this.statisticCompareUnit ? compareValue / 100 : compareValue);
+                    return Mathf.OPERATORS_COMPARE[this.statisticOperationKind](this.statisticCompareUnit ? statValue / statValueMax : statValue, this.statisticCompareUnit ? compareValue / 100 : compareValue);
                 }
                 return true;
             });
@@ -79,7 +79,7 @@ export class TroopReactionConditions extends Base {
         this.statusID = DynamicValue.readOrDefaultDatabase(json.statusID);
         this.isStatisticID = Utils.valueOrDefault(json.isStatisticID, false);
         this.statisticID = DynamicValue.readOrDefaultDatabase(json.statisticID);
-        this.statisticOPERATION_KIND = Utils.valueOrDefault(json.statisticOPERATION_KIND, OPERATION_KIND.EQUAL_TO);
+        this.statisticOperationKind = Utils.valueOrDefault(json.statisticOperationKind, OPERATION_KIND.EQUAL_TO);
         this.statisticCompare = DynamicValue.readOrDefaultNumber(json.statisticCompare);
         this.statisticCompareUnit = Utils.valueOrDefault(json.statisticCompareUnit, true);
     }
