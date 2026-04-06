@@ -29,8 +29,6 @@ class Map extends Base {
         this.overflowSprites = new globalThis.Map();
         this.overflowMountains = new globalThis.Map();
         this.overflowObjects3D = new globalThis.Map();
-        this.preloadJsonCache = new globalThis.Map();
-        this.isPreloading = false;
         this.id = id;
         this.isBattleMap = isBattleMap;
         this.mapFilename = Scene.Map.generateMapName(id);
@@ -339,7 +337,6 @@ class Map extends Base {
                     }
                 }
             }
-            setTimeout(() => this.preloadOuterShell().catch(console.error), 0);
             return;
         }
         // Make a temp copy for moving stuff correctly
@@ -392,7 +389,6 @@ class Map extends Base {
             }
         }
         this.loading = false;
-        setTimeout(() => this.preloadOuterShell().catch(console.error), 0);
     }
     /**
      *  Load a portion.
@@ -412,15 +408,7 @@ class Map extends Base {
         const lh = Math.ceil(this.mapProperties.height / Constants.PORTION_SIZE);
         if (realX >= 0 && realX < lx && realY >= -ld && realY < lh && realZ >= 0 && realZ < lz) {
             const portion = new Portion(realX, realY, realZ);
-            const cacheKey = portion.toKey();
-            let json;
-            if (this.preloadJsonCache.has(cacheKey)) {
-                json = this.preloadJsonCache.get(cacheKey);
-                this.preloadJsonCache.delete(cacheKey);
-            }
-            else {
-                json = (await Platform.parseFileJSON(Paths.FILE_MAPS + this.mapFilename + '/' + portion.getFileName()));
-            }
+            const json = (await Platform.parseFileJSON(Paths.FILE_MAPS + this.mapFilename + '/' + portion.getFileName()));
             if (json && json.hasOwnProperty('lands')) {
                 const mapPortion = new MapPortion(portion);
                 this.setMapPortion(x, y, z, mapPortion, move);
@@ -445,96 +433,6 @@ class Map extends Base {
      */
     async loadPortionFromPortion(portion, x, y, z, move) {
         await this.loadPortion(portion.x + x, portion.y + y, portion.z + z, x, y, z, move);
-    }
-    /**
-     *  Check if all portions that will be loaded on the next portion update are
-     *  already in the preload cache or are out of map bounds (and thus null).
-     *  @returns {boolean}
-     */
-    checkNewPortionsPreloaded() {
-        const offsetX = this.currentPortion.x - this.previousPortion.x;
-        const offsetY = this.currentPortion.y - this.previousPortion.y;
-        const offsetZ = this.currentPortion.z - this.previousPortion.z;
-        const limit = Data.Systems.PORTIONS_RAY;
-        const lx = Math.ceil(this.mapProperties.length / Constants.PORTION_SIZE);
-        const lz = Math.ceil(this.mapProperties.width / Constants.PORTION_SIZE);
-        const ld = Math.ceil(this.mapProperties.depth / Constants.PORTION_SIZE);
-        const lh = Math.ceil(this.mapProperties.height / Constants.PORTION_SIZE);
-        for (let i = -limit; i <= limit; i++) {
-            for (let j = -limit; j <= limit; j++) {
-                for (let k = -limit; k <= limit; k++) {
-                    const oi = i + offsetX;
-                    const oj = j + offsetY;
-                    const ok = k + offsetZ;
-                    if (oi < -limit || oi > limit || oj < -limit || oj > limit || ok < -limit || ok > limit) {
-                        const rx = this.currentPortion.x + i;
-                        const ry = this.currentPortion.y + j;
-                        const rz = this.currentPortion.z + k;
-                        if (rx >= 0 && rx < lx && ry >= -ld && ry < lh && rz >= 0 && rz < lz) {
-                            if (!this.preloadJsonCache.has([rx, ry, rz].join('_'))) {
-                                return false;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return true;
-    }
-    /**
-     *  Asynchronously preload JSON for all portions in the shell just outside the
-     *  current portion ray (PORTIONS_RAY + 1). Runs in the background without
-     *  setting loading = true, so it does not block gameplay.
-     */
-    async preloadOuterShell() {
-        if (this.isPreloading) {
-            return;
-        }
-        this.isPreloading = true;
-        const limit = Data.Systems.PORTIONS_RAY;
-        const outerLimit = limit + 1;
-        const lx = Math.ceil(this.mapProperties.length / Constants.PORTION_SIZE);
-        const lz = Math.ceil(this.mapProperties.width / Constants.PORTION_SIZE);
-        const ld = Math.ceil(this.mapProperties.depth / Constants.PORTION_SIZE);
-        const lh = Math.ceil(this.mapProperties.height / Constants.PORTION_SIZE);
-        const center = this.currentPortion;
-        let readCount = 0;
-        outer: for (let i = -outerLimit; i <= outerLimit; i++) {
-            for (let j = -outerLimit; j <= outerLimit; j++) {
-                for (let k = -outerLimit; k <= outerLimit; k++) {
-                    if (Math.abs(i) <= limit && Math.abs(j) <= limit && Math.abs(k) <= limit) {
-                        continue; // already in active set
-                    }
-                    if (Scene.Map.current !== this) {
-                        break outer;
-                    }
-                    const rx = center.x + i;
-                    const ry = center.y + j;
-                    const rz = center.z + k;
-                    if (rx >= 0 && rx < lx && ry >= -ld && ry < lh && rz >= 0 && rz < lz) {
-                        const key = [rx, ry, rz].join('_');
-                        if (!this.preloadJsonCache.has(key)) {
-                            // Yield to the event loop every 5 reads so requestAnimationFrame
-                            // can fire between batches and avoid frame drops.
-                            if (readCount > 0 && readCount % 5 === 0) {
-                                await new Promise((r) => setTimeout(r, 0));
-                                if (Scene.Map.current !== this) {
-                                    break outer;
-                                }
-                            }
-                            const portion = new Portion(rx, ry, rz);
-                            const json = (await Platform.parseFileJSON(Paths.FILE_MAPS + this.mapFilename + '/' + portion.getFileName()));
-                            if (Scene.Map.current !== this) {
-                                break outer;
-                            }
-                            this.preloadJsonCache.set(key, json ?? null);
-                            readCount++;
-                        }
-                    }
-                }
-            }
-        }
-        this.isPreloading = false;
     }
     /**
      *  Remove a portion.
@@ -1053,10 +951,8 @@ class Map extends Base {
         }
         // Update portion
         if (Scene.Map.current.updateCurrentPortion()) {
-            if (!this.checkNewPortionsPreloaded()) {
-                this.loading = true;
-            }
             this.loadPortions(true).catch(console.error);
+            this.loading = true;
         }
     }
     /**
