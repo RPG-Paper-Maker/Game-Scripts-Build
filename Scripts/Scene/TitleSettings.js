@@ -18,7 +18,9 @@ import { Base } from './Base.js';
  */
 class TitleSettings extends Base {
     constructor(titleCommand) {
-        super();
+        super(true, titleCommand);
+    }
+    initialize(titleCommand) {
         this.titleCommand = titleCommand;
     }
     /**
