@@ -21,6 +21,7 @@ import { Base } from './Base.js';
 class Equip extends Base {
     constructor(player, id, length, isPossible) {
         super();
+        this.oLength = length;
         this.length = ScreenResolution.getScreenMinXY(length);
         this.isPossible = isPossible;
         const equiped = player.equip[id];
@@ -50,6 +51,10 @@ class Equip extends Base {
      */
     draw(x, y, w, h) {
         this.drawChoice(x, y, w, h);
+    }
+    resize() {
+        super.resize();
+        this.length = ScreenResolution.getScreenMinXY(this.oLength);
     }
 }
 export { Equip };

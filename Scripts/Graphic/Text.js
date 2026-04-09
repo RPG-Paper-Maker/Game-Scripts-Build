@@ -106,6 +106,10 @@ class Text extends Base {
         this.fontSize = ScreenResolution.getScreenMinXY(fontSize);
         this.updateFont();
     }
+    resize() {
+        super.resize();
+        this.setFontSize(this.oFontSize);
+    }
     /**
      *  Set the final font.
      */

@@ -21,10 +21,36 @@ import { Stack } from '../Manager/index.js';
  */
 class Bitmap {
     constructor(x = 0, y = 0, w = 0, h = 0) {
+        Bitmap.instances.add(new WeakRef(this));
         this.setX(x);
         this.setY(y);
         this.setW(w);
         this.setH(h);
+    }
+    /**
+     *  Re-apply screen scaling to all live Bitmap instances after a window resize.
+     *  Stale WeakRefs are pruned automatically.
+     */
+    static resizeAll() {
+        for (const ref of Bitmap.instances) {
+            const bitmap = ref.deref();
+            if (bitmap) {
+                bitmap.resize();
+            }
+            else {
+                Bitmap.instances.delete(ref);
+            }
+        }
+    }
+    /**
+     *  Re-apply screen scaling from the stored original (logical) coordinates.
+     *  Subclasses with additional cached scaled values must override this.
+     */
+    resize() {
+        this.setX(this.oX);
+        this.setY(this.oY);
+        this.setW(this.oW);
+        this.setH(this.oH);
     }
     /**
      *  Set the x value.
@@ -121,4 +147,5 @@ class Bitmap {
         return x >= this.x && x <= this.x + this.w && y >= this.y && y <= this.y + this.h;
     }
 }
+Bitmap.instances = new Set();
 export { Bitmap };

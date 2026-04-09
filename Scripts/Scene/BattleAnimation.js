@@ -328,6 +328,7 @@ class BattleAnimation {
                     let isAnotherEffect;
                     // Apply effect
                     if (this.battle.currentTargetIndex === null) {
+                        this.battle.windowTopInformations.content.setText(this.battle.informationText);
                         this.battle.currentEffectIndex++;
                         for (l = this.battle.effects.length; this.battle.currentEffectIndex < l; this.battle.currentEffectIndex++) {
                             const effect = this.battle.effects[this.battle.currentEffectIndex];

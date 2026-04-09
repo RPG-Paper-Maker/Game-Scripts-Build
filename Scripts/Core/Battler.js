@@ -37,6 +37,7 @@ export class Battler {
         this.currentStatusAnimation = null;
         this.lastTarget = null;
         this.hidden = false;
+        this.preventKORestore = false;
         this.player = player;
         this.isEnemy = isEnemy;
         this.initialPosition = position;
@@ -256,14 +257,17 @@ export class Battler {
     updateDead(attacked, user) {
         let step = this.step;
         if (this.player.isDead()) {
-            const newlyDead = this.addStatus(1);
-            if (newlyDead !== null) {
-                this.player.removeIfDeadStatus();
+            if (!this.preventKORestore) {
+                const newlyDead = this.addStatus(1);
+                if (newlyDead !== null) {
+                    this.player.removeIfDeadStatus();
+                }
             }
             step = this.step;
             this.lastStep = step;
         }
         else {
+            this.preventKORestore = false;
             this.removeStatus(1);
             if (attacked) {
                 step = BATTLER_STEP.ATTACKED;

@@ -30,6 +30,7 @@ class TextIcon extends Base {
         this.indexY = indexY;
         this.side = side;
         this.align = align;
+        this.oSpace = space;
         this.space = ScreenResolution.getScreenMinXY(space);
         this.graphicIcon = Data.Pictures.getPictureCopy(PICTURE_KIND.ICONS, this.iconID);
         this.graphicText = new Graphic.Text('', textOptions);
@@ -132,6 +133,10 @@ class TextIcon extends Base {
      */
     draw(x, y, w, h) {
         this.drawChoice(x, y, w, h);
+    }
+    resize() {
+        super.resize();
+        this.space = ScreenResolution.getScreenMinXY(this.oSpace);
     }
 }
 export { TextIcon };

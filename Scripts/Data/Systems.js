@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Paths, Platform, ScreenResolution, SONG_KIND, Utils } from '../Common/index.js';
-import { MapObject, Position } from '../Core/index.js';
+import { Bitmap, MapObject, Position } from '../Core/index.js';
 import { Data, Manager, Scene } from '../index.js';
 import { CameraProperties, Color, Currency, Detection, DynamicValue, FontName, InitialPartyMember, InventoryFilter, Localization, MainMenuCommand, PlaySong, Skybox, WindowSkin, } from '../Model/index.js';
 import { Base } from './Base.js';
@@ -129,6 +129,7 @@ export class Systems {
         ScreenResolution.WINDOW_X = ScreenResolution.CANVAS_WIDTH / ScreenResolution.SCREEN_X;
         ScreenResolution.WINDOW_Y = ScreenResolution.CANVAS_HEIGHT / ScreenResolution.SCREEN_Y;
         Manager.GL.resize();
+        Bitmap.resizeAll();
         Manager.Stack.requestPaintHUD = true;
         for (const scene of Manager.Stack.content) {
             scene.draw3D();
@@ -140,7 +141,7 @@ export class Systems {
      */
     static switchFullscreen() {
         this.isScreenWindow = !this.isScreenWindow;
-        this.updateWindowSize(this.windowWidth, this.windowHeight, this.isScreenWindow);
+        this.updateWindowSize(this.windowWidth, this.windowHeight, !this.isScreenWindow);
     }
     /**
      *  Load the window skins pictures
@@ -172,7 +173,10 @@ export class Systems {
         this.windowWidth = w;
         this.windowHeight = h;
         this.isScreenWindow = isScreenWindow;
-        this.updateWindowSize(w, h, !isScreenWindow);
+        this.updateWindowSize(w, h, false);
+        if (!isScreenWindow) {
+            this.updateWindowSize(w, h, true);
+        }
         this.antialias = Utils.valueOrDefault(json.aa, false);
         this.isMouseControls = Utils.valueOrDefault(json.isMouseControls, true);
         // Other numbers
