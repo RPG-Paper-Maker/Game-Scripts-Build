@@ -23,10 +23,11 @@ export class TitleCommand extends Localization {
      * Start a new game.
      */
     static startNewGame() {
-        // Stop video and songs if existing
+        // Stop video and songs immediately so the user sees a black loading screen
         if (Data.TitlescreenGameover.isTitleBackgroundVideo) {
             Manager.Videos.stop();
         }
+        Manager.Songs.stopAll();
         // Create a new game
         Game.current = new Game();
         Game.current.initializeDefault();
