@@ -24,6 +24,8 @@ class Game {
         this.chronometers = [];
         this.previousWeatherOptions = null;
         this.currentWeatherOptions = null;
+        this.heroSavedOrientationEye = null;
+        this.heroSavedCamera = null;
         this.slot = slot;
         this.hero = new MapObject(Data.Systems.modelHero.system, Data.Systems.modelHero.position.clone(), true);
         this.battleMusic = Data.BattleSystems.battleMusic;
@@ -87,6 +89,18 @@ class Game {
         this.currentMapID = json.currentMapId;
         const positionHero = json.heroPosition;
         this.hero.position.set(positionHero[0], positionHero[1], positionHero[2]);
+        if (json.heroOrientation !== undefined) {
+            this.heroSavedOrientationEye = json.heroOrientation;
+        }
+        if (json.cameraState !== undefined) {
+            const cs = json.cameraState;
+            this.heroSavedCamera = {
+                horizontalAngle: cs.ha,
+                verticalAngle: cs.va,
+                distance: cs.d,
+                targetOffset: new THREE.Vector3(cs.to[0], cs.to[1], cs.to[2]),
+            };
+        }
         this.heroStates = json.heroStates;
         this.heroProperties = json.heroProp;
         this.heroStatesOptions = json.heroStatesOpts;
@@ -142,6 +156,19 @@ class Game {
             vars: Utils.mapToArray(this.variables),
             currentMapId: this.currentMapID,
             heroPosition: [this.hero.position.x, this.hero.position.y, this.hero.position.z],
+            heroOrientation: this.hero.orientationEye,
+            cameraState: Scene.Map.current?.camera
+                ? {
+                    ha: Scene.Map.current.camera.horizontalAngle,
+                    va: Scene.Map.current.camera.verticalAngle,
+                    d: Scene.Map.current.camera.distance,
+                    to: [
+                        Scene.Map.current.camera.targetOffset.x,
+                        Scene.Map.current.camera.targetOffset.y,
+                        Scene.Map.current.camera.targetOffset.z,
+                    ],
+                }
+                : undefined,
             heroStates: this.heroStates,
             heroProp: this.heroProperties,
             heroStatesOpts: this.heroStatesOptions,
