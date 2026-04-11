@@ -239,7 +239,12 @@ class Stack {
      */
     static draw3D() {
         if (!this.isEmpty()) {
-            this.top.draw3D();
+            if (this.isLoading() && this.top.clearOnLoad) {
+                Manager.GL.renderer.clear();
+            }
+            else {
+                this.top.draw3D();
+            }
         }
     }
     /**

@@ -22,6 +22,7 @@ class Base {
      *  loading asynchronosively.
      */
     constructor(loading = true, ...args) {
+        this.clearOnLoad = false;
         this.graphicFPS = null;
         this.reactionInterpreters = [];
         this.reactionInterpretersEffects = [];
