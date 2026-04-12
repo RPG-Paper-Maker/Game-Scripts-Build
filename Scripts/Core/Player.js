@@ -813,16 +813,10 @@ class Player {
     getFirstStatus() {
         const statusList = [];
         let status;
-        for (let c = 0, i = 0; i < Player.MAX_STATUS_DISPLAY_TOP; i++) {
+        for (let i = this.status.length - 1; i >= 0 && statusList.length < Player.MAX_STATUS_DISPLAY_TOP; i--) {
             status = this.status[i];
-            if (status) {
-                if (status.system.pictureID !== -1) {
-                    c++;
-                    statusList.push(status);
-                }
-            }
-            else {
-                break;
+            if (status.system.pictureID !== -1) {
+                statusList.unshift(status);
             }
         }
         return statusList;
