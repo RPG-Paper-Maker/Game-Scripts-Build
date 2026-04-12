@@ -338,8 +338,8 @@ export class Effect extends Base {
                 user,
                 target,
             });
-            // Handle resistance
-            if (target.statusRes[id]) {
+            // Handle resistance (only when inflicting, not when healing)
+            if (this.isAddStatus && target.statusRes[id]) {
                 precision /= target.statusRes[id].multiplication;
                 precision -= target.statusRes[id].addition;
             }
