@@ -35,6 +35,7 @@ class MapObject {
         this.isClimbingUp = true;
         this.climbOrientationEye = ORIENTATION.NONE;
         this.climbOrientation = ORIENTATION.NONE;
+        this.isCaterpillarFollower = false;
         this.isOrientationStopWalk = false;
         this.currentCenterOffset = new THREE.Vector3();
         this.currentAngle = new THREE.Vector3();
@@ -1325,10 +1326,14 @@ class MapObject {
             }
         }
         // Moving
-        this.updateMovingState();
+        if (!this.isCaterpillarFollower) {
+            this.updateMovingState();
+        }
         // Time events
         this.receivedOneEvent = false;
-        this.updateTimeEvents();
+        if (!this.isCaterpillarFollower) {
+            this.updateTimeEvents();
+        }
         // Positions
         if (this.position) {
             this.previousPosition = this.position;

@@ -152,6 +152,7 @@ class Menu extends MenuBase {
         const hero2 = this.party()[id2];
         this.party()[id1] = hero2;
         this.party()[id2] = hero1;
+        Scene.Map.caterpillarNeedsRefresh = true;
     }
     /**
      * function executed when you choose the order command.

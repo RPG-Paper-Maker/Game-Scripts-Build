@@ -25,6 +25,26 @@ export class Songs {
         return Base.get(id, this.list.get(kind), `song ${Song.songKindToString(kind)}`, true, errorMessage);
     }
     /**
+     * Create every Howl object and wait for all audio to fully decode.
+     */
+    static async preload() {
+        const promises = [];
+        for (const kindList of this.list.values()) {
+            for (const song of kindList.values()) {
+                song.load();
+                const howl = song.howl;
+                if (!howl || howl.state() === 'loaded') {
+                    continue;
+                }
+                promises.push(new Promise((resolve) => {
+                    howl.once('load', () => resolve());
+                    howl.once('loaderror', () => resolve());
+                }));
+            }
+        }
+        await Promise.all(promises);
+    }
+    /**
      * Read the JSON file associated with songs.
      */
     static async read() {

@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { ALIGN, Constants, ScreenResolution } from '../Common/index.js';
-import { Data, Graphic } from '../index.js';
+import { Data, Graphic, Model } from '../index.js';
 import { Base } from './Base.js';
 /** @class
  *  The graphic displaying the player skills informations in skill menu.
@@ -17,12 +17,13 @@ import { Base } from './Base.js';
  *  @param {Skill} skill - The current selected skill
  */
 class Skill extends Base {
-    constructor(skill) {
+    constructor(skill, possible = true) {
         super();
         this.system = Data.Skills.get(skill.id);
-        this.graphicName = Graphic.TextIcon.createFromSystem(this.system.name(), this.system);
+        const colorOpts = possible ? {} : { color: Model.Color.GREY };
+        this.graphicName = Graphic.TextIcon.createFromSystem(this.system.name(), this.system, {}, colorOpts);
         this.graphicName.graphicText.ellipsis = true;
-        this.graphicCost = new Graphic.Text(this.system.getCostString(), { align: ALIGN.RIGHT });
+        this.graphicCost = new Graphic.Text(this.system.getCostString(), { align: ALIGN.RIGHT, ...colorOpts });
         this.graphicInformations = new Graphic.SkillItem(this.system);
     }
     /**

@@ -89,6 +89,7 @@ export class Hero extends Localization {
         this.class = Data.Classes.get(json.class, `Could not find the class in ${this.isMonster() ? 'monster' : 'hero'} ${Utils.getIDName(json.id, this.name())}, please check your Data manager and add a correct class.`);
         this.idBattler = Utils.valueOrDefault(json.bid, -1);
         this.idFaceset = Utils.valueOrDefault(json.fid, -1);
+        this.idCharacter = Utils.valueOrDefault(json.cid, -1);
         this.indexXFaceset = Utils.valueOrDefault(json.indexXFaceset, 0);
         this.indexYFaceset = Utils.valueOrDefault(json.indexYFaceset, 0);
         this.classInherit = new Class(json.ci);

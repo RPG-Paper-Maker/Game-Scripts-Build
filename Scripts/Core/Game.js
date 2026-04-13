@@ -28,6 +28,7 @@ class Game {
         this.heroSavedCamera = null;
         this.slot = slot;
         this.hero = new MapObject(Data.Systems.modelHero.system, Data.Systems.modelHero.position.clone(), true);
+        this.caterpillarFollowers = [];
         this.battleMusic = Data.BattleSystems.battleMusic;
         this.victoryMusic = Data.BattleSystems.battleVictory;
         this.textures = {};

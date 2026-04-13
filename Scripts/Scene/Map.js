@@ -9,8 +9,8 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import * as THREE from 'three';
-import { Constants, DYNAMIC_VALUE_KIND, Inputs, Interpreter, Paths, PICTURE_KIND, Platform, ScreenResolution, TARGET_KIND, Utils, } from '../Common/index.js';
-import { Autotiles, Camera, Frame, Game, MapPortion, Portion, ReactionInterpreter, } from '../Core/index.js';
+import { CHARACTER_KIND, Constants, DYNAMIC_VALUE_KIND, Inputs, Interpreter, ORIENTATION, Paths, PICTURE_KIND, Platform, ScreenResolution, TARGET_KIND, Utils, } from '../Common/index.js';
+import { Autotiles, Camera, Frame, Game, MapObject, MapPortion, Portion, ReactionInterpreter, } from '../Core/index.js';
 import { Data, Manager, Model, Scene } from '../index.js';
 import { Base } from './Base.js';
 /** @class
@@ -30,6 +30,9 @@ class Map extends Base {
         this.overflowMountains = new globalThis.Map();
         this.overflowObjects3D = new globalThis.Map();
         this._cameraDirection = new THREE.Vector3();
+        this.heroTrail = [];
+        this.heroTrailTotalDist = 0;
+        this.heroTrailLastPos = null;
         this.id = id;
         this.isBattleMap = isBattleMap;
         this.mapFilename = Scene.Map.generateMapName(id);
@@ -64,6 +67,9 @@ class Map extends Base {
         await this.loadTextures();
         this.loadCollisions();
         await this.initializePortions();
+        if (!this.isBattleMap) {
+            await this.initCaterpillarFollowers();
+        }
         this.createWeather(false);
         this.createWeather();
         Manager.Stack.requestPaintHUD = true;
@@ -963,9 +969,31 @@ class Map extends Base {
         const vector = this._cameraDirection;
         this.camera.getThreeCamera().getWorldDirection(vector);
         const angle = Math.atan2(vector.x, vector.z) + Math.PI;
+        // Refresh caterpillar followers if requested
+        if (Scene.Map.caterpillarNeedsRefresh && !this.isBattleMap && Game.current !== null) {
+            Scene.Map.caterpillarNeedsRefresh = false;
+            this.refreshCaterpillarFollowers().catch(console.error);
+        }
         // Update the objects
         if (Game.current !== null) {
             Game.current.hero.update(angle);
+            // Update caterpillar followers
+            if (!this.isBattleMap && Game.current.caterpillarFollowers.length > 0) {
+                this.updateHeroTrail();
+                for (let i = 0, l = Game.current.caterpillarFollowers.length; i < l; i++) {
+                    const follower = Game.current.caterpillarFollowers[i];
+                    const targetDist = this.heroTrailTotalDist - (i + 1) * Data.Systems.SQUARE_SIZE;
+                    const { pos: targetPos, orientation: targetOri } = this.getTrailAtDist(targetDist);
+                    const prevPos = follower.previousPosition ? follower.previousPosition.clone() : targetPos.clone();
+                    follower.moving = prevPos.distanceTo(targetPos) > 0.1;
+                    if (follower.moving) {
+                        follower.orientationEye = targetOri;
+                        follower.updateOrientation();
+                    }
+                    follower.position = targetPos.clone();
+                    follower.update(angle);
+                }
+            }
         }
         this.updatePortions(this, function (x, y, z, i, j, k) {
             const objects = Game.current.getPortionData(this.id, new Portion(x, y, z));
@@ -1014,6 +1042,11 @@ class Map extends Base {
             }
             if (Game.current && Game.current.hero.mesh) {
                 Game.current.hero.mesh.material.opacity = opacity;
+                for (const follower of Game.current.caterpillarFollowers) {
+                    if (follower.mesh) {
+                        follower.mesh.material.opacity = opacity;
+                    }
+                }
             }
             this.camera.updateTimer();
         }
@@ -1151,6 +1184,12 @@ class Map extends Base {
         this.reactionInterpreters = [];
         this.reactionInterpretersEffects = [];
         this.parallelCommands = [];
+        if (Game.current !== null && !this.isBattleMap) {
+            Game.current.caterpillarFollowers = [];
+        }
+        this.heroTrail = [];
+        this.heroTrailTotalDist = 0;
+        this.heroTrailLastPos = null;
         const l = Math.ceil(this.mapProperties.length / Constants.PORTION_SIZE);
         const w = Math.ceil(this.mapProperties.width / Constants.PORTION_SIZE);
         const d = Math.ceil(this.mapProperties.depth / Constants.PORTION_SIZE);
@@ -1204,9 +1243,191 @@ class Map extends Base {
         Manager.Collisions.applyOrientedBoxTransforms(Manager.Collisions.BB_ORIENTED_BOX, [0, 0, 0, 0, 0, 0, 0, 0, 0]);
         Manager.Collisions.applyBoxSpriteTransforms(Manager.Collisions.getBBBoxDetection(true), [0, 0, 0, 0, 0, 0, 0, 0, 0]);
     }
+    /**
+     *  Rebuild caterpillar followers, preserving positions of existing slots.
+     *  Old followers stay visible until all new ones are ready (no blank frame).
+     */
+    async refreshCaterpillarFollowers() {
+        const oldFollowers = Game.current.caterpillarFollowers.slice();
+        const restoreStates = oldFollowers.map((f) => ({
+            pos: f.position.clone(),
+            prevPos: f.previousPosition ? f.previousPosition.clone() : f.position.clone(),
+            orientationEye: f.orientationEye,
+        }));
+        const newFollowers = await this.buildCaterpillarFollowers(false, restoreStates);
+        for (const f of oldFollowers) {
+            f.removeFromScene();
+        }
+        Game.current.caterpillarFollowers = newFollowers;
+    }
+    async initCaterpillarFollowers(resetTrail = true) {
+        if (Game.current === null) {
+            return;
+        }
+        Game.current.caterpillarFollowers = await this.buildCaterpillarFollowers(resetTrail);
+    }
+    async buildCaterpillarFollowers(resetTrail = true, restoreStates) {
+        if (Game.current === null) {
+            return [];
+        }
+        const maxMembers = Data.Systems.caterpillarMaxPartyMembers.getValue();
+        if (maxMembers <= 0) {
+            if (resetTrail) {
+                this.heroTrail = [];
+                this.heroTrailTotalDist = 0;
+                this.heroTrailLastPos = null;
+            }
+            return [];
+        }
+        const sq = Data.Systems.SQUARE_SIZE;
+        let ox = 0, oz = 0;
+        switch (Game.current.hero.orientationEye) {
+            case ORIENTATION.SOUTH:
+                oz = -sq;
+                break;
+            case ORIENTATION.NORTH:
+                oz = sq;
+                break;
+            case ORIENTATION.EAST:
+                ox = -sq;
+                break;
+            case ORIENTATION.WEST:
+                ox = sq;
+                break;
+        }
+        const spawnStep = sq;
+        if (resetTrail) {
+            const heroPos = Game.current.hero.position;
+            const heroOri = Game.current.hero.orientationEye;
+            const steps = maxMembers + 1;
+            this.heroTrail = [];
+            const stackPos = new THREE.Vector3(heroPos.x + ox * 0.25, heroPos.y, heroPos.z + oz * 0.25);
+            for (let k = 0; k <= steps; k++) {
+                this.heroTrail.push({
+                    pos: stackPos.clone(),
+                    dist: k * spawnStep,
+                    orientation: heroOri,
+                });
+            }
+            this.heroTrailTotalDist = steps * spawnStep;
+            this.heroTrailLastPos = heroPos.clone();
+        }
+        const firstIndex = Data.Systems.caterpillarFirstIndex.getValue();
+        let bx = 0, bz = 0;
+        switch (Game.current.hero.orientationEye) {
+            case ORIENTATION.SOUTH:
+                bz = -1;
+                break;
+            case ORIENTATION.NORTH:
+                bz = 1;
+                break;
+            case ORIENTATION.EAST:
+                bx = -1;
+                break;
+            case ORIENTATION.WEST:
+                bx = 1;
+                break;
+        }
+        const newFollowers = [];
+        for (let i = 0; i < maxMembers; i++) {
+            const memberIndex = firstIndex + i;
+            if (memberIndex >= Game.current.teamHeroes.length) {
+                break;
+            }
+            let initPos;
+            let initOri;
+            if (restoreStates && i < restoreStates.length) {
+                initPos = restoreStates[i].pos.clone();
+                initOri = restoreStates[i].orientationEye;
+            }
+            else if (restoreStates) {
+                const refPos = i > 0 && i - 1 < restoreStates.length ? restoreStates[i - 1].pos : Game.current.hero.position;
+                initPos = new THREE.Vector3(refPos.x + bx * spawnStep, refPos.y, refPos.z + bz * spawnStep);
+                initOri = Game.current.hero.orientationEye;
+            }
+            else {
+                initPos = new THREE.Vector3(Game.current.hero.position.x + ox * 0.25, Game.current.hero.position.y, Game.current.hero.position.z + oz * 0.25);
+                initOri = Game.current.hero.orientationEye;
+            }
+            const follower = new MapObject(Data.Systems.modelHero.system, initPos, true);
+            follower.isCaterpillarFollower = true;
+            follower.initializeProperties();
+            const player = Game.current.teamHeroes[memberIndex];
+            if (player.kind === CHARACTER_KIND.HERO) {
+                const heroData = Data.Heroes.get(player.id);
+                if (heroData && heroData.idCharacter !== -1) {
+                    for (let j = 0; j < follower.statesInstance.length; j++) {
+                        follower.statesInstance[j].graphicID = heroData.idCharacter;
+                    }
+                }
+            }
+            const changeStatePromise = follower.changeState();
+            follower.orientationEye = initOri;
+            follower.updateOrientation();
+            follower.updateUVs();
+            await changeStatePromise;
+            follower.orientationEye = initOri;
+            follower.updateOrientation();
+            follower.updateUVs();
+            follower.previousPosition =
+                restoreStates && i < restoreStates.length ? restoreStates[i].prevPos.clone() : initPos.clone();
+            newFollowers.push(follower);
+        }
+        return newFollowers;
+    }
+    /**
+     *  Sample the hero's current position into the trail.
+     */
+    updateHeroTrail() {
+        const heroPos = Game.current.hero.position;
+        if (this.heroTrailLastPos === null) {
+            this.heroTrailLastPos = heroPos.clone();
+            this.heroTrail = [{ pos: heroPos.clone(), dist: 0, orientation: Game.current.hero.orientationEye }];
+            this.heroTrailTotalDist = 0;
+            return;
+        }
+        const delta = heroPos.distanceTo(this.heroTrailLastPos);
+        if (delta > 0) {
+            this.heroTrailTotalDist += delta;
+            this.heroTrail.push({
+                pos: heroPos.clone(),
+                dist: this.heroTrailTotalDist,
+                orientation: Game.current.hero.orientationEye,
+            });
+            this.heroTrailLastPos = heroPos.clone();
+        }
+        const nFollowers = Game.current.caterpillarFollowers.length;
+        const maxNeeded = (nFollowers + 1) * Data.Systems.SQUARE_SIZE;
+        while (this.heroTrail.length > 1 && this.heroTrailTotalDist - this.heroTrail[0].dist > maxNeeded) {
+            this.heroTrail.shift();
+        }
+    }
+    /**
+     *  Get an interpolated position and orientation at a given trail distance.
+     */
+    getTrailAtDist(targetDist) {
+        if (this.heroTrail.length === 0) {
+            return { pos: Game.current.hero.position.clone(), orientation: Game.current.hero.orientationEye };
+        }
+        if (targetDist <= this.heroTrail[0].dist) {
+            return { pos: this.heroTrail[0].pos.clone(), orientation: this.heroTrail[0].orientation };
+        }
+        for (let i = 1; i < this.heroTrail.length; i++) {
+            if (this.heroTrail[i].dist >= targetDist) {
+                const t = (targetDist - this.heroTrail[i - 1].dist) / (this.heroTrail[i].dist - this.heroTrail[i - 1].dist);
+                return {
+                    pos: this.heroTrail[i - 1].pos.clone().lerp(this.heroTrail[i].pos, t),
+                    orientation: this.heroTrail[i].orientation,
+                };
+            }
+        }
+        const last = this.heroTrail[this.heroTrail.length - 1];
+        return { pos: last.pos.clone(), orientation: last.orientation };
+    }
 }
 Map.allowMainMenu = true;
 Map.allowSaves = true;
 Map.autotileFrame = new Frame(0);
 Map.autotilesOffset = new THREE.Vector2();
+Map.caterpillarNeedsRefresh = false;
 export { Map };
