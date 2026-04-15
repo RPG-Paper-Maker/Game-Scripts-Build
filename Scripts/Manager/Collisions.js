@@ -183,10 +183,9 @@ class Collisions {
         if (Data.Systems.showBB) {
             const box = Collisions.createBox();
             this.BB_BOX = box;
-            Scene.Map.current.scene.add(box);
-            setTimeout(() => {
-                Scene.Map.current.scene.remove(box);
-            }, 1);
+            const scene = Scene.Map.current.scene;
+            scene.add(box);
+            this._pendingBBFlash.push({ scene, box });
         }
         return this.BB_BOX;
     }
@@ -200,10 +199,9 @@ class Collisions {
         if (Data.Systems.showBB) {
             const box = Collisions.createOrientedBox();
             this.BB_ORIENTED_BOX = box;
-            Scene.Map.current.scene.add(box);
-            setTimeout(() => {
-                Scene.Map.current.scene.remove(box);
-            }, 1);
+            const scene = Scene.Map.current.scene;
+            scene.add(box);
+            this._pendingBBFlash.push({ scene, box });
         }
         return this.BB_ORIENTED_BOX;
     }
@@ -219,12 +217,21 @@ class Collisions {
             const box = Collisions.createBox(true);
             this.BB_BOX_DETECTION = box;
             box.geometry.boundingBox = new THREE.Box3();
-            Scene.Map.current.scene.add(box);
-            setTimeout(() => {
-                Scene.Map.current.scene.remove(box);
-            }, 1);
+            const scene = Scene.Map.current.scene;
+            scene.add(box);
+            this._pendingBBFlash.push({ scene, box });
         }
         return this.BB_BOX_DETECTION;
+    }
+    /**
+     *  Remove all BB flash meshes queued from the previous frame. Call once
+     *  per frame before any collision checks begin.
+     */
+    static flushBBFlash() {
+        for (const { scene, box } of this._pendingBBFlash) {
+            scene.remove(box);
+        }
+        this._pendingBBFlash = [];
     }
     /**
      *  Indicate if min and max are overlapping.
@@ -1407,4 +1414,5 @@ Collisions._scratchEuler = new THREE.Euler();
 Collisions._scratchEulerCenter = new THREE.Vector3();
 Collisions._scratchCollisionList = [];
 Collisions._scratchPortion = null;
+Collisions._pendingBBFlash = [];
 export { Collisions };
