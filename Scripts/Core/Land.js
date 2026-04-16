@@ -71,7 +71,7 @@ export class Land extends MapElement {
         geometry.pushQuadUVs(texA, texB, texC, texD);
         // Collision
         let objCollision = null;
-        if (collision !== null) {
+        if (collision != null) {
             const rect = collision.rect;
             if (!collision.hasAllDirections() || collision.terrain > 0) {
                 let rectB = rect === null
