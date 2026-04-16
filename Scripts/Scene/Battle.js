@@ -79,7 +79,7 @@ class Battle extends Map {
      */
     getPossibleTargets(targetKind) {
         if (targetKind === TARGET_KIND.USER) {
-            return [this.user.player];
+            return this.user ? [this.user.player] : [];
         }
         else if (targetKind === TARGET_KIND.NONE) {
             return [];
