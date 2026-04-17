@@ -50,23 +50,23 @@ class Songs {
         if (!ctx) {
             return;
         }
-        if (ctx.state !== 'running') {
-            try {
-                await ctx.resume();
+        try {
+            if (ctx.state !== 'running') {
+                await Promise.race([ctx.resume(), new Promise((resolve) => setTimeout(resolve, 3000))]);
             }
-            catch {
+            if (ctx.state !== 'running') {
                 return;
             }
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            gain.gain.value = 0.000001;
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(0);
         }
-        if (ctx.state !== 'running') {
+        catch {
             return;
         }
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        gain.gain.value = 0.000001;
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(0);
     }
     /**
      *  Play a music.
