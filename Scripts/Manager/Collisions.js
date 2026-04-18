@@ -777,7 +777,7 @@ class Collisions {
      *  @returns {boolean}
      */
     static checkIntersectionLand(collision, boundingBox, object) {
-        if (collision !== null) {
+        if (collision !== null || object.currentBoundingBox === null) {
             return false;
         }
         const box = this.getBBBox();
@@ -905,7 +905,7 @@ class Collisions {
      *  @returns {boolean}
      */
     static checkIntersectionSprite(boundingBox, fix, object, center) {
-        if (boundingBox === null) {
+        if (boundingBox === null || object.currentBoundingBox === null) {
             return false;
         }
         if (fix) {
@@ -1132,7 +1132,7 @@ class Collisions {
                 return pass ? [false, positionAfter.y >= y + h ? null : y + h] : [true, null];
             }
             else {
-                if (!pass) {
+                if (!pass && object.currentBoundingBox !== null) {
                     // Collide with BB (avoiding use of checkIntersectionSprite here for perfs issues)
                     const vertices = object.currentBoundingBox.geometry.getVertices();
                     let vy = 0;
@@ -1185,7 +1185,7 @@ class Collisions {
                 if (Mathf.isPointOnRectangle(point, x, x + Data.Systems.SQUARE_SIZE, z, z + Data.Systems.SQUARE_SIZE)) {
                     return pass ? [false, positionAfter.y >= y + h ? null : y + h] : [true, null];
                 }
-                else if (!pass) {
+                else if (!pass && object.currentBoundingBox !== null) {
                     const vertices = object.currentBoundingBox.geometry.getVertices();
                     for (let i = 0, l = vertices.length; i < l; i += 3) {
                         const vy = vertices[i + 1];

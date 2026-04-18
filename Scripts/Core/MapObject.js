@@ -724,6 +724,13 @@ class MapObject {
                 }
             }
         }
+        // No collision box: still detect terrain height without blocking
+        if (l === 0) {
+            result = Manager.Collisions.checkRay(this.position, position, this, []);
+            if (result[1] !== null) {
+                yMountain = result[1];
+            }
+        }
         if (blocked || (blocked === null && yMountain !== null)) {
             position = this.position.clone();
         }
@@ -881,6 +888,9 @@ class MapObject {
      *  @param {Vector3} position - Position to update
      */
     updateMeshBBPosition(mesh, bbSettings, position) {
+        if (!mesh) {
+            return;
+        }
         if (this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.SPRITES_FIX ||
             this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.OBJECT_3D) {
             Manager.Collisions.applyBoxSpriteTransforms(mesh, [
@@ -1557,34 +1567,36 @@ class MapObject {
      *  Get all the squares positions where you need to check collision.
      */
     getSquaresBB(direction = new THREE.Vector3()) {
+        const bbW = this.boundingBoxSettings?.w ?? 0;
+        const bbK = this.boundingBoxSettings?.k ?? false;
         let startI, endI, startJ, endJ, startK, endK;
         if (direction.x > 0) {
             startI = 0;
-            endI = this.boundingBoxSettings.w + 1;
+            endI = bbW + 1;
         }
         else if (direction.x < 0) {
-            startI = -this.boundingBoxSettings.w - 1;
+            startI = -bbW - 1;
             endI = 0;
         }
         else {
-            startI = -this.boundingBoxSettings.w - 1;
-            endI = this.boundingBoxSettings.w + 1;
+            startI = -bbW - 1;
+            endI = bbW + 1;
         }
-        if (this.boundingBoxSettings.k) {
+        if (bbK) {
             startK = 0;
             endK = 0;
         }
         else if (direction.z > 0) {
             startK = 0;
-            endK = this.boundingBoxSettings.w + 1;
+            endK = bbW + 1;
         }
         else if (direction.z < 0) {
-            startK = -this.boundingBoxSettings.w - 1;
+            startK = -bbW - 1;
             endK = 0;
         }
         else {
-            startK = -this.boundingBoxSettings.w - 1;
-            endK = this.boundingBoxSettings.w + 1;
+            startK = -bbW - 1;
+            endK = bbW + 1;
         }
         startJ = 0;
         endJ = 0;
