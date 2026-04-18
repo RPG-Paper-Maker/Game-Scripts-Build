@@ -20,7 +20,7 @@ import { Base } from './Base.js';
  *  @param {boolean} [reverse=false] - Indicate if the faceset should be reversed
  */
 class Player extends Base {
-    constructor(player, { isMainMenu = false, reverse = false, } = {}) {
+    constructor(player, { isMainMenu = false, reverse = false, useHeroesStatistics = false, } = {}) {
         super();
         this.battlerRect = new Rectangle();
         this.player = player;
@@ -50,7 +50,7 @@ class Player extends Base {
         this.maxStatNamesLength = 0;
         let statistics;
         let i, l;
-        if (this.isMainMenu) {
+        if (this.isMainMenu || useHeroesStatistics) {
             l = Data.Systems.heroesStatistics.length;
             statistics = new Array(l);
             for (i = 0; i < l; i++) {

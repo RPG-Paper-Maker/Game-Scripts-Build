@@ -110,6 +110,7 @@ class UseSkillItem extends Base {
     }
     updateGraphicCharactersEquip(equip) {
         this.graphicCharacters = [];
+        this.indexArrow = 0;
         let graphicPlayer, isPossible;
         for (const player of Game.current.teamHeroes) {
             isPossible = true;
