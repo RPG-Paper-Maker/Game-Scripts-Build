@@ -161,12 +161,16 @@ Platform.screenHeight = window.screen.height;
 Platform.canvas3D = document.getElementById('three-d');
 /** HUD (2D overlay) canvas. */
 Platform.canvasHUD = document.getElementById('hud');
+/** HUD canvas rendered below the video player (for index < 0 pictures). */
+Platform.canvasHUDBelow = document.getElementById('hud-below');
 /** Video rendering container element. */
 Platform.canvasVideos = document.getElementById('video-container');
 /** Offscreen rendering canvas. */
 Platform.canvasRendering = document.getElementById('rendering');
 /** HUD rendering context (2D). */
 Platform.ctx = Platform.canvasHUD.getContext('2d', { willReadFrequently: true });
+/** HUD rendering context for index < 0 pictures (below video player). */
+Platform.ctxBelow = Platform.canvasHUDBelow.getContext('2d', { willReadFrequently: true });
 /** Offscreen rendering context (2D). */
 Platform.ctxr = Platform.canvasRendering.getContext('2d', {
     willReadFrequently: true,
