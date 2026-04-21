@@ -104,7 +104,7 @@ export class BattleSystems {
         this.troopsBattlersOffset = DynamicValue.readOrDefaultMessage(json.troopsBattlersOffset, 'new THREE.Vector3(-i * Data.Systems.SQUARE_SIZE * 3 / 4, 0, i * Data.Systems.SQUARE_SIZE)');
         // Musics
         this.battleMusic = new PlaySong(SONG_KIND.MUSIC, json.bmusic);
-        this.battleLevelUp = new PlaySong(SONG_KIND.SOUND, json.blevelup);
+        this.battleLevelUp = new PlaySong(SONG_KIND.MUSIC_EFFECT, json.blevelup);
         this.battleVictory = new PlaySong(SONG_KIND.MUSIC, json.bvictory);
         // Options
         this.cameraMoveInBattle = Utils.valueOrDefault(json.cmib, true);
