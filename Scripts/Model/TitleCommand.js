@@ -33,6 +33,7 @@ export class TitleCommand extends Localization {
         Game.current.initializeDefault();
         // Add local map to stack
         Manager.Stack.replace(new Scene.Map(Data.Systems.ID_MAP_START_HERO));
+        Manager.Stack.clearHUD();
         return true;
     }
     /**
