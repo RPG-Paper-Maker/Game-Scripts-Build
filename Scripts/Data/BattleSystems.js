@@ -107,6 +107,7 @@ export class BattleSystems {
         this.battleLevelUp = new PlaySong(SONG_KIND.MUSIC_EFFECT, json.blevelup);
         this.battleVictory = new PlaySong(SONG_KIND.MUSIC, json.bvictory);
         // Options
+        this.allyDeadWinExp = DynamicValue.readOrDefaultSwitch(json.adwe, false);
         this.cameraMoveInBattle = Utils.valueOrDefault(json.cmib, true);
     }
 }

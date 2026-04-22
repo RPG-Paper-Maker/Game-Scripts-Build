@@ -70,11 +70,16 @@ class BattleVictory {
         }
         // Heroes
         let xp;
+        const allyDeadWinExp = Data.BattleSystems.allyDeadWinExp.getValue();
         for (battler of this.battle.battlers[CHARACTER_KIND.HERO]) {
             if (battler.player.isDead()) {
-                continue;
+                if (!allyDeadWinExp) {
+                    continue;
+                }
             }
-            battler.setVictory();
+            else {
+                battler.setVictory();
+            }
             xp = this.battle.xp;
             if (battler.player.experienceGain[0]) {
                 xp *= battler.player.experienceGain[0].multiplication;
@@ -204,16 +209,22 @@ class BattleVictory {
      *  Pause the team progression xp.
      */
     pauseTeamXP() {
+        const allyDeadWinExp = Data.BattleSystems.allyDeadWinExp.getValue();
         for (const battler of this.battle.battlers[CHARACTER_KIND.HERO]) {
-            battler.player.pauseExperience();
+            if (!battler.player.isDead() || allyDeadWinExp) {
+                battler.player.pauseExperience();
+            }
         }
     }
     /**
      *  Unpause the team progression xp.
      */
     unpauseTeamXP() {
+        const allyDeadWinExp = Data.BattleSystems.allyDeadWinExp.getValue();
         for (const battler of this.battle.battlers[CHARACTER_KIND.HERO]) {
-            battler.player.unpauseExperience();
+            if (!battler.player.isDead() || allyDeadWinExp) {
+                battler.player.unpauseExperience();
+            }
         }
         this.battle.user.player.updateRemainingXP(Scene.Battle.TIME_PROGRESSION_XP);
     }
@@ -254,9 +265,14 @@ class BattleVictory {
                     }
                     else {
                         // Pass xp
-                        for (const battler of this.battle.battlers[CHARACTER_KIND.HERO]) {
-                            battler.player.passExperience();
-                            battler.player.updateObtainedExperience();
+                        {
+                            const allyDeadWinExpPass = Data.BattleSystems.allyDeadWinExp.getValue();
+                            for (const battler of this.battle.battlers[CHARACTER_KIND.HERO]) {
+                                if (!battler.player.isDead() || allyDeadWinExpPass) {
+                                    battler.player.passExperience();
+                                    battler.player.updateObtainedExperience();
+                                }
+                            }
                         }
                     }
                 }
@@ -295,8 +311,14 @@ class BattleVictory {
                 if (new Date().getTime() - this.battle.time >= Scene.Battle.TIME_END_WAIT) {
                     this.battle.time = new Date().getTime();
                     this.battle.windowTopInformations.content = this.battle.graphicRewardTop;
-                    for (const battler of this.battle.battlers[CHARACTER_KIND.HERO]) {
-                        battler.player.updateRemainingXP(Scene.Battle.TIME_PROGRESSION_XP);
+                    {
+                        const allyDeadWinExpSub = Data.BattleSystems.allyDeadWinExp.getValue();
+                        for (const battler of this.battle.battlers[CHARACTER_KIND.HERO]) {
+                            if (battler.player.isDead() && !allyDeadWinExpSub) {
+                                continue;
+                            }
+                            battler.player.updateRemainingXP(Scene.Battle.TIME_PROGRESSION_XP);
+                        }
                     }
                     Manager.Stack.requestPaintHUD = true;
                     this.battle.subStep = 1;
