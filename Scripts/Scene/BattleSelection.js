@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Data, Graphic, Manager, Model, Scene } from "../index.js";
-import { AVAILABLE_KIND, BATTLE_STEP, CHARACTER_KIND, EFFECT_SPECIAL_ACTION_KIND, Interpreter, ITEM_KIND, STATUS_RESTRICTIONS_KIND, TARGET_KIND, } from '../Common/index.js';
+import { AVAILABLE_KIND, BATTLE_STEP, CHARACTER_KIND, EFFECT_KIND, EFFECT_SPECIAL_ACTION_KIND, Interpreter, ITEM_KIND, STATUS_RESTRICTIONS_KIND, TARGET_KIND, } from '../Common/index.js';
 import { Game } from '../Core/index.js';
 // -------------------------------------------------------
 //
@@ -290,6 +290,23 @@ class BattleSelection {
                 break;
         }
         const system = this.battle.windowChoicesBattleCommands.getCurrentContent().system;
+        for (const effect of system.effects) {
+            if (effect.kind === EFFECT_KIND.SPECIAL_ACTIONS) {
+                if (effect.specialActionKind === EFFECT_SPECIAL_ACTION_KIND.OPEN_SKILLS &&
+                    (this.battle.listSkills.length === 0 ||
+                        this.battle.user.containsRestriction(STATUS_RESTRICTIONS_KIND.CANT_USE_SKILLS))) {
+                    Data.Systems.soundImpossible.playSound();
+                    return;
+                }
+                if (effect.specialActionKind === EFFECT_SPECIAL_ACTION_KIND.OPEN_ITEMS &&
+                    (this.battle.listItems.length === 0 ||
+                        this.battle.user.containsRestriction(STATUS_RESTRICTIONS_KIND.CANT_USE_ITEMS))) {
+                    Data.Systems.soundImpossible.playSound();
+                    return;
+                }
+                break;
+            }
+        }
         if (isKey) {
             this.battle.windowChoicesBattleCommands.onKeyPressed(options.key, system);
         }

@@ -180,13 +180,16 @@ class MenuSkills extends Base {
                 break;
             case 1:
                 if (Scene.MenuBase.checkActionMenu(isKey, options)) {
-                    if (graphic.system.use()) {
+                    if (graphic.system.isPossible() && graphic.system.use()) {
                         graphic.system.sound.playSound();
                         this.windowBoxUseSkill.content.updateStats();
                         if (!graphic.system.isPossible()) {
                             this.substep = 0;
                         }
                         Manager.Stack.requestPaintHUD = true;
+                    }
+                    else {
+                        Data.Systems.soundImpossible.playSound();
                     }
                 }
                 else if (Scene.MenuBase.checkCancelMenu(isKey, options)) {
