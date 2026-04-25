@@ -26,14 +26,6 @@ class DisplayAPicture extends Base {
         iterator.i++;
         this.index = Model.DynamicValue.createValueCommand(command, iterator);
         this.centered = Utils.numberToBool(command[iterator.i++]);
-        if (this.centered) {
-            this.originX = ScreenResolution.SCREEN_X / 2;
-            this.originY = ScreenResolution.SCREEN_Y / 2;
-        }
-        else {
-            this.originX = 0;
-            this.originY = 0;
-        }
         this.x = Model.DynamicValue.createValueCommand(command, iterator);
         this.y = Model.DynamicValue.createValueCommand(command, iterator);
         this.zoom = Model.DynamicValue.createValueCommand(command, iterator);
@@ -51,16 +43,59 @@ class DisplayAPicture extends Base {
     update(currentState, object, state) {
         const currentIndex = this.index.getValue();
         const picture = Data.Pictures.getPictureCopy(PICTURE_KIND.PICTURES, this.pictureID.getValue());
-        picture.setX(this.originX + this.x.getValue());
-        picture.setY(this.originY + this.y.getValue());
+        const xVal = this.x.getValue();
+        const yVal = this.y.getValue();
+        if (this.stretch) {
+            const scaleX = ScreenResolution.CANVAS_WIDTH / Data.Systems.windowWidth;
+            const scaleY = ScreenResolution.CANVAS_HEIGHT / Data.Systems.windowHeight;
+            if (this.centered) {
+                picture.oX = Data.Systems.windowWidth / 2 + xVal;
+                picture.x = Math.round(ScreenResolution.CANVAS_WIDTH / 2 + xVal * scaleX);
+                picture.oY = Data.Systems.windowHeight / 2 + yVal;
+                picture.y = Math.round(ScreenResolution.CANVAS_HEIGHT / 2 + yVal * scaleY);
+            }
+            else {
+                picture.oX = xVal;
+                picture.x = Math.round(xVal * scaleX);
+                picture.oY = yVal;
+                picture.y = Math.round(yVal * scaleY);
+            }
+        }
+        else {
+            const minScale = Math.min(ScreenResolution.WINDOW_X, ScreenResolution.WINDOW_Y);
+            const offsetX = (ScreenResolution.CANVAS_WIDTH - ScreenResolution.SCREEN_X * minScale) / 2;
+            const offsetY = (ScreenResolution.CANVAS_HEIGHT - ScreenResolution.SCREEN_Y * minScale) / 2;
+            if (this.centered) {
+                picture.oX = Data.Systems.windowWidth / 2 + xVal;
+                picture.x = Math.round(ScreenResolution.CANVAS_WIDTH / 2 + ScreenResolution.getScreenMinXY(xVal));
+                picture.oY = Data.Systems.windowHeight / 2 + yVal;
+                picture.y = Math.round(ScreenResolution.CANVAS_HEIGHT / 2 + ScreenResolution.getScreenMinXY(yVal));
+            }
+            else {
+                picture.oX = xVal;
+                picture.x = Math.round(offsetX + ScreenResolution.getScreenMinXY(xVal));
+                picture.oY = yVal;
+                picture.y = Math.round(offsetY + ScreenResolution.getScreenMinXY(yVal));
+            }
+        }
         picture.centered = this.centered;
         picture.zoom = this.zoom.getValue() / 100;
         picture.opacity = this.opacity.getValue() / 100;
         picture.angle = this.angle.getValue();
-        if (this.stretch) {
-            picture.stretch = true;
-            picture.setW(picture.image.width);
-            picture.setH(picture.image.height);
+        if (!picture.empty && picture.loaded) {
+            if (this.stretch) {
+                picture.stretch = true;
+                picture.oW = picture.image.width;
+                picture.w = ScreenResolution.CANVAS_WIDTH;
+                picture.oH = picture.image.height;
+                picture.h = ScreenResolution.CANVAS_HEIGHT;
+            }
+            else {
+                picture.oW = picture.image.width;
+                picture.w = Math.round(ScreenResolution.getScreenMinXY(picture.image.width));
+                picture.oH = picture.image.height;
+                picture.h = Math.round(ScreenResolution.getScreenMinXY(picture.image.height));
+            }
         }
         const value = [currentIndex, picture];
         let ok = false;

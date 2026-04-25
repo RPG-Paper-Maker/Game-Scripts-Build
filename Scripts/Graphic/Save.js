@@ -69,9 +69,9 @@ class Save extends Base {
             this.graphicEmpty.draw(x, y, w, h);
         }
         else {
-            this.graphicTimer.draw(x, y, w, ScreenResolution.getScreenMinXY(20));
+            this.graphicTimer.draw(x, y, w, ScreenResolution.getScreenMinXY(30));
             for (let i = 0, l = this.graphicPlayers.length; i < l; i++) {
-                this.graphicPlayers[i].drawCharacter(x + ScreenResolution.getScreenMinXY(5 + i * 115), y + ScreenResolution.getScreenMinXY(20), w, h);
+                this.graphicPlayers[i].drawCharacter(x + ScreenResolution.getScreenMinXY(10 + i * 230), y + ScreenResolution.getScreenMinXY(30), w, h);
             }
         }
     }

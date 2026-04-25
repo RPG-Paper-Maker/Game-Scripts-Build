@@ -192,7 +192,7 @@ class UseSkillItem extends Base {
      *  @param {number} h - The h size
      */
     drawArrowAtIndex(index, x, y, h) {
-        Data.Systems.getCurrentWindowSkin().drawArrowTarget(this.graphicCharacters[index].battlerFrame.value, x + ScreenResolution.getScreenMinXY(32 + index * 85), y + h - ScreenResolution.getScreenMinXY(20));
+        Data.Systems.getCurrentWindowSkin().drawArrowTarget(this.graphicCharacters[index].battlerFrame.value, x + ScreenResolution.getScreenMinXY(64 + index * 170), y + h - ScreenResolution.getScreenMinXY(30));
     }
     /**
      *  Drawing the skill or item use informations.
@@ -214,7 +214,7 @@ class UseSkillItem extends Base {
     draw(x, y, w, h) {
         let i, l;
         for (i = 0, l = this.graphicCharacters.length; i < l; i++) {
-            this.graphicCharacters[i].drawCharacter(x + ScreenResolution.getScreenMinXY(5 + i * 85), y - ScreenResolution.getScreenMinXY(32), w, h);
+            this.graphicCharacters[i].drawCharacter(x + ScreenResolution.getScreenMinXY(10 + i * 170), y - ScreenResolution.getScreenMinXY(48), w, h);
         }
         if (!this.hideArrow) {
             if (this.all) {

@@ -139,16 +139,16 @@ class WindowBox extends Bitmap {
     }
 }
 WindowBox.NONE_PADDING = [0, 0, 0, 0];
-WindowBox.VERY_SMALL_PADDING_BOX = [5, 5, 5, 5];
-WindowBox.SMALL_PADDING_BOX = [10, 10, 10, 10];
-WindowBox.MEDIUM_PADDING_BOX = [20, 20, 20, 20];
-WindowBox.HUGE_PADDING_BOX = [30, 30, 30, 30];
-WindowBox.DIALOG_PADDING_BOX = [30, 50, 30, 50];
-WindowBox.SMALL_SLOT_PADDING = [10, 5, 10, 5];
-WindowBox.SMALL_SLOT_HEIGHT = 30;
-WindowBox.LARGE_SLOT_WIDTH = 250;
-WindowBox.MEDIUM_SLOT_WIDTH = 200;
-WindowBox.SMALL_SLOT_WIDTH = 100;
-WindowBox.MEDIUM_SLOT_HEIGHT = 40;
-WindowBox.LARGE_SLOT_HEIGHT = 60;
+WindowBox.VERY_SMALL_PADDING_BOX = [8, 8, 8, 8];
+WindowBox.SMALL_PADDING_BOX = [15, 15, 15, 15];
+WindowBox.MEDIUM_PADDING_BOX = [30, 30, 30, 30];
+WindowBox.HUGE_PADDING_BOX = [45, 45, 45, 45];
+WindowBox.DIALOG_PADDING_BOX = [45, 75, 45, 75];
+WindowBox.SMALL_SLOT_PADDING = [15, 8, 15, 8];
+WindowBox.SMALL_SLOT_HEIGHT = 45;
+WindowBox.LARGE_SLOT_WIDTH = 500;
+WindowBox.MEDIUM_SLOT_WIDTH = 400;
+WindowBox.SMALL_SLOT_WIDTH = 200;
+WindowBox.MEDIUM_SLOT_HEIGHT = 60;
+WindowBox.LARGE_SLOT_HEIGHT = 90;
 export { WindowBox };

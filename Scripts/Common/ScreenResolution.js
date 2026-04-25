@@ -82,6 +82,6 @@ export class ScreenResolution {
 // Base resolution
 // -------------------------------------------------------------------------
 /** Default screen width in pixels. */
-ScreenResolution.SCREEN_X = 640;
+ScreenResolution.SCREEN_X = 1280;
 /** Default screen height in pixels. */
-ScreenResolution.SCREEN_Y = 480;
+ScreenResolution.SCREEN_Y = 720;

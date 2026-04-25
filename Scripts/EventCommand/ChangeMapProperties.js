@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { SONG_KIND, Utils } from '../Common/index.js';
+import { Utils } from '../Common/index.js';
 import { Game } from '../Core/index.js';
 import { Model, Scene } from '../index.js';
 import { Base } from './Base.js';
@@ -30,11 +30,13 @@ class ChangeMapProperties extends Base {
         }
         this.isMusic = Utils.numberToBool(command[iterator.i++]);
         if (this.isMusic) {
-            this.music = Model.PlaySong.createValueCommand(command, iterator, SONG_KIND.MUSIC);
+            this.music = Model.DynamicValue.createValueCommand(command, iterator);
+            iterator.i++;
         }
         this.isBackgroundSound = Utils.numberToBool(command[iterator.i++]);
         if (this.isBackgroundSound) {
-            this.backgroundSound = Model.PlaySong.createValueCommand(command, iterator, SONG_KIND.BACKGROUND_SOUND);
+            this.backgroundSound = Model.DynamicValue.createValueCommand(command, iterator);
+            iterator.i++;
         }
         this.isCameraPropertiesID = Utils.numberToBool(command[iterator.i++]);
         if (this.isCameraPropertiesID) {
@@ -78,10 +80,22 @@ class ChangeMapProperties extends Base {
                 datas.tileset = this.tilesetID.getValue();
             }
             if (this.isMusic) {
-                datas.music = this.music.toJson();
+                datas.music = {
+                    isbi: true,
+                    vid: this.music.toJson(),
+                    v: Model.DynamicValue.createNumber(100).toJson(),
+                    is: false,
+                    ie: false,
+                };
             }
             if (this.isBackgroundSound) {
-                datas.backgroundSound = this.backgroundSound.toJson();
+                datas.backgroundSound = {
+                    isbi: true,
+                    vid: this.backgroundSound.toJson(),
+                    v: Model.DynamicValue.createNumber(100).toJson(),
+                    is: false,
+                    ie: false,
+                };
             }
             if (this.isCameraPropertiesID) {
                 datas.camera = this.cameraPropertiesID.getValue();

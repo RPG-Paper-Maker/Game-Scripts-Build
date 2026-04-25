@@ -49,14 +49,14 @@ class TextIcon extends Base {
      *  @returns {number}
      */
     getMaxHeight() {
-        return Math.max(this.graphicText.fontSize, ScreenResolution.getScreenMinXY(Data.Systems.iconsSize));
+        return Math.max(this.graphicText.fontSize, ScreenResolution.getScreenMinXY(Data.Systems.iconsSize) * 1.5);
     }
     /**
      *  Get the width.
      *  @returns {number}
      */
     getWidth() {
-        return ScreenResolution.getScreenMinXY(Data.Systems.iconsSize) + this.space + this.graphicText.textWidth;
+        return ScreenResolution.getScreenMinXY(Data.Systems.iconsSize) * 1.5 + this.space + this.graphicText.textWidth;
     }
     /**
      *  Set the text.
@@ -77,8 +77,8 @@ class TextIcon extends Base {
      *  @param {number} h - The height dimention to draw graphic
      */
     drawChoice(x, y, w, h) {
-        const iconWidth = ScreenResolution.getScreenMinXY(Data.Systems.iconsSize);
-        const iconHeight = ScreenResolution.getScreenMinXY(Data.Systems.iconsSize);
+        const iconWidth = ScreenResolution.getScreenMinXY(Data.Systems.iconsSize) * 1.5;
+        const iconHeight = ScreenResolution.getScreenMinXY(Data.Systems.iconsSize) * 1.5;
         // Align offset
         let offset;
         switch (this.align) {
@@ -99,8 +99,8 @@ class TextIcon extends Base {
             this.graphicIcon.draw({
                 x: x + offset,
                 y: y - iconHeight / 2 + h / 2,
-                w: Data.Systems.iconsSize,
-                h: Data.Systems.iconsSize,
+                w: Data.Systems.iconsSize * 1.5,
+                h: Data.Systems.iconsSize * 1.5,
                 sx: sx,
                 sy: sy,
                 sw: Data.Systems.iconsSize,
@@ -115,8 +115,8 @@ class TextIcon extends Base {
             this.graphicIcon.draw({
                 x: x + offset,
                 y: y - iconHeight / 2 + h / 2,
-                w: Data.Systems.iconsSize,
-                h: Data.Systems.iconsSize,
+                w: Data.Systems.iconsSize * 1.5,
+                h: Data.Systems.iconsSize * 1.5,
                 sx: sx,
                 sy: sy,
                 sw: Data.Systems.iconsSize,

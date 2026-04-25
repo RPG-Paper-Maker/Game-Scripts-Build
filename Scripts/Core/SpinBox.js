@@ -240,6 +240,6 @@ class SpinBox extends Bitmap {
         }
     }
 }
-SpinBox.DEFAULT_WIDTH = 150;
-SpinBox.DEFAULT_HEIGHT = 50;
+SpinBox.DEFAULT_WIDTH = 300;
+SpinBox.DEFAULT_HEIGHT = 75;
 export { SpinBox };

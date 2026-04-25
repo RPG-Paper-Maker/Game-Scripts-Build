@@ -30,22 +30,22 @@ class MenuInventory extends Base {
             menuKind[i] = new Graphic.Text(Data.Systems.inventoryFilters[i].name(), { align: ALIGN.CENTER });
         }
         // Per-tab widths adapted to each filter name text, capped at 100px with ellipsis
-        const MAX_TAB_WIDTH = 150;
+        const MAX_TAB_WIDTH = 300;
         const choiceWidths = menuKind.map((text) => {
             text.ellipsis = true;
-            return Math.min(MAX_TAB_WIDTH, Math.max(50, ScreenResolution.getScreenXReverse(text.textWidth) + 24));
+            return Math.min(MAX_TAB_WIDTH, Math.max(100, ScreenResolution.getScreenXReverse(text.textWidth) + 36));
         });
         // All the windows
-        this.windowTop = new WindowBox(20, 20, 200, 30, {
+        this.windowTop = new WindowBox(40, 30, 400, 45, {
             content: new Graphic.Text(this.title, { align: ALIGN.CENTER }),
         });
-        this.windowChoicesTabs = new WindowChoices(5, 60, ScreenResolution.SCREEN_X - 10, WindowBox.SMALL_SLOT_HEIGHT, menuKind, {
+        this.windowChoicesTabs = new WindowChoices(10, 90, ScreenResolution.SCREEN_X - 20, WindowBox.SMALL_SLOT_HEIGHT, menuKind, {
             orientation: ORIENTATION_WINDOW.HORIZONTAL,
             choiceWidths: choiceWidths,
         });
         this.createWindowChoicesList();
         this.createWindowBoxInformation();
-        this.windowEmpty = new WindowBox(10, 100, ScreenResolution.SCREEN_X - 20, WindowBox.SMALL_SLOT_HEIGHT, {
+        this.windowEmpty = new WindowBox(20, 150, ScreenResolution.SCREEN_X - 40, WindowBox.SMALL_SLOT_HEIGHT, {
             content: new Graphic.Text('Empty', { align: ALIGN.CENTER }),
             padding: WindowBox.SMALL_SLOT_PADDING,
         });
@@ -78,7 +78,7 @@ class MenuInventory extends Base {
      */
     createWindowBoxInformation() {
         const width = ScreenResolution.SCREEN_X - Constants.HUGE_SPACE * 2 - WindowBox.LARGE_SLOT_WIDTH - Constants.LARGE_SPACE;
-        const height = 215;
+        const height = 323;
         const rect = new Rectangle(ScreenResolution.SCREEN_X - Constants.HUGE_SPACE - width, Constants.HUGE_SPACE + (WindowBox.SMALL_SLOT_HEIGHT + Constants.LARGE_SPACE) * 2, width, height);
         const options = {
             padding: WindowBox.HUGE_PADDING_BOX,
@@ -90,7 +90,7 @@ class MenuInventory extends Base {
      */
     createWindowBoxUseItem() {
         const width = this.windowBoxInformation.oW;
-        const height = 140;
+        const height = 210;
         const rect = new Rectangle(ScreenResolution.SCREEN_X - Constants.HUGE_SPACE - width, this.windowBoxInformation.oY + this.windowBoxInformation.oH + Constants.MEDIUM_SPACE, width, height);
         const graphic = new Graphic.UseSkillItem();
         const options = {

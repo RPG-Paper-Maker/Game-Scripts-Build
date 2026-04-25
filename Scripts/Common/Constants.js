@@ -14,21 +14,21 @@
 export class Constants {
 }
 /** Default UI font size in pixels. */
-Constants.DEFAULT_FONT_SIZE = 13;
+Constants.DEFAULT_FONT_SIZE = 20;
 /** Default font family used across the UI. */
 Constants.DEFAULT_FONT_NAME = 'Arial';
 /** Base tile size in pixels. */
 Constants.BASIC_SQUARE_SIZE = 32;
 /** Small font size in pixels. */
-Constants.SMALL_FONT_SIZE = 8;
+Constants.SMALL_FONT_SIZE = 12;
 /** Medium font size in pixels. */
-Constants.MEDIUM_FONT_SIZE = 10;
+Constants.MEDIUM_FONT_SIZE = 15;
 /** Standard medium spacing in UI layouts. */
-Constants.MEDIUM_SPACE = 5;
+Constants.MEDIUM_SPACE = 8;
 /** Standard large spacing in UI layouts. */
-Constants.LARGE_SPACE = 10;
+Constants.LARGE_SPACE = 15;
 /** Standard huge spacing in UI layouts. */
-Constants.HUGE_SPACE = 20;
+Constants.HUGE_SPACE = 30;
 /** Raycasting distance constant (far). */
 Constants.PORTIONS_RAY_FAR = 0;
 /** Size of a map portion in tiles. */

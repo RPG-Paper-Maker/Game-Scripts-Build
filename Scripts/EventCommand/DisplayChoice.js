@@ -98,14 +98,14 @@ class DisplayChoice extends Base {
     initialize() {
         const maxItems = this.maxNumberChoices.getValue();
         this.windowChoices = new WindowChoices((ScreenResolution.SCREEN_X - this.maxWidth) / 2, ScreenResolution.SCREEN_Y -
-            10 -
-            150 -
+            15 -
+            225 -
             Math.min(this.choices.length, maxItems) * WindowBox.MEDIUM_SLOT_HEIGHT, this.maxWidth, WindowBox.MEDIUM_SLOT_HEIGHT, this.graphics, {
             nbItemsMax: maxItems,
         });
         // Move to right if show text before
         if (this.showText) {
-            this.windowChoices.setX(ScreenResolution.SCREEN_X - this.windowChoices.oW - 10);
+            this.windowChoices.setX(ScreenResolution.SCREEN_X - this.windowChoices.oW - 15);
         }
         return {
             index: -1,

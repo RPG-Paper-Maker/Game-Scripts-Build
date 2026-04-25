@@ -190,8 +190,8 @@ class KeyboardAssign extends Base {
         }
     }
 }
-KeyboardAssign.WINDOW_PRESS_WIDTH = 300;
-KeyboardAssign.WINDOW_PRESS_HEIGHT = 200;
+KeyboardAssign.WINDOW_PRESS_WIDTH = 600;
+KeyboardAssign.WINDOW_PRESS_HEIGHT = 300;
 KeyboardAssign.MAX_WAIT_TIME_FIRST = 3000;
 KeyboardAssign.MAX_WAIT_TIME = 1000;
 export { KeyboardAssign };

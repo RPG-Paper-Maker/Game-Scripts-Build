@@ -89,8 +89,8 @@ class InputNumber extends Base {
     initialize() {
         const spinBoxes = [];
         const digits = this.digits.getValue();
-        const w = 50;
-        const h = 50;
+        const w = 100;
+        const h = 75;
         const totalWidth = w * digits;
         const x = (ScreenResolution.SCREEN_X - totalWidth) / 2;
         const y = (ScreenResolution.SCREEN_Y - h) / 2;
