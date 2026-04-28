@@ -655,16 +655,31 @@ class MapObject {
         // The speed depends on the time elapsed since the last update
         const w = Scene.Map.current.mapProperties.length * Data.Systems.SQUARE_SIZE;
         const h = Scene.Map.current.mapProperties.width * Data.Systems.SQUARE_SIZE;
+        // Compute bounding box half-extents so the BB edge stops at the map border, not the sprite center
+        let halfBBX = 0;
+        let halfBBZ = 0;
+        const bb = this.boundingBoxSettings?.b;
+        if (bb) {
+            const isFace = this.currentStateInstance?.graphicKind === ELEMENT_MAP_KIND.SPRITES_FACE;
+            for (const b of bb) {
+                const ex = b[3] / 2 + Math.abs(b[0]);
+                const ez = (isFace ? b[3] : b[5]) / 2 + Math.abs(b[2]);
+                if (ex > halfBBX)
+                    halfBBX = ex;
+                if (ez > halfBBZ)
+                    halfBBZ = ez;
+            }
+        }
         let xPlus, zPlus, res;
         if (orientation === ORIENTATION.SOUTH || this.previousOrientation === ORIENTATION.SOUTH) {
             xPlus = distance * Mathf.cos((angle * Math.PI) / 180.0);
             zPlus = distance * Mathf.sin((angle * Math.PI) / 180.0);
             res = position.z - zPlus;
-            if (res >= 0 && res < h) {
+            if (res >= halfBBZ && res < h - halfBBZ) {
                 position.setZ(res);
             }
             res = position.x - xPlus;
-            if (res >= 0 && res < w) {
+            if (res >= halfBBX && res < w - halfBBX) {
                 position.setX(res);
             }
         }
@@ -672,11 +687,11 @@ class MapObject {
             xPlus = distance * Mathf.cos(((angle - 90.0) * Math.PI) / 180.0);
             zPlus = distance * Mathf.sin(((angle - 90.0) * Math.PI) / 180.0);
             res = position.x + xPlus;
-            if (res >= 0 && res < w) {
+            if (res >= halfBBX && res < w - halfBBX) {
                 position.setX(res);
             }
             res = position.z + zPlus;
-            if (res >= 0 && res < h) {
+            if (res >= halfBBZ && res < h - halfBBZ) {
                 position.setZ(res);
             }
         }
@@ -684,11 +699,11 @@ class MapObject {
             xPlus = distance * Mathf.cos((angle * Math.PI) / 180.0);
             zPlus = distance * Mathf.sin((angle * Math.PI) / 180.0);
             res = position.z + zPlus;
-            if (res >= 0 && res < h) {
+            if (res >= halfBBZ && res < h - halfBBZ) {
                 position.setZ(res);
             }
             res = position.x + xPlus;
-            if (res >= 0 && res < w) {
+            if (res >= halfBBX && res < w - halfBBX) {
                 position.setX(res);
             }
         }
@@ -696,11 +711,11 @@ class MapObject {
             xPlus = distance * Mathf.cos(((angle - 90.0) * Math.PI) / 180.0);
             zPlus = distance * Mathf.sin(((angle - 90.0) * Math.PI) / 180.0);
             res = position.x - xPlus;
-            if (res >= 0 && res < w) {
+            if (res >= halfBBX && res < w - halfBBX) {
                 position.setX(res);
             }
             res = position.z - zPlus;
-            if (res >= 0 && res < h) {
+            if (res >= halfBBZ && res < h - halfBBZ) {
                 position.setZ(res);
             }
         }
