@@ -77,5 +77,6 @@ export class Object3D extends SpecialElement {
         this.isTopLeft = Utils.valueOrDefault(json.itl, true);
         this.moveAnimationIndex = Utils.valueOrDefault(json.mai, -1);
         this.stopAnimationIndex = Utils.valueOrDefault(json.sai, -1);
+        this.segments = Utils.valueOrDefault(json.seg, 16);
     }
 }

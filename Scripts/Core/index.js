@@ -30,6 +30,7 @@ export * from "./Mountains.js";
 export * from "./Node.js";
 export * from "./Object3DBox.js";
 export * from "./Object3DCustom.js";
+export * from "./Object3DProcedural.js";
 export * from "./Picture2D.js";
 export * from "./Player.js";
 export * from "./Portion.js";

@@ -19,6 +19,7 @@ import { MapElement } from './MapElement.js';
 import { MapPortion } from './MapPortion.js';
 import { Object3DBox } from './Object3DBox.js';
 import { Object3DCustom } from './Object3DCustom.js';
+import { Object3DProcedural } from './Object3DProcedural.js';
 import { Portion } from './Portion.js';
 import { Position } from './Position.js';
 import { Rectangle } from './Rectangle.js';
@@ -517,6 +518,13 @@ class MapObject {
                 switch (objectData.shapeKind) {
                     case SHAPE_KIND.BOX:
                         object3D = Object3DBox.create(objectData);
+                        result = object3D.createGeometry(positionTranformation);
+                        break;
+                    case SHAPE_KIND.SPHERE:
+                    case SHAPE_KIND.CYLINDER:
+                    case SHAPE_KIND.CONE:
+                    case SHAPE_KIND.CAPSULE:
+                        object3D = Object3DProcedural.create(objectData);
                         result = object3D.createGeometry(positionTranformation);
                         break;
                     case SHAPE_KIND.CUSTOM:

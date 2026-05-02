@@ -22,6 +22,7 @@ import { Mountain } from './Mountain.js';
 import { Mountains } from './Mountains.js';
 import { Object3DBox } from './Object3DBox.js';
 import { Object3DCustom } from './Object3DCustom.js';
+import { Object3DProcedural } from './Object3DProcedural.js';
 import { Position } from './Position.js';
 import { Sprite } from './Sprite.js';
 import { SpriteWall } from './SpriteWall.js';
@@ -450,12 +451,10 @@ class MapPortion {
                         obj3D = new Object3DBox(v, datas);
                         break;
                     case SHAPE_KIND.SPHERE:
-                        break;
                     case SHAPE_KIND.CYLINDER:
-                        break;
                     case SHAPE_KIND.CONE:
-                        break;
                     case SHAPE_KIND.CAPSULE:
+                        obj3D = new Object3DProcedural(v, datas);
                         break;
                     case SHAPE_KIND.CUSTOM:
                         obj3D = new Object3DCustom(v, datas);
@@ -487,7 +486,7 @@ class MapPortion {
                 if (Manager.GL.getMaterialTexture(material)) {
                     const result = obj3D.updateGeometry(geometry, position, count);
                     obj.c = result[0];
-                    this.updateCollision(this.boundingBoxesObjects3D, result[1], position, datas.shapeKind === SHAPE_KIND.CUSTOM, Scene.Map.current.overflowObjects3D);
+                    this.updateCollision(this.boundingBoxesObjects3D, result[1], position, datas.shapeKind !== SHAPE_KIND.BOX, Scene.Map.current.overflowObjects3D);
                 }
             }
         }
