@@ -126,7 +126,9 @@ class Songs {
      *  @returns {boolean} Indicates if the song is stopped
      */
     static stopSong(kind, time, seconds, id = -1, pause = false) {
-        Model.PlaySong.currentPlayingMusic = new Model.PlaySong(SONG_KIND.MUSIC);
+        if (!pause) {
+            Model.PlaySong.currentPlayingMusic = new Model.PlaySong(SONG_KIND.MUSIC);
+        }
         const current = new Date().getTime();
         const ellapsedTime = current - time;
         const currentHowl = kind === SONG_KIND.SOUND ? this.currentSounds[id] : this.current[kind];
@@ -208,13 +210,33 @@ class Songs {
             this.currentStateMusicEffect = currentState;
         }
         if (this.currentStateMusicEffect !== currentState) {
-            return true;
+            if (this.musicEffectStep >= 2 &&
+                (this.current[SONG_KIND.MUSIC_EFFECT] === null || !this.current[SONG_KIND.MUSIC_EFFECT].playing())) {
+                if (this.musicEffectPausedHowl !== null &&
+                    this.musicEffectPausedHowl === this.current[SONG_KIND.MUSIC]) {
+                    this.musicEffectPausedHowl.play();
+                }
+                this.musicEffectPausedHowl = null;
+                this.currentStateMusicEffect = null;
+                this.musicEffectStep = 0;
+                this.currentStateMusicEffect = currentState;
+            }
+            else {
+                // Interrupt the current effect and let the new one take over immediately
+                if (this.current[SONG_KIND.MUSIC_EFFECT] !== null) {
+                    this.current[SONG_KIND.MUSIC_EFFECT].stop();
+                    this.current[SONG_KIND.MUSIC_EFFECT] = null;
+                }
+                this.musicEffectStep = 0;
+                this.currentStateMusicEffect = currentState;
+            }
         }
         if (this.musicEffectStep === 0) {
             this.playMusic(SONG_KIND.MUSIC_EFFECT, id, volume, null, null);
             this.musicEffectStep++;
         }
         if (this.musicEffectStep === 1) {
+            this.musicEffectPausedHowl = this.current[SONG_KIND.MUSIC];
             if (this.stopSong(SONG_KIND.MUSIC, currentState.timeStop, 0, -1, true)) {
                 this.musicEffectStep++;
             }
@@ -225,8 +247,15 @@ class Songs {
                     this.current[SONG_KIND.MUSIC_EFFECT].stop();
                     this.current[SONG_KIND.MUSIC_EFFECT] = null;
                 }
-                if (this.current[SONG_KIND.MUSIC] !== null) {
-                    this.current[SONG_KIND.MUSIC].play();
+                const musicChanged = this.musicEffectPausedHowl !== this.current[SONG_KIND.MUSIC];
+                if (!musicChanged && this.musicEffectPausedHowl !== null) {
+                    this.musicEffectPausedHowl.play();
+                }
+                this.musicEffectPausedHowl = null;
+                if (musicChanged) {
+                    this.musicEffectStep = 0;
+                    this.currentStateMusicEffect = null;
+                    return true;
                 }
                 currentState.timePlay = new Date().getTime();
                 this.musicEffectStep++;
@@ -315,9 +344,12 @@ class Songs {
             this.current[SONG_KIND.MUSIC_EFFECT].stop();
             this.current[SONG_KIND.MUSIC_EFFECT] = null;
         }
-        if (this.current[SONG_KIND.MUSIC] !== null && !this.current[SONG_KIND.MUSIC].playing()) {
-            this.current[SONG_KIND.MUSIC].play();
+        if (this.musicEffectPausedHowl !== null &&
+            this.musicEffectPausedHowl === this.current[SONG_KIND.MUSIC] &&
+            !this.musicEffectPausedHowl.playing()) {
+            this.musicEffectPausedHowl.play();
         }
+        this.musicEffectPausedHowl = null;
         this.musicEffectStep = 0;
         this.currentStateMusicEffect = null;
     }
@@ -338,6 +370,7 @@ class Songs {
             this.current[SONG_KIND.MUSIC_EFFECT] = null;
             this.musicEffectStep = 0;
             this.currentStateMusicEffect = null;
+            this.musicEffectPausedHowl = null;
         }
         for (const sound of this.currentSounds) {
             if (sound) {
@@ -357,4 +390,5 @@ Songs.current = [];
 Songs.progressionMusic = null;
 Songs.currentStateMusicEffect = null;
 Songs.keepAliveStarted = false;
+Songs.musicEffectPausedHowl = null;
 export { Songs };

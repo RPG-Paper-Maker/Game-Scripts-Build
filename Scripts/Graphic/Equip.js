@@ -22,7 +22,7 @@ class Equip extends Base {
     constructor(player, id, length, isPossible) {
         super();
         this.oLength = length;
-        this.length = ScreenResolution.getScreenMinXY(length);
+        this.length = ScreenResolution.getScreenX(length);
         this.isPossible = isPossible;
         const equiped = player.equip[id];
         // All the graphics
@@ -39,7 +39,7 @@ class Equip extends Base {
      */
     drawChoice(x, y, w, h) {
         this.graphicEquipmentName.draw(x, y, w, h);
-        const offset = this.length + ScreenResolution.getScreenMinXY(Constants.LARGE_SPACE);
+        const offset = this.length + ScreenResolution.getScreenX(Constants.LARGE_SPACE);
         this.graphicEquipment.draw(x + offset, y, w - offset, h);
     }
     /**
@@ -54,7 +54,7 @@ class Equip extends Base {
     }
     resize() {
         super.resize();
-        this.length = ScreenResolution.getScreenMinXY(this.oLength);
+        this.length = ScreenResolution.getScreenX(this.oLength);
     }
 }
 export { Equip };

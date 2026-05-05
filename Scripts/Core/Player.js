@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { CHARACTER_KIND, CHARACTERISTIC_KIND, CONDITION_HEROES_KIND, INCREASE_DECREASE_KIND, Interpreter, ITEM_KIND, Mathf, Platform, Utils, } from '../Common/index.js';
+import { CHARACTER_KIND, CHARACTERISTIC_KIND, CONDITION_HEROES_KIND, INCREASE_DECREASE_KIND, Interpreter, ITEM_KIND, Mathf, Platform, ScreenResolution, Utils, } from '../Common/index.js';
 import { Data, Graphic, Model } from '../index.js';
 import { Item } from './Item.js';
 import { Skill } from './Skill.js';
@@ -87,7 +87,7 @@ class Player {
             graphic.updateContextFont();
             maxLength = Math.max(Platform.ctx.measureText(graphic.text).width, maxLength);
         }
-        return maxLength;
+        return ScreenResolution.getScreenXReverse(maxLength);
     }
     /**
      *  Get the max size of equipment kind names.

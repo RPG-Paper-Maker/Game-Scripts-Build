@@ -214,7 +214,7 @@ class UseSkillItem extends Base {
     draw(x, y, w, h) {
         let i, l;
         for (i = 0, l = this.graphicCharacters.length; i < l; i++) {
-            this.graphicCharacters[i].drawCharacter(x + ScreenResolution.getScreenMinXY(10 + i * 170), y - ScreenResolution.getScreenMinXY(48), w, h);
+            this.graphicCharacters[i].drawCharacter(x + ScreenResolution.getScreenX(10) + ScreenResolution.getScreenMinXY(i * 170), y - ScreenResolution.getScreenMinXY(48), w, h);
         }
         if (!this.hideArrow) {
             if (this.all) {

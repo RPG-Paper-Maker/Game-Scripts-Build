@@ -178,13 +178,12 @@ class BattleInitialize {
     /** Initialize windows end
      */
     initializeWindowsEnd() {
-        this.battle.windowExperienceProgression = new WindowBox(Scene.Battle.WINDOW_EXPERIENCE_X, Scene.Battle.WINDOW_EXPERIENCE_Y, Scene.Battle.WINDOW_EXPERIENCE_WIDTH, Scene.Battle.WINDOW_EXPERIENCE_HEIGHT * Game.current.teamHeroes.length +
-            WindowBox.SMALL_PADDING_BOX[2] +
-            WindowBox.SMALL_PADDING_BOX[3], {
-            content: new Graphic.XPProgression(),
+        const graphicXP = new Graphic.XPProgression();
+        this.battle.windowExperienceProgression = new WindowBox(Scene.Battle.WINDOW_EXPERIENCE_X, Scene.Battle.WINDOW_EXPERIENCE_Y, Scene.Battle.WINDOW_EXPERIENCE_WIDTH, graphicXP.getHeight() + 2 * WindowBox.SMALL_PADDING_BOX[3], {
+            content: graphicXP,
             padding: WindowBox.SMALL_PADDING_BOX,
         });
-        this.battle.windowStatisticProgression = new WindowBox(Scene.Battle.WINDOW_STATS_X, Scene.Battle.WINDOW_STATS_Y, Scene.Battle.WINDOW_STATS_WIDTH, Scene.Battle.WINDOW_STATS_HEIGHT, {
+        this.battle.windowStatisticProgression = new WindowBox(Scene.Battle.WINDOW_STATS_X, Scene.Battle.WINDOW_STATS_Y, Scene.Battle.WINDOW_STATS_WIDTH, 2 * WindowBox.HUGE_PADDING_BOX[3], {
             padding: WindowBox.HUGE_PADDING_BOX,
         });
     }

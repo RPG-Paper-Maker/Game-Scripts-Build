@@ -48,7 +48,7 @@ class Loots extends Base {
      */
     draw(x, y, w, h) {
         for (let i = 0, l = this.graphicsLoots.length; i < l; i++) {
-            this.graphicsLoots[i].drawChoice(x, y + i * ScreenResolution.getScreenMinXY(30), w, ScreenResolution.getScreenMinXY(30));
+            this.graphicsLoots[i].drawChoice(x, y + i * ScreenResolution.getScreenY(30), w, ScreenResolution.getScreenY(30));
         }
     }
 }

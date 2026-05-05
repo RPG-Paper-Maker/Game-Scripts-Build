@@ -34,6 +34,16 @@ class XPProgression extends Base {
         }
     }
     /**
+     *  Get the content height in logical pixels.
+     *  @returns {number}
+     */
+    getHeight() {
+        const l = this.graphicCharacters.length;
+        if (l === 0)
+            return 0;
+        return (l - 1) * 90 + this.graphicCharacters[0].getChoiceHeight();
+    }
+    /**
      *  Drawing the progression.
      *  @param {number} x - The x position to draw graphic
      *  @param {number} y - The y position to draw graphic
@@ -52,7 +62,7 @@ class XPProgression extends Base {
      */
     draw(x, y, w, h) {
         for (let i = 0, l = this.graphicCharacters.length; i < l; i++) {
-            this.graphicCharacters[i].drawChoice(x, y + ScreenResolution.getScreenMinXY(i * 90), w, ScreenResolution.getScreenMinXY(85));
+            this.graphicCharacters[i].drawChoice(x, y + ScreenResolution.getScreenY(i * 90), w, ScreenResolution.getScreenY(85));
         }
     }
 }

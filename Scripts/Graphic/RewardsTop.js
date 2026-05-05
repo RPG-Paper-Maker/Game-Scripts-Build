@@ -46,24 +46,23 @@ class RewardsTop extends Base {
      */
     draw(x, y, w, h) {
         // Calculating offset for centering
-        let offsetWidth = this.graphicXP.textWidth;
-        ScreenResolution.getScreenMinXY(Constants.LARGE_SPACE);
+        let offsetWidth = this.graphicXP.textWidth + ScreenResolution.getScreenX(Constants.LARGE_SPACE);
         let i, l;
         for (i = 0, l = this.graphicCurrencies.length; i < l; i++) {
             offsetWidth +=
                 this.graphicCurrencies[i].getWidth() +
-                    ScreenResolution.getScreenMinXY(i < l - 1 ? Constants.LARGE_SPACE : 0);
+                    ScreenResolution.getScreenX(i < l - 1 ? Constants.LARGE_SPACE : 0);
         }
         offsetWidth = (w - offsetWidth) / 2;
         // Experience
         this.graphicXP.draw(x + offsetWidth, y, w, h);
-        offsetWidth += this.graphicXP.textWidth + ScreenResolution.getScreenMinXY(Constants.LARGE_SPACE);
+        offsetWidth += this.graphicXP.textWidth + ScreenResolution.getScreenX(Constants.LARGE_SPACE);
         // Currencies
         let currency;
         for (i = 0, l = this.graphicCurrencies.length; i < l; i++) {
             currency = this.graphicCurrencies[i];
             currency.draw(x + offsetWidth, y, w, h);
-            offsetWidth += currency.getWidth() + ScreenResolution.getScreenMinXY(Constants.LARGE_SPACE);
+            offsetWidth += currency.getWidth() + ScreenResolution.getScreenX(Constants.LARGE_SPACE);
         }
     }
 }
