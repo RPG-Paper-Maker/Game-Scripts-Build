@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { CHANGE_VARIABLES_OTHER_CHARACTERISTICS, CHARACTER_KIND, Mathf, Platform, SONG_KIND, VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND, } from '../Common/index.js';
+import { CHANGE_VARIABLES_OTHER_CHARACTERISTICS, CHARACTER_KIND, Interpreter, Mathf, Platform, SONG_KIND, VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND, } from '../Common/index.js';
 import { Game, Item, MapObject, Position } from '../Core/index.js';
 import { Data, Manager, Model, Scene } from '../index.js';
 import { Base } from './Base.js';
@@ -68,6 +68,9 @@ class ChangeVariables extends Base {
                 break;
             case 9: // Other characteristics
                 this.valueOtherCHARACTERISTIC_KIND = command[iterator.i++];
+                break;
+            case 10: // Script
+                this.valueScript = Model.DynamicValue.createMessage(String(command[iterator.i]));
                 break;
         }
     }
@@ -230,6 +233,12 @@ class ChangeVariables extends Base {
                             break;
                         }
                     }
+                    break;
+                case 10: // Script
+                    currentState.value = Interpreter.evaluate(this.valueScript.getValue(), {
+                        thisObject: object,
+                        addReturn: true,
+                    });
                     break;
             }
         }

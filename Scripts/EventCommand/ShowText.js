@@ -36,7 +36,7 @@ class ShowText extends Base {
             content: new Graphic.Message(this.message, this.facesetID, this.facesetIndexX, this.facesetIndexY),
             padding: WindowBox.HUGE_PADDING_BOX,
         });
-        this.windowInterlocutor = new WindowBox(this.windowMain.oX + 40, this.windowMain.oY - WindowBox.MEDIUM_SLOT_HEIGHT / 2, WindowBox.MEDIUM_SLOT_WIDTH, WindowBox.MEDIUM_SLOT_HEIGHT, {
+        this.windowInterlocutor = new WindowBox(this.windowMain.oX + WindowBox.MEDIUM_SLOT_HEIGHT / 2, this.windowMain.oY - WindowBox.MEDIUM_SLOT_HEIGHT / 2, WindowBox.MEDIUM_SLOT_WIDTH, WindowBox.MEDIUM_SLOT_HEIGHT, {
             content: new Graphic.Text('', { align: ALIGN.CENTER }),
             padding: WindowBox.SMALL_SLOT_PADDING,
         });
@@ -62,7 +62,7 @@ class ShowText extends Base {
         this.windowMain.setY(Utils.valueOrDefault(Data.Systems.dbOptions.v_y, 0));
         this.windowMain.setW(Utils.valueOrDefault(Data.Systems.dbOptions.v_w, 0));
         this.windowMain.setH(Utils.valueOrDefault(Data.Systems.dbOptions.v_h, 0));
-        this.windowInterlocutor.setX(this.windowMain.oX + 40);
+        this.windowInterlocutor.setX(this.windowMain.oX + WindowBox.MEDIUM_SLOT_HEIGHT / 2);
         this.windowInterlocutor.setY(this.windowMain.oY - WindowBox.MEDIUM_SLOT_HEIGHT / 2);
         this.windowMain.padding[0] = Utils.valueOrDefault(Data.Systems.dbOptions.v_pLeft, 0);
         this.windowMain.padding[1] = Utils.valueOrDefault(Data.Systems.dbOptions.v_pTop, 0);

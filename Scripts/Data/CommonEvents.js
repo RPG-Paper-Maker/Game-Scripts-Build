@@ -79,7 +79,7 @@ export class CommonEvents {
      */
     static async read() {
         const json = (await Platform.parseFileJSON(Paths.FILE_COMMON_EVENTS));
-        this.eventsSystem = Utils.readJSONMap(json.eventsSystem, CommonEvent);
+        this.eventsSystem = Utils.readJSONMap(CommonEvents.SYSTEM_EVENTS, CommonEvent);
         this.eventsUser = Utils.readJSONMap(json.eventsUser, CommonEvent);
         this.commonReactions = Utils.readJSONMap(json.commonReactors, CommonReaction);
         // Common objects
@@ -97,3 +97,36 @@ export class CommonEvents {
     }
 }
 CommonEvents.PROPERTY_STOCKED = 'stocked';
+CommonEvents.SYSTEM_EVENTS = [
+    { id: 1, name: 'Time', p: [
+            { id: 1, name: 'Interval', d: { k: 3, v: 0 } },
+            { id: 2, name: 'Repeat', d: { k: 10, v: true } },
+        ] },
+    { id: 2, name: 'Chronometer finished', p: [
+            { id: 1, name: 'ID', d: { k: 3, v: 0 } },
+        ] },
+    { id: 3, name: 'KeyPress', p: [
+            { id: 1, name: 'ID', d: { k: 1, v: null } },
+            { id: 2, name: 'Repeat', d: { k: 10, v: false } },
+            { id: 3, name: 'Immediate Repeat', d: { k: 10, v: false } },
+        ] },
+    { id: 4, name: 'KeyRelease', p: [
+            { id: 1, name: 'ID', d: { k: 1, v: null } },
+        ] },
+    { id: 5, name: 'MouseDown', p: [
+            { id: 1, name: 'x', d: { k: 3, v: 0 } },
+            { id: 2, name: 'y', d: { k: 3, v: 0 } },
+            { id: 3, name: 'Left', d: { k: 10, v: true } },
+            { id: 4, name: 'Repeat', d: { k: 10, v: false } },
+        ] },
+    { id: 6, name: 'MouseUp', p: [
+            { id: 1, name: 'x', d: { k: 3, v: 0 } },
+            { id: 2, name: 'y', d: { k: 3, v: 0 } },
+            { id: 3, name: 'Left', d: { k: 10, v: true } },
+        ] },
+    { id: 7, name: 'MouseMove', p: [
+            { id: 1, name: 'x', d: { k: 3, v: 0 } },
+            { id: 2, name: 'y', d: { k: 3, v: 0 } },
+        ] },
+    { id: 8, name: 'Closing main menu', p: [] },
+];
