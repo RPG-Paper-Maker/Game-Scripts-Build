@@ -145,6 +145,12 @@ class TitleScreen extends Base {
     /**
      *  @inheritdoc
      */
+    draw3D() {
+        Manager.GL.renderer.clear();
+    }
+    /**
+     *  @inheritdoc
+     */
     drawHUD() {
         if (Data.TitlescreenGameover.isTitleBackgroundImage && this.pictureBackground) {
             this.pictureBackground.draw();
