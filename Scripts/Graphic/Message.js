@@ -396,17 +396,17 @@ class Message extends Graphic.Base {
      *  @param {number} h - The height dimention to draw graphic
      */
     drawFaceset(x, y, w, h) {
+        const scaledH = ScreenResolution.getScreenY(Data.Systems.facesetScalingHeight);
+        const facesetY = scaledH <= h ? y + (h - scaledH) / 2 : y + h - scaledH;
         this.faceset.draw({
             x: x + Utils.valueOrDefault(ScreenResolution.getScreenX(Data.Systems.dbOptions.v_fX), 0),
-            y: y -
-                (ScreenResolution.getScreenY(Data.Systems.facesetScalingHeight) - h) / 2 +
-                Utils.valueOrDefault(ScreenResolution.getScreenY(Data.Systems.dbOptions.v_fY), 0),
+            y: facesetY + Utils.valueOrDefault(ScreenResolution.getScreenY(Data.Systems.dbOptions.v_fY), 0),
             w: Data.Systems.facesetScalingWidth,
             h: Data.Systems.facesetScalingHeight,
-            sx: this.facesetIndexX * Data.Systems.facesetsSize,
-            sy: this.facesetIndexY * Data.Systems.facesetsSize,
-            sw: Data.Systems.facesetsSize,
-            sh: Data.Systems.facesetsSize,
+            sx: this.facesetIndexX * Data.Systems.facesetsSizeWidth,
+            sy: this.facesetIndexY * Data.Systems.facesetsSizeHeight,
+            sw: Data.Systems.facesetsSizeWidth,
+            sh: Data.Systems.facesetsSizeHeight,
         });
     }
     /**
@@ -429,9 +429,6 @@ class Message extends Graphic.Base {
      *  according to screen resolution
      */
     draw(x = this.oX, y = this.oY, w = this.oW, h = this.oH) {
-        if (Data.Systems.dbOptions.v_fPosAbove) {
-            this.drawFaceset(x, y, w, h);
-        }
         const newX = x + (this.faceset.empty ? 0 : ScreenResolution.getScreenMinXY(Data.Systems.facesetScalingWidth) + ScreenResolution.getScreenX(Constants.HUGE_SPACE));
         const newY = y + ScreenResolution.getScreenY(Constants.HUGE_SPACE);
         const textAreaWidth = w - (newX - x);

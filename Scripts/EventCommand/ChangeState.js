@@ -27,6 +27,7 @@ class ChangeState extends Base {
         this.objectID = Model.DynamicValue.createValueCommand(command, iterator);
         this.idState = Model.DynamicValue.createValueCommand(command, iterator);
         this.operationKind = command[iterator.i++];
+        this.dontChangeOrientation = command[iterator.i++] === 1;
     }
     /**
      *  Add a state to an object.
@@ -206,7 +207,7 @@ class ChangeState extends Base {
                 }
             }
             if (currentState.map === Scene.Map.current) {
-                currentState.object.changeState();
+                currentState.object.changeState(this.dontChangeOrientation);
             }
             return 1;
         }

@@ -257,6 +257,8 @@ export class Systems {
         this.dbOptions.update();
         // Faceset options
         this.facesetsSize = Utils.valueOrDefault(json.facesetsSize, 128);
+        this.facesetsSizeWidth = Utils.valueOrDefault(json.facesetsSizeWidth, this.facesetsSize);
+        this.facesetsSizeHeight = Utils.valueOrDefault(json.facesetsSizeHeight, this.facesetsSize);
         this.facesetScalingWidth = Utils.valueOrDefault(json.facesetScalingWidth, 120);
         this.facesetScalingHeight = Utils.valueOrDefault(json.facesetScalingHeight, 120);
         // Icons size
