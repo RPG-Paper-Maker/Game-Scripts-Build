@@ -10,7 +10,7 @@
 */
 import * as THREE from 'three';
 import { Data, Manager, Model, Scene } from "../index.js";
-import { BATTLE_STEP, CHARACTER_KIND, MAP_TRANSITION_KIND, STATUS_RESTRICTIONS_KIND, TARGET_KIND, TROOP_REACTION_FREQUENCY_KIND, } from '../Common/index.js';
+import { BATTLE_STEP, CHARACTER_KIND, Constants, MAP_TRANSITION_KIND, STATUS_RESTRICTIONS_KIND, TARGET_KIND, TROOP_REACTION_FREQUENCY_KIND, } from '../Common/index.js';
 import { Camera, Game, ReactionInterpreter } from '../Core/index.js';
 import { Map } from './Map.js';
 /** @class
@@ -680,9 +680,9 @@ Battle.TIME_LINEAR_MUSIC_END = 500;
 Battle.TIME_LINEAR_MUSIC_START = 500;
 Battle.TIME_ACTION_ANIMATION = 2000;
 Battle.TIME_ACTION_NO_ANIMATION = 400;
-Battle.CAMERA_TICK = 0.05;
-Battle.CAMERA_OFFSET = 3;
-Battle.START_CAMERA_DISTANCE = 10;
+Battle.CAMERA_TICK = 0.05 / Constants.BASIC_SQUARE_SIZE;
+Battle.CAMERA_OFFSET = 3 / Constants.BASIC_SQUARE_SIZE;
+Battle.START_CAMERA_DISTANCE = 10 / Constants.BASIC_SQUARE_SIZE;
 Battle.WINDOW_PROFILE_WIDTH = 400;
 Battle.WINDOW_PROFILE_HEIGHT = 204;
 Battle.COMMANDS_NUMBER = 6;

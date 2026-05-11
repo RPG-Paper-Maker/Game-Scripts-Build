@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import * as THREE from 'three';
-import { Inputs, Mathf, Utils } from '../Common/index.js';
+import { Constants, Inputs, Mathf, Utils } from '../Common/index.js';
 import { MapObject } from '../Core/index.js';
 import { Data, Manager, Model, Scene } from '../index.js';
 import { Base } from './Base.js';
@@ -60,12 +60,12 @@ class MoveCamera extends Base {
     initialize() {
         const time = this.time.getValue() * 1000;
         const operation = Mathf.OPERATORS_NUMBERS[this.operation];
-        const finalX = operation(Scene.Map.current.camera.getThreeCamera().position.x, this.x.getValue() * (this.xSquare ? Data.Systems.SQUARE_SIZE : 1));
-        const finalY = operation(Scene.Map.current.camera.getThreeCamera().position.y, this.y.getValue() * (this.ySquare ? Data.Systems.SQUARE_SIZE : 1));
-        const finalZ = operation(Scene.Map.current.camera.getThreeCamera().position.z, this.z.getValue() * (this.zSquare ? Data.Systems.SQUARE_SIZE : 1));
+        const finalX = operation(Scene.Map.current.camera.getThreeCamera().position.x, this.x.getValue() / (this.xSquare ? 1 : Data.Systems.SQUARE_SIZE));
+        const finalY = operation(Scene.Map.current.camera.getThreeCamera().position.y, this.y.getValue() / (this.ySquare ? 1 : Data.Systems.SQUARE_SIZE));
+        const finalZ = operation(Scene.Map.current.camera.getThreeCamera().position.z, this.z.getValue() / (this.zSquare ? 1 : Data.Systems.SQUARE_SIZE));
         const finalH = operation(Scene.Map.current.camera.horizontalAngle, this.h.getValue());
         const finalV = operation(Scene.Map.current.camera.verticalAngle, this.v.getValue());
-        const finalDistance = operation(Scene.Map.current.camera.distance, this.distance.getValue());
+        const finalDistance = operation(Scene.Map.current.camera.distance, this.distance.getValue() / Constants.BASIC_SQUARE_SIZE);
         return {
             parallel: this.isWaitEnd,
             initialH: Scene.Map.current.camera.horizontalAngle,

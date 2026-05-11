@@ -9,14 +9,13 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Utils } from '../Common/index.js';
-import { Data } from '../index.js';
 import { Rectangle } from './Rectangle.js';
 /**
  * Represents collision settings inside a texture square.
  */
 export class CollisionSquare {
     constructor() {
-        this.rect = new Rectangle(0, 0, Data.Systems.SQUARE_SIZE, Data.Systems.SQUARE_SIZE);
+        this.rect = new Rectangle(0, 0, 1, 1);
         this.left = true;
         this.right = true;
         this.top = true;
@@ -42,13 +41,13 @@ export class CollisionSquare {
                 if (square !== null) {
                     if (square.x === 0 ||
                         square.y === 0 ||
-                        square.x + square.width === Data.Systems.SQUARE_SIZE ||
-                        square.y + square.height === Data.Systems.SQUARE_SIZE) {
+                        square.x + square.width === 1 ||
+                        square.y + square.height === 1) {
                         boolGrid[i + k] = true;
                     }
                     else {
-                        square.x += Data.Systems.SQUARE_SIZE * i;
-                        square.y += Data.Systems.SQUARE_SIZE * j;
+                        square.x += i;
+                        square.y += j;
                         result.push(square);
                         boolGrid[i + k] = false;
                     }
@@ -64,8 +63,8 @@ export class CollisionSquare {
                 if (boolGrid[i + k]) {
                     const s = squares[i + k];
                     const square = s.clone();
-                    square.x += Data.Systems.SQUARE_SIZE * i;
-                    square.y += Data.Systems.SQUARE_SIZE * j;
+                    square.x += i;
+                    square.y += j;
                     boolGrid[i + k] = false;
                     let tempW = -1;
                     for (let a = i + 1; a < w && tempW === -1; a++) {
@@ -73,7 +72,7 @@ export class CollisionSquare {
                         if (boolGrid[a + k]) {
                             const previous = squares[a + k - 1];
                             const current = squares[a + k];
-                            if (previous.x + previous.width === Data.Systems.SQUARE_SIZE && current.x === 0) {
+                            if (previous.x + previous.width === 1 && current.x === 0) {
                                 if (current.y === previous.y && current.height === previous.height) {
                                     c = true;
                                     boolGrid[a + k] = false;
@@ -93,7 +92,7 @@ export class CollisionSquare {
                             const previous = squares[a + kk - w];
                             const current = squares[a + kk];
                             if (!boolGrid[a + kk] ||
-                                previous.y + previous.height !== Data.Systems.SQUARE_SIZE ||
+                                previous.y + previous.height !== 1 ||
                                 current.y !== 0 ||
                                 current.x !== previous.x ||
                                 current.width !== previous.width) {
@@ -123,8 +122,8 @@ export class CollisionSquare {
      */
     static getBB(rect, w, h) {
         return [
-            (rect.x - (w * Data.Systems.SQUARE_SIZE - rect.x - rect.width)) / 2,
-            h * Data.Systems.SQUARE_SIZE - rect.y - rect.height / 2,
+            (rect.x - (w - rect.x - rect.width)) / 2,
+            h - rect.y - rect.height / 2,
             0,
             rect.width,
             rect.height,
@@ -155,7 +154,7 @@ export class CollisionSquare {
             this.rect =
                 rect === null
                     ? null
-                    : new Rectangle(Math.round((rect[0] * Data.Systems.SQUARE_SIZE) / 100), Math.round((rect[1] * Data.Systems.SQUARE_SIZE) / 100), Math.round((rect[2] * Data.Systems.SQUARE_SIZE) / 100), Math.round((rect[3] * Data.Systems.SQUARE_SIZE) / 100));
+                    : new Rectangle(rect[0] / 100, rect[1] / 100, rect[2] / 100, rect[3] / 100);
         }
     }
 }

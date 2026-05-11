@@ -19,15 +19,15 @@ export class Object3D extends SpecialElement {
     }
     /** Width in pixels. */
     widthPixels() {
-        return this.widthSquare * Data.Systems.SQUARE_SIZE + (this.widthPixel * Data.Systems.SQUARE_SIZE) / 100;
+        return this.widthSquare + this.widthPixel / 100;
     }
     /** Height in pixels. */
     heightPixels() {
-        return this.heightSquare * Data.Systems.SQUARE_SIZE + (this.heightPixel * Data.Systems.SQUARE_SIZE) / 100;
+        return this.heightSquare + this.heightPixel / 100;
     }
     /** Depth in pixels. */
     depthPixels() {
-        return this.depthSquare * Data.Systems.SQUARE_SIZE + (this.depthPixel * Data.Systems.SQUARE_SIZE) / 100;
+        return this.depthSquare + this.depthPixel / 100;
     }
     /** Width in squares. */
     width() {

@@ -165,19 +165,20 @@ class Map extends Base {
         if (this.mapProperties.isSunLight) {
             this.sunLight = new THREE.DirectionalLight(0xffffff, 2);
             this.sunLight.position.set(-1, 1.75, 1);
-            this.sunLight.position.multiplyScalar(Data.Systems.SQUARE_SIZE * 10);
+            this.sunLight.position.multiplyScalar(10);
             this.sunLight.target.position.set(0, 0, 0);
             this.scene.add(this.sunLight);
             this.sunLight.castShadow = true;
             this.sunLight.shadow.mapSize.width = 2048;
             this.sunLight.shadow.mapSize.height = 2048;
-            const d = Data.Systems.SQUARE_SIZE * 10;
+            const d = 10;
             this.sunLight.shadow.camera.left = -d;
             this.sunLight.shadow.camera.right = d;
             this.sunLight.shadow.camera.top = d;
             this.sunLight.shadow.camera.bottom = -d;
-            this.sunLight.shadow.camera.far = Data.Systems.SQUARE_SIZE * 350;
+            this.sunLight.shadow.camera.far = 350;
             this.sunLight.shadow.bias = -0.0003;
+            this.sunLight.shadow.normalBias = 0.5 / Constants.BASIC_SQUARE_SIZE;
         }
     }
     /**
@@ -753,8 +754,8 @@ class Map extends Base {
      *  @returns {number}
      */
     getWeatherPosition(portionsRay, offset = true) {
-        return (Math.random() * (Data.Systems.SQUARE_SIZE * Data.Systems.SQUARE_SIZE * (portionsRay * 2 + 1)) -
-            Data.Systems.SQUARE_SIZE * Data.Systems.SQUARE_SIZE * (portionsRay + (offset ? 0.5 : 0)));
+        const area = Constants.PORTION_SIZE * Constants.PORTION_SIZE / Constants.BASIC_SQUARE_SIZE;
+        return Math.random() * (area * (portionsRay * 2 + 1)) - area * (portionsRay + (offset ? 0.5 : 0));
     }
     /**
      *  Create the weather mesh system.
@@ -786,7 +787,7 @@ class Map extends Base {
             options.velocityAddition +
             ';}', { addReturn: false });
         let initialVelocity = Interpreter.evaluate(options.initialVelocity);
-        initialVelocity *= Data.Systems.SQUARE_SIZE / Constants.BASIC_SQUARE_SIZE;
+        initialVelocity /= Constants.BASIC_SQUARE_SIZE;
         const initialYRotation = Interpreter.evaluate(options.initialYRotation);
         const portionsRay = options.portionsRay;
         const particlesNumber = options.finalParticlesNumber;
@@ -803,7 +804,7 @@ class Map extends Base {
         geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
         const material = new THREE.PointsMaterial({
             color: options.isColor ? options.color.getHex() : 0xffffff,
-            size: options.size,
+            size: options.size / Constants.BASIC_SQUARE_SIZE,
             transparent: true,
             depthTest: options.depthTest,
             depthWrite: options.depthWrite,
@@ -887,7 +888,7 @@ class Map extends Base {
             return;
         }
         let initialVelocity = Interpreter.evaluate(options.initialVelocity);
-        initialVelocity *= Data.Systems.SQUARE_SIZE / Constants.BASIC_SQUARE_SIZE;
+        initialVelocity /= Constants.BASIC_SQUARE_SIZE;
         const initialYRotation = Interpreter.evaluate(options.initialYRotation);
         const portionsRay = options.portionsRay;
         const positionAttribute = points.geometry.getAttribute('position');
@@ -899,8 +900,8 @@ class Map extends Base {
             y = positionAttribute.getY(i);
             if (y <
                 points.material.size -
-                    Data.Systems.SQUARE_SIZE * Data.Systems.SQUARE_SIZE * portionsRay) {
-                y += Data.Systems.SQUARE_SIZE * Data.Systems.SQUARE_SIZE * (portionsRay + 1);
+                    (Constants.PORTION_SIZE * Constants.PORTION_SIZE / Constants.BASIC_SQUARE_SIZE) * portionsRay) {
+                y += (Constants.PORTION_SIZE * Constants.PORTION_SIZE / Constants.BASIC_SQUARE_SIZE) * (portionsRay + 1);
                 velocities[i] = initialVelocity;
                 rotationsAngle[i] = initialYRotation;
                 rotationsPoints[i] = Scene.Map.current.camera.target.position.clone();
@@ -915,8 +916,8 @@ class Map extends Base {
             positionAttribute.setX(i, v.x);
             positionAttribute.setZ(i, v.z);
             velocities[i] +=
-                (current ? this.addWeatherVelocity() : this.addPreviousWeatherVelocity()) *
-                    (Data.Systems.SQUARE_SIZE / Constants.BASIC_SQUARE_SIZE);
+                (current ? this.addWeatherVelocity() : this.addPreviousWeatherVelocity()) /
+                    Constants.BASIC_SQUARE_SIZE;
             positionAttribute.setY(i, v.y + velocities[i]);
         }
         positionAttribute.needsUpdate = true;
@@ -994,7 +995,7 @@ class Map extends Base {
                 this.updateHeroTrail();
                 for (let i = 0, l = Game.current.caterpillarFollowers.length; i < l; i++) {
                     const follower = Game.current.caterpillarFollowers[i];
-                    const targetDist = this.heroTrailTotalDist - (i + 1) * Data.Systems.SQUARE_SIZE;
+                    const targetDist = this.heroTrailTotalDist - (i + 1);
                     const { pos: targetPos, orientation: targetOri } = this.getTrailAtDist(targetDist);
                     const prevPos = follower.previousPosition ? follower.previousPosition.clone() : targetPos.clone();
                     follower.moving = prevPos.distanceTo(targetPos) > 0.1;
@@ -1032,7 +1033,7 @@ class Map extends Base {
             this.camera.hidingDistance = -1;
             const pointer = Manager.GL.toScreenPosition(this.camera.target.position
                 .clone()
-                .add(new THREE.Vector3(0, this.camera.target.height * Data.Systems.SQUARE_SIZE, 0)), this.camera.getThreeCamera())
+                .add(new THREE.Vector3(0, this.camera.target.height, 0)), this.camera.getThreeCamera())
                 .divide(new THREE.Vector2(ScreenResolution.CANVAS_WIDTH, ScreenResolution.CANVAS_HEIGHT))
                 .subScalar(0.5);
             pointer.setY(-pointer.y);
@@ -1043,8 +1044,8 @@ class Map extends Base {
             }
             let opacity = 1;
             if (this.camera.isHiding()) {
-                if (this.camera.hidingDistance < 2 * Data.Systems.SQUARE_SIZE) {
-                    if (this.camera.hidingDistance < Data.Systems.SQUARE_SIZE) {
+                if (this.camera.hidingDistance < 2) {
+                    if (this.camera.hidingDistance < 1) {
                         opacity = 0;
                     }
                     else {
@@ -1292,23 +1293,22 @@ class Map extends Base {
             }
             return [];
         }
-        const sq = Data.Systems.SQUARE_SIZE;
         let ox = 0, oz = 0;
         switch (Game.current.hero.orientationEye) {
             case ORIENTATION.SOUTH:
-                oz = -sq;
+                oz = -1;
                 break;
             case ORIENTATION.NORTH:
-                oz = sq;
+                oz = 1;
                 break;
             case ORIENTATION.EAST:
-                ox = -sq;
+                ox = -1;
                 break;
             case ORIENTATION.WEST:
-                ox = sq;
+                ox = 1;
                 break;
         }
-        const spawnStep = sq;
+        const spawnStep = 1;
         if (resetTrail) {
             const heroPos = Game.current.hero.position;
             const heroOri = Game.current.hero.orientationEye;
@@ -1410,7 +1410,7 @@ class Map extends Base {
             this.heroTrailLastPos = heroPos.clone();
         }
         const nFollowers = Game.current.caterpillarFollowers.length;
-        const maxNeeded = (nFollowers + 1) * Data.Systems.SQUARE_SIZE;
+        const maxNeeded = nFollowers + 1;
         while (this.heroTrail.length > 1 && this.heroTrailTotalDist - this.heroTrail[0].dist > maxNeeded) {
             this.heroTrail.shift();
         }

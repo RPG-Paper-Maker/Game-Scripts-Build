@@ -85,7 +85,7 @@ export class Shape extends Base {
             let result;
             if ((result = vertexPattern.exec(line))) {
                 // ["v 1.0 2.0 3.0", "1.0", "2.0", "3.0"]
-                const temp3D = new THREE.Vector3(parseFloat(result[1]) * Data.Systems.SQUARE_SIZE, parseFloat(result[2]) * Data.Systems.SQUARE_SIZE, parseFloat(result[3]) * Data.Systems.SQUARE_SIZE);
+                const temp3D = new THREE.Vector3(parseFloat(result[1]), parseFloat(result[2]), parseFloat(result[3]));
                 v.push(temp3D);
                 if (firstVertex) {
                     minVertex = temp3D.clone();
@@ -199,7 +199,7 @@ export class Shape extends Base {
             try {
                 const response = await fetch(url);
                 const buffer = await response.arrayBuffer();
-                const result = await Shape.parseGLTF(buffer, Data.Systems.SQUARE_SIZE);
+                const result = await Shape.parseGLTF(buffer, 1);
                 this.geometry = result.geometryData;
                 this.gltfScene = result.scene;
                 this.gltfAnimations = result.animations;

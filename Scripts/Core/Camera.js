@@ -8,6 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import * as THREE from 'three';
 import { Mathf, ScreenResolution } from '../Common/index.js';
 import { Data, Manager, Scene } from '../index.js';
 /** @class
@@ -18,6 +19,7 @@ import { Data, Manager, Scene } from '../index.js';
  */
 class Camera {
     constructor(cameraProperties, target) {
+        this._stableD = 0;
         this.hidingDistance = -1;
         this.previousHidingDistance = -1;
         this.hidingTime = 1;
@@ -221,7 +223,7 @@ class Camera {
      */
     updateTimer() {
         if (this.previousHidingDistance !== this.hidingDistance &&
-            Math.abs(this.previousHidingDistance - this.hidingDistance) > Data.Systems.SQUARE_SIZE) {
+            Math.abs(this.previousHidingDistance - this.hidingDistance) > 1) {
             this.hidingTime = 0;
             this.hidingStart = this.hidingCurrent;
             this.hidingEnd = this.isHiding() ? this.hidingDistance : this.distance;
@@ -251,22 +253,33 @@ class Camera {
         this.updateView();
         // Update light
         if (Scene.Map.current.mapProperties && Scene.Map.current.mapProperties.isSunLight) {
-            Scene.Map.current.sunLight.target.position.copy(this.targetPosition);
-            Scene.Map.current.sunLight.target.updateMatrixWorld();
-            Scene.Map.current.sunLight.position
-                .set(-1, 1.75, 1)
-                .multiplyScalar(Data.Systems.SQUARE_SIZE * 10)
-                .add(this.targetPosition);
-            const d = Math.max((Data.Systems.SQUARE_SIZE * this.distance) / 10, 400);
-            if (d !== Scene.Map.current.sunLight.shadow.camera.right) {
+            const d = Math.max(this.distance * 3.0, 10);
+            const far = Math.max(d * 2, 350);
+            if (this._stableD === 0 || Math.abs(d - this._stableD) / this._stableD > 0.05 || far !== Scene.Map.current.sunLight.shadow.camera.far) {
+                this._stableD = d;
                 Scene.Map.current.sunLight.shadow.camera.left = -d;
                 Scene.Map.current.sunLight.shadow.camera.right = d;
                 Scene.Map.current.sunLight.shadow.camera.top = d;
                 Scene.Map.current.sunLight.shadow.camera.bottom = -d;
+                Scene.Map.current.sunLight.shadow.camera.far = far;
                 Scene.Map.current.sunLight.shadow.camera.updateProjectionMatrix();
             }
+            const texelSize = (2 * this._stableD) / Scene.Map.current.sunLight.shadow.mapSize.x;
+            const snappedR = Math.round(Camera.SUN_RIGHT.dot(this.targetPosition) / texelSize) * texelSize;
+            const snappedU = Math.round(Camera.SUN_UP.dot(this.targetPosition) / texelSize) * texelSize;
+            Camera._snapTarget.set(0, 0, 0)
+                .addScaledVector(Camera.SUN_RIGHT, snappedR)
+                .addScaledVector(Camera.SUN_UP, snappedU)
+                .addScaledVector(Camera.SUN_FORWARD, Camera.SUN_FORWARD.dot(this.targetPosition));
+            Scene.Map.current.sunLight.target.position.copy(Camera._snapTarget);
+            Scene.Map.current.sunLight.target.updateMatrixWorld();
+            Scene.Map.current.sunLight.position.set(-1, 1.75, 1).multiplyScalar(10).add(Camera._snapTarget);
         }
     }
 }
 Camera.HIDDING_MOVE_TIME = 250;
+Camera.SUN_FORWARD = new THREE.Vector3(1, -1.75, -1).normalize();
+Camera.SUN_RIGHT = new THREE.Vector3(1, 0, 1).normalize();
+Camera.SUN_UP = new THREE.Vector3(Math.SQRT1_2 * (1.75 / 2.25), Math.SQRT1_2 * (2 / 2.25), -Math.SQRT1_2 * (1.75 / 2.25));
+Camera._snapTarget = new THREE.Vector3();
 export { Camera };

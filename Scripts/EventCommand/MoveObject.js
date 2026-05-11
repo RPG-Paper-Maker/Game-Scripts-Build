@@ -336,7 +336,7 @@ class MoveObject extends Base {
                 : Scene.Map.current.camera.horizontalAngle
             : -90.0;
         if (currentState.position === null && square) {
-            currentState.position = object.getFuturPosition(orientation, Data.Systems.SQUARE_SIZE, angle)[0];
+            currentState.position = object.getFuturPosition(orientation, 1, angle)[0];
         }
         if (object.previousMoveCommand === null && object.previousOrientation === null) {
             object.previousMoveCommand = this;
@@ -355,12 +355,12 @@ class MoveObject extends Base {
         else if (object.previousMoveCommand !== this) {
             object.otherMoveCommand = this;
         }
-        const distances = object.move(orientation, Data.Systems.SQUARE_SIZE - currentState.distance, angle, this.isCameraOrientation);
+        const distances = object.move(orientation, 1 - currentState.distance, angle, this.isCameraOrientation);
         currentState.distance += distances[0];
         currentState.normalDistance += distances[1];
         if (!square ||
-            (square && currentState.normalDistance >= Data.Systems.SQUARE_SIZE) ||
-            (square && currentState.distance >= Data.Systems.SQUARE_SIZE) ||
+            (square && currentState.normalDistance >= 1) ||
+            (square && currentState.distance >= 1) ||
             distances[0] === 0) {
             if (distances[0] === 0 && square && !this.isIgnore) {
                 currentState.position = null;
@@ -605,11 +605,10 @@ class MoveObject extends Base {
             if (currentState.currentTime === -1) {
                 currentState.currentTime = 0;
                 currentState.startJump = new THREE.Vector3(object.position.x, object.position.y, object.position.z);
-                const square = parameters.square ? Data.Systems.SQUARE_SIZE : 1;
-                currentState.endJump = new THREE.Vector3(parameters.x.getValue() * square + currentState.startJump.x, (parameters.y.getValue() * square + parameters.yPlus.getValue()) +
+                const square = parameters.square ? 1 : 1 / Data.Systems.SQUARE_SIZE;
+                currentState.endJump = new THREE.Vector3(parameters.x.getValue() * square + currentState.startJump.x, (parameters.y.getValue() * square + parameters.yPlus.getValue() / Data.Systems.SQUARE_SIZE) +
                     currentState.startJump.y, parameters.z.getValue() * square + currentState.startJump.z);
-                currentState.peak = (parameters.peakY.getValue() * Data.Systems.SQUARE_SIZE +
-                    parameters.peakYPlus.getValue());
+                currentState.peak = parameters.peakY.getValue() + parameters.peakYPlus.getValue() / Data.Systems.SQUARE_SIZE;
                 if (currentState.peak < currentState.endJump.y) {
                     Platform.showErrorMessage('Move object command: jump peak cannot be lower than final y position offset. Final position=' +
                         currentState.endJump.y +

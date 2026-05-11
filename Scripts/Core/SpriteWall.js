@@ -52,7 +52,7 @@ class SpriteWall extends MapElement {
         const vecC = new THREE.Vector3(0.5, 0.0, 0.0);
         const vecD = new THREE.Vector3(-0.5, 0.0, 0.0);
         const center = new THREE.Vector3();
-        const size = new THREE.Vector3(Data.Systems.SQUARE_SIZE, height, 0);
+        const size = new THREE.Vector3(1, height / Data.Systems.SQUARE_SIZE, 0);
         const angle = position.angleY;
         const localPosition = position.toVector3();
         // Scale
@@ -100,7 +100,7 @@ class SpriteWall extends MapElement {
                     l: localPosition,
                     b: [
                         localPosition.x,
-                        localPosition.y + Math.floor((textureRect.height * Data.Systems.SQUARE_SIZE - rect.y) / 2),
+                        localPosition.y + (textureRect.height - rect.y) / 2,
                         localPosition.z,
                         rect.width,
                         rect.height - 0.001, // Small offset for climbing collisions stuff
@@ -120,7 +120,7 @@ class SpriteWall extends MapElement {
                         l: localPosition,
                         b: [
                             localPosition.x + x,
-                            localPosition.y + Math.floor((textureRect.height * Data.Systems.SQUARE_SIZE - y) / 2),
+                            localPosition.y + (textureRect.height - y) / 2,
                             localPosition.z,
                             rect.width,
                             rect.height,

@@ -10,7 +10,6 @@
 */
 import * as THREE from 'three';
 import { Mathf, OBJECT_COLLISION_KIND } from '../Common/index.js';
-import { Data } from '../index.js';
 import { CustomGeometry } from './CustomGeometry.js';
 import { Object3D } from './Object3D.js';
 import { Sprite } from './Sprite.js';
@@ -66,8 +65,8 @@ class Object3DBox extends Object3D {
         const coef = 0.01;
         const localPosition = position.toVector3(false);
         if (this.datas.isTopLeft) {
-            localPosition.setX(localPosition.x - Math.floor(Data.Systems.SQUARE_SIZE / 2) + position.getPixelsCenterX() + coef);
-            localPosition.setZ(localPosition.z - Math.floor(Data.Systems.SQUARE_SIZE / 2) + position.getPixelsCenterZ() + coef);
+            localPosition.setX(localPosition.x - 0.5 + position.getPixelsCenterX() + coef);
+            localPosition.setZ(localPosition.z - 0.5 + position.getPixelsCenterZ() + coef);
         }
         else {
             localPosition.setX(localPosition.x + position.getPixelsCenterX() + coef);

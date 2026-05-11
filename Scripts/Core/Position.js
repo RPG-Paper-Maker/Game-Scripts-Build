@@ -10,7 +10,6 @@
 */
 import * as THREE from 'three';
 import { Constants, Mathf } from '../Common/index.js';
-import { Data } from '../index.js';
 import { Portion } from './Portion.js';
 /** @class
  *  The data class for position.
@@ -59,7 +58,7 @@ class Position extends Portion {
      *  @returns {Position}
      */
     static createFromVector3(position) {
-        return new Position(Math.floor(position.x / Data.Systems.SQUARE_SIZE), Math.floor(position.y / Data.Systems.SQUARE_SIZE), Math.floor(position.z / Data.Systems.SQUARE_SIZE));
+        return new Position(Math.floor(position.x), Math.floor(position.y), Math.floor(position.z));
     }
     /**
      *  Test if a position is equal to another.
@@ -83,21 +82,21 @@ class Position extends Portion {
      *   @returns {number}
      */
     getTotalY() {
-        return this.y * Data.Systems.SQUARE_SIZE + (this.yPixels * Data.Systems.SQUARE_SIZE) / 100;
+        return this.y + this.yPixels / 100;
     }
     /**
-     *  Get the complete number of pixels for x center.
+     *  Get the center X fractional offset within the square (0–1).
      *  @returns {number}
      */
     getPixelsCenterX() {
-        return Math.floor((this.centerX * Data.Systems.SQUARE_SIZE) / 100);
+        return this.centerX / 100;
     }
     /**
-     *  Get the complete number of pixels for z center.
+     *  Get the center Z fractional offset within the square (0–1).
      *  @returns {number}
      */
     getPixelsCenterZ() {
-        return Math.floor((this.centerZ * Data.Systems.SQUARE_SIZE) / 100);
+        return this.centerZ / 100;
     }
     /**
      *  Get the global portion of a json position.
@@ -118,7 +117,7 @@ class Position extends Portion {
      *  @returns {Vector3}
      */
     toVector3(center = true) {
-        return new THREE.Vector3(this.x * Data.Systems.SQUARE_SIZE + (center ? (this.centerX / 100) * Data.Systems.SQUARE_SIZE : 0), this.y * Data.Systems.SQUARE_SIZE + (this.yPixels * Data.Systems.SQUARE_SIZE) / 100, this.z * Data.Systems.SQUARE_SIZE + (center ? (this.centerZ / 100) * Data.Systems.SQUARE_SIZE : 0));
+        return new THREE.Vector3(this.x + (center ? this.centerX / 100 : 0), this.y + this.yPixels / 100, this.z + (center ? this.centerZ / 100 : 0));
     }
     toRotationEuler() {
         return new THREE.Euler(Mathf.degreesToRadians(this.angleX), Mathf.degreesToRadians(this.angleY), Mathf.degreesToRadians(this.angleZ));

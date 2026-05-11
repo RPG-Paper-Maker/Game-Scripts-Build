@@ -536,7 +536,7 @@ class MapObject {
                             const gltfShape = Data.Shapes.get(CUSTOM_SHAPE_KIND.GLTF, objectData.gltfID);
                             if (gltfShape?.gltfScene) {
                                 this.gltfGroup = gltfShape.gltfScene.clone(true);
-                                const s = Data.Systems.SQUARE_SIZE * objectData.scale;
+                                const s = objectData.scale;
                                 this.gltfGroup.scale.set(s * positionTranformation.scaleX, s * positionTranformation.scaleY, s * positionTranformation.scaleZ);
                                 let initOrientAngle = 0;
                                 switch (this.orientationEye) {
@@ -596,7 +596,7 @@ class MapObject {
                 }
                 const sprite = Sprite.create(this.currentStateInstance.graphicKind, new Rectangle(x, y, this.width, this.height));
                 result = sprite.createGeometry(this.width, this.height, this.currentStateInstance.graphicID === 0, positionTranformation);
-                this.currentCenterOffset.set(positionTranformation.getPixelsCenterX() - Data.Systems.SQUARE_SIZE / 2, 0, positionTranformation.getPixelsCenterZ() - Data.Systems.SQUARE_SIZE / 2);
+                this.currentCenterOffset.set(positionTranformation.getPixelsCenterX() - 0.5, 0, positionTranformation.getPixelsCenterZ() - 0.5);
             }
             const geometry = result[0];
             const objCollision = result[1];
@@ -663,8 +663,8 @@ class MapObject {
     getFuturPosition(orientation, distance, angle) {
         let position = new THREE.Vector3(this.previousPosition.x, this.previousPosition.y, this.previousPosition.z);
         // The speed depends on the time elapsed since the last update
-        const w = Scene.Map.current.mapProperties.length * Data.Systems.SQUARE_SIZE;
-        const h = Scene.Map.current.mapProperties.width * Data.Systems.SQUARE_SIZE;
+        const w = Scene.Map.current.mapProperties.length;
+        const h = Scene.Map.current.mapProperties.width;
         // Compute bounding box half-extents so the BB edge stops at the map border, not the sprite center
         let halfBBX = 0;
         let halfBBZ = 0;
@@ -811,11 +811,11 @@ class MapObject {
         if (l === 0) {
             Manager.Collisions.applyBoxSpriteTransforms(Manager.Collisions.BB_BOX_DEFAULT_DETECTION, [
                 this.position.x,
-                this.position.y + Data.Systems.SQUARE_SIZE / 2,
+                this.position.y + 0.5,
                 this.position.z,
-                Data.Systems.SQUARE_SIZE,
-                Data.Systems.SQUARE_SIZE,
-                Data.Systems.SQUARE_SIZE,
+                1,
+                1,
+                1,
                 0,
                 0,
                 0,
@@ -860,7 +860,7 @@ class MapObject {
                             this.currentAngle.y,
                             this.currentAngle.x,
                             this.currentAngle.z,
-                        ], true, [0, this.boundingBoxSettings.b[i][1] / 2 / Data.Systems.SQUARE_SIZE, 0]);
+                        ], true, [0, this.boundingBoxSettings.b[i][1] / 2, 0]);
                     }
                     else {
                         box = Manager.Collisions.createOrientedBox();
@@ -961,8 +961,7 @@ class MapObject {
         // Set position
         let speed = this.speed.getValue() *
             MapObject.SPEED_NORMAL *
-            Manager.Stack.averageElapsedTime *
-            Data.Systems.SQUARE_SIZE;
+            Manager.Stack.averageElapsedTime;
         if (this.previousOrientation !== null && this.previousOrientation !== this.orientation) {
             // If already climbing, ignore
             if (this.isClimbing && this.previousOrientation % 2 !== this.orientation % 2) {
@@ -1287,7 +1286,7 @@ class MapObject {
                     frame = this.frame.update(Data.Systems.mapFrameDuration.getValue() / this.speed.getValue());
                 }
                 // Update mesh position
-                const offset = this.currentStateInstance.pixelOffset && this.frame.value % 2 !== 0 ? 1 : 0;
+                const offset = this.currentStateInstance.pixelOffset && this.frame.value % 2 !== 0 ? 1 / Data.Systems.SQUARE_SIZE : 0;
                 this.mesh.position.set(this.position.x, this.position.y + offset, this.position.z);
             }
             else {
@@ -1303,7 +1302,7 @@ class MapObject {
                     this.isOrientationStopWalk &&
                     this.currentStateInstance.pixelOffset &&
                     this.frame.value % 2 !== 0
-                    ? 1
+                    ? 1 / Data.Systems.SQUARE_SIZE
                     : 0;
                 this.mesh.position.set(this.position.x, this.position.y + offset, this.position.z);
                 // Update angle
@@ -1373,8 +1372,8 @@ class MapObject {
         // Positions
         if (this.position) {
             this.previousPosition = this.position;
-            this.upPosition = new THREE.Vector3(this.position.x, this.position.y + this.height * Data.Systems.SQUARE_SIZE, this.position.z);
-            this.halfPosition = new THREE.Vector3(this.position.x, this.position.y + (this.height * Data.Systems.SQUARE_SIZE) / 2, this.position.z);
+            this.upPosition = new THREE.Vector3(this.position.x, this.position.y + this.height, this.position.z);
+            this.halfPosition = new THREE.Vector3(this.position.x, this.position.y + this.height / 2, this.position.z);
         }
         // Climbing up
         if (!this.moving) {

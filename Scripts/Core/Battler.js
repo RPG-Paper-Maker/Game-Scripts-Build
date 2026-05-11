@@ -22,6 +22,7 @@ import { Status } from './Status.js';
  * Represents a battler in battle (ally or enemy) including its mesh, animations, and HUD.
  */
 export class Battler {
+    static get OFFSET_SELECTED() { return 10 / Data.Systems.SQUARE_SIZE; }
     constructor(player, isEnemy = false, position, vect, camera) {
         this.itemsNumbers = [];
         this.animationOffset = new THREE.Vector2();
@@ -108,10 +109,10 @@ export class Battler {
             this.mesh.receiveShadow = true;
             this.mesh.castShadow = true;
             this.mesh.customDepthMaterial = material.userData.customDepthMaterial;
-            this.topLeftPosition = new THREE.Vector3(this.position.x - (this.width / 2) * Data.Systems.SQUARE_SIZE, this.position.y + this.height * Data.Systems.SQUARE_SIZE, this.position.z);
-            this.botRightPosition = new THREE.Vector3(this.position.x + (this.width / 2) * Data.Systems.SQUARE_SIZE, this.position.y, this.position.z);
-            this.upPosition = new THREE.Vector3(this.position.x, this.position.y + this.height * Data.Systems.SQUARE_SIZE, this.position.z);
-            this.halfPosition = new THREE.Vector3(this.position.x, this.position.y + (this.height * Data.Systems.SQUARE_SIZE) / 2, this.position.z);
+            this.topLeftPosition = new THREE.Vector3(this.position.x - this.width / 2, this.position.y + this.height, this.position.z);
+            this.botRightPosition = new THREE.Vector3(this.position.x + this.width / 2, this.position.y, this.position.z);
+            this.upPosition = new THREE.Vector3(this.position.x, this.position.y + this.height, this.position.z);
+            this.halfPosition = new THREE.Vector3(this.position.x, this.position.y + this.height / 2, this.position.z);
             if (this.isEnemy) {
                 this.mesh.scale.set(-1, 1, 1);
             }
@@ -545,7 +546,6 @@ export class Battler {
         this.drawStatus();
     }
 }
-Battler.OFFSET_SELECTED = 10;
 Battler.TIME_MOVE = 200;
 Battler.TIME_RUN = 250;
 Battler.TOTAL_TIME_DAMAGE = 250;
