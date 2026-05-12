@@ -133,7 +133,7 @@ class GL {
             map: opts.texture,
             side: opts.side,
             transparent: true,
-            alphaTest: 0,
+            alphaTest: 0.01,
             opacity: opts.opacity,
             shininess: 0,
             specular: new THREE.Color(0x000000),
