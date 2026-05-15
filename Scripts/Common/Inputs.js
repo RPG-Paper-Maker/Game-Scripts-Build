@@ -9,6 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Data, Manager, Scene } from "../index.js";
+import { Platform } from './Platform.js';
 import { Main } from '../main.js';
 /**
  * Enumeration for mouse button codes.
@@ -101,7 +102,13 @@ export class Inputs {
             return;
         }
         const key = event.key.toUpperCase();
-        // Fullscreen toggle
+        // Alt+F4: quit immediately
+        if (key === 'F4' && event.altKey) {
+            event.preventDefault();
+            Platform.quit();
+            return;
+        }
+        // Fullscreen toggle (F4 alone, or Alt/Shift+Enter)
         if (key === 'F4' || (event.code === 'Enter' && (event.altKey || event.shiftKey))) {
             Data.Systems.switchFullscreen();
             event.preventDefault();
