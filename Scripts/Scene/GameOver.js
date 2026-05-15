@@ -40,11 +40,21 @@ class GameOver extends Base {
         Manager.Videos.stop();
         Manager.Songs.stopAll();
         // Creating background (video plays behind, image draws on top)
-        if (Data.TitlescreenGameover.isGameOverBackgroundVideo) {
-            await Manager.Videos.play(Data.Videos.get(Data.TitlescreenGameover.gameOverBackgroundVideoID).getPath(), null, true);
+        if (Data.TitlescreenGameover.isGameOverBackgroundVideo && Data.Videos.has(Data.TitlescreenGameover.gameOverBackgroundVideoID)) {
+            try {
+                await Manager.Videos.play(Data.Videos.get(Data.TitlescreenGameover.gameOverBackgroundVideoID).getPath(), null, true);
+            }
+            catch {
+                Manager.Videos.stop();
+            }
         }
         if (Data.TitlescreenGameover.isGameOverBackgroundImage) {
-            this.pictureBackground = await Picture2D.createWithID(Data.TitlescreenGameover.gameOverBackgroundImageID, PICTURE_KIND.GAME_OVER, { cover: true });
+            try {
+                this.pictureBackground = await Picture2D.createWithID(Data.TitlescreenGameover.gameOverBackgroundImageID, PICTURE_KIND.GAME_OVER, { cover: true });
+            }
+            catch {
+                this.pictureBackground = null;
+            }
         }
         // Windows
         const commandsNb = Data.TitlescreenGameover.gameOverCommands.length;

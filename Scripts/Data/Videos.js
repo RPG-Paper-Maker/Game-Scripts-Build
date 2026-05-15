@@ -16,6 +16,12 @@ import { Base } from './Base.js';
  */
 export class Videos {
     /**
+     * Check if a video exists by ID.
+     */
+    static has(id) {
+        return id !== -1 && this.list.has(id);
+    }
+    /**
      * Get a video by ID.
      */
     static get(id, errorMessage) {

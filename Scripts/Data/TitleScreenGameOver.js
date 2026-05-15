@@ -74,6 +74,8 @@ export class TitlescreenGameover {
         this.isTitleBackgroundVideo = Utils.valueOrDefault(json.itbv, false);
         this.titleBackgroundImageID = Utils.valueOrDefault(json.tb, 1);
         this.titleBackgroundVideoID = Utils.valueOrDefault(json.tbv, 1);
+        this.titleVideoLoop = Utils.valueOrDefault(json.tvl, true);
+        this.titleVideoLoopMs = Utils.valueOrDefault(json.tvlms, 0);
         this.titleMusic = new PlaySong(SONG_KIND.MUSIC, json.tm);
         this.titleCommands = Utils.readJSONList(json.tc, TitleCommand);
         this.titleSettings = [];
