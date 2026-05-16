@@ -113,6 +113,10 @@ class Confirm extends Base {
      */
     onMouseUp(x, y) {
         this.action(false, { x: x, y: y });
+        if (Scene.MenuBase.checkCancelMenu(false, { x: x, y: y })) {
+            Data.Systems.soundCancel.playSound();
+            Manager.Stack.pop();
+        }
     }
     /**
      *  Handle scene pressed and repeat key.
