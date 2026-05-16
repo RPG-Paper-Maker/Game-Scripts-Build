@@ -22,8 +22,8 @@ class Skill extends Base {
         this.system = Data.Skills.get(skill.id);
         const colorOpts = possible ? {} : { color: Model.Color.GREY };
         this.graphicName = Graphic.TextIcon.createFromSystem(this.system.name(), this.system, {}, colorOpts);
-        this.graphicName.graphicText.ellipsis = true;
         this.graphicCost = new Graphic.Text(this.system.getCostString(), { align: ALIGN.RIGHT, ...colorOpts });
+        this.graphicCost.ellipsis = true;
         this.graphicInformations = new Graphic.SkillItem(this.system);
     }
     /**
@@ -35,8 +35,8 @@ class Skill extends Base {
      */
     drawChoice(x, y, w, h) {
         const offset = this.graphicCost.textWidth + ScreenResolution.getScreenX(Constants.MEDIUM_SPACE);
-        this.graphicCost.draw(x, y, w, h);
-        this.graphicName.draw(x, y, w - offset, h);
+        this.graphicName.draw(x, y, w, h);
+        this.graphicCost.draw(x + this.graphicName.getWidth() + ScreenResolution.getScreenX(Constants.MEDIUM_SPACE), y, w - this.graphicName.getWidth() - ScreenResolution.getScreenX(Constants.MEDIUM_SPACE), h);
     }
     /**
      *  Drawing the skill description.
