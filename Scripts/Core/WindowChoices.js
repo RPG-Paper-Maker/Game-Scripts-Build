@@ -78,11 +78,23 @@ class WindowChoices extends Bitmap {
         }
     }
     updatePosition() {
+        let borderLeft = 0, borderTop = 0;
+        if (!this.bordersInsideVisible) {
+            const ws = Data.Systems.getCurrentWindowSkin();
+            borderLeft = ws.borderTopLeft.width;
+            borderTop = ws.borderTopLeft.height;
+        }
+        const slotX = !this.bordersInsideVisible
+            ? this.oX + borderLeft
+            : this.orientation === ORIENTATION_WINDOW.HORIZONTAL
+                ? this.oX + this.padding[0]
+                : this.oX;
+        const slotY0 = this.oY + borderTop;
         if (this.choiceWidths && this.orientation === ORIENTATION_WINDOW.HORIZONTAL) {
-            let xOffset = this.oX + this.padding[0];
+            let xOffset = slotX;
             for (let i = 0; i < this.listWindows.length; i++) {
                 this.listWindows[i].setX(xOffset);
-                this.listWindows[i].setY(this.oY);
+                this.listWindows[i].setY(slotY0);
                 xOffset += this.choiceWidths[i] + this.space;
             }
             return;
@@ -91,11 +103,10 @@ class WindowChoices extends Bitmap {
         for (let i = 0; i < this.listWindows.length; i++) {
             windowBox = this.listWindows[i];
             windowBox.setX(this.orientation === ORIENTATION_WINDOW.HORIZONTAL
-                ? this.oX + this.padding[0] + i * this.choiceWidth + i * this.space
-                : this.oX + this.padding[0]);
-            windowBox.setY(this.orientation === ORIENTATION_WINDOW.HORIZONTAL
-                ? this.oY
-                : this.oY + i * this.choiceHeight + i * this.space);
+                ? slotX + i * (this.choiceWidth + this.space)
+                : slotX);
+            windowBox.setY(slotY0 +
+                (this.orientation === ORIENTATION_WINDOW.HORIZONTAL ? 0 : i * (this.choiceHeight + this.space)));
         }
     }
     /**
@@ -123,6 +134,14 @@ class WindowChoices extends Bitmap {
         // Getting the main box size
         const totalNb = this.listContents.length;
         this.size = totalNb > this.nbItemsMax ? this.nbItemsMax : totalNb;
+        let borderLeft = 0, borderTop = 0, borderRight = 0, borderBot = 0;
+        if (!this.bordersInsideVisible) {
+            const ws = Data.Systems.getCurrentWindowSkin();
+            borderLeft = ws.borderTopLeft.width;
+            borderTop = ws.borderTopLeft.height;
+            borderRight = ws.borderTopRight.width;
+            borderBot = ws.borderBotLeft.height;
+        }
         let boxWidth, boxHeight;
         if (this.orientation === ORIENTATION_WINDOW.HORIZONTAL) {
             if (this.choiceWidths) {
@@ -130,39 +149,38 @@ class WindowChoices extends Bitmap {
                 for (let j = 0; j < this.size; j++) {
                     sumWidths += this.choiceWidths[j];
                 }
-                boxWidth =
-                    sumWidths +
-                        this.space * Math.max(0, this.size - 1) +
-                        (this.bordersInsideVisible ? 0 : this.padding[0] * 3);
+                boxWidth = sumWidths + this.space * Math.max(0, this.size - 1) + borderLeft + borderRight;
             }
             else {
-                boxWidth =
-                    (this.choiceWidth + this.space) * this.size -
-                        this.space +
-                        (this.bordersInsideVisible ? 0 : this.padding[0] * 3);
+                boxWidth = (this.choiceWidth + this.space) * this.size - this.space + borderLeft + borderRight;
             }
-            boxHeight = this.choiceHeight;
+            boxHeight = this.choiceHeight + borderTop + borderBot;
         }
         else {
             boxWidth = this.choiceWidth;
-            boxHeight = (this.choiceHeight + this.space) * this.size - this.space;
+            boxHeight = (this.choiceHeight + this.space) * this.size - this.space + borderTop + borderBot;
         }
         this.setW(boxWidth);
         this.setH(boxHeight);
         if (!this.bordersInsideVisible) {
             this.windowMain = new WindowBox(this.oX, this.oY, boxWidth, boxHeight);
         }
+        const slotX0 = !this.bordersInsideVisible
+            ? this.oX + borderLeft
+            : this.orientation === ORIENTATION_WINDOW.HORIZONTAL
+                ? this.oX + this.padding[0]
+                : this.oX;
+        const slotY0 = this.oY + borderTop;
+        const slotW = this.choiceWidth - borderLeft - borderRight;
         // Create a new windowBox for each choice and according to orientation
         this.listWindows = new Array(totalNb);
         let window;
-        let xOffsetHoriz = this.oX + this.padding[0];
+        let xOffsetHoriz = slotX0;
         for (let i = 0; i < totalNb; i++) {
             if (this.orientation === ORIENTATION_WINDOW.HORIZONTAL) {
                 const itemWidth = this.choiceWidths ? this.choiceWidths[i] : this.choiceWidth;
-                const itemX = this.choiceWidths
-                    ? xOffsetHoriz
-                    : this.oX + this.padding[0] + i * this.choiceWidth + i * this.space;
-                window = new WindowBox(itemX, this.oY, itemWidth, this.choiceHeight, {
+                const itemX = this.choiceWidths ? xOffsetHoriz : slotX0 + i * this.choiceWidth + i * this.space;
+                window = new WindowBox(itemX, slotY0, itemWidth, this.choiceHeight, {
                     content: this.listContents[i],
                     padding: this.bordersInsideVisible ? this.padding : WindowBox.NONE_PADDING,
                 });
@@ -171,7 +189,7 @@ class WindowChoices extends Bitmap {
                 }
             }
             else {
-                window = new WindowBox(this.oX, this.oY + i * this.choiceHeight + i * this.space, this.choiceWidth, this.choiceHeight, {
+                window = new WindowBox(slotX0, slotY0 + i * (this.choiceHeight + this.space), slotW, this.choiceHeight, {
                     content: this.listContents[i],
                     padding: this.padding,
                 });
@@ -473,10 +491,13 @@ class WindowChoices extends Bitmap {
                 }
             }
             else {
-                index = Math.floor((y - this.y) / ScreenResolution.getScreenY(this.choiceHeight + this.space));
+                const borderTopScreen = this.bordersInsideVisible
+                    ? 0
+                    : ScreenResolution.getScreenY(Data.Systems.getCurrentWindowSkin().borderTopLeft.height);
+                index = Math.floor((y - this.y - borderTopScreen) / ScreenResolution.getScreenY(this.choiceHeight + this.space));
             }
             // If different index, then change it visually + sound
-            if (this.offsetSelectedIndex !== index && index < this.size) {
+            if (this.offsetSelectedIndex !== index && index >= 0 && index < this.size) {
                 Data.Systems.soundCursor.playSound();
                 this.listWindows[this.currentSelectedIndex].selected = false;
                 this.currentSelectedIndex += index - this.offsetSelectedIndex;

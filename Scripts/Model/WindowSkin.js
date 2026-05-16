@@ -46,10 +46,14 @@ export class WindowSkin extends Base {
     /**
      * Draw the background box.
      */
-    drawBoxBackground(background, rect) {
+    drawBoxBackground(background, rect, bordersVisible = true) {
+        const bLeft = bordersVisible ? this.borderTopLeft.width : 0;
+        const bTop = bordersVisible ? this.borderTopLeft.height : 0;
+        const bRight = bordersVisible ? this.borderBotRight.width : 0;
+        const bBot = bordersVisible ? this.borderBotRight.height : 0;
         if (this.backgroundRepeat) {
-            for (let x = rect.x + this.borderTopLeft.width, l = rect.x + rect.width - this.borderTopRight.width - 1; x < l; x += background.width) {
-                for (let y = rect.y + this.borderTopLeft.height, m = rect.y + rect.height - this.borderBotLeft.height - 1; y < m; y += background.height) {
+            for (let x = rect.x + bLeft, l = rect.x + rect.width - bRight - 1; x < l; x += background.width) {
+                for (let y = rect.y + bTop, m = rect.y + rect.height - bBot - 1; y < m; y += background.height) {
                     const w = x + background.width < l ? background.width : l - x + 1;
                     const h = y + background.height < m ? background.height : m - y + 1;
                     this.drawElement(background, x, y, w, h);
@@ -57,7 +61,7 @@ export class WindowSkin extends Base {
             }
         }
         else {
-            this.drawElement(background, rect.x + this.borderTopLeft.width, rect.y + this.borderTopLeft.height, rect.width - this.borderTopLeft.width - this.borderBotRight.width, rect.height - this.borderTopLeft.height - this.borderBotRight.height);
+            this.drawElement(background, rect.x + bLeft, rect.y + bTop, rect.width - bLeft - bRight, rect.height - bTop - bBot);
         }
     }
     /**
@@ -109,9 +113,9 @@ export class WindowSkin extends Base {
             }
         }
         // Background
-        this.drawBoxBackground(this.background, rect);
+        this.drawBoxBackground(this.background, rect, bordersVisible);
         if (selected) {
-            this.drawBoxBackground(this.backgroundSelection, rect);
+            this.drawBoxBackground(this.backgroundSelection, rect, bordersVisible);
         }
     }
     /**
