@@ -138,7 +138,7 @@ class Item {
      */
     multItems() {
         this.modifyItems(function (item) {
-            item.nb *= this.nb;
+            item.nb = Math.round(item.nb * this.nb);
         });
     }
     /**
@@ -146,7 +146,7 @@ class Item {
      */
     divItems() {
         this.modifyItems(function (item) {
-            item.nb /= this.nb;
+            item.nb = Math.round(item.nb / this.nb);
         });
     }
     /**
@@ -154,7 +154,7 @@ class Item {
      */
     moduloItems() {
         this.modifyItems(function (item) {
-            item.nb %= this.nb;
+            item.nb = Math.round(item.nb % this.nb);
         });
     }
     /**

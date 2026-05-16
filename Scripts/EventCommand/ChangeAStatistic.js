@@ -87,15 +87,15 @@ class ChangeAStatistic extends Base {
             before = target[abr];
             switch (this.value) {
                 case 0:
-                    target[abr] = Mathf.OPERATORS_NUMBERS[this.operation](target[abr], this.vNumber.getValue());
+                    target[abr] = Math.round(Mathf.OPERATORS_NUMBERS[this.operation](target[abr], this.vNumber.getValue()));
                     break;
                 case 1:
-                    target[abr] = Mathf.OPERATORS_NUMBERS[this.operation](target[abr], Interpreter.evaluate(this.vFormula.getValue(), {
+                    target[abr] = Math.round(Mathf.OPERATORS_NUMBERS[this.operation](target[abr], Interpreter.evaluate(this.vFormula.getValue(), {
                         user: target,
-                    }));
+                    })));
                     break;
                 case 2:
-                    target[abr] = Mathf.OPERATORS_NUMBERS[this.operation](target[abr], target[stat.getMaxAbbreviation()]);
+                    target[abr] = Math.round(Mathf.OPERATORS_NUMBERS[this.operation](target[abr], target[stat.getMaxAbbreviation()]));
                     break;
             }
             if (!this.canAboveMax) {

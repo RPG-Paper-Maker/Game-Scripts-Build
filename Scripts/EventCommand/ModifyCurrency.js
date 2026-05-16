@@ -37,7 +37,7 @@ class ModifyCurrency extends Base {
     update(currentState, object, state) {
         const currencyID = this.currencyID.getValue();
         const previousCurrency = Game.current.getCurrency(currencyID);
-        Game.current.currencies.set(currencyID, Mathf.OPERATORS_NUMBERS[this.operation](Game.current.getCurrency(currencyID), this.value.getValue()));
+        Game.current.currencies.set(currencyID, Math.round(Mathf.OPERATORS_NUMBERS[this.operation](Game.current.getCurrency(currencyID), this.value.getValue())));
         const dif = Game.current.getCurrency(currencyID) - previousCurrency;
         if (dif > 0) {
             Game.current.currenciesEarned.set(currencyID, Game.current.currenciesEarned.get(currencyID) + dif);
