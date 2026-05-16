@@ -33,7 +33,7 @@ class BattleAnimation {
         let content;
         switch (this.battle.battleCommandKind) {
             case EFFECT_SPECIAL_ACTION_KIND.APPLY_WEAPONS:
-                this.battle.informationText = this.battle.attackSkill.getMessage(this.battle.user);
+                this.battle.informationText = this.battle.attackSkill.getMessage(this.battle.user, this.battle.targets);
                 break;
             case EFFECT_SPECIAL_ACTION_KIND.OPEN_SKILLS:
                 if (this.battle.forceAnAction) {
@@ -47,7 +47,7 @@ class BattleAnimation {
                                 : this.battle.windowChoicesSkills.getCurrentContent().system
                             : Data.Skills.get(this.battle.action.skillID.getValue());
                 }
-                this.battle.informationText = content.getMessage(this.battle.user);
+                this.battle.informationText = content.getMessage(this.battle.user, this.battle.targets);
                 break;
             case EFFECT_SPECIAL_ACTION_KIND.OPEN_ITEMS:
                 if (this.battle.forceAnAction) {
@@ -59,11 +59,11 @@ class BattleAnimation {
                             ? this.battle.windowChoicesItems.getCurrentContent().item.system
                             : Data.Items.get(this.battle.action.itemID.getValue());
                 }
-                this.battle.informationText = content.getMessage(this.battle.user);
+                this.battle.informationText = content.getMessage(this.battle.user, this.battle.targets);
                 break;
             case EFFECT_SPECIAL_ACTION_KIND.NONE: // If command was a skill without special action
                 content = ((this.battle.windowChoicesBattleCommands.getContent(this.battle.user.lastCommandIndex)).system);
-                this.battle.informationText = content.getMessage(this.battle.user);
+                this.battle.informationText = content.getMessage(this.battle.user, this.battle.targets);
                 break;
             default:
                 this.battle.informationText = '';

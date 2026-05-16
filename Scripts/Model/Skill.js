@@ -29,7 +29,8 @@ export class Skill extends CommonSkillItem {
      * @param {Battler} user - The battler using the skill.
      * @returns {string} The formatted battle message.
      */
-    getMessage(user) {
-        return this.battleMessage.name().replace('[user]', user.player.name).replace('[skill]', this.name());
+    getMessage(user, targets = []) {
+        const targetNames = targets.map((t) => t.player.name).join(', ');
+        return this.battleMessage.name().replace('[user]', user.player.name).replace('[skill]', this.name()).replace('[target]', targetNames);
     }
 }

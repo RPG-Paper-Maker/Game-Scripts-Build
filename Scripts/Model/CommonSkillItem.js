@@ -232,7 +232,7 @@ class CommonSkillItem extends Icon {
      * @param _user - The battler using the item.
      * @returns The formatted message as a string (empty by default).
      */
-    getMessage(_user) {
+    getMessage(_user, _targets = []) {
         return '';
     }
 }

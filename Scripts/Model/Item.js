@@ -37,7 +37,8 @@ export class Item extends CommonSkillItem {
      * @param {Battler} user - The battler using the item.
      * @returns {string} The formatted battle message.
      */
-    getMessage(user) {
-        return this.battleMessage.name().replace('[user]', user.player.name).replace('[item]', this.name());
+    getMessage(user, targets = []) {
+        const targetNames = targets.map((t) => t.player.name).join(', ');
+        return this.battleMessage.name().replace('[user]', user.player.name).replace('[item]', this.name()).replace('[target]', targetNames);
     }
 }
