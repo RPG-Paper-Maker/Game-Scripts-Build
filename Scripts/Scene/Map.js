@@ -749,7 +749,7 @@ class Map extends Base {
      *  @returns {number}
      */
     getWeatherPosition(portionsRay, offset = true) {
-        const area = Constants.PORTION_SIZE * Constants.PORTION_SIZE / Constants.BASIC_SQUARE_SIZE;
+        const area = (Constants.PORTION_SIZE * Constants.PORTION_SIZE) / Constants.BASIC_SQUARE_SIZE;
         return Math.random() * (area * (portionsRay * 2 + 1)) - area * (portionsRay + (offset ? 0.5 : 0));
     }
     /**
@@ -895,8 +895,10 @@ class Map extends Base {
             y = positionAttribute.getY(i);
             if (y <
                 points.material.size -
-                    (Constants.PORTION_SIZE * Constants.PORTION_SIZE / Constants.BASIC_SQUARE_SIZE) * portionsRay) {
-                y += (Constants.PORTION_SIZE * Constants.PORTION_SIZE / Constants.BASIC_SQUARE_SIZE) * (portionsRay + 1);
+                    ((Constants.PORTION_SIZE * Constants.PORTION_SIZE) / Constants.BASIC_SQUARE_SIZE) * portionsRay) {
+                y +=
+                    ((Constants.PORTION_SIZE * Constants.PORTION_SIZE) / Constants.BASIC_SQUARE_SIZE) *
+                        (portionsRay + 1);
                 velocities[i] = initialVelocity;
                 rotationsAngle[i] = initialYRotation;
                 rotationsPoints[i] = Scene.Map.current.camera.target.position.clone();
@@ -911,8 +913,7 @@ class Map extends Base {
             positionAttribute.setX(i, v.x);
             positionAttribute.setZ(i, v.z);
             velocities[i] +=
-                (current ? this.addWeatherVelocity() : this.addPreviousWeatherVelocity()) /
-                    Constants.BASIC_SQUARE_SIZE;
+                (current ? this.addWeatherVelocity() : this.addPreviousWeatherVelocity()) / Constants.BASIC_SQUARE_SIZE;
             positionAttribute.setY(i, v.y + velocities[i]);
         }
         positionAttribute.needsUpdate = true;
@@ -1026,9 +1027,7 @@ class Map extends Base {
         if (Game.current !== null && Data.Systems.moveCameraOnBlockView.getValue()) {
             this.camera.forceNoHide = false;
             this.camera.hidingDistance = -1;
-            const pointer = Manager.GL.toScreenPosition(this.camera.target.position
-                .clone()
-                .add(new THREE.Vector3(0, this.camera.target.height, 0)), this.camera.getThreeCamera())
+            const pointer = Manager.GL.toScreenPosition(this.camera.target.position.clone().add(new THREE.Vector3(0, this.camera.target.height, 0)), this.camera.getThreeCamera())
                 .divide(new THREE.Vector2(ScreenResolution.CANVAS_WIDTH, ScreenResolution.CANVAS_HEIGHT))
                 .subScalar(0.5);
             pointer.setY(-pointer.y);

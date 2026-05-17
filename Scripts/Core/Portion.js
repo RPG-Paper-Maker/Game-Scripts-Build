@@ -9,7 +9,6 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Constants } from '../Common/index.js';
-import { Data } from '../index.js';
 /** @class
  *  The data class for portion.
  *  @param {number} x
@@ -38,7 +37,7 @@ class Portion {
      *   @returns {number[]}
      */
     static createFromVector3(position) {
-        return new Portion(Math.floor(position.x / Data.Systems.SQUARE_SIZE / Constants.PORTION_SIZE), Math.floor(position.y / Data.Systems.SQUARE_SIZE / Constants.PORTION_SIZE), Math.floor(position.z / Data.Systems.SQUARE_SIZE / Constants.PORTION_SIZE));
+        return new Portion(Math.floor(position.x / Constants.PORTION_SIZE), Math.floor(position.y / Constants.PORTION_SIZE), Math.floor(position.z / Constants.PORTION_SIZE));
     }
     static fromKey(key) {
         const [x, y, z] = key.split('_').map(Number);
