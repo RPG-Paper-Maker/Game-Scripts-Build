@@ -523,6 +523,33 @@ class Game {
         return this.getPortionPosData(id, portion.x, portion.y, portion.z);
     }
     /**
+     *  Get or create the portions datas according to id and portion, creating
+     *  missing entries if needed so callers can safely write into the result.
+     *  @param {number} id - The map id
+     *  @param {Portion} portion
+     *  @returns {Record<string, any>}
+     */
+    getOrCreatePortionData(id, portion) {
+        const { x: i, y: j, z: k } = portion;
+        const jp = j < 0 ? 0 : 1;
+        const jabs = Math.abs(j);
+        if (!this.mapsData[id]) {
+            this.mapsData[id] = [];
+        }
+        if (!this.mapsData[id][i]) {
+            this.mapsData[id][i] = [[], []];
+        }
+        if (!this.mapsData[id][i][jp][jabs]) {
+            this.mapsData[id][i][jp][jabs] = [];
+        }
+        if (!this.mapsData[id][i][jp][jabs][k]) {
+            this.mapsData[id][i][jp][jabs][k] = {
+                min: [], mout: [], m: [], si: [], s: [], pi: [], p: [], r: [], soi: [], so: [],
+            };
+        }
+        return this.mapsData[id][i][jp][jabs][k];
+    }
+    /**
      *  Get the portions datas according to id and position.
      *  @param {number} id - The map id
      *  @param {number} i
