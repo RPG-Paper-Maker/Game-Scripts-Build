@@ -1,0 +1,285 @@
+/*
+    RPG Paper Maker Copyright (C) 2017-2026 Wano
+
+    RPG Paper Maker engine is under proprietary license.
+    This source code is also copyrighted.
+
+    Use Commercial edition for commercial use of your games.
+    See RPG Paper Maker EULA here:
+        http://rpg-paper-maker.com/index.php/eula.
+*/
+import * as THREE from 'three';
+import { Mathf, ScreenResolution } from '../Common/index.js';
+import { Data, Manager, Scene } from '../index.js';
+/** @class
+ *  The camera of the current map.
+ *  @param {System.CameraProperties} cameraProperties - The System camera
+ *  properties
+ *  @param {MapObject} target - The camera target
+ */
+class Camera {
+    constructor(cameraProperties, target) {
+        this._stableD = 0;
+        this.hidingDistance = -1;
+        this.previousHidingDistance = -1;
+        this.hidingTime = 1;
+        this.hidingStart = -1;
+        this.hidingEnd = -1;
+        this.hidingCurrent = -1;
+        this.forceNoHide = true;
+        this.system = cameraProperties;
+        this.initialize();
+        this.target = target;
+    }
+    /**
+     *  Initialize the camera according to system camera properties.
+     */
+    initialize() {
+        this.system.initializeCamera(this);
+    }
+    /**
+     *  Configure camera when resizing window.
+     */
+    resizeGL() {
+        if (this.isPerspective) {
+            this.perspectiveCamera.aspect = ScreenResolution.CANVAS_WIDTH / ScreenResolution.CANVAS_HEIGHT;
+            this.perspectiveCamera.updateProjectionMatrix();
+        }
+    }
+    /**
+     *  Check if camera is currently hiding with walls / mountains.
+     *  @returns {boolean}
+     */
+    isHiding() {
+        return this.hidingDistance !== -1;
+    }
+    /**
+     *  Get the map orientation according to the camera.
+     *  @returns {Orientation}
+     */
+    getMapOrientation() {
+        return Mathf.mod(Math.round(this.horizontalAngle / 90) - 1, 4);
+    }
+    /**
+     *  Get the time percentage progress.
+     *  @returns {number}
+     */
+    getHidingTimeProgress() {
+        return this.hidingTime / Camera.HIDDING_MOVE_TIME;
+    }
+    /**
+     *  Get the distance according to hiding distance.
+     *  @returns {number}
+     */
+    getHidingDistance() {
+        if (Data.Systems.moveCameraOnBlockView && !this.forceNoHide) {
+            return this.hidingCurrent === -1 ? this.distance : this.hidingCurrent;
+        }
+        return this.distance;
+    }
+    /**
+     *  Get the distance according to vertical angle.
+     *  @returns {number}
+     */
+    getDistance() {
+        const d = this.getHidingDistance();
+        return d * Math.sin((this.verticalAngle * Math.PI) / 180.0);
+    }
+    /**
+     *  Get the height according to vertical angle.
+     *  @returns {number}
+     */
+    getHeight() {
+        const d = this.getHidingDistance();
+        return d * Math.cos((this.verticalAngle * Math.PI) / 180.0);
+    }
+    /**
+     *  Get the horizontal angle between two positions.
+     *  @param {Vector3} p1 - The first position
+     *  @param {Vector3} p2 - The second position
+     *  @returns {number}
+     */
+    getHorizontalAngle(p1, p2) {
+        return (Math.atan2(p2.z - p1.z, p2.x - p1.x) * 180) / Math.PI;
+    }
+    /**
+     *  Get the vertical angle between two positions.
+     *  @param {Vector3} p1 - The first position
+     *  @param {Vector3} p2 - The second position
+     *  @returns {number}
+     */
+    getVerticalAngle(p1, p2) {
+        const x = p2.x - p1.x;
+        const y = p2.y - p1.y;
+        const z = p2.z - p1.z;
+        return 90 + (Math.atan2(y, Math.sqrt(x * x + z * z)) * 180) / Math.PI;
+    }
+    /**
+     *  Add an angle to the horizontal angle.
+     *  @param {number} a - The angle to add
+     */
+    addHorizontalAngle(a) {
+        this.horizontalAngle += a;
+        if (this.horizontalAngle >= 360) {
+            this.horizontalAngle = this.horizontalAngle % 360;
+        }
+        else if (this.horizontalAngle <= -360) {
+            this.horizontalAngle = 360 + this.horizontalAngle;
+        }
+    }
+    /**
+     *  Add an angle to the vertical angle.
+     *  @param {number} a - The angle to add
+     */
+    addVerticalAngle(a) {
+        this.verticalAngle += a;
+        if (this.verticalAngle >= 360) {
+            this.verticalAngle = this.verticalAngle % 360;
+        }
+        else if (this.verticalAngle <= -360) {
+            this.verticalAngle = 360 + this.verticalAngle;
+        }
+    }
+    /**
+     *  Update the target position according to target and target offset.
+     */
+    updateTargetPosition() {
+        this.targetPosition = this.target.position.clone().add(this.targetOffset);
+        if (this.targetLastPosition && Scene.Map.current.camera) {
+            const diff = this.target.position.clone().sub(this.targetLastPosition);
+            this.getThreeCamera().position.add(diff);
+            this.targetLastPosition.copy(this.target.position);
+        }
+        else {
+            this.targetLastPosition = this.target.position.clone();
+        }
+    }
+    /**
+     *  Get the perspective or orthographic camera.
+     *  @returns {THREE.Camera}
+     */
+    getThreeCamera() {
+        return this.isPerspective ? this.perspectiveCamera : this.orthographicCamera;
+    }
+    /**
+     *  Update the three.js camera position.
+     */
+    updateCameraPosition() {
+        const distance = this.getDistance();
+        const camera = this.getThreeCamera();
+        camera.position.x = this.targetPosition.x - distance * Math.cos((this.horizontalAngle * Math.PI) / 180.0);
+        camera.position.y = this.targetPosition.y + this.getHeight();
+        camera.position.z = this.targetPosition.z - distance * Math.sin((this.horizontalAngle * Math.PI) / 180.0);
+        if (!this.isPerspective) {
+            const x = ScreenResolution.CANVAS_WIDTH * (distance / 1000);
+            const y = ScreenResolution.CANVAS_HEIGHT * (distance / 1000);
+            this.orthographicCamera.left = -x;
+            this.orthographicCamera.right = x;
+            this.orthographicCamera.top = y;
+            this.orthographicCamera.bottom = -y;
+        }
+    }
+    /**
+     *  Update target offset position.
+     */
+    updateTargetOffset() {
+        const distance = this.getDistance();
+        const camera = this.getThreeCamera();
+        this.targetOffset.x +=
+            camera.position.x -
+                distance * Math.cos(((this.horizontalAngle + 180) * Math.PI) / 180.0) -
+                this.targetPosition.x;
+        this.targetOffset.y += camera.position.y - this.getHeight() - this.targetPosition.y;
+        this.targetOffset.z +=
+            camera.position.z -
+                distance * Math.sin(((this.horizontalAngle + 180) * Math.PI) / 180.0) -
+                this.targetPosition.z;
+    }
+    /**
+     *  Update horizontal and vertical angles.
+     */
+    updateAngles() {
+        const camera = this.getThreeCamera();
+        this.horizontalAngle = this.getHorizontalAngle(camera.position, this.targetPosition);
+        this.verticalAngle = this.getVerticalAngle(camera.position, this.targetPosition);
+    }
+    /**
+     *  Update the distance.
+     */
+    updateDistance() {
+        if (Data.Systems.moveCameraOnBlockView && this.hidingCurrent !== -1) {
+            return;
+        }
+        this.distance = this.getThreeCamera().position.distanceTo(this.targetPosition);
+    }
+    /**
+     * Update the three.js camera view.
+     */
+    updateView() {
+        this.getThreeCamera().lookAt(this.targetPosition);
+    }
+    /**
+     * Update timer for hidding camera smooth move.
+     */
+    updateTimer() {
+        if (this.previousHidingDistance !== this.hidingDistance &&
+            Math.abs(this.previousHidingDistance - this.hidingDistance) > 1) {
+            this.hidingTime = 0;
+            this.hidingStart = this.hidingCurrent;
+            this.hidingEnd = this.isHiding() ? this.hidingDistance : this.distance;
+        }
+        else {
+            this.hidingTime = Math.min(this.hidingTime + Manager.Stack.elapsedTime, Camera.HIDDING_MOVE_TIME);
+        }
+        const time = this.getHidingTimeProgress();
+        if (time === 1) {
+            const dist = this.isHiding() ? this.hidingDistance : this.distance;
+            this.hidingCurrent = dist;
+            this.hidingStart = dist;
+            this.hidingEnd = dist;
+        }
+        this.previousHidingDistance = this.hidingDistance;
+        this.hidingCurrent = this.hidingStart + (this.hidingEnd - this.hidingStart) * time;
+    }
+    /**
+     * Update all the parameters.
+     */
+    update() {
+        // Update target
+        this.updateTargetPosition();
+        // Update position
+        this.updateCameraPosition();
+        // Update view
+        this.updateView();
+        // Update light
+        if (Scene.Map.current.mapProperties && Scene.Map.current.mapProperties.isSunLight) {
+            const d = Math.max(this.distance * 3.0, 10);
+            const far = Math.max(d * 2, 350);
+            if (this._stableD === 0 || Math.abs(d - this._stableD) / this._stableD > 0.05 || far !== Scene.Map.current.sunLight.shadow.camera.far) {
+                this._stableD = d;
+                Scene.Map.current.sunLight.shadow.camera.left = -d;
+                Scene.Map.current.sunLight.shadow.camera.right = d;
+                Scene.Map.current.sunLight.shadow.camera.top = d;
+                Scene.Map.current.sunLight.shadow.camera.bottom = -d;
+                Scene.Map.current.sunLight.shadow.camera.far = far;
+                Scene.Map.current.sunLight.shadow.camera.updateProjectionMatrix();
+            }
+            const texelSize = (2 * this._stableD) / Scene.Map.current.sunLight.shadow.mapSize.x;
+            const snappedR = Math.round(Camera.SUN_RIGHT.dot(this.targetPosition) / texelSize) * texelSize;
+            const snappedU = Math.round(Camera.SUN_UP.dot(this.targetPosition) / texelSize) * texelSize;
+            Camera._snapTarget.set(0, 0, 0)
+                .addScaledVector(Camera.SUN_RIGHT, snappedR)
+                .addScaledVector(Camera.SUN_UP, snappedU)
+                .addScaledVector(Camera.SUN_FORWARD, Camera.SUN_FORWARD.dot(this.targetPosition));
+            Scene.Map.current.sunLight.target.position.copy(Camera._snapTarget);
+            Scene.Map.current.sunLight.target.updateMatrixWorld();
+            Scene.Map.current.sunLight.position.set(-1, 1.75, 1).multiplyScalar(10).add(Camera._snapTarget);
+        }
+    }
+}
+Camera.HIDDING_MOVE_TIME = 250;
+Camera.SUN_FORWARD = new THREE.Vector3(1, -1.75, -1).normalize();
+Camera.SUN_RIGHT = new THREE.Vector3(1, 0, 1).normalize();
+Camera.SUN_UP = new THREE.Vector3(Math.SQRT1_2 * (1.75 / 2.25), Math.SQRT1_2 * (2 / 2.25), -Math.SQRT1_2 * (1.75 / 2.25));
+Camera._snapTarget = new THREE.Vector3();
+export { Camera };
