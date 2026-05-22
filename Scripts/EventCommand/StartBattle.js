@@ -33,32 +33,13 @@ class StartBattle extends Base {
         this.canEscape = Utils.numberToBool(command[iterator.i++]);
         this.canGameOver = Utils.numberToBool(command[iterator.i++]);
         // Troop
-        const type = command[iterator.i++];
-        switch (type) {
+        this.troopIDType = command[iterator.i++];
+        switch (this.troopIDType) {
             case 0: // Existing troop ID
                 this.troopID = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
             case 1: // If random troop in map properties
-                if (Scene.Map.current.mapProperties.randomBattles.length > 0) {
-                    const totalPriorities = Scene.Map.current.mapProperties.randomBattles.reduce((sum, randomBattle) => sum + randomBattle.priority.getValue(), 0);
-                    let r = Math.random() * totalPriorities;
-                    let selectedBattle = null;
-                    for (const battle of Scene.Map.current.mapProperties.randomBattles) {
-                        r -= battle.priority.getValue();
-                        if (r <= 0) {
-                            selectedBattle = battle;
-                            break;
-                        }
-                    }
-                    if (selectedBattle === null) {
-                        selectedBattle =
-                            Scene.Map.current.mapProperties.randomBattles[Scene.Map.current.mapProperties.randomBattles.length - 1];
-                    }
-                    this.troopID = Model.DynamicValue.createNumber(selectedBattle.troopID.getValue());
-                }
-                else {
-                    this.troopID = Model.DynamicValue.createNumber(1);
-                }
+                this.troopID = null;
                 break;
         }
         // Battle map
@@ -103,15 +84,43 @@ class StartBattle extends Base {
         };
     }
     /**
+     *  Resolve a random troop from the current map properties.
+     */
+    resolveRandomTroopID() {
+        const randomBattles = Scene.Map.current?.mapProperties?.randomBattles;
+        if (randomBattles && randomBattles.length > 0) {
+            const totalPriorities = randomBattles.reduce((sum, randomBattle) => sum + randomBattle.priority.getValue(), 0);
+            let r = Math.random() * totalPriorities;
+            let selectedBattle = null;
+            for (const battle of randomBattles) {
+                r -= battle.priority.getValue();
+                if (r <= 0) {
+                    selectedBattle = battle;
+                    break;
+                }
+            }
+            if (selectedBattle === null) {
+                selectedBattle = randomBattles[randomBattles.length - 1];
+            }
+            this.troopID = Model.DynamicValue.createNumber(selectedBattle.troopID.getValue());
+        }
+        else {
+            this.troopID = Model.DynamicValue.createNumber(1);
+        }
+    }
+    /**
      *  Update and check if the event is finished.
      *  @param {Record<string, any>} - currentState The current state of the event
      *  @param {MapObject} object - The current object reacting
      *  @param {number} state - The state ID
      *  @returns {number} The number of node to pass
      */
-    update(currentState, object, state) {
+    update(currentState, _object, _state) {
         // Initializing battle
         if (currentState.sceneBattle === null) {
+            if (this.troopIDType === 1) {
+                this.resolveRandomTroopID();
+            }
             if (this.battleMapType === 3) {
                 this.battleMapID = Scene.Map.current.mapProperties.tileset.battleMap;
             }
