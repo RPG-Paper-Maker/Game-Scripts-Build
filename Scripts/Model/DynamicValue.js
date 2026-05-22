@@ -297,6 +297,8 @@ export class DynamicValue extends Base {
                 return Data.Songs.get(SONG_KIND.SOUND, this.value);
             case DYNAMIC_VALUE_KIND.MUSIC_EFFECT:
                 return Data.Songs.get(SONG_KIND.MUSIC_EFFECT, this.value);
+            case DYNAMIC_VALUE_KIND.VIDEOS:
+                return Data.Videos.get(this.value);
             default:
                 return this.value;
         }

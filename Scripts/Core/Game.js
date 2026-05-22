@@ -57,6 +57,15 @@ class Game {
         return null;
     }
     /**
+     *  Get current project version.
+     *  @static
+     *  @returns {Promise<string>}
+     */
+    static async getProjectVersion() {
+        const json = await Platform.parseFileJSON(Paths.FILE_PROJECT_SETTINGS);
+        return typeof json.pv === 'string' ? json.pv : '';
+    }
+    /**
      *  Load the game file.
      *  @async
      */
@@ -145,6 +154,7 @@ class Game {
         }
         this.saves++;
         await Platform.registerSave(slot, this.getPathSave(slot), {
+            pv: await Game.getProjectVersion(),
             t: this.playTime.time,
             th: teamHeroes,
             sh: reserveHeroes,

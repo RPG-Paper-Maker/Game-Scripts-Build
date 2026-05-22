@@ -8,10 +8,11 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Paths, PICTURE_KIND, Platform, Utils } from '../Common/index.js';
+import { Paths, PICTURE_KIND, Platform, SONG_KIND, Utils } from '../Common/index.js';
 import { CollisionSquare, Picture2D, Rectangle } from '../Core/index.js';
 import { Data } from '../index.js';
 import { Base } from './Base.js';
+import { PlaySong } from './PlaySong.js';
 /** Represents a picture in the game. */
 class Picture extends Base {
     constructor(json) {
@@ -315,9 +316,24 @@ class Picture extends Base {
         this.dlc = Utils.valueOrDefault(json.d, '');
         this.base64 = json.base64;
         this.jsonCollisions = Utils.valueOrDefault(json.col, []);
+        this.terrainSounds = new Map();
+        for (const terrainSound of Utils.valueOrDefault(json.fts, [])) {
+            const sounds = (terrainSound.sl ?? []).map((sound) => new PlaySong(SONG_KIND.SOUND, sound.s));
+            if (terrainSound.s && sounds.length === 0) {
+                sounds.push(new PlaySong(SONG_KIND.SOUND, terrainSound.s));
+            }
+            this.terrainSounds.set(terrainSound.ter ?? 0, sounds);
+        }
         this.collisionsRepeat = Utils.valueOrDefault(json.rcol, false);
         this.isStopAnimation = Utils.valueOrDefault(json.isStopAnimation, false);
         this.isClimbAnimation = Utils.valueOrDefault(json.ica, false);
+    }
+    /** Play a random footstep sound for a terrain, when configured. */
+    playFootstep(terrain) {
+        const sounds = this.terrainSounds.get(terrain);
+        if (sounds && sounds.length > 0) {
+            sounds[Math.floor(Math.random() * sounds.length)].playSound();
+        }
     }
 }
 export { Picture };
