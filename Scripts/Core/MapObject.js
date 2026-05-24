@@ -32,7 +32,6 @@ import { Sprite } from './Sprite.js';
 class MapObject {
     constructor(system, position, isHero = false) {
         this.moving = false;
-        this.wasMoving = false;
         this.isClimbing = false;
         this.isClimbingUp = true;
         this.climbOrientationEye = ORIENTATION.NONE;
@@ -1316,11 +1315,10 @@ class MapObject {
             const previousTerrain = this.terrain;
             if (this.isHero && this.moving && !Scene.Map.current.isBattleMap) {
                 this.updateTerrain();
-                if (!this.wasMoving || this.terrain !== previousTerrain || (frame && this.frame.value % 2 === 1)) {
+                if (this.terrain !== previousTerrain || (frame && this.frame.value % 2 === 1)) {
                     (this.terrainPicture ?? Scene.Map.current.mapProperties.tileset.picture).playFootstep(this.terrain);
                 }
             }
-            this.wasMoving = this.moving;
             // Update mesh
             if (frame || orientation !== this.orientation) {
                 this.updateUVs();
