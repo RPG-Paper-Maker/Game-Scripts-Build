@@ -35,9 +35,13 @@ export class Autotile extends Land {
     updateGeometryAutotile(geometry, texture, position, width, height, pictureID, count) {
         const autotile = Data.SpecialElements.getAutotile(this.autotileID);
         const picture = autotile ? Data.Pictures.get(PICTURE_KIND.AUTOTILES, pictureID) : null;
-        return super.updateGeometryLand(geometry, picture ? picture.getCollisionAtIndex(Land.prototype.getIndex.call(this, picture.width)) : null, position, width, height, ((this.tileID % 64) * Data.Systems.SQUARE_SIZE) / width, ((Math.floor(this.tileID / 64) + 10 * texture.getOffset(pictureID, this.texture)) *
+        const objCollision = super.updateGeometryLand(geometry, picture ? picture.getCollisionAtIndex(Land.prototype.getIndex.call(this, picture.width)) : null, position, width, height, ((this.tileID % 64) * Data.Systems.SQUARE_SIZE) / width, ((Math.floor(this.tileID / 64) + 10 * texture.getOffset(pictureID, this.texture)) *
             Data.Systems.SQUARE_SIZE) /
             height, Data.Systems.SQUARE_SIZE / width, Data.Systems.SQUARE_SIZE / height, count);
+        if (objCollision) {
+            objCollision.autotilePictureID = pictureID;
+        }
+        return objCollision;
     }
     /**
      * Read and initialize this autotile from JSON data.
