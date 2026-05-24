@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Data, Manager, Scene } from "../index.js";
-import { Constants, PICTURE_KIND, ScreenResolution } from '../Common/index.js';
+import { PICTURE_KIND } from '../Common/index.js';
 import { Game, Picture2D, WindowBox, WindowChoices } from '../Core/index.js';
 import { Base } from './Base.js';
 /**
@@ -58,7 +58,7 @@ class GameOver extends Base {
         }
         // Windows
         const commandsNb = Data.TitlescreenGameover.gameOverCommands.length;
-        this.windowChoicesCommands = new WindowChoices(ScreenResolution.SCREEN_X / 2 - WindowBox.MEDIUM_SLOT_WIDTH / 2, ScreenResolution.SCREEN_Y - Constants.HUGE_SPACE - commandsNb * WindowBox.MEDIUM_SLOT_HEIGHT, WindowBox.MEDIUM_SLOT_WIDTH, WindowBox.MEDIUM_SLOT_HEIGHT, Data.TitlescreenGameover.getGameOverCommandsNames(), {
+        this.windowChoicesCommands = new WindowChoices(Data.TitlescreenGameover.gameOverCommandsWindowX, Data.TitlescreenGameover.gameOverCommandsWindowY, WindowBox.MEDIUM_SLOT_WIDTH, WindowBox.MEDIUM_SLOT_HEIGHT, Data.TitlescreenGameover.getGameOverCommandsNames(), {
             nbItemsMax: commandsNb,
             listCallbacks: Data.TitlescreenGameover.getGameOverCommandsActions(),
         });

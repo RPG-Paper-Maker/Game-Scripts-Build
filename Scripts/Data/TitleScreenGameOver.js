@@ -84,6 +84,8 @@ export class TitlescreenGameover {
                 this.titleSettings.push(obj.id ?? 0);
             }
         }
+        this.titleCommandsWindowX = Utils.valueOrDefault(json.tcwx, 440);
+        this.titleCommandsWindowY = Utils.valueOrDefault(json.tcwy, 450);
         // Game over
         this.isGameOverBackgroundImage = Utils.valueOrDefault(json.isGameOverBackgroundImage, true);
         this.isGameOverBackgroundVideo = Utils.valueOrDefault(json.isGameOverBackgroundVideo, false);
@@ -91,5 +93,7 @@ export class TitlescreenGameover {
         this.gameOverBackgroundVideoID = Utils.valueOrDefault(json.gameOverBackgroundVideo, 1);
         this.gameOverMusic = new PlaySong(SONG_KIND.MUSIC, json.gameOverMusic);
         this.gameOverCommands = Utils.readJSONList(json.gameOverCommands, GameOverCommand);
+        this.gameOverCommandsWindowX = Utils.valueOrDefault(json.gocwx, 440);
+        this.gameOverCommandsWindowY = Utils.valueOrDefault(json.gocwy, 510);
     }
 }

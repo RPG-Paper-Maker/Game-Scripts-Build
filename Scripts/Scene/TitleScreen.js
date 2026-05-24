@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { ALIGN, ALIGN_VERTICAL, Constants, PICTURE_KIND, Platform, ScreenResolution } from '../Common/index.js';
+import { ALIGN, ALIGN_VERTICAL, PICTURE_KIND, Platform, ScreenResolution } from '../Common/index.js';
 import { Game, Picture2D, WindowBox, WindowChoices } from '../Core/index.js';
 import { Data, Graphic, Manager } from '../index.js';
 import { Base } from './Base.js';
@@ -96,7 +96,7 @@ class TitleScreen extends Base {
         }
         // Windows
         const commandsNb = Data.TitlescreenGameover.titleCommands.length;
-        this.windowChoicesCommands = new WindowChoices(ScreenResolution.SCREEN_X / 2 - WindowBox.MEDIUM_SLOT_WIDTH / 2, ScreenResolution.SCREEN_Y - Constants.HUGE_SPACE - commandsNb * WindowBox.MEDIUM_SLOT_HEIGHT, WindowBox.MEDIUM_SLOT_WIDTH, WindowBox.MEDIUM_SLOT_HEIGHT, Data.TitlescreenGameover.getTitleCommandsNames(), {
+        this.windowChoicesCommands = new WindowChoices(Data.TitlescreenGameover.titleCommandsWindowX, Data.TitlescreenGameover.titleCommandsWindowY, WindowBox.MEDIUM_SLOT_WIDTH, WindowBox.MEDIUM_SLOT_HEIGHT, Data.TitlescreenGameover.getTitleCommandsNames(), {
             nbItemsMax: commandsNb,
             listCallbacks: Data.TitlescreenGameover.getTitleCommandsActions(),
             padding: [0, 0, 0, 0],
