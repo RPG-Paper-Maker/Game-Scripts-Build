@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Interpreter } from '../Common/index.js';
+import { DYNAMIC_VALUE_KIND, Interpreter } from '../Common/index.js';
 import { Base } from './Base.js';
 import { Class } from './Class.js';
 import { DynamicValue } from './DynamicValue.js';
@@ -28,18 +28,39 @@ export class StatisticProgression extends Base {
      * @returns The value of the statistic at the specified level
      */
     getValueAtLevel(level, user, maxLevel) {
-        return this.isFix
+        const value = this.isFix
             ? this.table.getProgressionAt(level, maxLevel === undefined
                 ? user.system.getProperty(Class.PROPERTY_FINAL_LEVEL, user.changedClass)
                 : maxLevel)
             : Interpreter.evaluate(this.formula.getValue(), { user: user });
+        return this.clampValue(value);
+    }
+    /**
+     * Clamp a statistic value to its configured maximum value, if any.
+     * @param value - The statistic value to clamp
+     * @returns The clamped value
+     */
+    clampValue(value) {
+        const max = this.getMaxValue();
+        return max === null ? value : Math.min(value, max);
+    }
+    /**
+     * Get the configured maximum value, if any.
+     * @returns The max value, or null when no max is configured
+     */
+    getMaxValue() {
+        if (!this.maxValue || this.maxValue.kind === DYNAMIC_VALUE_KIND.NONE) {
+            return null;
+        }
+        const max = this.maxValue.getValue();
+        return typeof max === 'number' ? max : null;
     }
     /**
      * Reads the JSON data to initialize this statistic progression.
      */
     read(json) {
         this.id = json.id;
-        this.maxValue = new DynamicValue(json.m);
+        this.maxValue = DynamicValue.readOrNone(json.m);
         this.isFix = json.if;
         if (this.isFix) {
             this.table = new ProgressionTable(undefined, json.t);

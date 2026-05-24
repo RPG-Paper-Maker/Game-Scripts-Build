@@ -424,9 +424,9 @@ class Player {
             for (j = 0; j < l; j++) {
                 statisticProgression = statisticsProgression[j];
                 list[statisticProgression.id] =
-                    statisticProgression.getValueAtLevel(this.getCurrentLevel(), previewPlayer, this.system.getProperty(Model.Class.PROPERTY_FINAL_LEVEL, this.changedClass)) +
+                    statisticProgression.clampValue(statisticProgression.getValueAtLevel(this.getCurrentLevel(), previewPlayer, this.system.getProperty(Model.Class.PROPERTY_FINAL_LEVEL, this.changedClass)) +
                         bonus[statisticProgression.id] +
-                        added[statisticProgression.id];
+                        added[statisticProgression.id]);
                 previewPlayer.initStatValue(Data.BattleSystems.getStatistic(statisticProgression.id), list[statisticProgression.id]);
             }
         }
@@ -445,9 +445,13 @@ class Player {
             if (characteristic.kind === CHARACTERISTIC_KIND.INCREASE_DECREASE) {
                 switch (characteristic.increaseDecreaseKind) {
                     case INCREASE_DECREASE_KIND.STAT_VALUE:
-                    case INCREASE_DECREASE_KIND.ELEMENT_RES:
+                    case INCREASE_DECREASE_KIND.ELEMENT_RES: {
                         const result = characteristic.getNewStatValue(this);
                         if (result !== null) {
+                            if (result[0] === Data.BattleSystems.idLevelStatistic ||
+                                result[0] === Data.BattleSystems.idExpStatistic) {
+                                continue;
+                            }
                             if (list[result[0]] === null) {
                                 statistic = Data.BattleSystems.getStatistic(result[0]);
                                 base = this[statistic.getAbbreviationNext()] - this[statistic.getBonusAbbreviation()];
@@ -458,6 +462,7 @@ class Player {
                             bonus[result[0]] += result[1];
                         }
                         break;
+                    }
                     default:
                         characteristic.setIncreaseDecreaseValues(res);
                         break;
