@@ -1246,10 +1246,8 @@ class Map extends Base {
             this.scene.remove(this.scene.children[i]);
         }
         Manager.GL.renderer.renderLists.dispose();
-        // Clear bounding boxes
-        Manager.Collisions.applyBoxSpriteTransforms(Manager.Collisions.BB_BOX, [0, 0, 0, 0, 0, 0, 0, 0, 0]);
-        Manager.Collisions.applyOrientedBoxTransforms(Manager.Collisions.BB_ORIENTED_BOX, [0, 0, 0, 0, 0, 0, 0, 0, 0]);
-        Manager.Collisions.applyBoxSpriteTransforms(Manager.Collisions.getBBBoxDetection(true), [0, 0, 0, 0, 0, 0, 0, 0, 0]);
+        // Clear reusable collision probes without leaving zero-scale state behind.
+        Manager.Collisions.resetBBBoxes();
     }
     /**
      *  Rebuild caterpillar followers, preserving positions of existing slots.
