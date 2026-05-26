@@ -90,6 +90,7 @@ export class Languages {
             equipQuestion: new Localization(json.eq),
             pressAnyKeys: new Localization(json.pak),
             target: new Localization(json.ta),
+            skip: new Localization(json.si),
         };
     }
 }
