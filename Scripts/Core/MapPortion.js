@@ -358,9 +358,9 @@ class MapPortion {
             const position = Position.createFromArray(k);
             const mountain = new Mountain();
             mountain.read(v);
+            const mountainData = Data.SpecialElements.getMountain(mountain.mountainID);
             let pictureID = Game.current.textures.mountains[mountain.mountainID];
             if (pictureID === undefined) {
-                const mountainData = Data.SpecialElements.getMountain(mountain.mountainID);
                 if (!mountainData) {
                     continue;
                 }
@@ -380,6 +380,10 @@ class MapPortion {
             }
             if (texture !== null && texture.material !== null) {
                 const objCollision = mountains.updateGeometry(position, mountain, pictureID);
+                const mountainTerrain = mountainData?.terrain ?? 0;
+                for (const coll of objCollision) {
+                    coll.mountainTerrain = mountainTerrain;
+                }
                 this.updateCollision(this.boundingBoxesMountains, objCollision, position, true, Scene.Map.current.overflowMountains);
             }
         }

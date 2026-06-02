@@ -76,6 +76,18 @@ class SetDialogBoxOptions extends Base {
         if (Utils.numberToBool(command[iterator.i++])) {
             this.tFont = Model.DynamicValue.createValueCommand(command, iterator);
         }
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.iX = Model.DynamicValue.createValueCommand(command, iterator);
+        }
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.iY = Model.DynamicValue.createValueCommand(command, iterator);
+        }
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.iW = Model.DynamicValue.createValueCommand(command, iterator);
+        }
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.iH = Model.DynamicValue.createValueCommand(command, iterator);
+        }
     }
     /**
      *  Update and check if the event is finished
@@ -138,6 +150,18 @@ class SetDialogBoxOptions extends Base {
         }
         if (this.tFont !== undefined) {
             Data.Systems.dbOptions.v_tFont = Data.Systems.getFontName(this.tFont.getValue()).getName();
+        }
+        if (this.iX !== undefined) {
+            Data.Systems.dbOptions.v_iX = this.iX.getValue();
+        }
+        if (this.iY !== undefined) {
+            Data.Systems.dbOptions.v_iY = this.iY.getValue();
+        }
+        if (this.iW !== undefined) {
+            Data.Systems.dbOptions.v_iW = this.iW.getValue();
+        }
+        if (this.iH !== undefined) {
+            Data.Systems.dbOptions.v_iH = this.iH.getValue();
         }
         return 1;
     }
