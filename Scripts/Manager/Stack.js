@@ -247,6 +247,7 @@ class Stack {
                     this.subTop.draw3D();
                 }
                 else {
+                    Manager.GL.renderer.setClearColor(0x000000, 1);
                     Manager.GL.renderer.clear();
                 }
             }

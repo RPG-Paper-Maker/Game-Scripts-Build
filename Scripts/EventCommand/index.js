@@ -20,6 +20,7 @@ export * from "./ChangeChronometer.js";
 export * from "./ChangeClass.js";
 export * from "./ChangeEquipment.js";
 export * from "./ChangeExperienceCurve.js";
+export * from "./ChangeFog.js";
 export * from "./ChangeMapProperties.js";
 export * from "./ChangeName.js";
 export * from "./ChangeProperty.js";

@@ -52,7 +52,12 @@ export class MapProperties extends Localization {
      * Update the background image.
      */
     updateBackgroundImage() {
-        const texture = Manager.GL.textureLoader.load(Data.Pictures.get(PICTURE_KIND.PICTURES, this.backgroundImageID).getPath());
+        const picture = Data.Pictures.get(PICTURE_KIND.PICTURES, this.backgroundImageID);
+        if (this.backgroundImageID === -1 || !picture?.getPath()) {
+            Scene.Map.current.scene.background = new THREE.Color(0x000000);
+            return;
+        }
+        const texture = Manager.GL.textureLoader.load(picture.getPath());
         texture.magFilter = THREE.NearestFilter;
         texture.minFilter = THREE.NearestFilter;
         Scene.Map.current.scene.background = texture;
@@ -66,6 +71,31 @@ export class MapProperties extends Localization {
         this.skyboxGeometry = new THREE.BoxGeometry(size, size, size);
         this.skyboxMesh = new THREE.Mesh(this.skyboxGeometry, Data.Systems.getSkybox(this.backgroundSkyboxID.getValue()).createTextures());
         Scene.Map.current.scene.add(this.skyboxMesh);
+    }
+    /**
+     * Update the fog of the current map.
+     */
+    updateFog() {
+        const map = Scene.Map.current;
+        if (!map) {
+            return;
+        }
+        if (this.isFog) {
+            const color = Data.Systems.getColor(this.fogColorID.getValue());
+            map.scene.fog = new THREE.FogExp2(color.color.getHex(), this.fogIntensity.getValue());
+        }
+        else {
+            map.scene.fog = null;
+        }
+    }
+    /**
+     * Apply this map's default screen tone to the renderer.
+     */
+    updateScreenTone() {
+        Manager.GL.screenTone.set(Math.max(Math.min(this.screenToneRed.getValue() / 255, 1), -1), Math.max(Math.min(this.screenToneGreen.getValue() / 255, 1), -1), Math.max(Math.min(this.screenToneBlue.getValue() / 255, 1), -1), Math.max(Math.min(1 - this.screenToneGrey.getValue() / 100, 1), -1));
+        if (this.backgroundColor) {
+            Manager.GL.updateBackgroundColor(this.backgroundColor);
+        }
     }
     /**
      * Update the max steps numbers for starting a random battle.
@@ -168,6 +198,13 @@ export class MapProperties extends Localization {
         this.randomBattleVariance = DynamicValue.readOrDefaultNumber(json.randomBattleVariance, 20);
         this.updateMaxNumberSteps();
         this.isSunLight = Utils.valueOrDefault(json.isl, true);
+        this.isFog = Utils.valueOrDefault(json.isFog, false);
+        this.fogColorID = DynamicValue.readOrDefaultDatabase(json.fogColor, 1);
+        this.fogIntensity = DynamicValue.readOrDefaultNumber(json.fogIntensity, 0.06);
+        this.screenToneRed = DynamicValue.readOrDefaultNumber(json.screenToneRed, 0);
+        this.screenToneGreen = DynamicValue.readOrDefaultNumber(json.screenToneGreen, 0);
+        this.screenToneBlue = DynamicValue.readOrDefaultNumber(json.screenToneBlue, 0);
+        this.screenToneGrey = DynamicValue.readOrDefaultNumber(json.screenToneGrey, 0);
         this.readObjects(json);
     }
     /**

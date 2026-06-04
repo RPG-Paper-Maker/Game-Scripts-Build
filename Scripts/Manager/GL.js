@@ -216,4 +216,5 @@ class GL {
 GL.textureLoader = new THREE.TextureLoader();
 GL.raycaster = new THREE.Raycaster();
 GL.screenTone = new THREE.Vector4(0, 0, 0, 1);
+GL.screenToneByCommand = false;
 export { GL };
