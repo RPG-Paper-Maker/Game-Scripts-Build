@@ -118,8 +118,12 @@ class MenuInventory extends Base {
             if (Data.Systems.inventoryFilters[indexTab].getFilter()(ownedItem)) {
                 list.push(new Graphic.Item(ownedItem, {
                     possible: !ownedItem.system.isWeaponArmor() &&
-                        ownedItem.system.consumable &&
-                        ownedItem.system.isPossible(),
+                        ownedItem.system.isPossible() &&
+                        (ownedItem.system.availableKind === AVAILABLE_KIND.ALWAYS ||
+                            ownedItem.system.availableKind === AVAILABLE_KIND.MAIN_MENU) &&
+                        (ownedItem.system.targetKind === TARGET_KIND.NONE ||
+                            ownedItem.system.targetKind === TARGET_KIND.ALLY ||
+                            ownedItem.system.targetKind === TARGET_KIND.ALL_ALLIES),
                 }));
             }
         }
