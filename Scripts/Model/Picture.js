@@ -333,7 +333,9 @@ class Picture extends Base {
         const sounds = this.terrainSounds.get(terrain);
         if (sounds && sounds.length > 0) {
             sounds[Math.floor(Math.random() * sounds.length)].playSound();
+            return true;
         }
+        return false;
     }
 }
 export { Picture };
