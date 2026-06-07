@@ -21,14 +21,22 @@ export class Variables {
         return Base.get(id, this.names, 'variable name');
     }
     /**
+     * Get the variable default value by ID.
+     */
+    static getDefaultValue(id) {
+        return this.defaultValues?.get(id) ?? 0;
+    }
+    /**
      * Read the JSON file associated with variables.
      */
     static async read() {
         const json = (await Platform.parseFileJSON(Paths.FILE_VARIABLES));
         this.names = new Map();
+        this.defaultValues = new Map();
         for (const page of json.variables) {
             for (const variable of page.list) {
                 this.names.set(variable.id, variable.name);
+                this.defaultValues.set(variable.id, variable.dv ?? 0);
             }
         }
     }

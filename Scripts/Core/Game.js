@@ -392,7 +392,7 @@ class Game {
      *  Initialize the default variables.
      */
     initializeVariables() {
-        this.variables = new Map(Data.Variables.names.keys().map((id) => [id, 0]));
+        this.variables = new Map(Data.Variables.names.keys().map((id) => [id, Data.Variables.getDefaultValue(id)]));
     }
     /**
      *  Instanciate a new character in a group in the game.
@@ -554,7 +554,16 @@ class Game {
         }
         if (!this.mapsData[id][i][jp][jabs][k]) {
             this.mapsData[id][i][jp][jabs][k] = {
-                min: [], mout: [], m: [], si: [], s: [], pi: [], p: [], r: [], soi: [], so: [],
+                min: [],
+                mout: [],
+                m: [],
+                si: [],
+                s: [],
+                pi: [],
+                p: [],
+                r: [],
+                soi: [],
+                so: [],
             };
         }
         return this.mapsData[id][i][jp][jabs][k];

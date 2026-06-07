@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Utils } from '../Common/index.js';
+import { ScreenResolution, Utils } from '../Common/index.js';
 import { Base } from './Base.js';
 /**
  * Represents a single element (sprite) of an animation frame.
@@ -35,8 +35,8 @@ class AnimationFrameElement extends Base {
         const w = picture.oW / cols;
         const h = picture.oH / rows;
         picture.draw({
-            x: position.x + this.x,
-            y: position.y + this.y,
+            x: position.x + ScreenResolution.getScreenX(this.x),
+            y: position.y + ScreenResolution.getScreenY(this.y),
             w: w * this.zoom,
             h: h * this.zoom,
             sx: w * this.texCol,
