@@ -327,6 +327,20 @@ class Picture extends Base {
         this.collisionsRepeat = Utils.valueOrDefault(json.rcol, false);
         this.isStopAnimation = Utils.valueOrDefault(json.isStopAnimation, false);
         this.isClimbAnimation = Utils.valueOrDefault(json.ica, false);
+        this.limit = json.lim ? Rectangle.createFromArray(json.lim) : null;
+    }
+    /**
+     * Get the content limit rectangle (in squares) for a single frame, falling
+     * back to the full frame size when no manual limit is defined.
+     * @param frameWidth - Single frame width in squares.
+     * @param frameHeight - Single frame height in squares.
+     */
+    getLimit(frameWidth, frameHeight) {
+        if (this.limit) {
+            const ss = Data.Systems.SQUARE_SIZE;
+            return new Rectangle(this.limit.x / ss, this.limit.y / ss, this.limit.width / ss, this.limit.height / ss);
+        }
+        return new Rectangle(0, 0, frameWidth, frameHeight);
     }
     /** Play a random footstep sound for a terrain, when configured. */
     playFootstep(terrain) {

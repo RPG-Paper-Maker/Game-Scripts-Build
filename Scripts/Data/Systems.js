@@ -203,6 +203,7 @@ export class Systems {
         this.moveCameraOnBlockView = DynamicValue.readOrDefaultSwitch(json.mcobv, true);
         this.caterpillarMaxPartyMembers = DynamicValue.readOrDefaultNumber(json.cmpb, 0);
         this.caterpillarFirstIndex = DynamicValue.readOrDefaultNumber(json.cfi, 1);
+        this.caterpillarOffset = DynamicValue.readOrDefaultNumberDouble(json.cof, 0);
         this.mapFrameDuration = DynamicValue.readOrDefaultNumber(json.mfd, 150);
         this.battlersFrames = Utils.valueOrDefault(json.battlersFrames, 4);
         this.battlersFrameDuration = Utils.valueOrDefault(json.bfd, 'Common.Mathf.random(250, 300)');
