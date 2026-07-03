@@ -24,6 +24,7 @@ import { Base } from './Base.js';
 class Map extends Base {
     constructor(id, isBattleMap = false, minimal = false, heroOrientation = null) {
         super(false);
+        this.objectsSpatialHash = new globalThis.Map();
         this.previousWeatherPoints = null;
         this.weatherPoints = null;
         this.overflowSprites = new globalThis.Map();
@@ -576,6 +577,42 @@ class Map extends Base {
         return Game.current.getPortionData(this.id, portion);
     }
     /**
+     *  Rebuild the objects spatial hash (collision broad phase) from every
+     *  loaded portion. Must run before objects move on the current frame.
+     */
+    updateObjectsSpatialHash() {
+        const hash = this.objectsSpatialHash;
+        hash.clear();
+        const cellSize = Manager.Collisions.SPATIAL_HASH_CELL_SIZE;
+        const add = function (list) {
+            if (!list) {
+                return;
+            }
+            for (let i = 0, l = list.length; i < l; i++) {
+                const obj = list[i];
+                if (!obj || obj.removed || !obj.meshBoundingBox || !obj.position) {
+                    continue;
+                }
+                const key = Manager.Collisions.spatialHashKey(Math.floor(obj.position.x / cellSize), Math.floor(obj.position.z / cellSize));
+                let cell = hash.get(key);
+                if (cell === undefined) {
+                    cell = [];
+                    hash.set(key, cell);
+                }
+                cell.push(obj);
+            }
+        };
+        this.updatePortions(this, function (x, y, z, i, j, k) {
+            const mapPortion = this.getMapPortion(i, j, k);
+            if (mapPortion) {
+                add(mapPortion.objectsList);
+            }
+            const datas = Game.current.getPortionData(this.id, new Portion(x, y, z));
+            add(datas.min);
+            add(datas.mout);
+        });
+    }
+    /**
      *  Get a map portion at local postions.
      *  @param {number} x - The local x portion
      *  @param {number} y - The local y portion
@@ -994,6 +1031,7 @@ class Map extends Base {
         }
         // Update the objects
         if (Game.current !== null) {
+            this.updateObjectsSpatialHash();
             Game.current.hero.update(angle);
             // Update caterpillar followers
             if (!this.isBattleMap && Game.current.caterpillarFollowers.length > 0) {

@@ -694,22 +694,31 @@ class Collisions {
         if (object !== Game.current.hero && object.checkCollisionObject(Game.current.hero)) {
             return [true, null, ORIENTATION.NONE];
         }
-        // Check objects collisions
-        const sp = Collisions._scratchPortion;
-        sp.x = Math.floor(positionAfter.x / Constants.PORTION_SIZE);
-        sp.y = Math.floor(positionAfter.y / Constants.PORTION_SIZE);
-        sp.z = Math.floor(positionAfter.z / Constants.PORTION_SIZE);
-        const portion = Scene.Map.current.getLocalPortion(sp);
-        let i, j, mapPortion;
+        // Check objects collisions using the map spatial hash (broad phase)
+        const hash = Scene.Map.current.objectsSpatialHash;
+        const cellSize = Collisions.SPATIAL_HASH_CELL_SIZE;
+        const cx = Math.floor(positionAfter.x / cellSize);
+        const cz = Math.floor(positionAfter.z / cellSize);
+        let i, j, cell;
         for (i = -1; i <= 1; i++) {
             for (j = -1; j <= 1; j++) {
-                mapPortion = Scene.Map.current.getMapPortion(portion.x + i, portion.y, portion.z + j);
-                if (mapPortion && this.checkObjects(mapPortion, object)) {
+                cell = hash.get(Collisions.spatialHashKey(cx + i, cz + j));
+                if (cell !== undefined && this.checkObjectsList(cell, object)) {
                     return [true, null, ORIENTATION.NONE];
                 }
             }
         }
         return null;
+    }
+    /**
+     *  Build the spatial hash key for a x/z cell of the objects broad phase.
+     *  @static
+     *  @param {number} cellX - The cell x coordinate
+     *  @param {number} cellZ - The cell z coordinate
+     *  @returns {number}
+     */
+    static spatialHashKey(cellX, cellZ) {
+        return cellX * 65536 + cellZ;
     }
     /**
      *  Check if there is a collision at this position.
@@ -1411,6 +1420,7 @@ class Collisions {
         return false;
     }
 }
+Collisions.SPATIAL_HASH_CELL_SIZE = 8;
 Collisions.BB_MATERIAL = new THREE.MeshBasicMaterial();
 Collisions.BB_MATERIAL_DETECTION = new THREE.MeshBasicMaterial();
 Collisions.BB_EMPTY_MATERIAL = new THREE.MeshBasicMaterial({ visible: false });
