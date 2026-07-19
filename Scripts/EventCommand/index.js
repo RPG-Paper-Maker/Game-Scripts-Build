@@ -51,6 +51,7 @@ export * from "./JumpToLabel.js";
 export * from "./Label.js";
 export * from "./ModifyCurrency.js";
 export * from "./ModifyInventory.js";
+export * from "./ModifyLight.js";
 export * from "./ModifyTeam.js";
 export * from "./MoveCamera.js";
 export * from "./MoveObject.js";

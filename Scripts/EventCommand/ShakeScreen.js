@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Utils } from '../Common/index.js';
-import { EventCommand, Manager, Model, Scene } from '../index.js';
+import { Data, EventCommand, Manager, Model, Scene } from '../index.js';
 import { Base } from './Base.js';
 /** @class
  *  An event command for shaking screen.
@@ -57,7 +57,7 @@ class ShakeScreen extends Base {
             shakeNumber = (floor !== 0 && totalShakes - floor < ceil - totalShakes ? floor : ceil) / t;
         }
         const shakeTime = (1 / (shakeNumber * 2)) * 1000;
-        const offset = this.offset.getValue();
+        const offset = this.offset.getValue() / Data.Systems.SQUARE_SIZE;
         return {
             parallel: this.isWaitEnd,
             offset: offset,
