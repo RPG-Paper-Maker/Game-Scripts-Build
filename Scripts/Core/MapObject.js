@@ -1525,9 +1525,18 @@ class MapObject {
         let target;
         let parent;
         switch (kind) {
+            case 0: {
+                if (settings.followOrientation.getValue() === 1) {
+                    parent = new THREE.Group();
+                    parent.rotation.set(THREE.MathUtils.degToRad(this.currentStateInstance.angleX.getValue()), this.getLightsAngleY(true), THREE.MathUtils.degToRad(this.currentStateInstance.angleZ.getValue()));
+                    group.add(parent);
+                }
+                light = new THREE.PointLight(color, intensity, settings.distance.getValue());
+                break;
+            }
             case 1: {
                 parent = new THREE.Group();
-                parent.rotation.set(THREE.MathUtils.degToRad(this.currentStateInstance.angleX.getValue()), this.getSpotLightsAngleY(), THREE.MathUtils.degToRad(this.currentStateInstance.angleZ.getValue()));
+                parent.rotation.set(THREE.MathUtils.degToRad(this.currentStateInstance.angleX.getValue()), this.getLightsAngleY(settings.followOrientation.getValue() === 1), THREE.MathUtils.degToRad(this.currentStateInstance.angleZ.getValue()));
                 group.add(parent);
                 const spot = new THREE.SpotLight(color, intensity, settings.distance.getValue(), THREE.MathUtils.degToRad(settings.angle.getValue()), settings.penumbra.getValue());
                 target = spot.target;
@@ -1572,10 +1581,13 @@ class MapObject {
             if (light instanceof THREE.PointLight || light instanceof THREE.SpotLight) {
                 light.distance = settings.distance.getValue();
             }
+            if (light instanceof THREE.SpotLight ||
+                (light instanceof THREE.PointLight && settings.followOrientation.getValue() === 1)) {
+                parent?.rotation.set(THREE.MathUtils.degToRad(this.currentStateInstance.angleX.getValue()), this.getLightsAngleY(settings.followOrientation.getValue() === 1), THREE.MathUtils.degToRad(this.currentStateInstance.angleZ.getValue()));
+            }
             if (light instanceof THREE.SpotLight) {
                 light.angle = THREE.MathUtils.degToRad(settings.angle.getValue());
                 light.penumbra = settings.penumbra.getValue();
-                parent?.rotation.set(THREE.MathUtils.degToRad(this.currentStateInstance.angleX.getValue()), this.getSpotLightsAngleY(), THREE.MathUtils.degToRad(this.currentStateInstance.angleZ.getValue()));
             }
             if (light instanceof THREE.HemisphereLight) {
                 light.groundColor.set(settings.groundColor.getValue());
@@ -1586,8 +1598,8 @@ class MapObject {
             }
         }
     }
-    /** Get the spotlight Y rotation from the state transform and cardinal object facing. */
-    getSpotLightsAngleY() {
+    /** Get the point/spotlight Y rotation from the state transform and cardinal object facing. */
+    getLightsAngleY(followOrientation) {
         let orientationAngle = 0;
         switch (this.orientationEye) {
             case ORIENTATION.EAST:
@@ -1600,7 +1612,7 @@ class MapObject {
                 orientationAngle = 270;
                 break;
         }
-        return THREE.MathUtils.degToRad(this.currentStateInstance.angleY.getValue() + orientationAngle);
+        return THREE.MathUtils.degToRad(this.currentStateInstance.angleY.getValue() + (followOrientation ? orientationAngle : 0));
     }
     /**
      *  Update sprite faces angles.

@@ -19,6 +19,8 @@ export class StateLight {
     constructor(json) {
         this.id = json.id ?? 0;
         this.kind = StateLight.readNumber(json.k, 0);
+        const kind = typeof json.k === 'number' ? json.k : (json.k?.v ?? 0);
+        this.followOrientation = StateLight.readNumber(json.fo, kind === 1 ? 1 : 0);
         this.color = StateLight.readText(json.c, '#ffffff');
         this.groundColor = StateLight.readText(json.gc, '#444444');
         this.intensity = StateLight.readNumber(json.i, 5);
@@ -37,6 +39,7 @@ export class StateLight {
     createCopy() {
         const light = new StateLight({ id: this.id });
         light.kind = this.kind.createCopy();
+        light.followOrientation = this.followOrientation.createCopy();
         light.color = this.color.createCopy();
         light.groundColor = this.groundColor.createCopy();
         light.intensity = this.intensity.createCopy();
