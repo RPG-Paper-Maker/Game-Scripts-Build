@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Manager } from "../index.js";
+import { Data, Manager } from "../index.js";
 import { Paths, PICTURE_KIND, Platform } from '../Common/index.js';
 import { Picture2D } from '../Core/index.js';
 import { Picture } from '../Model/index.js';
@@ -60,7 +60,22 @@ export class Pictures {
     /**
      * Read the JSON file associated with pictures.
      */
+    static async readTitleScreen() {
+        const windowSkin = Data.Systems.getCurrentWindowSkin();
+        const selected = new Map([
+            [PICTURE_KIND.WINDOW_SKINS, new Set([windowSkin.pictureID])],
+        ]);
+        if (Data.TitlescreenGameover.isTitleBackgroundImage) {
+            selected.set(PICTURE_KIND.TITLE_SCREEN, new Set([Data.TitlescreenGameover.titleBackgroundImageID]));
+        }
+        await this.readSelected(selected);
+    }
+    /** Read all pictures, including assets deferred until the game starts. */
     static async read() {
+        await this.readSelected();
+    }
+    /** Read only the requested pictures, or every picture when no selection is supplied. */
+    static async readSelected(selected) {
         const json = (await Platform.parseFileJSON(Paths.FILE_PICTURES));
         this.list = new Map();
         for (const jsonHash of json.list) {
@@ -70,6 +85,9 @@ export class Pictures {
             for (const jsonPicture of jsonList) {
                 const id = jsonPicture.id ?? 0;
                 if (id === 0 || id === -1) {
+                    continue;
+                }
+                if (selected && !selected.get(k)?.has(id)) {
                     continue;
                 }
                 const picture = new Picture(jsonPicture);
@@ -92,8 +110,10 @@ export class Pictures {
             }
             this.list.set(k, list);
         }
-        await this.loadTextures(PICTURE_KIND.CHARACTERS, this.PROPERTY_TEXTURES_CHARACTERS);
-        await this.loadTextures(PICTURE_KIND.BATTLERS, this.PROPERTY_TEXTURES_BATTLERS);
+        if (!selected) {
+            await this.loadTextures(PICTURE_KIND.CHARACTERS, this.PROPERTY_TEXTURES_CHARACTERS);
+            await this.loadTextures(PICTURE_KIND.BATTLERS, this.PROPERTY_TEXTURES_BATTLERS);
+        }
     }
 }
 Pictures.PROPERTY_TEXTURES_CHARACTERS = 'texturesCharacters';

@@ -8,7 +8,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Paths, Platform, Utils } from '../Common/index.js';
+import { Paths, Platform } from '../Common/index.js';
+import { Data } from '../index.js';
 import { Video } from '../Model/index.js';
 import { Base } from './Base.js';
 /**
@@ -34,8 +35,21 @@ export class Videos {
      * Read the JSON file associated with videos.
      */
     static async read() {
+        await this.readSelected();
+    }
+    /** Read only the title-screen video before the game data is fully loaded. */
+    static async readTitleScreen() {
+        await this.readSelected(Data.TitlescreenGameover.isTitleBackgroundVideo ? Data.TitlescreenGameover.titleBackgroundVideoID : -1);
+    }
+    static async readSelected(id) {
         const json = (await Platform.parseFileJSON(Paths.FILE_VIDEOS));
-        this.list = Utils.readJSONMap(json.list, Video);
+        this.list = new Map();
+        for (const videoJSON of json.list) {
+            if (id !== undefined && videoJSON.id !== id) {
+                continue;
+            }
+            this.list.set(videoJSON.id, new Video(videoJSON));
+        }
         for (const video of this.list.values()) {
             await video.checkBase64();
         }
