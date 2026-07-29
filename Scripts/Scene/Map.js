@@ -34,6 +34,7 @@ class Map extends Base {
         this.heroTrail = [];
         this.heroTrailTotalDist = 0;
         this.heroTrailLastPos = null;
+        this.previousLayerDepthOffset = -1;
         this.id = id;
         this.isBattleMap = isBattleMap;
         this.mapFilename = Scene.Map.generateMapName(id);
@@ -788,6 +789,16 @@ class Map extends Base {
             }
         }
     }
+    updateLayerOffsets() {
+        const layerDepthOffset = this.camera.getLayerDepthOffset();
+        if (layerDepthOffset === this.previousLayerDepthOffset) {
+            return;
+        }
+        this.previousLayerDepthOffset = layerDepthOffset;
+        for (const mapPortion of this.mapPortions) {
+            mapPortion?.updateLayerOffsets();
+        }
+    }
     /**
      *  Get a random particle weather position according to options.
      *  @param {number} portionsRay
@@ -1014,6 +1025,7 @@ class Map extends Base {
         // Update camera
         this.camera.forceNoHide = true;
         this.camera.update();
+        this.updateLayerOffsets();
         // Update skybox
         if (this.mapProperties.skyboxGeometry !== null && this.previousCameraPosition) {
             const posDif = this.camera.getThreeCamera().position.clone().sub(this.previousCameraPosition);

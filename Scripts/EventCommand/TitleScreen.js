@@ -28,7 +28,7 @@ class TitleScreen extends Base {
      */
     update(currentState, object, state) {
         Manager.Stack.popAll();
-        Manager.Stack.pushTitleScreen();
+        Manager.Stack.pushTitleScreen(true);
         return 1;
     }
 }

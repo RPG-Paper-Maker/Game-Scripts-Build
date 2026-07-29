@@ -132,8 +132,8 @@ class Picture2D extends Bitmap {
                 this.h = ScreenResolution.CANVAS_HEIGHT;
             }
             else if (this.stretch) {
-                this.w = ScreenResolution.getScreenX(this.oW);
-                this.h = ScreenResolution.getScreenY(this.oH);
+                this.w = ScreenResolution.CANVAS_WIDTH;
+                this.h = ScreenResolution.CANVAS_HEIGHT;
             }
             else {
                 this.w = ScreenResolution.getScreenMinXY(this.oW);

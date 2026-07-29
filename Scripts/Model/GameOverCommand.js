@@ -63,7 +63,7 @@ export class GameOverCommand extends Localization {
     titleScreen() {
         GameOverCommand.stopGameOverVideo();
         Manager.Stack.popAll();
-        Manager.Stack.pushTitleScreen();
+        Manager.Stack.pushTitleScreen(true);
         return true;
     }
     /**

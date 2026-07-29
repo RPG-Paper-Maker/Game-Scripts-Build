@@ -75,7 +75,7 @@ export class MainMenuCommand extends Localization {
                 return () => {
                     Manager.Stack.push(new Scene.Confirm(() => {
                         Manager.Stack.popAll();
-                        Manager.Stack.push(new Scene.TitleScreen());
+                        Manager.Stack.pushTitleScreen(true);
                     }));
                     return true;
                 };

@@ -94,10 +94,11 @@ class Stack {
     }
     /**
      *  Push the title screen when empty.
+     *  @param {boolean} startAtLoop - Skip the title video introduction.
      *  @returns {Scene.TitleScreen}
      */
-    static pushTitleScreen() {
-        const scene = new Scene.TitleScreen();
+    static pushTitleScreen(startAtLoop = false) {
+        const scene = new Scene.TitleScreen(startAtLoop);
         this.push(scene);
         return scene;
     }

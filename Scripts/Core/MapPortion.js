@@ -31,6 +31,25 @@ import { SpriteWall } from './SpriteWall.js';
  *  @param {Portion} portion
  */
 class MapPortion {
+    static addLayerOffsets(geometry, start, offsets, layerOffset) {
+        for (let i = start; i < geometry.b_vertices.length; i += 3) {
+            offsets.push(layerOffset);
+        }
+    }
+    static setLayerOffsets(geometry, offsets, axis) {
+        if (offsets.length === 0) {
+            return;
+        }
+        const base = Float32Array.from(geometry.getVertices());
+        const axisIndex = axis === 'y' ? 1 : 2;
+        const offset = Scene.Map.current.camera.getLayerDepthOffset();
+        for (let i = 0; i < offsets.length; i++) {
+            base[i * 3 + axisIndex] -= offsets[i] * offset;
+        }
+        geometry.userData.layerOffsetBase = base;
+        geometry.userData.layerOffsets = offsets;
+        geometry.userData.layerOffsetAxis = axis;
+    }
     constructor(portion) {
         this.portion = portion;
         this.staticFloorsMesh = null;
@@ -94,6 +113,7 @@ class MapPortion {
         const material = Scene.Map.current.textureTileset;
         const { width, height } = Manager.GL.getMaterialTextureSize(material);
         const geometry = new CustomGeometry();
+        const layerOffsets = [];
         const layers = [];
         let count = 0;
         for (const item of json) {
@@ -105,6 +125,7 @@ class MapPortion {
             switch (v.k) {
                 case ELEMENT_MAP_KIND.FLOORS:
                     const floor = new Floor(v);
+                    const start = geometry.b_vertices.length;
                     if (layer > 0) {
                         let j = 0;
                         const m = layers.length;
@@ -120,6 +141,7 @@ class MapPortion {
                     }
                     else {
                         const objCollision = floor.updateGeometry(geometry, position, width, height, count);
+                        MapPortion.addLayerOffsets(geometry, start, layerOffsets, floor.up ? layer : -layer);
                         this.boundingBoxesLands[position.toIndex()].push(objCollision);
                         this.addToNonEmpty(position);
                         count++;
@@ -169,7 +191,9 @@ class MapPortion {
         for (let i = 0, l = layers.length; i < l; i++) {
             const position = layers[i][0];
             const floor = layers[i][1];
+            const start = geometry.b_vertices.length;
             const objCollision = floor.updateGeometry(geometry, position, width, height, count);
+            MapPortion.addLayerOffsets(geometry, start, layerOffsets, floor.up ? position.layer : -position.layer);
             const index = position.toIndex();
             if (objCollision !== null) {
                 this.boundingBoxesLands[index].push(objCollision);
@@ -180,6 +204,7 @@ class MapPortion {
         // Creating the plane
         if (!geometry.isEmpty()) {
             geometry.updateAttributes();
+            MapPortion.setLayerOffsets(geometry, layerOffsets, 'y');
             this.staticFloorsMesh = new THREE.Mesh(geometry, material);
             this.staticFloorsMesh.renderOrder = -1;
             if (Scene.Map.current.mapProperties.isSunLight) {
@@ -221,6 +246,7 @@ class MapPortion {
         }
         const material = Scene.Map.current.textureTileset;
         const staticGeometry = new CustomGeometry();
+        const staticLayerOffsets = [];
         const faceGeometry = new CustomGeometryFace();
         let staticCount = 0, faceCount = 0;
         const { width, height } = Manager.GL.getMaterialTextureSize(material);
@@ -239,7 +265,9 @@ class MapPortion {
                     collisions = resultUpdate[1];
                 }
                 else {
+                    const start = staticGeometry.b_vertices.length;
                     resultUpdate = sprite.updateGeometry(staticGeometry, width, height, position, staticCount, true, localPosition);
+                    MapPortion.addLayerOffsets(staticGeometry, start, staticLayerOffsets, sprite.front ? position.layer : -position.layer);
                     staticCount = resultUpdate[0];
                     collisions = resultUpdate[1];
                 }
@@ -251,6 +279,7 @@ class MapPortion {
         }
         if (!staticGeometry.isEmpty()) {
             staticGeometry.updateAttributes();
+            MapPortion.setLayerOffsets(staticGeometry, staticLayerOffsets, 'z');
             this.staticSpritesMesh = new THREE.Mesh(staticGeometry, material);
             this.staticSpritesMesh.renderOrder = -1;
             if (Scene.Map.current.mapProperties.isSunLight) {
@@ -270,6 +299,29 @@ class MapPortion {
                 this.faceSpritesMesh.customDepthMaterial = material.userData.customDepthMaterial;
             }
             Scene.Map.current.scene.add(this.faceSpritesMesh);
+        }
+    }
+    updateLayerOffsets() {
+        const offset = Scene.Map.current.camera.getLayerDepthOffset();
+        for (const mesh of [this.staticFloorsMesh, this.staticSpritesMesh]) {
+            if (!mesh) {
+                continue;
+            }
+            const geometry = mesh.geometry;
+            const base = geometry.userData.layerOffsetBase;
+            const offsets = geometry.userData.layerOffsets;
+            const axis = geometry.userData.layerOffsetAxis;
+            if (!base || !offsets || !axis) {
+                continue;
+            }
+            const attribute = geometry.getAttribute('position');
+            const values = attribute.array;
+            const axisIndex = axis === 'y' ? 1 : 2;
+            for (let i = 0; i < offsets.length; i++) {
+                values[i * 3 + axisIndex] = base[i * 3 + axisIndex] + offsets[i] * offset;
+            }
+            attribute.needsUpdate = true;
+            geometry.computeBoundingSphere();
         }
     }
     /**
@@ -431,14 +483,18 @@ class MapPortion {
                         clone.position.copy(localPosition);
                         clone.rotation.set((position.angleX * Math.PI) / 180, (position.angleY * Math.PI) / 180, (position.angleZ * Math.PI) / 180);
                         clone.renderOrder = -1;
-                        if (Scene.Map.current.mapProperties.isSunLight) {
-                            clone.traverse((child) => {
-                                if (child instanceof THREE.Mesh) {
+                        clone.traverse((child) => {
+                            if (child instanceof THREE.Mesh) {
+                                const materials = Array.isArray(child.material) ? child.material : [child.material];
+                                for (const material of materials) {
+                                    Manager.GL.applyScreenTone(material);
+                                }
+                                if (Scene.Map.current.mapProperties.isSunLight) {
                                     child.receiveShadow = true;
                                     child.castShadow = true;
                                 }
-                            });
-                        }
+                            }
+                        });
                         clone.layers.enable(1);
                         this.staticObjects3DList.push(clone);
                         Scene.Map.current.scene.add(clone);

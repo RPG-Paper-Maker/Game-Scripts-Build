@@ -161,6 +161,7 @@ class MoveCamera extends Base {
                 // Zoom
                 Scene.Map.current.camera.updateDistance();
                 Scene.Map.current.camera.distance += timeRate * currentState.finalDifDistance;
+                Scene.Map.current.updateLayerOffsets();
                 // If time = 0, then this is the end of the command
                 if (currentState.timeLeft === 0) {
                     Inputs.updateLockedKeysAngles(currentState.initialH);

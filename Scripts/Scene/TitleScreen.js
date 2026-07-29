@@ -18,8 +18,8 @@ import { Base } from './Base.js';
  *  @extends {Scene.Base}
  */
 class TitleScreen extends Base {
-    constructor() {
-        super();
+    constructor(startAtLoop = false) {
+        super(true, startAtLoop);
         /**
          *  Whether video autoplay was blocked by the browser (requires user interaction first).
          *  @type {boolean}
@@ -35,6 +35,12 @@ class TitleScreen extends Base {
          *  @type {boolean}
          */
         this.musicStarted = false;
+    }
+    /**
+     * Initialize the return mode before the asynchronous scene load starts.
+     */
+    initialize(startAtLoop = false) {
+        this.startAtLoop = startAtLoop;
     }
     /**
      *  @inheritdoc
@@ -59,8 +65,9 @@ class TitleScreen extends Base {
         if (Data.TitlescreenGameover.isTitleBackgroundVideo && Data.Videos.has(Data.TitlescreenGameover.titleBackgroundVideoID)) {
             const loop = Data.TitlescreenGameover.titleVideoLoop;
             const loopMs = Data.TitlescreenGameover.titleVideoLoopMs;
+            const startMs = this.startAtLoop && loop ? loopMs : 0;
             try {
-                const played = await Manager.Videos.play(Data.Videos.get(Data.TitlescreenGameover.titleBackgroundVideoID).getPath(), null, loop, loopMs);
+                const played = await Manager.Videos.play(Data.Videos.get(Data.TitlescreenGameover.titleBackgroundVideoID).getPath(), null, loop, loopMs, startMs);
                 if (!played) {
                     this.videoBlocked = true;
                     this.titleReady = true;
@@ -75,7 +82,7 @@ class TitleScreen extends Base {
                     });
                 }
                 else {
-                    this.titleReady = !loop || loopMs === 0;
+                    this.titleReady = !loop || loopMs === 0 || startMs > 0;
                 }
                 videoPlayed = true;
             }
@@ -201,8 +208,9 @@ class TitleScreen extends Base {
         this.videoBlocked = false;
         const loop = Data.TitlescreenGameover.titleVideoLoop;
         const loopMs = Data.TitlescreenGameover.titleVideoLoopMs;
-        this.titleReady = !loop || loopMs === 0;
-        Manager.Videos.play(Data.Videos.get(Data.TitlescreenGameover.titleBackgroundVideoID).getPath(), null, loop, loopMs).catch(console.error);
+        const startMs = this.startAtLoop && loop ? loopMs : 0;
+        this.titleReady = !loop || loopMs === 0 || startMs > 0;
+        Manager.Videos.play(Data.Videos.get(Data.TitlescreenGameover.titleBackgroundVideoID).getPath(), null, loop, loopMs, startMs).catch(console.error);
     }
     /**
      *  @inheritdoc

@@ -10,7 +10,7 @@
 */
 import * as THREE from 'three';
 import { Mathf, Utils } from '../Common/index.js';
-import { Data } from '../index.js';
+import { Data, Scene } from '../index.js';
 import { CustomGeometry } from './CustomGeometry.js';
 import { MapElement } from './MapElement.js';
 import { Rectangle } from './Rectangle.js';
@@ -40,7 +40,7 @@ export class Land extends MapElement {
     updateGeometryLand(geometry, collision, position, width, height, x, y, w, h, count) {
         const localPosition = position.toVector3();
         const a = localPosition.x;
-        let yLayerOffset = position.layer * 0.05;
+        let yLayerOffset = position.layer * Scene.Map.current.camera.getLayerDepthOffset();
         if (!this.up) {
             yLayerOffset *= -1;
         }
@@ -75,9 +75,7 @@ export class Land extends MapElement {
             const rect = collision.rect;
             const pixelDepth = 1 / Data.Systems.SQUARE_SIZE;
             if (!collision.hasAllDirections() || collision.terrain > 0) {
-                let rectB = rect === null
-                    ? [0, 0, 1, 1]
-                    : [rect.x, rect.y, rect.width, rect.height];
+                let rectB = rect === null ? [0, 0, 1, 1] : [rect.x, rect.y, rect.width, rect.height];
                 rectB = [a + rectB[0], b + pixelDepth / 2, c + rectB[1], rectB[2], rectB[3], pixelDepth, 0];
                 objCollision = {
                     p: position,

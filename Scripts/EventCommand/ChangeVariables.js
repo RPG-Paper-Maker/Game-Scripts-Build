@@ -112,11 +112,14 @@ class ChangeVariables extends Base {
                     const objectID = this.valueMapObject.getValue();
                     currentState.valid = false;
                     MapObject.search(objectID, (result) => {
-                        const obj = result.object;
+                        const obj = result?.object;
                         if (!obj) {
                             Platform.showErrorMessage('Cannot find object ID ' +
                                 objectID +
                                 ' in change variables for map object characteristics.');
+                            currentState.skip = true;
+                            currentState.valid = true;
+                            return;
                         }
                         switch (this.valueMapObjectChar) {
                             case VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND.X_SQUARE_POSITION:
@@ -244,6 +247,9 @@ class ChangeVariables extends Base {
         }
         // Apply new value to variable(s)
         if (currentState.valid) {
+            if (currentState.skip) {
+                return 1;
+            }
             for (let i = 0, l = this.nbSelection; i < l; i++) {
                 Game.current.variables.set(this.selection + i, Mathf.OPERATORS_NUMBERS[this.operation](Game.current.getVariable(this.selection + i), currentState.value));
             }

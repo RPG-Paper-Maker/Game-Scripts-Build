@@ -90,7 +90,7 @@ class Sprite extends MapElement {
         return count + 4;
     }
     getVectors(vecA, vecB, vecC, vecD, pos, position, size) {
-        let zPlus = position.layer * 0.05;
+        let zPlus = position.layer * Scene.Map.current.camera.getLayerDepthOffset();
         // Apply an offset according to layer position
         if (this.kind !== ELEMENT_MAP_KIND.SPRITES_FACE && !this.front) {
             zPlus *= -1;
@@ -164,7 +164,10 @@ class Sprite extends MapElement {
         if (tileset) {
             const collisions = Scene.Map.current.mapProperties.tileset.picture.getSquaresForTexture(this.textureRect);
             for (const rect of collisions) {
-                const bOffset = new THREE.Vector3(-twidth - ((this.textureRect.width * position.scaleX) % 2) * 0.5 + rect.x + (rect.width * position.scaleX) / 2, this.textureRect.height * position.scaleY - rect.y - (rect.height * position.scaleY) / 2, 0);
+                const bOffset = new THREE.Vector3(-twidth -
+                    ((this.textureRect.width * position.scaleX) % 2) * 0.5 +
+                    rect.x +
+                    (rect.width * position.scaleX) / 2, this.textureRect.height * position.scaleY - rect.y - (rect.height * position.scaleY) / 2, 0);
                 bOffset.applyEuler(euler);
                 objCollision.push({
                     p: position,
@@ -187,8 +190,13 @@ class Sprite extends MapElement {
             }
             const climbing = Scene.Map.current.mapProperties.tileset.picture.getSquaresClimbing(this.textureRect);
             for (const [x, y] of climbing) {
-                const bOffset = new THREE.Vector3(-twidth - ((this.textureRect.width * position.scaleX) % 2) * 0.5 +
-                    (x + this.xOffset) * position.scaleX + (position.scaleX * position.scaleX) / 2, this.yOffset + this.textureRect.height * position.scaleY - y * position.scaleY - (position.scaleY * position.scaleY) / 2, 0);
+                const bOffset = new THREE.Vector3(-twidth -
+                    ((this.textureRect.width * position.scaleX) % 2) * 0.5 +
+                    (x + this.xOffset) * position.scaleX +
+                    (position.scaleX * position.scaleX) / 2, this.yOffset +
+                    this.textureRect.height * position.scaleY -
+                    y * position.scaleY -
+                    (position.scaleY * position.scaleY) / 2, 0);
                 bOffset.applyEuler(euler);
                 objCollision.push({
                     p: position,

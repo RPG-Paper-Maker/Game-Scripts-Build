@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Mathf } from '../Common/index.js';
-import { Game } from '../Core/index.js';
+import { Game, Position, ReactionInterpreter } from '../Core/index.js';
 import { Model, Scene } from '../index.js';
 import { Base } from './Base.js';
 /** @class
@@ -50,8 +50,9 @@ class ChangeProperty extends Base {
             }
         }
         else {
-            const portion = Scene.Map.current.mapProperties.allObjects.get(object.system.id).getGlobalPortion();
-            const portionData = Game.current.getPortionData(Scene.Map.current.id, portion);
+            const mapID = ReactionInterpreter.currentReaction?.originMapID ?? Scene.Map.current.id;
+            const portion = Position.createFromVector3(object.position).getGlobalPortion();
+            const portionData = Game.current.getPortionData(mapID, portion);
             const indexProp = portionData.pi.indexOf(object.system.id);
             if (indexProp === -1) {
                 props = [];
