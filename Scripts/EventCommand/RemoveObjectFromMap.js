@@ -46,6 +46,10 @@ class RemoveObjectFromMap extends Base {
         if (!currentState.started) {
             currentState.started = true;
             MapObject.search(objectID, (result) => {
+                if (!result) {
+                    currentState.finished = true;
+                    return;
+                }
                 if (!result.object.removed) {
                     if (result.datas !== null) {
                         switch (result.kind) {

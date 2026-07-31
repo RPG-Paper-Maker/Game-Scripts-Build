@@ -239,6 +239,7 @@ class MapObject {
         }
         if (!position) {
             Platform.showErrorMessage('Trying to access an object ID ' + objectID + " that doesn't exists. Please check your commands.");
+            return null;
         }
         const globalPortion = position.getGlobalPortion();
         const mapsData = Game.current.getPortionData(Scene.Map.current.id, globalPortion);
@@ -1006,6 +1007,7 @@ class MapObject {
             this.position.set(position.x, position.y, position.z);
             distance += stepDistance;
         }
+        this.updateBBPosition(this.position);
         if (this.previousOrientation !== null) {
             orientation = this.previousOrientation;
         }
