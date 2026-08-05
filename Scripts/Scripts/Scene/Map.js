@@ -1,0 +1,1511 @@
+/*
+    RPG Paper Maker Copyright (C) 2017-2026 Wano
+
+    RPG Paper Maker engine is under proprietary license.
+    This source code is also copyrighted.
+
+    Use Commercial edition for commercial use of your games.
+    See RPG Paper Maker EULA here:
+        http://rpg-paper-maker.com/index.php/eula.
+*/
+import * as THREE from 'three';
+import { CHARACTER_KIND, Constants, DYNAMIC_VALUE_KIND, Inputs, Interpreter, ORIENTATION, Paths, PICTURE_KIND, Platform, ScreenResolution, TARGET_KIND, Utils, } from '../Common/index.js';
+import { Autotiles, Camera, Frame, Game, MapObject, MapPortion, Portion, ReactionInterpreter, } from '../Core/index.js';
+import { Data, Manager, Model, Scene } from '../index.js';
+import { Base } from './Base.js';
+/** @class
+ *  A scene for a local map.
+ *  @extends Scene.Base
+ *  @param {number} id - The map ID
+ *  @param {boolean} [isBattleMap=false] - Indicate if this map is a battle one
+ *  @param {boolean} [minimal=false] - Indicate if the map should be partialy
+ *  loaded (only for getting objects infos)
+ */
+class Map extends Base {
+    constructor(id, isBattleMap = false, minimal = false, heroOrientation = null) {
+        super(false);
+        this.objectsSpatialHash = new globalThis.Map();
+        this.previousWeatherPoints = null;
+        this.weatherPoints = null;
+        this.overflowSprites = new globalThis.Map();
+        this.overflowMountains = new globalThis.Map();
+        this.overflowObjects3D = new globalThis.Map();
+        this._cameraDirection = new THREE.Vector3();
+        this.heroTrail = [];
+        this.heroTrailTotalDist = 0;
+        this.heroTrailLastPos = null;
+        this.previousLayerDepthOffset = -1;
+        this.id = id;
+        this.isBattleMap = isBattleMap;
+        this.mapFilename = Scene.Map.generateMapName(id);
+        this.loading = false;
+        this.heroOrientation = heroOrientation;
+        if (!minimal) {
+            this.clearOnLoad = true;
+            this.loading = true;
+            this.load().catch(console.error);
+        }
+    }
+    /**
+     *  Load async stuff.
+     */
+    async load() {
+        Scene.Map.current = this;
+        if (!this.isBattleMap) {
+            Game.current.currentMapID = this.id;
+        }
+        this.scene = new THREE.Scene();
+        // Adding meshes for collision
+        this.collisions = [];
+        await this.readMapProperties();
+        this.initializeSunLight();
+        this.mapProperties.updateFog();
+        if (!this.isBattleMap) {
+            if (Manager.GL.screenToneByCommand) {
+                Manager.GL.screenToneByCommand = false;
+            }
+            else {
+                this.mapProperties.updateScreenTone();
+            }
+        }
+        this.initializeCamera();
+        this.initializePortionsObjects();
+        await this.loadTextures();
+        this.loadCollisions();
+        await this.initializePortions();
+        if (!this.isBattleMap) {
+            await this.initCaterpillarFollowers();
+        }
+        this.createWeather(false);
+        this.createWeather();
+        Manager.Stack.requestPaintHUD = true;
+        this.clearOnLoad = false;
+        this.loading = false;
+    }
+    /**
+     *  Reload only the textures + collisions
+     */
+    async reloadTextures() {
+        const limit = Data.Systems.PORTIONS_RAY;
+        let i, j, k;
+        for (i = -limit; i <= limit; i++) {
+            for (j = -limit; j <= limit; j++) {
+                for (k = -limit; k <= limit; k++) {
+                    const mapPortion = this.getMapPortion(i, j, k);
+                    if (mapPortion) {
+                        mapPortion.cleanStatic();
+                    }
+                }
+            }
+        }
+        this.collisions = [];
+        await this.readMapProperties();
+        this.initializeCamera();
+        await this.loadTextures();
+        this.loadCollisions();
+        const reloadTasks = [];
+        for (i = -limit; i <= limit; i++) {
+            for (j = -limit; j <= limit; j++) {
+                for (k = -limit; k <= limit; k++) {
+                    const mapPortion = this.getMapPortion(i, j, k);
+                    if (mapPortion) {
+                        reloadTasks.push({
+                            mapPortion,
+                            portion: new Portion(this.currentPortion.x + i, this.currentPortion.y + j, this.currentPortion.z + k),
+                        });
+                    }
+                }
+            }
+        }
+        const reloadJsons = await Promise.all(reloadTasks.map((t) => Platform.parseFileJSON(Paths.FILE_MAPS + this.mapFilename + '/' + t.portion.getFileName())));
+        for (let n = 0; n < reloadTasks.length; n++) {
+            await reloadTasks[n].mapPortion.readStatic(reloadJsons[n]);
+        }
+        this.loading = false;
+    }
+    /**
+     *  Generate the map name according to the ID.
+     *  @static
+     *  @param {number} id - ID of the map
+     *  @returns {string}
+     */
+    static generateMapName(id) {
+        return 'MAP' + Utils.formatNumber(id, 4);
+    }
+    /**
+     *  Read the map properties file.
+     */
+    async readMapProperties(minimal = false) {
+        const json = (await Platform.parseFileJSON(Paths.FILE_MAPS + this.mapFilename + Paths.FILE_MAP_INFOS));
+        if (this.isBattleMap && json.tileset === undefined) {
+            Platform.showErrorMessage('The battle map ' + this.id + " doesn't " + 'exists. Please check your battle maps.');
+        }
+        this.mapProperties = new Model.MapProperties(json);
+        await this.mapProperties.load();
+        if (!minimal) {
+            this.mapProperties.updateBackground();
+        }
+    }
+    /**
+     *  Get all the possible targets of a skill.
+     *  @param {TARGET_KIND} targetKind
+     *  @returns {Player[]}
+     */
+    getPossibleTargets(targetKind) {
+        if (targetKind === TARGET_KIND.USER) {
+            return this.user ? [this.user.player] : [];
+        }
+        else if (targetKind === TARGET_KIND.ALLY || targetKind === TARGET_KIND.ALL_ALLIES) {
+            return Game.current.teamHeroes;
+        }
+        else {
+            return [];
+        }
+    }
+    /**
+     *  Initialize sun light.
+     */
+    initializeSunLight() {
+        const ambient = new THREE.AmbientLight(0xffffff, this.mapProperties.isSunLight ? Math.PI - 14 / 9 : Math.PI);
+        this.scene.add(ambient);
+        if (this.mapProperties.isSunLight) {
+            this.sunLight = new THREE.DirectionalLight(0xffffff, 2);
+            this.sunLight.position.set(-1, 1.75, 1);
+            this.sunLight.position.multiplyScalar(10);
+            this.sunLight.target.position.set(0, 0, 0);
+            this.scene.add(this.sunLight);
+            this.sunLight.castShadow = true;
+            this.sunLight.shadow.mapSize.width = 2048;
+            this.sunLight.shadow.mapSize.height = 2048;
+            const d = 10;
+            this.sunLight.shadow.camera.left = -d;
+            this.sunLight.shadow.camera.right = d;
+            this.sunLight.shadow.camera.top = d;
+            this.sunLight.shadow.camera.bottom = -d;
+            this.sunLight.shadow.camera.far = 350;
+            this.sunLight.shadow.bias = -0.0003;
+            this.sunLight.shadow.normalBias = 0.5 / Constants.BASIC_SQUARE_SIZE;
+        }
+    }
+    /**
+     *  Initialize the map objects.
+     */
+    initializeCamera() {
+        this.camera = new Camera(this.mapProperties.cameraProperties, Game.current.hero);
+        this.camera.update();
+        this.previousCameraPosition = null;
+        if (this.mapProperties.skyboxGeometry !== null) {
+            this.previousCameraPosition = this.camera.getThreeCamera().position.clone();
+            this.mapProperties.skyboxGeometry.translate(this.camera.getThreeCamera().position.x, this.camera.getThreeCamera().position.y, this.camera.getThreeCamera().position.z);
+        }
+    }
+    /**
+     *  Initialize all the objects moved or / and with changed states.
+     */
+    initializePortionsObjects() {
+        const mapsData = Game.current.mapsData[this.id];
+        let datas = null;
+        const l = Math.ceil(this.mapProperties.length / Constants.PORTION_SIZE);
+        const w = Math.ceil(this.mapProperties.width / Constants.PORTION_SIZE);
+        const d = Math.ceil(this.mapProperties.depth / Constants.PORTION_SIZE);
+        const h = Math.ceil(this.mapProperties.height / Constants.PORTION_SIZE);
+        const objectsPortions = new Array(l);
+        let i, j, jp, k, jabs;
+        for (i = 0; i < l; i++) {
+            objectsPortions[i] = new Array(2);
+            objectsPortions[i][0] = new Array(d); // Depth
+            objectsPortions[i][1] = new Array(h); // Height
+            for (j = -d; j < h; j++) {
+                jp = j < 0 ? 0 : 1;
+                jabs = Math.abs(j);
+                objectsPortions[i][jp][jabs] = new Array(w);
+                for (k = 0; k < w; k++) {
+                    datas =
+                        mapsData && mapsData[i] && mapsData[i][jp] && mapsData[i][jp][jabs]
+                            ? mapsData[i][jp][jabs][k]
+                            : null;
+                    objectsPortions[i][jp][jabs][k] = {
+                        min: datas && datas.min ? datas.min : [],
+                        // All the moved objects that are in this
+                        // portion
+                        mout: datas && datas.mout ? datas.mout : [],
+                        // All the moved objects that are from another
+                        // portion
+                        m: datas && datas.m ? datas.m : [],
+                        // All the moved objects that are from this
+                        // portion
+                        si: datas && datas.si ? datas.si : [],
+                        // Ids of the objects that have modified states
+                        s: datas && datas.s ? datas.s : [],
+                        // States of the objects according to id
+                        pi: datas && datas.pi ? datas.pi : [],
+                        // Ids of the objects that have modified properties
+                        p: datas && datas.p ? datas.p : [],
+                        // Properties values of the objects according to id
+                        r: datas && datas.r ? datas.r : [],
+                        // Removed objects according to id
+                        soi: datas && datas.soi ? datas.soi : [],
+                        // Ids of the objects that have modified states options
+                        so: datas && datas.so ? datas.so : [],
+                        // States options of the objects according to id
+                    };
+                }
+            }
+        }
+        Game.current.mapsData[this.id] = objectsPortions;
+        this.portionsObjectsUpdated = true;
+    }
+    /**
+     *  Load all the textures of the map.
+     */
+    async loadTextures() {
+        await Data.Pictures.ensureTextures();
+        const tileset = this.mapProperties.tileset;
+        const path = tileset.getPath();
+        this.textureTileset = path ? await Manager.GL.loadTexture(path) : Manager.GL.loadTextureEmpty();
+        const { width, height } = Manager.GL.getMaterialTextureSize(this.textureTileset);
+        if (width % Data.Systems.SQUARE_SIZE !== 0 || height % Data.Systems.SQUARE_SIZE !== 0) {
+            Platform.showErrorMessage('Tileset in ' +
+                path +
+                ' is not in a size multiple of ' +
+                Data.Systems.SQUARE_SIZE +
+                '. Please edit this picture size.');
+        }
+    }
+    /**
+     *  Load the collisions settings.
+     */
+    loadCollisions() {
+        // Tileset
+        const texture = Manager.GL.getMaterialTexture(this.textureTileset);
+        if (this.mapProperties.tileset.picture && texture) {
+            this.mapProperties.tileset.picture.readCollisionsImage(texture.image);
+        }
+        // Characters
+        const pictures = Data.Pictures.getListByKind(PICTURE_KIND.CHARACTERS);
+        this.collisions[PICTURE_KIND.CHARACTERS] = [];
+        for (const [id, p] of pictures.entries()) {
+            const material = Data.Pictures.texturesCharacters.get(id);
+            const texture = Manager.GL.getMaterialTexture(material);
+            let image;
+            if (texture) {
+                image = texture.image;
+            }
+            if (p) {
+                p.readCollisionsImage(image);
+                this.collisions[PICTURE_KIND.CHARACTERS][id] = p.getSquaresForStates(image);
+            }
+            else {
+                this.collisions[PICTURE_KIND.CHARACTERS][id] = null;
+            }
+        }
+    }
+    /**
+     *  Initialize the map portions.
+     */
+    async initializePortions() {
+        this.updateCurrentPortion();
+        await this.loadPortions();
+        // Hero initialize
+        if (!this.isBattleMap) {
+            await Game.current.hero.changeState();
+            const orientationOverride = this.heroOrientation !== null ? this.heroOrientation : Game.current.heroSavedOrientationEye;
+            if (orientationOverride !== null) {
+                Game.current.hero.orientation = orientationOverride;
+                Game.current.hero.orientationEye = orientationOverride;
+                Game.current.hero.updateUVs();
+                Game.current.heroSavedOrientationEye = null;
+            }
+            if (Game.current.heroSavedCamera !== null) {
+                const sc = Game.current.heroSavedCamera;
+                this.camera.horizontalAngle = sc.horizontalAngle;
+                this.camera.verticalAngle = sc.verticalAngle;
+                this.camera.distance = sc.distance;
+                this.camera.targetOffset.copy(sc.targetOffset);
+                this.camera.update();
+                Game.current.heroSavedCamera = null;
+            }
+            // Start music and background sound
+            this.mapProperties.music.playMusic();
+            this.mapProperties.backgroundSound.playMusic();
+            // Background color update
+            this.updateBackgroundColor();
+        }
+    }
+    /**
+     *  Update previous and current portion and return true if current changed
+     *  from previous.
+     *  @returns {boolean}
+     */
+    updateCurrentPortion() {
+        if (!this.camera) {
+            return false;
+        }
+        this.previousPortion = this.currentPortion;
+        this.currentPortion = Portion.createFromVector3(this.camera.getThreeCamera().position);
+        if (!this.previousPortion) {
+            this.previousPortion = this.currentPortion;
+        }
+        return !this.previousPortion.equals(this.currentPortion);
+    }
+    /**
+     *  Get the portion file name.
+     *  @param {boolean} update - Indicate if the map portions array had previous
+     *  values.
+     */
+    async loadPortions(update = false) {
+        if (!update) {
+            this.mapPortions = new Array(this.getMapPortionTotalSize());
+        }
+        const offsetX = this.currentPortion.x - this.previousPortion.x;
+        const offsetY = this.currentPortion.y - this.previousPortion.y;
+        const offsetZ = this.currentPortion.z - this.previousPortion.z;
+        const limit = Data.Systems.PORTIONS_RAY;
+        let i, j, k;
+        if (!update) {
+            const tasks = [];
+            for (i = -limit; i <= limit; i++) {
+                for (j = -limit; j <= limit; j++) {
+                    for (k = -limit; k <= limit; k++) {
+                        tasks.push({
+                            realX: this.currentPortion.x + i,
+                            realY: this.currentPortion.y + j,
+                            realZ: this.currentPortion.z + k,
+                            x: i,
+                            y: j,
+                            z: k,
+                        });
+                    }
+                }
+            }
+            const jsons = await Promise.all(tasks.map((t) => this.fetchPortionJSON(t.realX, t.realY, t.realZ)));
+            let lastYield = performance.now();
+            for (let n = 0; n < tasks.length; n++) {
+                await this.processPortionJSON(tasks[n].realX, tasks[n].realY, tasks[n].realZ, tasks[n].x, tasks[n].y, tasks[n].z, jsons[n]);
+                if (performance.now() - lastYield > 8) {
+                    await new Promise((r) => setTimeout(r, 0));
+                    lastYield = performance.now();
+                }
+            }
+            return;
+        }
+        // Make a temp copy for moving stuff correctly
+        const temp = new Array(this.mapPortions.length);
+        for (let idx = 0, l = this.mapPortions.length; idx < l; idx++) {
+            temp[idx] = this.mapPortions[idx];
+        }
+        let x, y, z, oi, oj, ok;
+        // Remove existing portions
+        for (i = -limit; i <= limit; i++) {
+            for (j = -limit; j <= limit; j++) {
+                for (k = -limit; k <= limit; k++) {
+                    oi = i - offsetX;
+                    oj = j - offsetY;
+                    ok = k - offsetZ;
+                    // If with negative offset, out of ray boundaries, remove
+                    if (oi < -limit || oi > limit || oj < -limit || oj > limit || ok < -limit || ok > limit) {
+                        this.removePortion(i, j, k);
+                    }
+                }
+            }
+        }
+        // Move (synchronous, must complete before loads so temp indices remain valid)
+        for (i = -limit; i <= limit; i++) {
+            for (j = -limit; j <= limit; j++) {
+                for (k = -limit; k <= limit; k++) {
+                    oi = i - offsetX;
+                    oj = j - offsetY;
+                    ok = k - offsetZ;
+                    // If with negative offset, in ray boundaries, move
+                    if (oi >= -limit && oi <= limit && oj >= -limit && oj <= limit && ok >= -limit && ok <= limit) {
+                        const previousIndex = this.getPortionIndex(i, j, k);
+                        const newIndex = this.getPortionIndex(oi, oj, ok);
+                        this.mapPortions[newIndex] = temp[previousIndex];
+                    }
+                }
+            }
+        }
+        const loadTasks = [];
+        for (i = -limit; i <= limit; i++) {
+            for (j = -limit; j <= limit; j++) {
+                for (k = -limit; k <= limit; k++) {
+                    x = this.currentPortion.x + i;
+                    y = this.currentPortion.y + j;
+                    z = this.currentPortion.z + k;
+                    oi = i + offsetX;
+                    oj = j + offsetY;
+                    ok = k + offsetZ;
+                    // If with positive offset, out of ray boundaries, load
+                    if (oi < -limit || oi > limit || oj < -limit || oj > limit || ok < -limit || ok > limit) {
+                        loadTasks.push({ realX: x, realY: y, realZ: z, x: i, y: j, z: k });
+                    }
+                }
+            }
+        }
+        const loadJsons = await Promise.all(loadTasks.map((t) => this.fetchPortionJSON(t.realX, t.realY, t.realZ)));
+        let lastYield = performance.now();
+        for (let n = 0; n < loadTasks.length; n++) {
+            await this.processPortionJSON(loadTasks[n].realX, loadTasks[n].realY, loadTasks[n].realZ, loadTasks[n].x, loadTasks[n].y, loadTasks[n].z, loadJsons[n], true);
+            if (performance.now() - lastYield > 8) {
+                await new Promise((r) => setTimeout(r, 0));
+                lastYield = performance.now();
+            }
+        }
+        this.loading = false;
+    }
+    /**
+     *  Load a portion.
+     *  @param {number} realX - The global x portion
+     *  @param {number} realY - The global y portion
+     *  @param {number} realZ - The global z portion
+     *  @param {number} x - The local x portion
+     *  @param {number} y - The local y portion
+     *  @param {number} z - The local z portion
+     *  @param {boolean} move - Indicate if the portion was moved or completely
+     *  loaded
+     */
+    async loadPortion(realX, realY, realZ, x, y, z, move = false) {
+        const lx = Math.ceil(this.mapProperties.length / Constants.PORTION_SIZE);
+        const lz = Math.ceil(this.mapProperties.width / Constants.PORTION_SIZE);
+        const ld = Math.ceil(this.mapProperties.depth / Constants.PORTION_SIZE);
+        const lh = Math.ceil(this.mapProperties.height / Constants.PORTION_SIZE);
+        if (realX >= 0 && realX < lx && realY >= -ld && realY < lh && realZ >= 0 && realZ < lz) {
+            const portion = new Portion(realX, realY, realZ);
+            const json = (await Platform.parseFileJSON(Paths.FILE_MAPS + this.mapFilename + '/' + portion.getFileName()));
+            if (json && json.hasOwnProperty('lands')) {
+                const mapPortion = new MapPortion(portion);
+                this.setMapPortion(x, y, z, mapPortion, move);
+                await mapPortion.read(json);
+            }
+            else {
+                this.setMapPortion(x, y, z, null, move);
+            }
+        }
+        else {
+            this.setMapPortion(x, y, z, null, move);
+        }
+    }
+    /**
+     *  Load a portion from a portion.
+     *  @param {Portion} portion - The portion
+     *  @param {number} x - The local x portion
+     *  @param {number} y - The local y portion
+     *  @param {number} z - The local z portion
+     *  @param {boolean} move - Indicate if the portion was moved or completely
+     *  loaded
+     */
+    async loadPortionFromPortion(portion, x, y, z, move) {
+        await this.loadPortion(portion.x + x, portion.y + y, portion.z + z, x, y, z, move);
+    }
+    /**
+     *  Fetch the raw JSON for a portion (bounds check + file I/O only).
+     *  Returns null when the coordinates are outside the map or the file is missing.
+     */
+    async fetchPortionJSON(realX, realY, realZ) {
+        const lx = Math.ceil(this.mapProperties.length / Constants.PORTION_SIZE);
+        const lz = Math.ceil(this.mapProperties.width / Constants.PORTION_SIZE);
+        const ld = Math.ceil(this.mapProperties.depth / Constants.PORTION_SIZE);
+        const lh = Math.ceil(this.mapProperties.height / Constants.PORTION_SIZE);
+        if (realX >= 0 && realX < lx && realY >= -ld && realY < lh && realZ >= 0 && realZ < lz) {
+            const portion = new Portion(realX, realY, realZ);
+            return Platform.parseFileJSON(Paths.FILE_MAPS + this.mapFilename + '/' + portion.getFileName());
+        }
+        return null;
+    }
+    /**
+     *  Create and read a map portion from pre-fetched JSON.
+     *  Must be called sequentially, texture loading uses shared canvas state.
+     */
+    async processPortionJSON(realX, realY, realZ, x, y, z, json, move = false) {
+        if (json && json.hasOwnProperty('lands')) {
+            const portion = new Portion(realX, realY, realZ);
+            const mapPortion = new MapPortion(portion);
+            this.setMapPortion(x, y, z, mapPortion, move);
+            await mapPortion.read(json);
+        }
+        else {
+            this.setMapPortion(x, y, z, null, move);
+        }
+    }
+    /**
+     *  Remove a portion.
+     *  @param {number} x - The local x portion
+     *  @param {number} y - The local y portion
+     *  @param {number} z - The local z portion
+     */
+    removePortion(x, y, z) {
+        const index = this.getPortionIndex(x, y, z);
+        const mapPortion = this.mapPortions[index];
+        if (mapPortion !== null) {
+            mapPortion.cleanAll();
+            this.mapPortions[index] = null;
+        }
+    }
+    /**
+     *  Set a portion.
+     *  @param {number} i - The previous x portion
+     *  @param {number} j - The previous y portion
+     *  @param {number} k - The previous z portion
+     *  @param {number} m - The new x portion
+     *  @param {number} n - The new y portion
+     *  @param {number} o - The new z portion
+     */
+    setPortion(i, j, k, m, n, o) {
+        this.setMapPortion(i, j, k, this.getMapPortion(m, n, o), true);
+    }
+    /**
+     *  Set a portion.
+     *  @param {number} x - The local x portion
+     *  @param {number} y - The local y portion
+     *  @param {number} z - The local z portion
+     *  @param {MapPortion} mapPortion - The new map portion
+     *  @param {boolean} move - Indicate if the portion was moved or completely
+     *  loaded
+     */
+    setMapPortion(x, y, z, mapPortion, move) {
+        const index = this.getPortionIndex(x, y, z);
+        const currentMapPortion = this.mapPortions[index];
+        if (currentMapPortion && !move) {
+            currentMapPortion.cleanAll();
+        }
+        this.mapPortions[index] = mapPortion;
+    }
+    /**
+     *  Get the objects at a specific portion.
+     *  @param {Portion} portion
+     *  @returns {Record<string, any>}
+     */
+    getObjectsAtPortion(portion) {
+        return Game.current.getPortionData(this.id, portion);
+    }
+    /**
+     *  Rebuild the objects spatial hash (collision broad phase) from every
+     *  loaded portion. Must run before objects move on the current frame.
+     */
+    updateObjectsSpatialHash() {
+        const hash = this.objectsSpatialHash;
+        hash.clear();
+        const cellSize = Manager.Collisions.SPATIAL_HASH_CELL_SIZE;
+        const add = function (list) {
+            if (!list) {
+                return;
+            }
+            for (let i = 0, l = list.length; i < l; i++) {
+                const obj = list[i];
+                if (!obj || obj.removed || !obj.meshBoundingBox || !obj.position) {
+                    continue;
+                }
+                const key = Manager.Collisions.spatialHashKey(Math.floor(obj.position.x / cellSize), Math.floor(obj.position.z / cellSize));
+                let cell = hash.get(key);
+                if (cell === undefined) {
+                    cell = [];
+                    hash.set(key, cell);
+                }
+                cell.push(obj);
+            }
+        };
+        this.updatePortions(this, function (x, y, z, i, j, k) {
+            const mapPortion = this.getMapPortion(i, j, k);
+            if (mapPortion) {
+                add(mapPortion.objectsList);
+            }
+            const datas = Game.current.getPortionData(this.id, new Portion(x, y, z));
+            add(datas.min);
+            add(datas.mout);
+        });
+    }
+    /**
+     *  Get a map portion at local postions.
+     *  @param {number} x - The local x portion
+     *  @param {number} y - The local y portion
+     *  @param {number} z - The local z portion
+     *  @returns {MapPortion}
+     */
+    getMapPortion(x, y, z) {
+        return this.getBrutMapPortion(this.getPortionIndex(x, y, z));
+    }
+    /**
+     *  Get a map portion at local portion.
+     *  @param {Portion} portion - The local portion
+     *  @returns {MapPortion}
+     */
+    getMapPortionFromPortion(portion) {
+        return this.getMapPortion(portion.x, portion.y, portion.z);
+    }
+    /**
+     *  Get a map portion at json position.
+     *  @param {Position} position - The position
+     *  @returns {MapPortion}
+     */
+    getMapPortionByPosition(position) {
+        return this.getMapPortionFromPortion(this.getLocalPortion(position.getGlobalPortion()));
+    }
+    /**
+     *  Get map portion according to portion index.
+     *  @param {number} index - The portion index
+     *  @returns {MapPortion}
+     */
+    getBrutMapPortion(index) {
+        return this.mapPortions[index];
+    }
+    /**
+     *  Get portion index according to local positions of portion.
+     *  @param {number} x - The local x position of portion
+     *  @param {number} y - The local y position of portion
+     *  @param {number} z - The local z position of portion
+     *  @returns {number}
+     */
+    getPortionIndex(x, y, z) {
+        const size = this.getMapPortionSize();
+        const limit = Data.Systems.PORTIONS_RAY;
+        return (x + limit) * size * size + (y + limit) * size + (z + limit);
+    }
+    /**
+     *  Get portion index according to local portion.
+     *  @param {Portion} portion - The local portion
+     *  @returns {number}
+     */
+    getPortionIndexFromPortion(portion) {
+        return this.getPortionIndex(portion.x, portion.y, portion.z);
+    }
+    /**
+     *  Set a local portion with a global portion.
+     *  @param {Portion} portion - The global portion
+     *  @returns {Portion}
+     */
+    getLocalPortion(portion) {
+        return new Portion(portion.x - this.currentPortion.x, portion.y - this.currentPortion.y, portion.z - this.currentPortion.z);
+    }
+    /**
+     *  Get the map portions size.
+     *  @returns {number}
+     */
+    getMapPortionSize() {
+        return Data.Systems.PORTIONS_RAY * 2 + 1;
+    }
+    /**
+     *  Get the map portion total size.
+     *  @returns {number}
+     */
+    getMapPortionTotalSize() {
+        const size = this.getMapPortionSize();
+        return size * size * size;
+    }
+    /**
+     *  Check if a local portion if in the limit
+     *  @param {Portion} portion - The local portion
+     *  @returns {boolean}
+     */
+    isInPortion(portion) {
+        const limit = Data.Systems.PORTIONS_RAY;
+        return (portion.x >= -limit &&
+            portion.x <= limit &&
+            portion.y >= -limit &&
+            portion.y <= limit &&
+            portion.z >= -limit &&
+            portion.z <= limit);
+    }
+    /**
+     *  Check if a position is in the map.
+     *  @param {Position} position - The json position
+     *  @returns {boolean}
+     */
+    isInMap(position) {
+        return (position.x >= 0 &&
+            position.x < this.mapProperties.length &&
+            position.z >= 0 &&
+            position.z < this.mapProperties.width);
+    }
+    /**
+     *  Get the hero position according to battle map.
+     *  @returns {THREE.Vector3}
+     */
+    getHeroPosition() {
+        return this.isBattleMap ? Game.current.heroBattle.position : Game.current.hero.position;
+    }
+    /**
+     *  Update the background color.
+     */
+    updateBackgroundColor() {
+        this.mapProperties.updateBackgroundColor();
+        Manager.GL.updateBackgroundColor(this.mapProperties.backgroundColor);
+    }
+    /**
+     *  Load collision for special elements.
+     *  @param {number[]} list - The IDs list
+     *  @param {PICTURE_KIND} kind - The picture kind
+     *  @param {SpecialElement[]} specials - The specials list
+     */
+    loadSpecialsCollision(list, kind, specials) {
+        let special, picture;
+        for (let i = 0, l = list.length; i < l; i++) {
+            const id = list[i];
+            special = specials[id];
+            if (special) {
+                let pictureID = undefined;
+                switch (kind) {
+                    case PICTURE_KIND.AUTOTILES:
+                        pictureID = Game.current.textures.autotiles[id];
+                        break;
+                    case PICTURE_KIND.MOUNTAINS:
+                        pictureID = Game.current.textures.mountains[id];
+                        break;
+                    case PICTURE_KIND.WALLS:
+                        pictureID = Game.current.textures.walls[id];
+                        break;
+                    case PICTURE_KIND.OBJECTS_3D:
+                        pictureID = Game.current.textures.objects3D[id];
+                        break;
+                }
+                if (pictureID === undefined) {
+                    pictureID = special.pictureID;
+                }
+                picture = Data.Pictures.get(kind, pictureID);
+                if (picture) {
+                    picture.readCollisions();
+                }
+            }
+        }
+    }
+    /**
+     *  Update portions according to a callback.
+     */
+    updatePortions(base, callback) {
+        const limit = Data.Systems.PORTIONS_RAY;
+        const lx = Math.ceil(this.mapProperties.length / Constants.PORTION_SIZE);
+        const lz = Math.ceil(this.mapProperties.width / Constants.PORTION_SIZE);
+        const ld = Math.ceil(this.mapProperties.depth / Constants.PORTION_SIZE);
+        const lh = Math.ceil(this.mapProperties.height / Constants.PORTION_SIZE);
+        let i, j, k, x, y, z;
+        for (i = -limit; i <= limit; i++) {
+            for (j = -limit; j <= limit; j++) {
+                for (k = -limit; k <= limit; k++) {
+                    x = this.currentPortion.x + i;
+                    y = this.currentPortion.y + j;
+                    z = this.currentPortion.z + k;
+                    if (x >= 0 && x < lx && y >= -ld && y < lh && z >= 0 && z < lz) {
+                        callback.call(base, x, y, z, i, j, k);
+                    }
+                }
+            }
+        }
+    }
+    updateLayerOffsets() {
+        const layerDepthOffset = this.camera.getLayerDepthOffset();
+        if (layerDepthOffset === this.previousLayerDepthOffset) {
+            return;
+        }
+        this.previousLayerDepthOffset = layerDepthOffset;
+        for (const mapPortion of this.mapPortions) {
+            mapPortion?.updateLayerOffsets();
+        }
+    }
+    /**
+     *  Get a random particle weather position according to options.
+     *  @param {number} portionsRay
+     *  @param {boolean} [offset=true]
+     *  @returns {number}
+     */
+    getWeatherPosition(portionsRay, offset = true) {
+        const area = (Constants.PORTION_SIZE * Constants.PORTION_SIZE) / Constants.BASIC_SQUARE_SIZE;
+        return Math.random() * (area * (portionsRay * 2 + 1)) - area * (portionsRay + (offset ? 0.5 : 0));
+    }
+    /**
+     *  Create the weather mesh system.
+     */
+    createWeather(current = true) {
+        let options, points, velocities, rotationsAngle, rotationsPoints;
+        if (current) {
+            options = Game.current.currentWeatherOptions;
+        }
+        else {
+            options = Game.current.previousWeatherOptions;
+        }
+        if (options === null || options.isNone) {
+            return;
+        }
+        // Create the weather variables
+        const vertices = [];
+        velocities = [];
+        rotationsAngle = [];
+        rotationsPoints = [];
+        Interpreter.evaluate('Scene.Map.current.add' +
+            (current ? '' : 'Previous') +
+            'WeatherYRotation=function(){return ' +
+            options.yRotationAddition +
+            ';}', { addReturn: false });
+        Interpreter.evaluate('Scene.Map.current.add' +
+            (current ? '' : 'Previous') +
+            'WeatherVelocityn=function(){return ' +
+            options.velocityAddition +
+            ';}', { addReturn: false });
+        let initialVelocity = Interpreter.evaluate(options.initialVelocity);
+        initialVelocity /= Constants.BASIC_SQUARE_SIZE;
+        const initialYRotation = Interpreter.evaluate(options.initialYRotation);
+        const portionsRay = options.portionsRay;
+        const particlesNumber = options.finalParticlesNumber;
+        for (let i = 0; i < particlesNumber; i++) {
+            const x = this.getWeatherPosition(portionsRay);
+            const y = this.getWeatherPosition(portionsRay, false);
+            const z = this.getWeatherPosition(portionsRay);
+            vertices.push(x, y, z);
+            velocities.push(initialVelocity);
+            rotationsAngle.push(initialYRotation);
+            rotationsPoints.push(Scene.Map.current.camera.target.position.clone());
+        }
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+        const material = new THREE.PointsMaterial({
+            color: options.isColor ? options.color.getHex() : 0xffffff,
+            size: options.size / Constants.BASIC_SQUARE_SIZE,
+            transparent: true,
+            depthTest: options.depthTest,
+            depthWrite: options.depthWrite,
+        });
+        if (!options.isColor) {
+            const texture = new THREE.TextureLoader().load(Data.Pictures.get(PICTURE_KIND.PARTICLES, options.imageID).getPath());
+            texture.magFilter = THREE.NearestFilter;
+            texture.minFilter = THREE.NearestFilter;
+            material.map = texture;
+        }
+        points = new THREE.Points(geometry, material);
+        points.position.set(Scene.Map.current.camera.target.position.x, Scene.Map.current.camera.target.position.y, Scene.Map.current.camera.target.position.z);
+        points.renderOrder = 100;
+        this.scene.add(points);
+        if (current) {
+            this.weatherPoints = points;
+            this.weatherVelocities = velocities;
+            this.weatherRotationsAngle = rotationsAngle;
+            this.weatherRotationsPoint = rotationsPoints;
+        }
+        else {
+            this.previousWeatherPoints = points;
+            this.previousWeatherVelocities = velocities;
+            this.previousWeatherRotationsAngle = rotationsAngle;
+            this.previousWeatherRotationsPoint = rotationsPoints;
+        }
+    }
+    /**
+     *  Function to overwrite with interpreter to add rotation to particles.
+     */
+    addPreviousWeatherYRotation() {
+        return 0;
+    }
+    /**
+     *  Function to overwrite with interpreter to add velocity to particles.
+     */
+    addPreviousWeatherVelocity() {
+        return 0;
+    }
+    /**
+     *  Function to overwrite with interpreter to add rotation to particles.
+     */
+    addWeatherYRotation() {
+        return 0;
+    }
+    /**
+     *  Function to overwrite with interpreter to add velocity to particles.
+     */
+    addWeatherVelocity() {
+        return 0;
+    }
+    switchPreviousWeather() {
+        Game.current.previousWeatherOptions = Game.current.currentWeatherOptions;
+        this.previousWeatherPoints = this.weatherPoints;
+        this.previousWeatherVelocities = this.weatherVelocities;
+        this.previousWeatherRotationsAngle = this.weatherRotationsAngle;
+        this.previousWeatherRotationsPoint = this.weatherRotationsPoint;
+        this.addPreviousWeatherVelocity = this.addWeatherVelocity;
+        this.addPreviousWeatherYRotation = this.addWeatherYRotation;
+    }
+    /**
+     *  Update the weather particles moves.
+     */
+    updateWeather(current = true) {
+        let options, points, velocities, rotationsAngle, rotationsPoints;
+        if (current) {
+            options = Game.current.currentWeatherOptions;
+            points = this.weatherPoints;
+            velocities = this.weatherVelocities;
+            rotationsAngle = this.weatherRotationsAngle;
+            rotationsPoints = this.weatherRotationsPoint;
+        }
+        else {
+            options = Game.current.previousWeatherOptions;
+            points = this.previousWeatherPoints;
+            velocities = this.previousWeatherVelocities;
+            rotationsAngle = this.previousWeatherRotationsAngle;
+            rotationsPoints = this.previousWeatherRotationsPoint;
+        }
+        if (options === null || options.isNone || !points) {
+            return;
+        }
+        let initialVelocity = Interpreter.evaluate(options.initialVelocity);
+        initialVelocity /= Constants.BASIC_SQUARE_SIZE;
+        const initialYRotation = Interpreter.evaluate(options.initialYRotation);
+        const portionsRay = options.portionsRay;
+        const positionAttribute = points.geometry.getAttribute('position');
+        const yAxis = new THREE.Vector3(0, 1, 0);
+        const particlesNumber = Math.round(options.particlesNumber);
+        points.geometry.drawRange.count = particlesNumber;
+        let y, v;
+        for (let i = 0; i < particlesNumber; i++) {
+            y = positionAttribute.getY(i);
+            if (y <
+                points.material.size -
+                    ((Constants.PORTION_SIZE * Constants.PORTION_SIZE) / Constants.BASIC_SQUARE_SIZE) * portionsRay) {
+                y +=
+                    ((Constants.PORTION_SIZE * Constants.PORTION_SIZE) / Constants.BASIC_SQUARE_SIZE) *
+                        (portionsRay + 1);
+                velocities[i] = initialVelocity;
+                rotationsAngle[i] = initialYRotation;
+                rotationsPoints[i] = Scene.Map.current.camera.target.position.clone();
+                positionAttribute.setX(i, this.getWeatherPosition(portionsRay));
+                positionAttribute.setZ(i, this.getWeatherPosition(portionsRay));
+            }
+            y -= Scene.Map.current.camera.target.position.y - points.position.y;
+            v = new THREE.Vector3(positionAttribute.getX(i) - (Scene.Map.current.camera.target.position.x - points.position.x), y, positionAttribute.getZ(i) - (Scene.Map.current.camera.target.position.z - points.position.z));
+            rotationsAngle[i] +=
+                ((current ? this.addWeatherYRotation() : this.addPreviousWeatherYRotation()) * Math.PI) / 180;
+            v.applyAxisAngle(yAxis, rotationsAngle[i]);
+            positionAttribute.setX(i, v.x);
+            positionAttribute.setZ(i, v.z);
+            velocities[i] +=
+                (current ? this.addWeatherVelocity() : this.addPreviousWeatherVelocity()) / Constants.BASIC_SQUARE_SIZE;
+            positionAttribute.setY(i, v.y + velocities[i]);
+        }
+        positionAttribute.needsUpdate = true;
+        points.position.set(Scene.Map.current.camera.target.position.x, Scene.Map.current.camera.target.position.y, Scene.Map.current.camera.target.position.z);
+    }
+    /**
+     *  Update and move the camera position for hiding stuff.
+     *  @param {THREE.Vector2} pointer 2D position on screen to test if intersect
+     */
+    updateCameraHiding(pointer) {
+        Manager.GL.raycaster.setFromCamera(pointer, this.camera.getThreeCamera());
+        Manager.GL.raycaster.layers.set(1);
+        const intersects = Manager.GL.raycaster.intersectObjects(this.scene.children);
+        let distance;
+        for (let i = 0; i < intersects.length; i++) {
+            distance = Math.ceil(intersects[i].distance) + 5;
+            if (distance < this.camera.distance &&
+                (!this.camera.isHiding() || this.camera.distance - distance < this.camera.hidingDistance)) {
+                this.camera.hidingDistance = this.camera.distance - distance;
+            }
+        }
+    }
+    /**
+     *  Update the scene.
+     */
+    update() {
+        // Flush BB flash meshes from the previous frame before starting collision checks
+        Manager.Collisions.flushBBFlash();
+        // Mouse down repeat
+        if (!this.loading) {
+            if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
+                Manager.Events.sendEvent(null, 2, 0, true, 5, Utils.arrayToMap([
+                    Model.DynamicValue.createNumber(Inputs.mouseX),
+                    Model.DynamicValue.createNumber(Inputs.mouseY),
+                    Model.DynamicValue.createSwitch(Inputs.mouseLeftPressed),
+                    Model.DynamicValue.createSwitch(true),
+                ]), true, false);
+            }
+        }
+        // Update autotiles animated
+        if (Scene.Map.autotileFrame.update()) {
+            Scene.Map.autotilesOffset.setY((Scene.Map.autotileFrame.value * Autotiles.COUNT_LIST * 2 * Data.Systems.SQUARE_SIZE) /
+                Constants.MAX_PICTURE_SIZE);
+        }
+        // Update scene game (interpreters)
+        this.mapProperties.startupObject.update();
+        super.update();
+        // If map changed or a new scene was pushed during interpreter update, stop processing
+        if (Scene.Map.current !== this || Manager.Stack.top !== this) {
+            return;
+        }
+        // Update camera
+        this.camera.forceNoHide = true;
+        this.camera.update();
+        this.updateLayerOffsets();
+        // Update skybox
+        if (this.mapProperties.skyboxGeometry !== null && this.previousCameraPosition) {
+            const posDif = this.camera.getThreeCamera().position.clone().sub(this.previousCameraPosition);
+            this.mapProperties.skyboxGeometry.translate(posDif.x, posDif.y, posDif.z);
+            this.previousCameraPosition = this.camera.getThreeCamera().position.clone();
+        }
+        // Getting the Y angle of the camera
+        const vector = this._cameraDirection;
+        this.camera.getThreeCamera().getWorldDirection(vector);
+        const angle = Math.atan2(vector.x, vector.z) + Math.PI;
+        // Refresh caterpillar followers if requested
+        if (Scene.Map.caterpillarNeedsRefresh && !this.isBattleMap && Game.current !== null) {
+            Scene.Map.caterpillarNeedsRefresh = false;
+            this.refreshCaterpillarFollowers().catch(console.error);
+        }
+        // Update the objects
+        if (Game.current !== null) {
+            this.updateObjectsSpatialHash();
+            Game.current.hero.update(angle);
+            // Update caterpillar followers
+            if (!this.isBattleMap && Game.current.caterpillarFollowers.length > 0) {
+                this.updateHeroTrail();
+                const offset = Data.Systems.caterpillarOffset.getValue() / Data.Systems.SQUARE_SIZE;
+                let cumulativeDist = 0;
+                let prevWidth = Game.current.hero.contentWidth;
+                for (let i = 0, l = Game.current.caterpillarFollowers.length; i < l; i++) {
+                    const follower = Game.current.caterpillarFollowers[i];
+                    cumulativeDist += offset + prevWidth / 2 + follower.contentWidth / 2;
+                    prevWidth = follower.contentWidth;
+                    const targetDist = this.heroTrailTotalDist - cumulativeDist;
+                    const { pos: targetPos, orientation: targetOri } = this.getTrailAtDist(targetDist);
+                    const prevPos = follower.previousPosition ? follower.previousPosition.clone() : targetPos.clone();
+                    follower.moving = prevPos.distanceTo(targetPos) > 0.001;
+                    if (follower.moving) {
+                        follower.orientationEye = targetOri;
+                        follower.updateOrientation();
+                    }
+                    follower.position = targetPos.clone();
+                    follower.update(angle);
+                    if (follower.mesh) {
+                        follower.mesh.renderOrder = 1 - (i + 1) * 0.001;
+                    }
+                }
+            }
+        }
+        this.updatePortions(this, function (x, y, z, i, j, k) {
+            const objects = Game.current.getPortionData(this.id, new Portion(x, y, z));
+            let movedObjects = objects.min;
+            let p, l;
+            for (p = 0, l = movedObjects.length; p < l; p++) {
+                movedObjects[p].update(angle);
+            }
+            movedObjects = objects.mout;
+            for (p = 0, l = movedObjects.length; p < l; p++) {
+                movedObjects[p].update(angle);
+            }
+            // Update face sprites
+            const mapPortion = this.getMapPortion(i, j, k);
+            if (mapPortion) {
+                mapPortion.updateFaceSprites(angle);
+            }
+        });
+        this.updateWeather(false);
+        this.updateWeather();
+        // Update camera hiding
+        if (Game.current !== null && Data.Systems.moveCameraOnBlockView.getValue()) {
+            this.camera.forceNoHide = false;
+            this.camera.hidingDistance = -1;
+            const pointer = Manager.GL.toScreenPosition(this.camera.target.position.clone().add(new THREE.Vector3(0, this.camera.target.height, 0)), this.camera.getThreeCamera())
+                .divide(new THREE.Vector2(ScreenResolution.CANVAS_WIDTH, ScreenResolution.CANVAS_HEIGHT))
+                .subScalar(0.5);
+            pointer.setY(-pointer.y);
+            this.updateCameraHiding(pointer);
+            if (this.camera.isHiding()) {
+                this.updateCameraHiding(new THREE.Vector2(0, 0));
+                this.camera.update();
+            }
+            let opacity = 1;
+            if (this.camera.isHiding()) {
+                if (this.camera.hidingDistance < 2) {
+                    if (this.camera.hidingDistance < 1) {
+                        opacity = 0;
+                    }
+                    else {
+                        opacity = 0.5;
+                    }
+                }
+            }
+            if (Game.current && Game.current.hero.mesh) {
+                Game.current.hero.mesh.material.opacity = opacity;
+                for (const follower of Game.current.caterpillarFollowers) {
+                    if (follower.mesh) {
+                        follower.mesh.material.opacity = opacity;
+                    }
+                }
+            }
+            this.camera.updateTimer();
+        }
+        // Update portion
+        if (!this.loading && Scene.Map.current.updateCurrentPortion()) {
+            this.loadPortions(true).catch(console.error);
+            this.loading = true;
+        }
+    }
+    /**
+     *  Handle scene key pressed.
+     *  @param {number} key - The key ID
+     */
+    onKeyPressed(key) {
+        if (!this.loading) {
+            // Send keyPressEvent to all the objects
+            if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
+                Manager.Events.sendEvent(null, 2, 0, true, 3, Utils.arrayToMap([
+                    Model.DynamicValue.createMessage(key),
+                    Model.DynamicValue.createSwitch(false),
+                    Model.DynamicValue.create(DYNAMIC_VALUE_KIND.ANYTHING),
+                ]), true, false);
+            }
+            super.onKeyPressed(key);
+        }
+    }
+    /**
+     *  Handle scene key released.
+     *  @param {number} key - The key ID
+     */
+    onKeyReleased(key) {
+        if (!this.loading) {
+            // Send keyReleaseEvent to all the objects
+            if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
+                Manager.Events.sendEvent(null, 2, 0, true, 4, Utils.arrayToMap([Model.DynamicValue.createMessage(key)]), true, false);
+            }
+            super.onKeyReleased(key);
+        }
+    }
+    /**
+     *  Handle scene pressed repeat key.
+     *  @param {number} key - The key ID
+     *  @returns {boolean}
+     */
+    onKeyPressedRepeat(key) {
+        if (!this.loading) {
+            if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
+                Manager.Events.sendEvent(null, 2, 0, true, 3, Utils.arrayToMap([
+                    Model.DynamicValue.createMessage(key),
+                    Model.DynamicValue.createSwitch(true),
+                    Model.DynamicValue.createSwitch(true),
+                ]), true, false);
+            }
+            return super.onKeyPressedRepeat(key);
+        }
+        return true;
+    }
+    /**
+     *  Handle scene pressed and repeat key.
+     *  @param {number} key - The key ID
+     *  @returns {boolean}
+     */
+    onKeyPressedAndRepeat(key) {
+        if (!this.loading) {
+            if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
+                Manager.Events.sendEvent(null, 2, 0, true, 3, Utils.arrayToMap([
+                    Model.DynamicValue.createMessage(key),
+                    Model.DynamicValue.createSwitch(true),
+                    Model.DynamicValue.createSwitch(false),
+                ]), true, false);
+            }
+            super.onKeyPressedAndRepeat(key);
+        }
+        return true;
+    }
+    /**
+     *  Mouse down handle for the scene.
+     *  @param {number} x - The x mouse position on screen
+     *  @param {number} y - The y mouse position on screen
+     */
+    onMouseDown(x, y) {
+        if (!this.loading) {
+            if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
+                Manager.Events.sendEvent(null, 2, 0, true, 5, Utils.arrayToMap([
+                    Model.DynamicValue.createNumber(x),
+                    Model.DynamicValue.createNumber(y),
+                    Model.DynamicValue.createSwitch(Inputs.mouseLeftPressed),
+                    Model.DynamicValue.createSwitch(false),
+                ]), true, false);
+            }
+            super.onMouseDown(x, y);
+        }
+    }
+    /**
+     *  Mouse move handle for the scene.
+     *  @param {number} x - The x mouse position on screen
+     *  @param {number} y - The y mouse position on screen
+     */
+    onMouseMove(x, y) {
+        if (!this.loading) {
+            if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
+                Manager.Events.sendEvent(null, 2, 0, true, 7, Utils.arrayToMap([Model.DynamicValue.createNumber(x), Model.DynamicValue.createNumber(y)]), true, false);
+            }
+            super.onMouseMove(x, y);
+        }
+    }
+    /**
+     *  Mouse up handle for the scene.
+     *  @param {number} x - The x mouse position on screen
+     *  @param {number} y - The y mouse position on screen
+     */
+    onMouseUp(x, y) {
+        if (!this.loading) {
+            if (!ReactionInterpreter.blockingHero && !this.isBattleMap) {
+                Manager.Events.sendEvent(null, 2, 0, true, 6, Utils.arrayToMap([
+                    Model.DynamicValue.createNumber(x),
+                    Model.DynamicValue.createNumber(y),
+                    Model.DynamicValue.createSwitch(Inputs.mouseLeftPressed),
+                ]), true, false);
+            }
+            super.onMouseUp(x, y);
+        }
+    }
+    /**
+     *  Draw the 3D scene.
+     */
+    draw3D() {
+        Manager.GL.renderer.clear();
+        Manager.GL.renderer.render(this.scene, this.camera.getThreeCamera());
+    }
+    /**
+     *  Close the map.
+     */
+    close() {
+        this.reactionInterpreters = [];
+        this.reactionInterpretersEffects = [];
+        this.parallelCommands = [];
+        if (Game.current !== null && !this.isBattleMap) {
+            Game.current.caterpillarFollowers = [];
+        }
+        this.heroTrail = [];
+        this.heroTrailTotalDist = 0;
+        this.heroTrailLastPos = null;
+        const l = Math.ceil(this.mapProperties.length / Constants.PORTION_SIZE);
+        const w = Math.ceil(this.mapProperties.width / Constants.PORTION_SIZE);
+        const d = Math.ceil(this.mapProperties.depth / Constants.PORTION_SIZE);
+        const h = Math.ceil(this.mapProperties.height / Constants.PORTION_SIZE);
+        let i, j, k, portion, x;
+        for (i = 0; i < l; i++) {
+            for (j = -d; j < h; j++) {
+                for (k = 0; k < w; k++) {
+                    portion = Game.current.getPortionPosData(this.id, i, j, k);
+                    for (x = portion.min.length - 1; x >= 0; x--) {
+                        if (!portion.min[x].currentState || !portion.min[x].currentStateInstance.keepPosition) {
+                            portion.min.splice(x, 1);
+                        }
+                        else {
+                            portion.min[x].removeFromScene();
+                        }
+                    }
+                    for (x = portion.mout.length - 1; x >= 0; x--) {
+                        if (!portion.mout[x].currentState || !portion.mout[x].currentStateInstance.keepPosition) {
+                            portion.mout.splice(x, 1);
+                        }
+                        else {
+                            portion.mout[x].removeFromScene();
+                        }
+                    }
+                    for (x = portion.m.length - 1; x >= 0; x--) {
+                        if (!portion.m[x].currentState || !portion.m[x].currentStateInstance.keepPosition) {
+                            portion.m.splice(x, 1);
+                        }
+                        else {
+                            portion.m[x].removeFromScene();
+                        }
+                    }
+                    portion.r = [];
+                }
+            }
+        }
+        // Clear scene
+        const sceneObjects = [];
+        this.scene.traverse((obj) => sceneObjects.push(obj));
+        for (const obj of sceneObjects) {
+            if (obj instanceof THREE.Mesh) {
+                obj?.geometry?.dispose();
+            }
+        }
+        for (i = this.scene.children.length - 1; i >= 0; i--) {
+            this.scene.remove(this.scene.children[i]);
+        }
+        Manager.GL.renderer.renderLists.dispose();
+        // Clear reusable collision probes without leaving zero-scale state behind.
+        Manager.Collisions.resetBBBoxes();
+    }
+    /**
+     *  Rebuild caterpillar followers, preserving positions of existing slots.
+     *  Old followers stay visible until all new ones are ready (no blank frame).
+     */
+    async refreshCaterpillarFollowers() {
+        const oldFollowers = Game.current.caterpillarFollowers.slice();
+        const restoreStates = oldFollowers.map((f) => ({
+            pos: f.position.clone(),
+            prevPos: f.previousPosition ? f.previousPosition.clone() : f.position.clone(),
+            orientationEye: f.orientationEye,
+        }));
+        const newFollowers = await this.buildCaterpillarFollowers(false, restoreStates);
+        for (const f of oldFollowers) {
+            f.removeFromScene();
+        }
+        Game.current.caterpillarFollowers = newFollowers;
+    }
+    async initCaterpillarFollowers(resetTrail = true) {
+        if (Game.current === null) {
+            return;
+        }
+        Game.current.caterpillarFollowers = await this.buildCaterpillarFollowers(resetTrail);
+    }
+    async buildCaterpillarFollowers(resetTrail = true, restoreStates) {
+        if (Game.current === null) {
+            return [];
+        }
+        const maxMembers = Data.Systems.caterpillarMaxPartyMembers.getValue();
+        if (maxMembers <= 0) {
+            if (resetTrail) {
+                this.heroTrail = [];
+                this.heroTrailTotalDist = 0;
+                this.heroTrailLastPos = null;
+            }
+            return [];
+        }
+        let ox = 0, oz = 0;
+        switch (Game.current.hero.orientationEye) {
+            case ORIENTATION.SOUTH:
+                oz = -1;
+                break;
+            case ORIENTATION.NORTH:
+                oz = 1;
+                break;
+            case ORIENTATION.EAST:
+                ox = -1;
+                break;
+            case ORIENTATION.WEST:
+                ox = 1;
+                break;
+        }
+        const spawnStep = Data.Systems.caterpillarOffset.getValue() / Data.Systems.SQUARE_SIZE + 1;
+        if (resetTrail) {
+            const heroPos = Game.current.hero.position;
+            const heroOri = Game.current.hero.orientationEye;
+            const steps = maxMembers + 1;
+            this.heroTrail = [];
+            const stackPos = new THREE.Vector3(heroPos.x + ox * 0.25, heroPos.y, heroPos.z + oz * 0.25);
+            for (let k = 0; k <= steps; k++) {
+                this.heroTrail.push({
+                    pos: stackPos.clone(),
+                    dist: k * spawnStep,
+                    orientation: heroOri,
+                });
+            }
+            this.heroTrailTotalDist = steps * spawnStep;
+            this.heroTrailLastPos = heroPos.clone();
+        }
+        const firstIndex = Data.Systems.caterpillarFirstIndex.getValue();
+        let bx = 0, bz = 0;
+        switch (Game.current.hero.orientationEye) {
+            case ORIENTATION.SOUTH:
+                bz = -1;
+                break;
+            case ORIENTATION.NORTH:
+                bz = 1;
+                break;
+            case ORIENTATION.EAST:
+                bx = -1;
+                break;
+            case ORIENTATION.WEST:
+                bx = 1;
+                break;
+        }
+        const newFollowers = [];
+        for (let i = 0; i < maxMembers; i++) {
+            const memberIndex = firstIndex + i;
+            if (memberIndex >= Game.current.teamHeroes.length) {
+                break;
+            }
+            let initPos;
+            let initOri;
+            if (restoreStates && i < restoreStates.length) {
+                initPos = restoreStates[i].pos.clone();
+                initOri = restoreStates[i].orientationEye;
+            }
+            else if (restoreStates) {
+                const refPos = i > 0 && i - 1 < restoreStates.length ? restoreStates[i - 1].pos : Game.current.hero.position;
+                initPos = new THREE.Vector3(refPos.x + bx * spawnStep, refPos.y, refPos.z + bz * spawnStep);
+                initOri = Game.current.hero.orientationEye;
+            }
+            else {
+                initPos = new THREE.Vector3(Game.current.hero.position.x + ox * 0.25, Game.current.hero.position.y, Game.current.hero.position.z + oz * 0.25);
+                initOri = Game.current.hero.orientationEye;
+            }
+            const follower = new MapObject(Data.Systems.modelHero.system, initPos, true);
+            follower.isCaterpillarFollower = true;
+            follower.initializeProperties();
+            const player = Game.current.teamHeroes[memberIndex];
+            if (player.kind === CHARACTER_KIND.HERO) {
+                const heroData = Data.Heroes.get(player.id);
+                if (heroData && heroData.idCharacter !== -1) {
+                    for (let j = 0; j < follower.statesInstance.length; j++) {
+                        follower.statesInstance[j].graphicID = heroData.idCharacter;
+                    }
+                }
+            }
+            const changeStatePromise = follower.changeState();
+            follower.orientationEye = initOri;
+            follower.updateOrientation();
+            follower.updateUVs();
+            await changeStatePromise;
+            follower.orientationEye = initOri;
+            follower.updateOrientation();
+            follower.updateUVs();
+            follower.previousPosition =
+                restoreStates && i < restoreStates.length ? restoreStates[i].prevPos.clone() : initPos.clone();
+            newFollowers.push(follower);
+        }
+        return newFollowers;
+    }
+    /**
+     *  Sample the hero's current position into the trail.
+     */
+    updateHeroTrail() {
+        const heroPos = Game.current.hero.position;
+        if (this.heroTrailLastPos === null) {
+            this.heroTrailLastPos = heroPos.clone();
+            this.heroTrail = [{ pos: heroPos.clone(), dist: 0, orientation: Game.current.hero.orientationEye }];
+            this.heroTrailTotalDist = 0;
+            return;
+        }
+        const delta = heroPos.distanceTo(this.heroTrailLastPos);
+        if (delta > 0) {
+            this.heroTrailTotalDist += delta;
+            this.heroTrail.push({
+                pos: heroPos.clone(),
+                dist: this.heroTrailTotalDist,
+                orientation: Game.current.hero.orientationEye,
+            });
+            this.heroTrailLastPos = heroPos.clone();
+        }
+        const offset = Data.Systems.caterpillarOffset.getValue() / Data.Systems.SQUARE_SIZE;
+        let maxNeeded = 1;
+        let prevWidth = Game.current.hero.contentWidth;
+        for (const follower of Game.current.caterpillarFollowers) {
+            maxNeeded += offset + prevWidth / 2 + follower.contentWidth / 2;
+            prevWidth = follower.contentWidth;
+        }
+        while (this.heroTrail.length > 1 && this.heroTrailTotalDist - this.heroTrail[0].dist > maxNeeded) {
+            this.heroTrail.shift();
+        }
+    }
+    /**
+     *  Get an interpolated position and orientation at a given trail distance.
+     */
+    getTrailAtDist(targetDist) {
+        if (this.heroTrail.length === 0) {
+            return { pos: Game.current.hero.position.clone(), orientation: Game.current.hero.orientationEye };
+        }
+        if (targetDist <= this.heroTrail[0].dist) {
+            return { pos: this.heroTrail[0].pos.clone(), orientation: this.heroTrail[0].orientation };
+        }
+        for (let i = 1; i < this.heroTrail.length; i++) {
+            if (this.heroTrail[i].dist >= targetDist) {
+                const t = (targetDist - this.heroTrail[i - 1].dist) / (this.heroTrail[i].dist - this.heroTrail[i - 1].dist);
+                return {
+                    pos: this.heroTrail[i - 1].pos.clone().lerp(this.heroTrail[i].pos, t),
+                    orientation: this.heroTrail[i].orientation,
+                };
+            }
+        }
+        const last = this.heroTrail[this.heroTrail.length - 1];
+        return { pos: last.pos.clone(), orientation: last.orientation };
+    }
+}
+Map.allowMainMenu = true;
+Map.allowSaves = true;
+Map.autotileFrame = new Frame(0);
+Map.autotilesOffset = new THREE.Vector2();
+Map.caterpillarNeedsRefresh = false;
+export { Map };
