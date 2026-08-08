@@ -12,7 +12,9 @@ import * as THREE from 'three';
 import { CUSTOM_SHAPE_KIND, ELEMENT_MAP_KIND, Mathf, OBJECT_MOVING_KIND, ORIENTATION, Paths, PICTURE_KIND, Platform, SHAPE_KIND, Utils, } from '../Common/index.js';
 import { Core, Data, Manager, Model, Scene } from '../index.js';
 import { CollisionSquare } from './CollisionSquare.js';
+import { Autotile } from './Autotile.js';
 import { CustomGeometry } from './CustomGeometry.js';
+import { Floor } from './Floor.js';
 import { Frame } from './Frame.js';
 import { Game } from './Game.js';
 import { MapElement } from './MapElement.js';
@@ -31,6 +33,7 @@ import { Sprite } from './Sprite.js';
  */
 class MapObject {
     constructor(system, position, isHero = false) {
+        this.positionLayer = 0;
         this.moving = false;
         this.isClimbing = false;
         this.isClimbingUp = true;
@@ -48,6 +51,7 @@ class MapObject {
         this.objectLightsElapsedTime = 0;
         this.animationMixer = null;
         this._currentGltfAnimIndex = -2;
+        this.objectAutotileBundle = null;
         this.system = system;
         this.id = system.id;
         this.position = position;
@@ -57,6 +61,8 @@ class MapObject {
         this.meshBoundingBox = null;
         this.currentBoundingBox = null;
         this.boundingBoxSettings = null;
+        this.landCollision = null;
+        this.landCollisions = [];
         this.frame = new Frame(0);
         this.orientationEye = ORIENTATION.SOUTH;
         this.orientation = this.orientationEye;
@@ -76,6 +82,129 @@ class MapObject {
         if (!this.isHero) {
             this.initializeProperties();
         }
+    }
+    static getLoadedMapObjects() {
+        const objects = new Set();
+        for (const portion of Scene.Map.current.mapPortions) {
+            if (!portion)
+                continue;
+            for (const object of portion.objectsList)
+                objects.add(object);
+            const data = Game.current.getPortionData(Scene.Map.current.id, portion.portion);
+            for (const object of data.min)
+                objects.add(object);
+            for (const object of data.mout)
+                objects.add(object);
+        }
+        return objects;
+    }
+    getObjectAutotileTileID(position) {
+        const state = this.currentStateInstance;
+        const objects = MapObject.getLoadedMapObjects();
+        const sameAutotileAt = (x, z) => {
+            for (const object of objects) {
+                const other = object.currentStateInstance;
+                if (object !== this &&
+                    other?.graphicKind === ELEMENT_MAP_KIND.AUTOTILES &&
+                    other.graphicID === state.graphicID &&
+                    object.positionLayer + other.layer.getValue() ===
+                        this.positionLayer + state.layer.getValue() &&
+                    other.rectTileset?.x === state.rectTileset?.x &&
+                    other.rectTileset?.y === state.rectTileset?.y &&
+                    other.rectTileset?.width === state.rectTileset?.width &&
+                    other.rectTileset?.height === state.rectTileset?.height &&
+                    Math.floor(object.position.x) === x &&
+                    Math.floor(object.position.z) === z &&
+                    Math.floor(object.position.y) === Math.floor(this.position.y)) {
+                    return true;
+                }
+            }
+            return false;
+        };
+        const left = sameAutotileAt(position.x - 1, position.z);
+        const right = sameAutotileAt(position.x + 1, position.z);
+        const top = sameAutotileAt(position.x, position.z - 1);
+        const bottom = sameAutotileAt(position.x, position.z + 1);
+        const topLeft = sameAutotileAt(position.x - 1, position.z - 1);
+        const topRight = sameAutotileAt(position.x + 1, position.z - 1);
+        const bottomLeft = sameAutotileAt(position.x - 1, position.z + 1);
+        const bottomRight = sameAutotileAt(position.x + 1, position.z + 1);
+        const corner = (horizontal, vertical, diagonal) => !horizontal && !vertical ? 1 : !vertical ? 3 : !horizontal ? 4 : diagonal ? 2 : 0;
+        return (corner(left, top, topLeft) * 128 +
+            corner(right, top, topRight) * 25 +
+            corner(left, bottom, bottomLeft) * 5 +
+            corner(right, bottom, bottomRight));
+    }
+    static refreshAutotilesAround(position) {
+        for (const object of MapObject.getLoadedMapObjects()) {
+            const state = object.currentStateInstance;
+            if (!object.removed &&
+                state?.graphicKind === ELEMENT_MAP_KIND.AUTOTILES &&
+                Math.abs(Math.floor(object.position.x) - Math.floor(position.x)) <= 1 &&
+                Math.abs(Math.floor(object.position.z) - Math.floor(position.z)) <= 1 &&
+                Math.floor(object.position.y) === Math.floor(position.y)) {
+                object.refreshAutotile();
+            }
+        }
+    }
+    refreshAutotile() {
+        if (this.mesh === null || this.objectAutotileBundle === null)
+            return;
+        const state = this.currentStateInstance;
+        const autotile = Data.SpecialElements.getAutotile(state.graphicID);
+        if (!autotile)
+            return;
+        const { width, height } = Manager.GL.getMaterialTextureSize(this.objectAutotileBundle.material);
+        if (width === 0 || height === 0)
+            return;
+        const tileID = this.getObjectAutotileTileID(Position.createFromVector3(this.position));
+        const x = (tileID % 64) * Data.Systems.SQUARE_SIZE;
+        const y = (Math.floor(tileID / 64) + 10 * this.objectAutotileBundle.getOffset(autotile.pictureID, state.rectTileset)) *
+            Data.Systems.SQUARE_SIZE;
+        const coef = MapElement.COEF_TEX;
+        const uvs = this.mesh.geometry.getAttribute('uv');
+        const values = [
+            (x + coef) / width,
+            (y + coef) / height,
+            (x + Data.Systems.SQUARE_SIZE - coef) / width,
+            (y + coef) / height,
+            (x + Data.Systems.SQUARE_SIZE - coef) / width,
+            (y + Data.Systems.SQUARE_SIZE - coef) / height,
+            (x + coef) / width,
+            (y + Data.Systems.SQUARE_SIZE - coef) / height,
+        ];
+        uvs.array.set(values);
+        uvs.needsUpdate = true;
+    }
+    getFloorLandCollisions() {
+        const texture = this.currentStateInstance.rectTileset;
+        const picture = Scene.Map.current.mapProperties.tileset.picture;
+        const collisions = [];
+        if (!picture || !texture)
+            return collisions;
+        const pixelDepth = 1 / Data.Systems.SQUARE_SIZE;
+        for (let z = 0; z < texture.height; z++) {
+            for (let x = 0; x < texture.width; x++) {
+                const collision = picture.getCollisionAtPos(texture.x + x, texture.y + z);
+                if (!collision)
+                    continue;
+                const rect = collision.rect;
+                if (!collision.hasAllDirections() || collision.terrain > 0) {
+                    const r = rect === null ? [0, 0, 1, 1] : [rect.x, rect.y, rect.width, rect.height];
+                    collisions.push({
+                        b: [x + r[0], pixelDepth / 2, z + r[1], r[2], r[3], pixelDepth, 0],
+                        cs: collision,
+                    });
+                }
+                else if (rect !== null) {
+                    collisions.push({
+                        b: [x + rect.x, pixelDepth / 2, z + rect.y, rect.width, rect.height, pixelDepth, 0],
+                        cs: null,
+                    });
+                }
+            }
+        }
+        return collisions;
     }
     /**
      *  Search an object in the map.
@@ -277,7 +406,9 @@ class MapObject {
      *  @param {Record<string, any>} json - Json object describing the object
      */
     read(json) {
-        this.position = Position.createFromArray(json.k).toVector3();
+        const position = Position.createFromArray(json.k);
+        this.position = position.toVector3();
+        this.positionLayer = position.layer;
         this.system = new Model.MapObject(json.v);
     }
     /**
@@ -335,7 +466,7 @@ class MapObject {
                 state.graphicKind = Utils.valueOrDefault(stateValue.gk, stateSystem.graphicKind);
                 state.rectTileset = stateValue.gt
                     ? Rectangle.createFromArray(stateValue.gt)
-                    : stateSystem.rectTileset.clone();
+                    : (stateSystem.rectTileset?.clone() ?? null);
                 state.indexX = Utils.valueOrDefault(stateValue.gix, stateSystem.indexX);
                 state.indexY = Utils.valueOrDefault(stateValue.giy, stateSystem.indexY);
                 state.speedID = Utils.valueOrDefault(stateValue.sid, stateSystem.speedID);
@@ -474,6 +605,18 @@ class MapObject {
                     material = await Data.SpecialElements.loadObject3DTexture(objectData.id);
                 }
             }
+            else if (this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.AUTOTILES) {
+                const autotileData = Data.SpecialElements.getAutotile(this.currentStateInstance.graphicID);
+                const bundles = autotileData
+                    ? await Data.SpecialElements.loadAutotileTexture(this.currentStateInstance.graphicID)
+                    : null;
+                this.objectAutotileBundle =
+                    bundles?.find((bundle) => bundle.isInTexture(autotileData.pictureID, this.currentStateInstance.rectTileset)) ?? null;
+                material = this.objectAutotileBundle?.material ?? null;
+            }
+            else if (this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.FLOORS) {
+                material = Scene.Map.current.textureTileset;
+            }
             else {
                 material =
                     this.currentStateInstance.graphicID === 0
@@ -486,6 +629,9 @@ class MapObject {
             material = Manager.GL.cloneMaterial(material);
         }
         this.meshBoundingBox = [];
+        this.landCollision = null;
+        this.landCollisions = [];
+        Scene.Map.current.landObjectsSpatialHashDirty = true;
         const texture = Manager.GL.getMaterialTexture(material);
         let isGltfNoTexture = false;
         if (!texture && this.currentStateInstance?.graphicKind === ELEMENT_MAP_KIND.OBJECT_3D) {
@@ -520,6 +666,7 @@ class MapObject {
             positionTranformation.scaleX = this.currentStateInstance.scaleX.getValue();
             positionTranformation.scaleY = this.currentStateInstance.scaleY.getValue();
             positionTranformation.scaleZ = this.currentStateInstance.scaleZ.getValue();
+            positionTranformation.layer = this.positionLayer + this.currentStateInstance.layer.getValue();
             if (this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.OBJECT_3D) {
                 positionTranformation.x = -1 / 2;
                 positionTranformation.y = 0;
@@ -588,6 +735,51 @@ class MapObject {
                         this.currentStateInstance.previousGraphicKind !== ELEMENT_MAP_KIND.OBJECT_3D)) {
                 }
             }
+            else if (this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.FLOORS) {
+                positionTranformation.layer = 0;
+                positionTranformation.x = 0;
+                positionTranformation.y = 0;
+                positionTranformation.z = 0;
+                positionTranformation.centerX -= 50;
+                positionTranformation.centerZ -= 50;
+                this.width = this.currentStateInstance.rectTileset.width;
+                this.height = this.currentStateInstance.rectTileset.height;
+                const floor = new Floor({
+                    t: [
+                        this.currentStateInstance.rectTileset.x,
+                        this.currentStateInstance.rectTileset.y,
+                        this.currentStateInstance.rectTileset.width,
+                        this.currentStateInstance.rectTileset.height,
+                    ],
+                });
+                const floorGeometry = new CustomGeometry();
+                const { width, height } = Manager.GL.getMaterialTextureSize(material);
+                const collision = floor.updateGeometry(floorGeometry, positionTranformation, width, height, 0);
+                result = [floorGeometry, [0, collision ? [collision] : []]];
+                floorGeometry.updateAttributes();
+            }
+            else if (this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.AUTOTILES) {
+                const autotileData = Data.SpecialElements.getAutotile(this.currentStateInstance.graphicID);
+                const bundle = this.objectAutotileBundle;
+                if (!autotileData || !bundle) {
+                    return;
+                }
+                const autotile = new Autotile();
+                autotile.autotileID = this.currentStateInstance.graphicID;
+                autotile.texture = this.currentStateInstance.rectTileset?.clone() ?? new Rectangle();
+                autotile.tileID = this.getObjectAutotileTileID(positionTranformation);
+                positionTranformation.layer = 0;
+                positionTranformation.x = 0;
+                positionTranformation.y = 0;
+                positionTranformation.z = 0;
+                positionTranformation.centerX -= 50;
+                positionTranformation.centerZ -= 50;
+                result = [new CustomGeometry(), [0, []]];
+                const { width, height } = Manager.GL.getMaterialTextureSize(bundle.material);
+                const collision = autotile.updateGeometryAutotile(result[0], bundle, positionTranformation, width, height, autotileData.pictureID, 0);
+                result[1][1] = collision ? [collision] : [];
+                result[0].updateAttributes();
+            }
             else {
                 let x, y;
                 if (this.currentStateInstance.graphicID === 0) {
@@ -617,6 +809,7 @@ class MapObject {
             const geometry = result[0];
             const objCollision = result[1];
             this.mesh = new THREE.Mesh(geometry, material);
+            this.mesh.userData.mapObjectID = this.id;
             if (isGltfNoTexture) {
                 this.mesh = null;
             }
@@ -629,10 +822,25 @@ class MapObject {
                     this.mesh.castShadow = true;
                     this.mesh.customDepthMaterial = material.userData.customDepthMaterial;
                 }
-                this.mesh.position.set(this.position.x, this.position.y, this.position.z);
-                this.mesh.renderOrder = 1;
+                this.mesh.position.set(this.position.x, this.position.y + this.getMapObjectLayerDepthOffset(), this.position.z);
+                this.mesh.renderOrder =
+                    this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.FLOORS ||
+                        this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.AUTOTILES
+                        ? 4
+                        : 1;
             }
             this.boundingBoxSettings = objCollision[1][0];
+            this.landCollision =
+                this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.FLOORS ||
+                    this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.AUTOTILES
+                    ? this.boundingBoxSettings
+                    : null;
+            this.landCollisions =
+                this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.FLOORS
+                    ? this.getFloorLandCollisions()
+                    : this.landCollision
+                        ? [this.landCollision]
+                        : [];
             if (this.boundingBoxSettings) {
                 if (this.currentStateInstance.graphicID === 0) {
                     const picture = Scene.Map.current.mapProperties.tileset.picture;
@@ -654,6 +862,8 @@ class MapObject {
         else {
             this.mesh = null;
             this.boundingBoxSettings = null;
+            this.landCollision = null;
+            this.landCollisions = [];
             this.speed =
                 this.currentState === null
                     ? Model.DynamicValue.createNumberDouble(1)
@@ -1033,6 +1243,9 @@ class MapObject {
         this.isClimbing = isClimbing;
         // Add to moving objects
         this.addMoveTemp();
+        if (distance > 0 && this.landCollisions.length > 0) {
+            Scene.Map.current.landObjectsSpatialHashDirty = true;
+        }
         // Add to game steps infos
         if (this.isHero && distance > 0) {
             Game.current.steps++;
@@ -1231,19 +1444,17 @@ class MapObject {
      *  remove object mesh from scene
      */
     removeFromScene() {
-        if (this.isInScene) {
-            if (this.mesh !== null) {
-                Scene.Map.current.scene.remove(this.mesh);
-            }
-            if (this.gltfGroup !== null) {
-                Scene.Map.current.scene.remove(this.gltfGroup);
-            }
-            if (this.objectLightsGroup !== null && this.objectLightsGroup.parent === Scene.Map.current.scene) {
-                Scene.Map.current.scene.remove(this.objectLightsGroup);
-            }
-            this.removeBBFromScene();
-            this.isInScene = false;
+        if (this.mesh !== null) {
+            Scene.Map.current.scene.remove(this.mesh);
         }
+        if (this.gltfGroup !== null) {
+            Scene.Map.current.scene.remove(this.gltfGroup);
+        }
+        if (this.objectLightsGroup !== null && this.objectLightsGroup.parent === Scene.Map.current.scene) {
+            Scene.Map.current.scene.remove(this.objectLightsGroup);
+        }
+        this.removeBBFromScene();
+        this.isInScene = false;
     }
     /**
      *  Remove bounding boxes mesh from scene
@@ -1329,7 +1540,7 @@ class MapObject {
                 const offset = this.currentStateInstance.pixelOffset && this.frame.value % 2 !== 0
                     ? 1 / Data.Systems.SQUARE_SIZE
                     : 0;
-                this.mesh.position.set(this.position.x, this.position.y + offset, this.position.z);
+                this.mesh.position.set(this.position.x, this.position.y + offset + this.getMapObjectLayerDepthOffset(), this.position.z);
             }
             else {
                 if (this.currentStateInstance.stopAnimation && !this.isClimbing) {
@@ -1346,7 +1557,7 @@ class MapObject {
                     this.frame.value % 2 !== 0
                     ? 1 / Data.Systems.SQUARE_SIZE
                     : 0;
-                this.mesh.position.set(this.position.x, this.position.y + offset, this.position.z);
+                this.mesh.position.set(this.position.x, this.position.y + offset + this.getMapObjectLayerDepthOffset(), this.position.z);
                 // Update angle
                 if (this.currentStateInstance &&
                     this.currentStateInstance.setWithCamera &&
@@ -1622,6 +1833,14 @@ class MapObject {
         }
         return THREE.MathUtils.degToRad(this.currentStateInstance.angleY.getValue() + (followOrientation ? orientationAngle : 0));
     }
+    getMapObjectLayerDepthOffset() {
+        const kind = this.currentStateInstance?.graphicKind;
+        if (kind !== ELEMENT_MAP_KIND.FLOORS && kind !== ELEMENT_MAP_KIND.AUTOTILES) {
+            return 0;
+        }
+        return ((this.positionLayer + this.currentStateInstance.layer.getValue()) *
+            Scene.Map.current.camera.getLayerDepthOffset());
+    }
     /**
      *  Update sprite faces angles.
      *  @param {number} angle - The camera angle
@@ -1665,7 +1884,8 @@ class MapObject {
     updateUVs() {
         if (this.mesh !== null &&
             !this.isNone() &&
-            this.currentStateInstance.graphicKind !== ELEMENT_MAP_KIND.OBJECT_3D) {
+            (this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.SPRITES_FACE ||
+                this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.SPRITES_FIX)) {
             const { width, height } = Manager.GL.getMaterialTextureSize(this.mesh.material);
             let w, h, x, y;
             if (this.currentStateInstance.graphicID === 0) {
@@ -1717,13 +1937,15 @@ class MapObject {
      *  Update the material
      */
     updateMaterial() {
-        if (!this.isNone()) {
+        if (!this.isNone() &&
+            (this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.SPRITES_FACE ||
+                this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.SPRITES_FIX)) {
             this.mesh.material =
                 this.currentStateInstance.graphicID === 0
                     ? Scene.Map.current.textureTileset
                     : Data.Pictures.texturesCharacters.get(this.currentStateInstance.graphicID);
         }
-        else {
+        else if (this.isNone()) {
             this.mesh = null;
         }
     }
@@ -1777,6 +1999,24 @@ class MapObject {
         }
         return orientation;
     }
+    getMapObjectLandCollision(position) {
+        const cellSize = Manager.Collisions.SPATIAL_HASH_CELL_SIZE;
+        const lands = Scene.Map.current.landObjectsSpatialHash.get(Manager.Collisions.spatialHashKey(Math.floor(position.x / cellSize), Math.floor(position.z / cellSize)));
+        if (!lands)
+            return null;
+        let result = null;
+        for (const { object, collision } of lands) {
+            const b = collision.b;
+            if (!b || Math.floor(object.position.y) !== position.y)
+                continue;
+            const x = object.position.x + b[0];
+            const z = object.position.z + b[2];
+            if (Math.abs(position.x - x) <= b[3] / 2 && Math.abs(position.z - z) <= b[4] / 2) {
+                result = collision;
+            }
+        }
+        return result;
+    }
     /**
      *  Update the terrain the object is currently on.
      */
@@ -1794,9 +2034,19 @@ class MapObject {
                     heroFractionalY > 0.001 &&
                     this.position.y > (mtnCollision.p?.y ?? 0);
                 const boundingBoxes = mapPortion.boundingBoxesLands[position.toIndex()];
-                if (onMountainSlope || (mtnCollision?.mountainPictureID !== undefined && boundingBoxes.length === 0)) {
+                const mapObjectCollision = this.getMapObjectLandCollision(position);
+                if (onMountainSlope ||
+                    (mtnCollision?.mountainPictureID !== undefined &&
+                        boundingBoxes.length === 0 &&
+                        mapObjectCollision === null)) {
                     this.terrainPicture = Data.Pictures.get(PICTURE_KIND.MOUNTAINS, mtnCollision.mountainPictureID);
                     this.terrain = mtnCollision.mountainTerrain ?? 0;
+                }
+                else if (mapObjectCollision !== null) {
+                    this.terrain = mapObjectCollision.cs?.terrain ?? 0;
+                    if (mapObjectCollision.autotilePictureID !== undefined) {
+                        this.terrainPicture = Data.Pictures.get(PICTURE_KIND.AUTOTILES, mapObjectCollision.autotilePictureID);
+                    }
                 }
                 else if (boundingBoxes.length > 0) {
                     const collision = boundingBoxes[boundingBoxes.length - 1];

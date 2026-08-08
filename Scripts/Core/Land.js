@@ -37,7 +37,7 @@ export class Land extends MapElement {
      * @param count - The current face count used for indexing.
      * @returns A {@link StructMapElementCollision} describing collision data, or `null` if no collision should be applied.
      */
-    updateGeometryLand(geometry, collision, position, width, height, x, y, w, h, count) {
+    updateGeometryLand(geometry, collision, position, width, height, x, y, w, h, count, squareWidth = 1, squareHeight = 1) {
         const localPosition = position.toVector3();
         const a = localPosition.x;
         let yLayerOffset = position.layer * Scene.Map.current.camera.getLayerDepthOffset();
@@ -47,10 +47,14 @@ export class Land extends MapElement {
         const b = localPosition.y + yLayerOffset;
         const c = localPosition.z;
         // Vertices
-        const vecA = new THREE.Vector3(a - 0.5, b, c - 0.5);
-        const vecB = new THREE.Vector3(a + 0.5, b, c - 0.5);
-        const vecC = new THREE.Vector3(a + 0.5, b, c + 0.5);
-        const vecD = new THREE.Vector3(a - 0.5, b, c + 0.5);
+        const left = a - 0.5;
+        const top = c - 0.5;
+        const right = left + squareWidth;
+        const bottom = top + squareHeight;
+        const vecA = new THREE.Vector3(left, b, top);
+        const vecB = new THREE.Vector3(right, b, top);
+        const vecC = new THREE.Vector3(right, b, bottom);
+        const vecD = new THREE.Vector3(left, b, bottom);
         const center = new THREE.Vector3(a, b, c);
         Mathf.rotateQuadEuler(vecA, vecB, vecC, vecD, center, position.toRotationEuler());
         geometry.pushQuadVertices(vecA, vecB, vecC, vecD);

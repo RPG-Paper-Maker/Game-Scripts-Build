@@ -605,8 +605,14 @@ class MapPortion {
             if (index === -1) {
                 localPosition = position.toVector3();
                 mapObject = new MapObject(object, localPosition);
+                mapObject.positionLayer = position.layer;
                 await mapObject.changeState();
                 this.objectsList.push(mapObject);
+            }
+        }
+        for (const mapObject of this.objectsList) {
+            if (mapObject.currentStateInstance?.graphicKind === ELEMENT_MAP_KIND.AUTOTILES) {
+                await mapObject.changeState();
             }
         }
         // Add moved objects to the scene
@@ -755,6 +761,7 @@ class MapPortion {
                 object.read(jsonObjectValue);
                 localPosition = position.toVector3();
                 mapObject = new MapObject(object, localPosition);
+                mapObject.positionLayer = position.layer;
                 mapObject.changeState();
                 return mapObject;
             }

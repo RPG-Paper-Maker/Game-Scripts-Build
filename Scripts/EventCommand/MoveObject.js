@@ -125,6 +125,12 @@ class MoveObject extends Base {
                     case 3:
                         kind = ELEMENT_MAP_KIND.OBJECT_3D;
                         break;
+                    case 4:
+                        kind = ELEMENT_MAP_KIND.FLOORS;
+                        break;
+                    case 5:
+                        kind = ELEMENT_MAP_KIND.AUTOTILES;
+                        break;
                 }
                 const pictureID = Model.DynamicValue.createValueCommand(command, iterator);
                 iterator.i++;
@@ -330,6 +336,9 @@ class MoveObject extends Base {
         if (MoveObject.lockedInputs) {
             orientation = this.getLockedOrientation(orientation);
         }
+        if (currentState.autotileStartPosition === undefined) {
+            currentState.autotileStartPosition = object.position.clone();
+        }
         const angle = this.isCameraOrientation
             ? MoveObject.followGrid
                 ? Math.round(Scene.Map.current.camera.horizontalAngle / 90) * 90
@@ -378,6 +387,10 @@ class MoveObject extends Base {
             object.previousOrientation = null;
             object.previousMoveCommand = null;
             object.otherMoveCommand = null;
+            if (!object.position.equals(currentState.autotileStartPosition)) {
+                void MapObject.refreshAutotilesAround(currentState.autotileStartPosition);
+                void MapObject.refreshAutotilesAround(object.position);
+            }
             this.moveFrequency(object);
             return true;
         }
@@ -758,7 +771,20 @@ class MoveObject extends Base {
             object.currentStateInstance.previousGraphicKind = object.currentStateInstance.graphicKind;
             object.currentStateInstance.graphicKind = parameters.kind;
             object.currentStateInstance.graphicID = parameters.pictureID.getValue();
-            if (object.currentStateInstance.graphicID === 0) {
+            if (parameters.kind === ELEMENT_MAP_KIND.NONE && object.mesh !== null) {
+                Scene.Map.current.scene.remove(object.mesh);
+                object.mesh = null;
+            }
+            if (parameters.kind === ELEMENT_MAP_KIND.NONE) {
+                Scene.Map.current.scene.traverse((child) => {
+                    if (child.userData.mapObjectID === object.id) {
+                        child.parent?.remove(child);
+                    }
+                });
+            }
+            if (object.currentStateInstance.graphicID === 0 ||
+                object.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.FLOORS ||
+                object.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.AUTOTILES) {
                 object.currentStateInstance.rectTileset = new Rectangle(parameters.indexX, parameters.indexY, parameters.width, parameters.height);
             }
             else {
@@ -782,7 +808,7 @@ class MoveObject extends Base {
                 options.giy = object.currentStateInstance.indexY;
             }
             // Graphic update
-            object.changeState();
+            void object.changeState().then(() => MapObject.refreshAutotilesAround(object.position));
         }
         return ORIENTATION.NONE;
     }

@@ -781,6 +781,38 @@ class Collisions {
                 //}
             }
         }
+        return this.checkLandObjects(jpositionBefore, jpositionAfter, direction, object);
+    }
+    /** Check floor and autotile graphics used by map objects as land collisions. */
+    static checkLandObjects(jpositionBefore, jpositionAfter, direction, object) {
+        const hash = Scene.Map.current.landObjectsSpatialHash;
+        const cellSize = Collisions.SPATIAL_HASH_CELL_SIZE;
+        const cx = Math.floor(jpositionAfter.x / cellSize);
+        const cz = Math.floor(jpositionAfter.z / cellSize);
+        const lands = hash.get(Collisions.spatialHashKey(cx, cz));
+        if (lands) {
+            for (const { object: landObject, collision } of lands) {
+                if (landObject === object || !collision.b)
+                    continue;
+                const b = collision.b;
+                const boundingBox = [
+                    landObject.position.x + b[0],
+                    landObject.position.y +
+                        b[1] +
+                        (landObject.positionLayer + landObject.currentStateInstance.layer.getValue()) *
+                            Scene.Map.current.camera.getLayerDepthOffset(),
+                    landObject.position.z + b[2],
+                    b[3],
+                    b[4],
+                    b[5],
+                    b[6],
+                ];
+                if (this.checkIntersectionLand(collision.cs, boundingBox, object) ||
+                    this.checkDirections(jpositionBefore, jpositionAfter, collision.cs, boundingBox, direction, object)) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
     /**

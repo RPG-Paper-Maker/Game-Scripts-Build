@@ -74,8 +74,11 @@ class RemoveObjectFromMap extends Base {
                             result.datas.r.push(result.id);
                         }
                     }
+                    const position = result.object.position.clone();
                     result.object.removed = true;
                     result.object.removeFromScene();
+                    Scene.Map.current.landObjectsSpatialHashDirty = true;
+                    void MapObject.refreshAutotilesAround(position);
                 }
                 currentState.finished = true;
             }, object);

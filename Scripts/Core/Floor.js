@@ -32,6 +32,6 @@ export class Floor extends Land {
     updateGeometry(geometry, position, width, height, count) {
         return width === 0 || height === 0
             ? null
-            : super.updateGeometryLand(geometry, Scene.Map.current.mapProperties.tileset.picture.getCollisionAt(this.texture), position, width, height, (this.texture.x * Data.Systems.SQUARE_SIZE) / width, (this.texture.y * Data.Systems.SQUARE_SIZE) / height, (this.texture.width * Data.Systems.SQUARE_SIZE) / width, (this.texture.height * Data.Systems.SQUARE_SIZE) / height, count);
+            : super.updateGeometryLand(geometry, Scene.Map.current.mapProperties.tileset.picture.getCollisionAt(this.texture), position, width, height, (this.texture.x * Data.Systems.SQUARE_SIZE) / width, (this.texture.y * Data.Systems.SQUARE_SIZE) / height, (this.texture.width * Data.Systems.SQUARE_SIZE) / width, (this.texture.height * Data.Systems.SQUARE_SIZE) / height, count, this.texture.width, this.texture.height);
     }
 }
