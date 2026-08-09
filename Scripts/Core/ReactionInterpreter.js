@@ -25,13 +25,14 @@ import { Node } from './index.js';
  *  default the first reaction command)
  */
 class ReactionInterpreter {
-    constructor(sender, reaction, object, state, parameters, event, command = reaction.getFirstCommand()) {
+    constructor(sender, reaction, object, state, parameters, event, command = reaction.getFirstCommand(), localVariables) {
         this.currentSender = sender;
         this.currentReaction = reaction;
         this.currentMapObject = object;
         this.currentState = state;
         this.currentParameters = parameters;
         this.currentCommand = command;
+        this.localVariables = localVariables ?? new Map();
         this.updateObjectParameters();
         this.currentCommandState = this.currentCommand === null ? null : this.currentCommand.data.initialize();
         this.currentTimeState = event;
@@ -86,7 +87,7 @@ class ReactionInterpreter {
         let interpreter, newCommand;
         while (directNode) {
             if (this.currentCommand.data.parallel) {
-                interpreter = new ReactionInterpreter(this.currentSender, this.currentReaction, this.currentMapObject, this.currentState, this.currentParameters, this.currentTimeState, this.currentCommand);
+                interpreter = new ReactionInterpreter(this.currentSender, this.currentReaction, this.currentMapObject, this.currentState, this.currentParameters, this.currentTimeState, this.currentCommand, this.localVariables);
                 interpreter.currentCommandState.parallel = true;
                 Scene.Map.current.parallelCommands.push(interpreter);
             }

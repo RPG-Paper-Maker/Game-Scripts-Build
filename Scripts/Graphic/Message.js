@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { ALIGN, Constants, PICTURE_KIND, ScreenResolution, TAG_KIND, Utils } from '../Common/index.js';
+import { ALIGN, Constants, DYNAMIC_VALUE_KIND, PICTURE_KIND, ScreenResolution, TAG_KIND, Utils } from '../Common/index.js';
 import { Game, Picture2D, Tree } from '../Core/index.js';
 import { Data, Graphic, Model } from '../index.js';
 /** @class
@@ -91,6 +91,9 @@ class Message extends Graphic.Base {
                 else if (tag.includes(Message.TAG_STROKE_COLOR)) {
                     tagKind = TAG_KIND.STROKE_COLOR;
                 }
+                else if (tag.includes(Message.TAG_LOCAL_VARIABLE)) {
+                    tagKind = TAG_KIND.LOCAL_VARIABLE;
+                }
                 else if (tag.includes(Message.TAG_VARIABLE)) {
                     tagKind = TAG_KIND.VARIABLE;
                 }
@@ -145,6 +148,9 @@ class Message extends Graphic.Base {
                 case TAG_KIND.HERO_NAME:
                     nodeValue = Model.DynamicValue.createVariable(parseInt(value));
                     break;
+                case TAG_KIND.LOCAL_VARIABLE:
+                    nodeValue = Model.DynamicValue.create(DYNAMIC_VALUE_KIND.LOCAL_VARIABLE, value);
+                    break;
                 case TAG_KIND.PARAMETER:
                     nodeValue = Model.DynamicValue.createParameter(parseInt(value));
                     break;
@@ -156,6 +162,7 @@ class Message extends Graphic.Base {
             if (tag !== TAG_KIND.TEXT &&
                 tag !== TAG_KIND.NEW_LINE &&
                 tag !== TAG_KIND.VARIABLE &&
+                tag !== TAG_KIND.LOCAL_VARIABLE &&
                 tag !== TAG_KIND.ICON &&
                 tag !== TAG_KIND.PROPERTY &&
                 tag !== TAG_KIND.PARAMETER &&
@@ -239,6 +246,7 @@ class Message extends Graphic.Base {
                 break;
             case TAG_KIND.TEXT:
             case TAG_KIND.VARIABLE:
+            case TAG_KIND.LOCAL_VARIABLE:
             case TAG_KIND.PARAMETER:
             case TAG_KIND.PROPERTY:
             case TAG_KIND.HERO_NAME: {
@@ -248,6 +256,7 @@ class Message extends Graphic.Base {
                         text = value;
                         break;
                     case TAG_KIND.VARIABLE:
+                    case TAG_KIND.LOCAL_VARIABLE:
                         text = String(value.getValue());
                         break;
                     case TAG_KIND.PARAMETER:
@@ -429,7 +438,11 @@ class Message extends Graphic.Base {
      *  according to screen resolution
      */
     draw(x = this.oX, y = this.oY, w = this.oW, h = this.oH) {
-        const newX = x + (this.faceset.empty ? 0 : ScreenResolution.getScreenMinXY(Data.Systems.facesetScalingWidth) + ScreenResolution.getScreenX(Constants.HUGE_SPACE));
+        const newX = x +
+            (this.faceset.empty
+                ? 0
+                : ScreenResolution.getScreenMinXY(Data.Systems.facesetScalingWidth) +
+                    ScreenResolution.getScreenX(Constants.HUGE_SPACE));
         const newY = y + ScreenResolution.getScreenY(Constants.HUGE_SPACE);
         const textAreaWidth = w - (newX - x);
         let offsetY = 0;
@@ -470,7 +483,7 @@ class Message extends Graphic.Base {
                     }
                     graphic.draw({
                         x: newX + offsetX,
-                        y: newY - ScreenResolution.getScreenMinXY(Data.Systems.iconsSize) * 1.5 / 2 + offsetY,
+                        y: newY - (ScreenResolution.getScreenMinXY(Data.Systems.iconsSize) * 1.5) / 2 + offsetY,
                         sw: Data.Systems.iconsSize,
                         sh: Data.Systems.iconsSize,
                         w: Data.Systems.iconsSize * 1.5,
@@ -505,6 +518,7 @@ Message.TAG_TEXT_COLOR = 'textcolor';
 Message.TAG_BACK_COLOR = 'backcolor';
 Message.TAG_STROKE_COLOR = 'strokecolor';
 Message.TAG_VARIABLE = 'var';
+Message.TAG_LOCAL_VARIABLE = 'lvar';
 Message.TAG_PARAMETER = 'par';
 Message.TAG_PROPERTY = 'pro';
 Message.TAG_HERO_NAME = 'hname';

@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { CHANGE_VARIABLES_OTHER_CHARACTERISTICS, CHARACTER_KIND, Interpreter, Mathf, Platform, SONG_KIND, VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND, } from '../Common/index.js';
-import { Game, Item, MapObject, Position } from '../Core/index.js';
+import { Game, Item, MapObject, Position, ReactionInterpreter } from '../Core/index.js';
 import { Data, Manager, Model, Scene } from '../index.js';
 import { Base } from './Base.js';
 /** @class
@@ -18,19 +18,22 @@ import { Base } from './Base.js';
  *  @param {any[]} command - Direct JSON command to parse
  */
 class ChangeVariables extends Base {
-    constructor(command) {
+    constructor(command, isLocal = false) {
         super();
         const iterator = {
-            i: 2,
+            i: isLocal ? 0 : 2,
         };
+        this.isLocal = isLocal;
+        this.isCreatingLocalVariable = isLocal && command[iterator.i++] === 1;
+        this.localVariableName = isLocal ? command[iterator.i++] : '';
         // Selection
-        this.selection = command[1];
+        this.selection = isLocal ? 0 : command[1];
         this.nbSelection = 1;
-        if (command[0] === 1) {
+        if (!isLocal && command[0] === 1) {
             this.nbSelection = command[iterator.i++] - this.selection;
         }
         // Operation
-        this.operation = command[iterator.i++];
+        this.operation = this.isCreatingLocalVariable ? 0 : command[iterator.i++];
         // Value
         this.valueKind = command[iterator.i++];
         switch (this.valueKind) {
@@ -251,7 +254,15 @@ class ChangeVariables extends Base {
                 return 1;
             }
             for (let i = 0, l = this.nbSelection; i < l; i++) {
-                Game.current.variables.set(this.selection + i, Mathf.OPERATORS_NUMBERS[this.operation](Game.current.getVariable(this.selection + i), currentState.value));
+                if (this.isLocal) {
+                    const localVariables = ReactionInterpreter.currentReaction.localVariables;
+                    localVariables.set(this.localVariableName, this.isCreatingLocalVariable
+                        ? currentState.value
+                        : Mathf.OPERATORS_NUMBERS[this.operation](localVariables.get(this.localVariableName) ?? 0, currentState.value));
+                }
+                else {
+                    Game.current.variables.set(this.selection + i, Mathf.OPERATORS_NUMBERS[this.operation](Game.current.getVariable(this.selection + i), currentState.value));
+                }
             }
             return 1;
         }
