@@ -159,7 +159,8 @@ class MapObject {
             return;
         const tileID = this.getObjectAutotileTileID(Position.createFromVector3(this.position));
         const x = (tileID % 64) * Data.Systems.SQUARE_SIZE;
-        const y = (Math.floor(tileID / 64) + 10 * this.objectAutotileBundle.getOffset(autotile.pictureID, state.rectTileset)) *
+        const y = (Math.floor(tileID / 64) +
+            10 * this.objectAutotileBundle.getOffset(autotile.pictureID, state.rectTileset)) *
             Data.Systems.SQUARE_SIZE;
         const coef = MapElement.COEF_TEX;
         const uvs = this.mesh.geometry.getAttribute('uv');
@@ -1999,7 +2000,7 @@ class MapObject {
         }
         return orientation;
     }
-    getMapObjectLandCollision(position) {
+    static getMapObjectLandCollision(position) {
         const cellSize = Manager.Collisions.SPATIAL_HASH_CELL_SIZE;
         const lands = Scene.Map.current.landObjectsSpatialHash.get(Manager.Collisions.spatialHashKey(Math.floor(position.x / cellSize), Math.floor(position.z / cellSize)));
         if (!lands)
@@ -2007,15 +2008,41 @@ class MapObject {
         let result = null;
         for (const { object, collision } of lands) {
             const b = collision.b;
-            if (!b || Math.floor(object.position.y) !== position.y)
+            if (!b || Math.floor(object.position.y) !== Math.floor(position.y))
                 continue;
             const x = object.position.x + b[0];
             const z = object.position.z + b[2];
-            if (Math.abs(position.x - x) <= b[3] / 2 && Math.abs(position.z - z) <= b[4] / 2) {
-                result = collision;
+            if (Math.floor(position.x) === Math.floor(x) && Math.floor(position.z) === Math.floor(z)) {
+                const layer = object.positionLayer + (object.currentStateInstance?.layer.getValue() ?? 0);
+                if (result === null || layer >= result.layer) {
+                    result = { collision, layer };
+                }
             }
         }
         return result;
+    }
+    /** Get the terrain at a map position, including map-object floors and autotiles. */
+    static getTerrainAt(position) {
+        if (Scene.Map.current.loading)
+            return 0;
+        const mapPortion = Scene.Map.current.getMapPortionFromPortion(Scene.Map.current.getLocalPortion(Portion.createFromVector3(position)));
+        if (!mapPortion)
+            return 0;
+        const squarePosition = Position.createFromVector3(position);
+        const boundingBoxes = mapPortion.boundingBoxesLands[squarePosition.toIndex()];
+        const mapObjectCollision = MapObject.getMapObjectLandCollision(position);
+        const mountainBoxes = Manager.Collisions.getCollisionsWithOverflows(mapPortion, 'boundingBoxesMountains', squarePosition, Scene.Map.current.overflowMountains);
+        const mountainCollision = mountainBoxes?.at(-1);
+        const staticCollision = boundingBoxes.reduce((top, collision) => (!top || (collision.p?.layer ?? 0) >= (top.p?.layer ?? 0) ? collision : top), null);
+        if (mountainCollision?.mountainPictureID !== undefined &&
+            (position.y - Math.floor(position.y) > 0.001 || (staticCollision === null && mapObjectCollision === null))) {
+            return mountainCollision.mountainTerrain ?? 0;
+        }
+        if (mapObjectCollision !== null &&
+            (staticCollision === null || mapObjectCollision.layer >= (staticCollision.p?.layer ?? 0))) {
+            return mapObjectCollision.collision.cs?.terrain ?? 0;
+        }
+        return staticCollision?.cs?.terrain ?? 0;
     }
     /**
      *  Update the terrain the object is currently on.
@@ -2034,7 +2061,7 @@ class MapObject {
                     heroFractionalY > 0.001 &&
                     this.position.y > (mtnCollision.p?.y ?? 0);
                 const boundingBoxes = mapPortion.boundingBoxesLands[position.toIndex()];
-                const mapObjectCollision = this.getMapObjectLandCollision(position);
+                const mapObjectCollision = MapObject.getMapObjectLandCollision(this.position);
                 if (onMountainSlope ||
                     (mtnCollision?.mountainPictureID !== undefined &&
                         boundingBoxes.length === 0 &&
@@ -2043,9 +2070,9 @@ class MapObject {
                     this.terrain = mtnCollision.mountainTerrain ?? 0;
                 }
                 else if (mapObjectCollision !== null) {
-                    this.terrain = mapObjectCollision.cs?.terrain ?? 0;
-                    if (mapObjectCollision.autotilePictureID !== undefined) {
-                        this.terrainPicture = Data.Pictures.get(PICTURE_KIND.AUTOTILES, mapObjectCollision.autotilePictureID);
+                    this.terrain = mapObjectCollision.collision.cs?.terrain ?? 0;
+                    if (mapObjectCollision.collision.autotilePictureID !== undefined) {
+                        this.terrainPicture = Data.Pictures.get(PICTURE_KIND.AUTOTILES, mapObjectCollision.collision.autotilePictureID);
                     }
                 }
                 else if (boundingBoxes.length > 0) {

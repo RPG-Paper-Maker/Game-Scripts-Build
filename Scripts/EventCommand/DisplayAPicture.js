@@ -8,8 +8,9 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { PICTURE_KIND, ScreenResolution, Utils } from '../Common/index.js';
-import { Data, Manager, Model } from '../index.js';
+import { DISPLAY_PICTURE_KIND, PICTURE_KIND, ScreenResolution, Utils } from '../Common/index.js';
+import { Picture2D } from '../Core/index.js';
+import { Data, Graphic, Manager, Model } from '../index.js';
 import { Base } from './Base.js';
 /** @class
  *  An event command for displaying a picture.
@@ -32,6 +33,25 @@ class DisplayAPicture extends Base {
         this.opacity = Model.DynamicValue.createValueCommand(command, iterator);
         this.angle = Model.DynamicValue.createValueCommand(command, iterator);
         this.stretch = Utils.numberToBool(command[iterator.i++]);
+        this.pictureKind = command[iterator.i++] ?? PICTURE_KIND.PICTURES;
+        this.indexX = command[iterator.i++] ?? 0;
+        this.indexY = command[iterator.i++] ?? 0;
+        this.indexWidth = command[iterator.i++] ?? 1;
+        this.indexHeight = command[iterator.i++] ?? 1;
+        this.displayKind = command[iterator.i++] ?? DISPLAY_PICTURE_KIND.PICTURE;
+        const texts = new Map();
+        this.textWidth = 1280;
+        while (iterator.i < command.length) {
+            const languageID = command[iterator.i++];
+            const value = command[iterator.i++];
+            if (languageID === -1) {
+                this.textWidth = value || 1280;
+            }
+            else {
+                texts.set(languageID, value);
+            }
+        }
+        this.text = texts.get(Data.Languages.getMainLanguageID()) ?? [...texts.values()][0] ?? '';
     }
     /**
      *  Update and check if the event is finished.
@@ -42,7 +62,9 @@ class DisplayAPicture extends Base {
      */
     update(currentState, object, state) {
         const currentIndex = this.index.getValue();
-        const picture = Data.Pictures.getPictureCopy(PICTURE_KIND.PICTURES, this.pictureID.getValue());
+        const picture = this.displayKind === DISPLAY_PICTURE_KIND.TEXT
+            ? this.createTextPicture()
+            : Data.Pictures.getPictureCopy(this.pictureKind, this.pictureID.getValue());
         const xVal = this.x.getValue();
         const yVal = this.y.getValue();
         if (this.stretch) {
@@ -82,19 +104,71 @@ class DisplayAPicture extends Base {
         picture.zoom = this.zoom.getValue() / 100;
         picture.opacity = this.opacity.getValue() / 100;
         picture.angle = this.angle.getValue();
-        if (!picture.empty && picture.loaded) {
+        if (this.displayKind === DISPLAY_PICTURE_KIND.TEXT) {
+            picture.oW = picture.image.width;
+            picture.oH = picture.image.height;
             if (this.stretch) {
                 picture.stretch = true;
-                picture.oW = picture.image.width;
                 picture.w = ScreenResolution.CANVAS_WIDTH;
-                picture.oH = picture.image.height;
                 picture.h = ScreenResolution.CANVAS_HEIGHT;
             }
             else {
-                picture.oW = picture.image.width;
-                picture.w = Math.round(ScreenResolution.getScreenMinXY(picture.image.width));
-                picture.oH = picture.image.height;
-                picture.h = Math.round(ScreenResolution.getScreenMinXY(picture.image.height));
+                picture.w = Math.round(ScreenResolution.getScreenMinXY(picture.oW));
+                picture.h = Math.round(ScreenResolution.getScreenMinXY(picture.oH));
+            }
+        }
+        else if (!picture.empty && picture.loaded) {
+            const isIcon = this.pictureKind === PICTURE_KIND.ICONS;
+            const isFaceset = this.pictureKind === PICTURE_KIND.FACESETS;
+            const isCharacter = this.pictureKind === PICTURE_KIND.CHARACTERS;
+            const isBattler = this.pictureKind === PICTURE_KIND.BATTLERS;
+            const isTileset = this.pictureKind === PICTURE_KIND.TILESETS;
+            const sourceWidth = isIcon
+                ? Data.Systems.iconsSize
+                : isFaceset
+                    ? Data.Systems.facesetsSizeWidth
+                    : isCharacter
+                        ? picture.image.width / Data.Systems.FRAMES
+                        : isBattler
+                            ? picture.image.width / Data.Systems.battlersFrames
+                            : isTileset
+                                ? this.indexWidth * Data.Systems.SQUARE_SIZE
+                                : picture.image.width;
+            const sourceHeight = isIcon
+                ? Data.Systems.iconsSize
+                : isFaceset
+                    ? Data.Systems.facesetsSizeHeight
+                    : isCharacter
+                        ? picture.image.height /
+                            Data.Pictures.get(this.pictureKind, this.pictureID.getValue()).getRows()
+                        : isBattler
+                            ? picture.image.height / Data.Systems.battlersColumns
+                            : isTileset
+                                ? this.indexHeight * Data.Systems.SQUARE_SIZE
+                                : picture.image.height;
+            const hasSelectionGrid = isIcon || isFaceset || isCharacter || isBattler || isTileset;
+            picture.sx = isTileset
+                ? this.indexX * Data.Systems.SQUARE_SIZE
+                : hasSelectionGrid
+                    ? this.indexX * sourceWidth
+                    : 0;
+            picture.sy = isTileset
+                ? this.indexY * Data.Systems.SQUARE_SIZE
+                : hasSelectionGrid
+                    ? this.indexY * sourceHeight
+                    : 0;
+            if (this.stretch) {
+                picture.stretch = true;
+                picture.oW = sourceWidth;
+                picture.w = ScreenResolution.CANVAS_WIDTH;
+                picture.oH = sourceHeight;
+                picture.h = ScreenResolution.CANVAS_HEIGHT;
+            }
+            else {
+                picture.oW = sourceWidth;
+                picture.w = Math.round(ScreenResolution.getScreenMinXY(sourceWidth));
+                picture.oH = sourceHeight;
+                picture.h = Math.round(ScreenResolution.getScreenMinXY(sourceHeight));
             }
         }
         const value = [currentIndex, picture];
@@ -118,6 +192,27 @@ class DisplayAPicture extends Base {
         }
         Manager.Stack.requestPaintHUD = true;
         return 1;
+    }
+    createTextPicture() {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        const text = this.text.replace(/\[[^\]]+\]/g, '');
+        context.font = '24px sans-serif';
+        canvas.width = Math.max(1, Math.ceil(context.measureText(text).width));
+        canvas.height = 30;
+        context.font = '24px sans-serif';
+        context.textBaseline = 'top';
+        context.fillStyle = '#FFFFFF';
+        context.fillText(text, 0, 0);
+        const picture = new Picture2D();
+        picture.image = canvas;
+        picture.loaded = true;
+        picture.empty = false;
+        const textPicture = picture;
+        textPicture.textMessage = new Graphic.Message(this.text, -1, 0, 0);
+        textPicture.textMessage.update();
+        textPicture.textWidth = this.textWidth;
+        return picture;
     }
 }
 export { DisplayAPicture };

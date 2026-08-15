@@ -8,6 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import * as THREE from 'three';
 import { CHANGE_VARIABLES_OTHER_CHARACTERISTICS, CHARACTER_KIND, Interpreter, Mathf, Platform, SONG_KIND, VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND, } from '../Common/index.js';
 import { Game, Item, MapObject, Position, ReactionInterpreter } from '../Core/index.js';
 import { Data, Manager, Model, Scene } from '../index.js';
@@ -74,6 +75,14 @@ class ChangeVariables extends Base {
                 break;
             case 10: // Script
                 this.valueScript = Model.DynamicValue.createMessage(String(command[iterator.i]));
+                break;
+            case 11: // Terrain at coordinates
+                this.valueTerrainX = Model.DynamicValue.createValueCommand(command, iterator);
+                this.valueTerrainY = Model.DynamicValue.createValueCommand(command, iterator);
+                this.valueTerrainZ = Model.DynamicValue.createValueCommand(command, iterator);
+                this.valueTerrainXPlus = Model.DynamicValue.createValueCommand(command, iterator);
+                this.valueTerrainYPlus = Model.DynamicValue.createValueCommand(command, iterator);
+                this.valueTerrainZPlus = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
         }
     }
@@ -245,6 +254,12 @@ class ChangeVariables extends Base {
                         thisObject: object,
                         addReturn: true,
                     });
+                    break;
+                case 11: // Terrain at coordinates
+                    currentState.value = MapObject.getTerrainAt(new THREE.Vector3(this.valueTerrainX.getValue() +
+                        this.valueTerrainXPlus.getValue() / Data.Systems.SQUARE_SIZE, this.valueTerrainY.getValue() +
+                        this.valueTerrainYPlus.getValue() / Data.Systems.SQUARE_SIZE, this.valueTerrainZ.getValue() +
+                        this.valueTerrainZPlus.getValue() / Data.Systems.SQUARE_SIZE));
                     break;
             }
         }
