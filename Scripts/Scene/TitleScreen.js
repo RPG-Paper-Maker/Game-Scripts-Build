@@ -35,6 +35,7 @@ class TitleScreen extends Base {
          *  @type {boolean}
          */
         this.musicStarted = false;
+        this.waitingForVideoLoopPoint = false;
     }
     /**
      * Initialize the return mode before the asynchronous scene load starts.
@@ -83,6 +84,9 @@ class TitleScreen extends Base {
                 }
                 else {
                     this.titleReady = !loop || loopMs === 0 || startMs > 0;
+                    if (!this.titleReady) {
+                        this.waitForVideoLoopPoint();
+                    }
                 }
                 videoPlayed = true;
             }
@@ -131,7 +135,7 @@ class TitleScreen extends Base {
                 const loopMs = Data.TitlescreenGameover.titleVideoLoopMs;
                 const currentMs = Platform.canvasVideos.currentTime * 1000;
                 const videoEnded = Platform.canvasVideos.ended;
-                const ready = loop ? currentMs >= loopMs || videoEnded : videoEnded;
+                const ready = videoEnded || (!this.waitingForVideoLoopPoint && (loop ? currentMs >= loopMs : false));
                 if (ready) {
                     this.titleReady = true;
                     Manager.Stack.requestPaintHUD = true;
@@ -156,9 +160,12 @@ class TitleScreen extends Base {
      */
     onKeyPressed(key) {
         if (this.videoBlocked) {
-            this.resumeVideoBackground();
+            this.resumeVideoBackground(Data.Keyboards.checkActionMenu(key) && this.hasVideoIntroduction());
             this.videoBlocked = false;
             Manager.Stack.requestPaintHUD = true;
+            return;
+        }
+        if (Data.Keyboards.checkActionMenu(key) && this.skipVideoIntroduction()) {
             return;
         }
         if (!this.titleReady) {
@@ -191,9 +198,12 @@ class TitleScreen extends Base {
      */
     onMouseUp(x, y) {
         if (this.videoBlocked) {
-            this.resumeVideoBackground();
+            this.resumeVideoBackground(this.hasVideoIntroduction());
             this.videoBlocked = false;
             Manager.Stack.requestPaintHUD = true;
+            return;
+        }
+        if (this.skipVideoIntroduction()) {
             return;
         }
         if (!this.titleReady) {
@@ -202,15 +212,60 @@ class TitleScreen extends Base {
         this.windowChoicesCommands.onMouseUp(x, y, this.windowChoicesCommands.getCurrentContent().datas);
     }
     /**
+     * Check whether the configured title video has a non-looping introduction.
+     */
+    hasVideoIntroduction() {
+        return (Data.TitlescreenGameover.isTitleBackgroundVideo &&
+            Data.TitlescreenGameover.titleVideoLoop &&
+            Data.TitlescreenGameover.titleVideoLoopMs > 0);
+    }
+    /**
+     * Skip the title-video introduction and immediately reveal the menu.
+     */
+    skipVideoIntroduction() {
+        if (this.titleReady || this.startAtLoop || !this.hasVideoIntroduction()) {
+            return false;
+        }
+        this.titleReady = true;
+        Manager.Videos.seek(Data.TitlescreenGameover.titleVideoLoopMs).catch(() => { });
+        Manager.Stack.requestPaintHUD = true;
+        return true;
+    }
+    /**
      *  Retry video playback after user interaction unblocked autoplay.
      */
-    resumeVideoBackground() {
+    resumeVideoBackground(skipIntroduction = false) {
         this.videoBlocked = false;
         const loop = Data.TitlescreenGameover.titleVideoLoop;
         const loopMs = Data.TitlescreenGameover.titleVideoLoopMs;
-        const startMs = this.startAtLoop && loop ? loopMs : 0;
+        const startMs = (this.startAtLoop || skipIntroduction) && loop ? loopMs : 0;
         this.titleReady = !loop || loopMs === 0 || startMs > 0;
-        Manager.Videos.play(Data.Videos.get(Data.TitlescreenGameover.titleBackgroundVideoID).getPath(), null, loop, loopMs, startMs).catch(console.error);
+        Manager.Videos.play(Data.Videos.get(Data.TitlescreenGameover.titleBackgroundVideoID).getPath(), null, loop, loopMs, startMs).then((played) => {
+            if (played && !this.titleReady) {
+                this.waitForVideoLoopPoint();
+            }
+        }).catch(console.error);
+    }
+    waitForVideoLoopPoint() {
+        if (typeof Platform.canvasVideos.requestVideoFrameCallback !== 'function') {
+            return;
+        }
+        this.waitingForVideoLoopPoint = true;
+        const loopMs = Data.TitlescreenGameover.titleVideoLoopMs;
+        const onVideoFrame = (_now, metadata) => {
+            if (this.titleReady) {
+                this.waitingForVideoLoopPoint = false;
+                return;
+            }
+            if (metadata.mediaTime * 1000 >= loopMs) {
+                this.waitingForVideoLoopPoint = false;
+                this.titleReady = true;
+                Manager.Stack.requestPaintHUD = true;
+                return;
+            }
+            Platform.canvasVideos.requestVideoFrameCallback(onVideoFrame);
+        };
+        Platform.canvasVideos.requestVideoFrameCallback(onVideoFrame);
     }
     /**
      *  @inheritdoc

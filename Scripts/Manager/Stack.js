@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { CHARACTER_KIND, GROUP_KIND, Inputs, Paths, Platform, ScreenResolution, Utils } from '../Common/index.js';
+import { CHARACTER_KIND, Constants, GROUP_KIND, Inputs, Paths, Platform, ScreenResolution, Utils } from '../Common/index.js';
 import { Game, MapObject } from '../Core/index.js';
 import { Common, Data, Manager, Model, Scene } from '../index.js';
 /** @class
@@ -301,12 +301,15 @@ class Stack {
         const textPicture = picture;
         const textMessage = textPicture.textMessage;
         if (!textMessage || ctx !== Platform.ctx) {
+            ctx.save();
+            ctx.translate(this.shakeOffsetX, 0);
             picture.draw({ ctx });
+            ctx.restore();
             return;
         }
         ctx.save();
         ctx.globalAlpha = picture.opacity;
-        ctx.translate(picture.x, picture.y);
+        ctx.translate(picture.x + this.shakeOffsetX, picture.y + (textMessage.heights[0] / 2 - ScreenResolution.getScreenY(Constants.HUGE_SPACE)) * picture.zoom);
         ctx.rotate((picture.angle * Math.PI) / 180);
         ctx.scale(picture.zoom, picture.zoom);
         if (picture.centered) {
@@ -326,5 +329,6 @@ Stack.elapsedTime = 0;
 Stack.averageElapsedTime = 0;
 Stack.lastUpdateTime = new Date().getTime();
 Stack.displayedPictures = [];
+Stack.shakeOffsetX = 0;
 Stack.isInMainMenu = false;
 export { Stack };

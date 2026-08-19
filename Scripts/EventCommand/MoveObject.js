@@ -138,13 +138,24 @@ class MoveObject extends Base {
                 const indexY = command[iterator.i++];
                 const width = command[iterator.i++];
                 const height = command[iterator.i++];
+                let dynamicIndexX;
+                let dynamicIndexY;
+                if (command[iterator.i] === 'indices') {
+                    iterator.i++;
+                    if (Utils.numberToBool(command[iterator.i++])) {
+                        dynamicIndexX = Model.DynamicValue.createValueCommand(command, iterator);
+                    }
+                    if (Utils.numberToBool(command[iterator.i++])) {
+                        dynamicIndexY = Model.DynamicValue.createValueCommand(command, iterator);
+                    }
+                }
                 this.parameters.push({
                     permanent: permanent,
                     dontChangeOrientation: dontChangeOrientation,
                     kind: kind,
                     pictureID: pictureID,
-                    indexX: indexX,
-                    indexY: indexY,
+                    indexX: dynamicIndexX ?? indexX,
+                    indexY: dynamicIndexY ?? indexY,
                     width: width,
                     height: height,
                 });
@@ -624,9 +635,12 @@ class MoveObject extends Base {
                 currentState.currentTime = 0;
                 currentState.startJump = new THREE.Vector3(object.position.x, object.position.y, object.position.z);
                 const square = parameters.square ? 1 : 1 / Data.Systems.SQUARE_SIZE;
-                currentState.endJump = new THREE.Vector3(parameters.x.getValue() * square + currentState.startJump.x, (parameters.y.getValue() * square + parameters.yPlus.getValue() / Data.Systems.SQUARE_SIZE) +
+                currentState.endJump = new THREE.Vector3(parameters.x.getValue() * square + currentState.startJump.x, (parameters.y.getValue() * square +
+                    parameters.yPlus.getValue() / Data.Systems.SQUARE_SIZE) +
                     currentState.startJump.y, parameters.z.getValue() * square + currentState.startJump.z);
-                currentState.peak = parameters.peakY.getValue() + parameters.peakYPlus.getValue() / Data.Systems.SQUARE_SIZE;
+                currentState.peak =
+                    parameters.peakY.getValue() +
+                        parameters.peakYPlus.getValue() / Data.Systems.SQUARE_SIZE;
                 if (currentState.peak < currentState.endJump.y) {
                     Platform.showErrorMessage('Move object command: jump peak cannot be lower than final y position offset. Final position=' +
                         currentState.endJump.y +
@@ -788,10 +802,13 @@ class MoveObject extends Base {
                 object.currentStateInstance.rectTileset = new Rectangle(parameters.indexX, parameters.indexY, parameters.width, parameters.height);
             }
             else {
-                object.currentStateInstance.indexX = parameters.indexX;
+                object.currentStateInstance.indexX =
+                    parameters.indexX instanceof Model.DynamicValue ? parameters.indexX.getValue() : parameters.indexX;
                 object.currentStateInstance.indexY = parameters.dontChangeOrientation
                     ? object.orientationEye
-                    : parameters.indexY;
+                    : parameters.indexY instanceof Model.DynamicValue
+                        ? parameters.indexY.getValue()
+                        : parameters.indexY;
             }
             // Permanent change
             if (parameters.permanent) {

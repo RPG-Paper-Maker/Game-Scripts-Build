@@ -26,7 +26,10 @@ class Videos {
      *  @param {number} startMs - millisecond position to start at (0 = beginning)
      */
     static async play(src, endedHandler = null, loop = false, loopMs = 0, startMs = 0) {
-        Platform.canvasVideos.classList.remove('hidden');
+        const revealAfterInitialSeek = !this.paused && startMs > 0;
+        if (!revealAfterInitialSeek) {
+            Platform.canvasVideos.classList.remove('hidden');
+        }
         if (!this.paused) {
             Platform.canvasVideos.src = src;
             Platform.canvasVideos.load();
@@ -55,6 +58,9 @@ class Videos {
         this.paused = false;
         try {
             await Platform.canvasVideos.play();
+            if (revealAfterInitialSeek) {
+                Platform.canvasVideos.classList.remove('hidden');
+            }
             return true;
         }
         catch (e) {
@@ -83,7 +89,19 @@ class Videos {
                 Platform.canvasVideos.addEventListener('error', onError, { once: true });
             });
         }
-        Platform.canvasVideos.currentTime = ms / 1000;
+        await new Promise((resolve, reject) => {
+            const onSeeked = () => {
+                Platform.canvasVideos.removeEventListener('error', onError);
+                resolve();
+            };
+            const onError = () => {
+                Platform.canvasVideos.removeEventListener('seeked', onSeeked);
+                reject(Platform.canvasVideos.error);
+            };
+            Platform.canvasVideos.addEventListener('seeked', onSeeked, { once: true });
+            Platform.canvasVideos.addEventListener('error', onError, { once: true });
+            Platform.canvasVideos.currentTime = ms / 1000;
+        });
     }
     /**
      *  Pause the current video.

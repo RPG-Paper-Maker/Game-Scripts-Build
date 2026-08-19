@@ -9,6 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { DYNAMIC_VALUE_KIND, Platform, Utils } from '../Common/index.js';
+import { Game, ReactionInterpreter } from '../Core/index.js';
 import { Data, Manager, Model } from '../index.js';
 import { Base } from './Base.js';
 /** @class
@@ -44,7 +45,7 @@ class SendEvent extends Base {
             : Data.CommonEvents.getEventUser(this.eventID)).parameters;
         this.parameters = [];
         let parameter, paramID, k;
-        while (iterator.i < l) {
+        for (let parameterIndex = 0; parameterIndex < parameters.size && iterator.i < l; parameterIndex++) {
             paramID = command[iterator.i++];
             k = command[iterator.i++];
             if (k > DYNAMIC_VALUE_KIND.UNKNOWN && k <= DYNAMIC_VALUE_KIND.DEFAULT) {
@@ -66,6 +67,10 @@ class SendEvent extends Base {
             }
             this.parameters[paramID] = parameter;
         }
+        this.isStockLastObjectID = iterator.i < l && Utils.numberToBool(command[iterator.i++]);
+        if (this.isStockLastObjectID) {
+            this.stockLastObjectIDVariable = Model.DynamicValue.createValueCommand(command, iterator);
+        }
     }
     /**
      *  Update and check if the event is finished.
@@ -75,7 +80,15 @@ class SendEvent extends Base {
      *  @returns {number} The number of node to pass
      */
     update(currentState, object, state) {
-        Manager.Events.sendEvent(object, this.targetKind, this.targetID ? this.targetID.getValue() : -1, this.isSystem, this.eventID, Utils.arrayToMap(Model.DynamicValue.mapWithParametersProperties(this.parameters), true), this.senderNoReceiver, this.onlyTheClosest);
+        const lastObjectID = Manager.Events.sendEvent(object, this.targetKind, this.targetID ? this.targetID.getValue() : -1, this.isSystem, this.eventID, Utils.arrayToMap(Model.DynamicValue.mapWithParametersProperties(this.parameters), true), this.senderNoReceiver, this.onlyTheClosest);
+        if (this.isStockLastObjectID && lastObjectID !== null) {
+            if (this.stockLastObjectIDVariable.kind === DYNAMIC_VALUE_KIND.LOCAL_VARIABLE) {
+                ReactionInterpreter.currentReaction.localVariables.set(this.stockLastObjectIDVariable.value, lastObjectID);
+            }
+            else {
+                Game.current.variables.set(this.stockLastObjectIDVariable.getValue(true), lastObjectID);
+            }
+        }
         return 1;
     }
 }

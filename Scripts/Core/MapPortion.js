@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import * as THREE from 'three';
-import { Constants, CUSTOM_SHAPE_KIND, ELEMENT_MAP_KIND, SHAPE_KIND } from '../Common/index.js';
+import { Constants, CUSTOM_SHAPE_KIND, ELEMENT_MAP_KIND, PICTURE_KIND, SHAPE_KIND } from '../Common/index.js';
 import { Data, Manager, Model, Scene } from '../index.js';
 import { Autotile } from './Autotile.js';
 import { Autotiles } from './Autotiles.js';
@@ -65,11 +65,13 @@ class MapPortion {
         }
         const l = Constants.PORTION_SIZE * Constants.PORTION_SIZE * Constants.PORTION_SIZE;
         this.boundingBoxesLands = new Array(l);
+        this.terrainAutotiles = new Array(l);
         this.boundingBoxesSprites = new Array(l);
         this.boundingBoxesMountains = new Array(l);
         this.boundingBoxesObjects3D = new Array(l);
         for (i = 0; i < l; i++) {
             this.boundingBoxesLands[i] = [];
+            this.terrainAutotiles[i] = [];
             this.boundingBoxesSprites[i] = [];
             this.boundingBoxesMountains[i] = [];
             this.boundingBoxesObjects3D[i] = [];
@@ -182,6 +184,12 @@ class MapPortion {
                         if (objCollision !== null) {
                             this.boundingBoxesLands[indexPos].push(objCollision);
                         }
+                        const picture = Data.Pictures.get(PICTURE_KIND.AUTOTILES, pictureID);
+                        this.terrainAutotiles[indexPos].push({
+                            p: position,
+                            cs: picture.getCollisionAtIndex(autotile.getIndex(picture.width)),
+                            autotilePictureID: pictureID,
+                        });
                     }
                     this.addToNonEmpty(position);
                     break;
@@ -207,22 +215,18 @@ class MapPortion {
             MapPortion.setLayerOffsets(geometry, layerOffsets, 'y');
             this.staticFloorsMesh = new THREE.Mesh(geometry, material);
             this.staticFloorsMesh.renderOrder = -1;
-            if (Scene.Map.current.mapProperties.isSunLight) {
-                this.staticFloorsMesh.receiveShadow = true;
-                this.staticFloorsMesh.castShadow = true;
-                this.staticFloorsMesh.customDepthMaterial = material.userData.customDepthMaterial;
-            }
+            this.staticFloorsMesh.receiveShadow = true;
+            this.staticFloorsMesh.castShadow = true;
+            this.staticFloorsMesh.customDepthMaterial = material.userData.customDepthMaterial;
             Scene.Map.current.scene.add(this.staticFloorsMesh);
         }
         for (const list of this.staticAutotilesList) {
             if (list) {
                 for (const autotiles of list) {
                     if (autotiles && autotiles.createMesh()) {
-                        if (Scene.Map.current.mapProperties.isSunLight) {
-                            autotiles.mesh.receiveShadow = true;
-                            autotiles.mesh.castShadow = true;
-                            autotiles.mesh.customDepthMaterial = autotiles.bundle.material.userData.customDepthMaterial;
-                        }
+                        autotiles.mesh.receiveShadow = true;
+                        autotiles.mesh.castShadow = true;
+                        autotiles.mesh.customDepthMaterial = autotiles.bundle.material.userData.customDepthMaterial;
                         Scene.Map.current.scene.add(autotiles.mesh);
                     }
                 }
@@ -282,22 +286,18 @@ class MapPortion {
             MapPortion.setLayerOffsets(staticGeometry, staticLayerOffsets, 'z');
             this.staticSpritesMesh = new THREE.Mesh(staticGeometry, material);
             this.staticSpritesMesh.renderOrder = -1;
-            if (Scene.Map.current.mapProperties.isSunLight) {
-                this.staticSpritesMesh.receiveShadow = true;
-                this.staticSpritesMesh.castShadow = true;
-                this.staticSpritesMesh.customDepthMaterial = material.userData.customDepthMaterial;
-            }
+            this.staticSpritesMesh.receiveShadow = true;
+            this.staticSpritesMesh.castShadow = true;
+            this.staticSpritesMesh.customDepthMaterial = material.userData.customDepthMaterial;
             Scene.Map.current.scene.add(this.staticSpritesMesh);
         }
         if (!faceGeometry.isEmpty()) {
             faceGeometry.updateAttributes();
             this.faceSpritesMesh = new THREE.Mesh(faceGeometry, material);
             this.faceSpritesMesh.renderOrder = -1;
-            if (Scene.Map.current.mapProperties.isSunLight) {
-                this.faceSpritesMesh.castShadow = true;
-                this.faceSpritesMesh.receiveShadow = true;
-                this.faceSpritesMesh.customDepthMaterial = material.userData.customDepthMaterial;
-            }
+            this.faceSpritesMesh.castShadow = true;
+            this.faceSpritesMesh.receiveShadow = true;
+            this.faceSpritesMesh.customDepthMaterial = material.userData.customDepthMaterial;
             Scene.Map.current.scene.add(this.faceSpritesMesh);
         }
     }
@@ -384,11 +384,9 @@ class MapPortion {
             if (!geometry.isEmpty()) {
                 geometry.updateAttributes();
                 const mesh = new THREE.Mesh(geometry, obj.material);
-                if (Scene.Map.current.mapProperties.isSunLight) {
-                    mesh.receiveShadow = true;
-                    mesh.castShadow = true;
-                    mesh.customDepthMaterial = obj.material.userData.customDepthMaterial;
-                }
+                mesh.receiveShadow = true;
+                mesh.castShadow = true;
+                mesh.customDepthMaterial = obj.material.userData.customDepthMaterial;
                 mesh.layers.enable(1);
                 this.staticWallsList.push(mesh);
                 Scene.Map.current.scene.add(mesh);
@@ -442,11 +440,9 @@ class MapPortion {
         // Update all the geometry uvs and put it in the scene
         for (const [, mountains] of this.staticMountainsList) {
             if (mountains.createMesh()) {
-                if (Scene.Map.current.mapProperties.isSunLight) {
-                    mountains.mesh.receiveShadow = true;
-                    mountains.mesh.castShadow = true;
-                    mountains.mesh.customDepthMaterial = mountains.bundle.material.userData.customDepthMaterial;
-                }
+                mountains.mesh.receiveShadow = true;
+                mountains.mesh.castShadow = true;
+                mountains.mesh.customDepthMaterial = mountains.bundle.material.userData.customDepthMaterial;
                 mountains.mesh.layers.enable(1);
                 Scene.Map.current.scene.add(mountains.mesh);
             }
@@ -489,10 +485,8 @@ class MapPortion {
                                 for (const material of materials) {
                                     Manager.GL.applyScreenTone(material);
                                 }
-                                if (Scene.Map.current.mapProperties.isSunLight) {
-                                    child.receiveShadow = true;
-                                    child.castShadow = true;
-                                }
+                                child.receiveShadow = true;
+                                child.castShadow = true;
                             }
                         });
                         clone.layers.enable(1);
@@ -558,11 +552,9 @@ class MapPortion {
                 const mesh = new THREE.Mesh(geometry, obj.material);
                 this.staticObjects3DList.push(mesh);
                 mesh.renderOrder = -1;
-                if (Scene.Map.current.mapProperties.isSunLight) {
-                    mesh.receiveShadow = true;
-                    mesh.castShadow = true;
-                    mesh.customDepthMaterial = obj.material.userData.customDepthMaterial;
-                }
+                mesh.receiveShadow = true;
+                mesh.castShadow = true;
+                mesh.customDepthMaterial = obj.material.userData.customDepthMaterial;
                 mesh.layers.enable(1);
                 Scene.Map.current.scene.add(mesh);
             }

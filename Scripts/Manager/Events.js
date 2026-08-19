@@ -200,21 +200,24 @@ class Events {
      *  receive event
      */
     static sendEvent(sender, targetKind, targetID, isSystem, eventID, parameters, senderNoReceiver, onlyTheClosest) {
+        let lastObjectID = null;
         switch (targetKind) {
             case 0: // Send to all
-                Manager.Events.sendEventDetection(sender, -1, isSystem, eventID, parameters);
+                lastObjectID = Manager.Events.sendEventDetection(sender, -1, isSystem, eventID, parameters);
                 break;
             case 1: // Send to detection
-                Manager.Events.sendEventDetection(sender, targetID, isSystem, eventID, parameters, senderNoReceiver, onlyTheClosest);
+                lastObjectID = Manager.Events.sendEventDetection(sender, targetID, isSystem, eventID, parameters, senderNoReceiver, onlyTheClosest);
                 break;
             case 2: // Send to a particular object
                 if (targetID === -1) {
                     // Send to sender
                     sender.receiveEvent(sender, isSystem, eventID, parameters, sender.states);
+                    lastObjectID = sender.system.id;
                 }
                 else if (targetID === 0) {
                     // Send to the hero
                     Game.current.hero.receiveEvent(sender, isSystem, eventID, parameters, Game.current.heroStates);
+                    lastObjectID = Game.current.hero.system.id;
                 }
                 else {
                     Scene.Map.current.updatePortions(this, function (x, y, z, i, j, k) {
@@ -225,6 +228,7 @@ class Events {
                             object = objects.min[a];
                             if (object.system.id === targetID) {
                                 object.receiveEvent(sender, isSystem, eventID, parameters, object.states);
+                                lastObjectID = object.system.id;
                                 break;
                             }
                         }
@@ -232,6 +236,7 @@ class Events {
                             object = objects.mout[a];
                             if (object.system.id === targetID) {
                                 object.receiveEvent(sender, isSystem, eventID, parameters, object.states);
+                                lastObjectID = object.system.id;
                                 break;
                             }
                         }
@@ -242,6 +247,7 @@ class Events {
                                 object = mapPortion.objectsList[a];
                                 if (object.system.id === targetID) {
                                     object.receiveEvent(sender, isSystem, eventID, parameters, object.states);
+                                    lastObjectID = object.system.id;
                                     break;
                                 }
                             }
@@ -252,6 +258,7 @@ class Events {
             default:
                 break;
         }
+        return lastObjectID;
     }
     /**
      *  Send an event detection
@@ -267,15 +274,22 @@ class Events {
     static sendEventDetection(sender, targetID, isSystem, eventID, parameters, senderNoReceiver = false, onlyTheClosest = false) {
         let objects;
         const closests = [];
+        let lastObjectID = null;
         Scene.Map.current.updatePortions(this, (x, y, z, i, j, k) => {
             objects = Game.current.getPortionData(Scene.Map.current.id, new Portion(x, y, z));
             // Moved objects
-            Manager.Events.sendEventObjects(objects.min, sender, targetID, isSystem, eventID, parameters, senderNoReceiver, onlyTheClosest, closests);
-            Manager.Events.sendEventObjects(objects.mout, sender, targetID, isSystem, eventID, parameters, senderNoReceiver, onlyTheClosest, closests);
+            const lastMinObjectID = Manager.Events.sendEventObjects(objects.min, sender, targetID, isSystem, eventID, parameters, senderNoReceiver, onlyTheClosest, closests);
+            if (lastMinObjectID !== null)
+                lastObjectID = lastMinObjectID;
+            const lastMoutObjectID = Manager.Events.sendEventObjects(objects.mout, sender, targetID, isSystem, eventID, parameters, senderNoReceiver, onlyTheClosest, closests);
+            if (lastMoutObjectID !== null)
+                lastObjectID = lastMoutObjectID;
             // Static
             const mapPortion = Scene.Map.current.getMapPortion(i, j, k);
             if (mapPortion) {
-                Manager.Events.sendEventObjects(mapPortion.objectsList, sender, targetID, isSystem, eventID, parameters, senderNoReceiver, onlyTheClosest, closests);
+                const lastStaticObjectID = Manager.Events.sendEventObjects(mapPortion.objectsList, sender, targetID, isSystem, eventID, parameters, senderNoReceiver, onlyTheClosest, closests);
+                if (lastStaticObjectID !== null)
+                    lastObjectID = lastStaticObjectID;
             }
         });
         // And the hero!
@@ -283,7 +297,7 @@ class Events {
             if (targetID !== -1) {
                 // Check according to detection model
                 if (!Data.Systems.getDetection(targetID).checkCollision(sender, Game.current.hero)) {
-                    return;
+                    return lastObjectID;
                 }
             }
             if (onlyTheClosest) {
@@ -291,6 +305,7 @@ class Events {
             }
             else {
                 Game.current.hero.receiveEvent(sender, isSystem, eventID, parameters, Game.current.heroStates);
+                lastObjectID = Game.current.hero.system.id;
             }
         }
         // If only sending to the closest to the sender...
@@ -304,7 +319,9 @@ class Events {
                 }
             }
             closest[0].receiveEvent(closest[1], closest[2], closest[3], closest[4], closest[5]);
+            lastObjectID = closest[0].system.id;
         }
+        return lastObjectID;
     }
     /**
      *  Send an event to objects.
@@ -322,6 +339,7 @@ class Events {
      */
     static sendEventObjects(objects, sender, targetID, isSystem, eventID, parameters, senderNoReceiver, onlyTheClosest, closests) {
         let object;
+        let lastObjectID = null;
         for (let i = 0, l = objects.length; i < l; i++) {
             object = objects[i];
             if (senderNoReceiver && sender === object) {
@@ -339,8 +357,10 @@ class Events {
             }
             else {
                 object.receiveEvent(sender, isSystem, eventID, parameters, object.states);
+                lastObjectID = object.system.id;
             }
         }
+        return lastObjectID;
     }
 }
 export { Events };

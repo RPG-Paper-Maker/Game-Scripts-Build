@@ -58,7 +58,7 @@ class MapObject {
         this.isHero = isHero;
         this.previousPosition = position;
         this.mesh = null;
-        this.meshBoundingBox = null;
+        this.meshBoundingBox = [];
         this.currentBoundingBox = null;
         this.boundingBoxSettings = null;
         this.landCollision = null;
@@ -718,10 +718,8 @@ class MapObject {
                                         for (const material of materials) {
                                             Manager.GL.applyScreenTone(material);
                                         }
-                                        if (Scene.Map.current.mapProperties.isSunLight) {
-                                            child.receiveShadow = true;
-                                            child.castShadow = true;
-                                        }
+                                        child.receiveShadow = true;
+                                        child.castShadow = true;
                                     }
                                 });
                                 this.animationMixer = new THREE.AnimationMixer(this.gltfGroup);
@@ -818,11 +816,9 @@ class MapObject {
             this.currentScale.set(positionTranformation.scaleX, positionTranformation.scaleY, positionTranformation.scaleZ);
             this.position.set(this.position.x + this.currentCenterOffset.x, this.position.y, this.position.z + this.currentCenterOffset.z);
             if (this.mesh !== null) {
-                if (Scene.Map.current.mapProperties.isSunLight) {
-                    this.mesh.receiveShadow = true;
-                    this.mesh.castShadow = true;
-                    this.mesh.customDepthMaterial = material.userData.customDepthMaterial;
-                }
+                this.mesh.receiveShadow = true;
+                this.mesh.castShadow = true;
+                this.mesh.customDepthMaterial = material.userData.customDepthMaterial;
                 this.mesh.position.set(this.position.x, this.position.y + this.getMapObjectLayerDepthOffset(), this.position.z);
                 this.mesh.renderOrder =
                     this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.FLOORS ||
@@ -1710,7 +1706,7 @@ class MapObject {
     /** Create the lights defined by the active map-object state. */
     createObjectLights() {
         // Caterpillar followers reuse the hero's model state, but they must not duplicate its lights.
-        if (this.isCaterpillarFollower || !this.currentStateInstance?.lights.length) {
+        if (this.isCaterpillarFollower || !this.position || !this.currentStateInstance?.lights.length) {
             return;
         }
         const group = new THREE.Group();
@@ -1777,6 +1773,15 @@ class MapObject {
             default:
                 light = new THREE.PointLight(color, intensity, settings.distance.getValue());
                 break;
+        }
+        if (light instanceof THREE.PointLight ||
+            light instanceof THREE.SpotLight ||
+            light instanceof THREE.DirectionalLight) {
+            light.castShadow = true;
+            if (light instanceof THREE.PointLight || light instanceof THREE.SpotLight) {
+                light.shadow.bias = -0.0003;
+                light.shadow.normalBias = 0.5 / Data.Systems.SQUARE_SIZE;
+            }
         }
         return { light, settings, target, parent };
     }
@@ -2061,6 +2066,7 @@ class MapObject {
                     heroFractionalY > 0.001 &&
                     this.position.y > (mtnCollision.p?.y ?? 0);
                 const boundingBoxes = mapPortion.boundingBoxesLands[position.toIndex()];
+                const terrainAutotile = mapPortion.terrainAutotiles[position.toIndex()].at(-1);
                 const mapObjectCollision = MapObject.getMapObjectLandCollision(this.position);
                 if (onMountainSlope ||
                     (mtnCollision?.mountainPictureID !== undefined &&
@@ -2074,6 +2080,10 @@ class MapObject {
                     if (mapObjectCollision.collision.autotilePictureID !== undefined) {
                         this.terrainPicture = Data.Pictures.get(PICTURE_KIND.AUTOTILES, mapObjectCollision.collision.autotilePictureID);
                     }
+                }
+                else if (terrainAutotile) {
+                    this.terrain = terrainAutotile.cs?.terrain ?? 0;
+                    this.terrainPicture = Data.Pictures.get(PICTURE_KIND.AUTOTILES, terrainAutotile.autotilePictureID);
                 }
                 else if (boundingBoxes.length > 0) {
                     const collision = boundingBoxes[boundingBoxes.length - 1];

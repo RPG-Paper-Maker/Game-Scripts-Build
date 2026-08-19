@@ -124,7 +124,6 @@ export class Main {
                 }
                 Manager.Stack.draw3D();
             }
-            Manager.Stack.drawHUD();
             // Elapsed time
             Manager.Stack.elapsedTime = new Date().getTime() - Manager.Stack.lastUpdateTime;
             Manager.Stack.averageElapsedTime = (Manager.Stack.averageElapsedTime + Manager.Stack.elapsedTime) / 2;
@@ -139,6 +138,7 @@ export class Main {
             }
             Main.delta = Main.delta % (1 / Main.maxFPS);
         }
+        Manager.Stack.drawHUD();
     }
 }
 Main.clock = new THREE.Timer();
