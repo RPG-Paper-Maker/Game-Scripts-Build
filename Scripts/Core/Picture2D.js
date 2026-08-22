@@ -24,6 +24,8 @@ import { Bitmap } from './Bitmap.js';
 class Picture2D extends Bitmap {
     constructor(path = '', { x = 0, y = 0, w = 0, h = 0, zoom = 1.0, opacity = 1.0, angle = 0.0, cover = false, stretch = false, sx = 0, sy = 0, } = {}) {
         super(x, y, w, h);
+        this.minPositionOffsetX = 0;
+        this.minPositionOffsetY = 0;
         this.zoom = zoom;
         this.opacity = opacity;
         this.angle = angle;
@@ -124,8 +126,8 @@ class Picture2D extends Bitmap {
         }
     }
     resize() {
-        this.x = ScreenResolution.getScreenX(this.oX);
-        this.y = ScreenResolution.getScreenY(this.oY);
+        this.x = ScreenResolution.getScreenX(this.oX) + ScreenResolution.getScreenMinXY(this.minPositionOffsetX);
+        this.y = ScreenResolution.getScreenY(this.oY) + ScreenResolution.getScreenMinXY(this.minPositionOffsetY);
         if (!this.empty && this.loaded) {
             if (this.cover) {
                 this.w = ScreenResolution.CANVAS_WIDTH;

@@ -41,13 +41,20 @@ class DisplayAPicture extends Base {
         this.displayKind = command[iterator.i++] ?? DISPLAY_PICTURE_KIND.PICTURE;
         const texts = new Map();
         this.textWidth = 1280;
+        this.offsetX = Model.DynamicValue.createNumberDouble(0);
+        this.offsetY = Model.DynamicValue.createNumberDouble(0);
         while (iterator.i < command.length) {
             const languageID = command[iterator.i++];
+            if (languageID === -3) {
+                this.offsetX = Model.DynamicValue.createValueCommand(command, iterator);
+                this.offsetY = Model.DynamicValue.createValueCommand(command, iterator);
+                break;
+            }
             const value = command[iterator.i++];
             if (languageID === -1) {
                 this.textWidth = value || 1280;
             }
-            else {
+            else if (languageID !== -2) {
                 texts.set(languageID, value);
             }
         }
@@ -67,6 +74,8 @@ class DisplayAPicture extends Base {
             : Data.Pictures.getPictureCopy(this.pictureKind, this.pictureID.getValue());
         const xVal = this.x.getValue();
         const yVal = this.y.getValue();
+        const offsetX = this.offsetX.getValue();
+        const offsetY = this.offsetY.getValue();
         if (this.stretch) {
             const scaleX = ScreenResolution.CANVAS_WIDTH / Data.Systems.windowWidth;
             const scaleY = ScreenResolution.CANVAS_HEIGHT / Data.Systems.windowHeight;
@@ -85,8 +94,8 @@ class DisplayAPicture extends Base {
         }
         else {
             const minScale = Math.min(ScreenResolution.WINDOW_X, ScreenResolution.WINDOW_Y);
-            const offsetX = (ScreenResolution.CANVAS_WIDTH - ScreenResolution.SCREEN_X * minScale) / 2;
-            const offsetY = (ScreenResolution.CANVAS_HEIGHT - ScreenResolution.SCREEN_Y * minScale) / 2;
+            const screenOffsetX = (ScreenResolution.CANVAS_WIDTH - ScreenResolution.SCREEN_X * minScale) / 2;
+            const screenOffsetY = (ScreenResolution.CANVAS_HEIGHT - ScreenResolution.SCREEN_Y * minScale) / 2;
             if (this.centered) {
                 picture.oX = Data.Systems.windowWidth / 2 + xVal;
                 picture.x = Math.round(ScreenResolution.CANVAS_WIDTH / 2 + ScreenResolution.getScreenX(xVal));
@@ -95,11 +104,15 @@ class DisplayAPicture extends Base {
             }
             else {
                 picture.oX = xVal;
-                picture.x = Math.round(offsetX + ScreenResolution.getScreenX(xVal));
+                picture.x = Math.round(screenOffsetX + ScreenResolution.getScreenX(xVal));
                 picture.oY = yVal;
-                picture.y = Math.round(offsetY + ScreenResolution.getScreenY(yVal));
+                picture.y = Math.round(screenOffsetY + ScreenResolution.getScreenY(yVal));
             }
         }
+        picture.minPositionOffsetX = offsetX;
+        picture.minPositionOffsetY = offsetY;
+        picture.x += ScreenResolution.getScreenMinXY(offsetX);
+        picture.y += ScreenResolution.getScreenMinXY(offsetY);
         picture.centered = this.centered;
         picture.zoom = this.zoom.getValue() / 100;
         picture.opacity = this.opacity.getValue() / 100;
