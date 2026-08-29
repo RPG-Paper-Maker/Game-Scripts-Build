@@ -199,6 +199,7 @@ export class MapProperties extends Localization {
         this.randomBattleVariance = DynamicValue.readOrDefaultNumber(json.randomBattleVariance, 20);
         this.updateMaxNumberSteps();
         this.isSunLight = Utils.valueOrDefault(json.isl, true);
+        this.objectLightsShadows = Utils.valueOrDefault(json.ols, true);
         this.isFog = Utils.valueOrDefault(json.isFog, false);
         this.fogColorID = DynamicValue.readOrDefaultDatabase(json.fogColor, 1);
         this.fogIntensity = DynamicValue.readOrDefaultNumber(json.fogIntensity, 0.06);

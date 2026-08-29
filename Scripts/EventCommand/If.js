@@ -25,6 +25,12 @@ class If extends Base {
         };
         this.hasElse = Utils.numberToBool(command[iterator.i++]);
         this.kind = command[iterator.i++];
+        if (this.kind === -1) {
+            const tree = command[iterator.i++];
+            this.operator = tree.operator;
+            this.conditions = (tree.children ?? tree.conditions.map((condition) => ({ condition }))).map((condition) => new If(condition.children ? [0, -1, condition] : [0, ...condition.condition]));
+            return;
+        }
         switch (this.kind) {
             case 0: // Variable / Param / Prop
                 this.variableParamProp = Model.DynamicValue.createValueCommand(command, iterator);
@@ -127,6 +133,11 @@ class If extends Base {
      *  @returns {Record<string, any>} The current state
      */
     initialize() {
+        if (this.conditions) {
+            return {
+                conditions: this.conditions.map((condition) => condition.initialize()),
+            };
+        }
         return {
             waitingObject: false,
             object: null,
@@ -140,6 +151,21 @@ class If extends Base {
      *  @returns {number} The number of node to pass
      */
     update(currentState, object, state) {
+        if (this.conditions) {
+            let result = this.operator === 0;
+            for (let index = 0; index < this.conditions.length; index++) {
+                const conditionResult = this.conditions[index].update(currentState.conditions[index], object, state);
+                if (conditionResult === 0) {
+                    return 0;
+                }
+                const isValid = conditionResult === -1;
+                if (this.operator === 0 ? !isValid : isValid) {
+                    result = isValid;
+                    break;
+                }
+            }
+            return result ? -1 : 1 + (this.hasElse ? 0 : 1);
+        }
         let i, j, l, m, result, heroesSelection, id, equip, stat, item, value, nb;
         switch (this.kind) {
             case 0: // Variable / Param / Prop

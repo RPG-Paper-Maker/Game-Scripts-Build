@@ -85,12 +85,15 @@ class MapObject {
     }
     static getLoadedMapObjects() {
         const objects = new Set();
-        for (const portion of Scene.Map.current.mapPortions) {
+        const map = Scene.Map.current;
+        if (!map?.mapPortions)
+            return objects;
+        for (const portion of map.mapPortions) {
             if (!portion)
                 continue;
             for (const object of portion.objectsList)
                 objects.add(object);
-            const data = Game.current.getPortionData(Scene.Map.current.id, portion.portion);
+            const data = Game.current.getPortionData(map.id, portion.portion);
             for (const object of data.min)
                 objects.add(object);
             for (const object of data.mout)
@@ -1777,7 +1780,7 @@ class MapObject {
         if (light instanceof THREE.PointLight ||
             light instanceof THREE.SpotLight ||
             light instanceof THREE.DirectionalLight) {
-            light.castShadow = true;
+            light.castShadow = Scene.Map.current.mapProperties.objectLightsShadows;
             if (light instanceof THREE.PointLight || light instanceof THREE.SpotLight) {
                 light.shadow.bias = -0.0003;
                 light.shadow.normalBias = 0.5 / Data.Systems.SQUARE_SIZE;

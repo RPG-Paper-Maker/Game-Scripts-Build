@@ -113,6 +113,9 @@ class ReactionInterpreter {
      *  @returns {Node}
      */
     updateCommand() {
+        if (this.currentTimeState && this.currentMapObject?.removed) {
+            return null;
+        }
         if (Scene.Map.current.loading) {
             return this.currentCommand;
         }

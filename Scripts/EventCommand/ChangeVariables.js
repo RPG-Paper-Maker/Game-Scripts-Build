@@ -54,6 +54,9 @@ class ChangeVariables extends Base {
             case 4: // Map object characteristic
                 this.valueMapObject = Model.DynamicValue.createValueCommand(command, iterator);
                 this.valueMapObjectChar = command[iterator.i++];
+                if (this.valueMapObjectChar === VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND.PROPERTY) {
+                    this.valueMapObjectPropertyID = Model.DynamicValue.createValueCommand(command, iterator);
+                }
                 break;
             case 5: // Number of weapon / armor / item in inventory
                 this.valueITEM_KIND = command[iterator.i++];
@@ -157,6 +160,10 @@ class ChangeVariables extends Base {
                                 break;
                             case VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND.TERRAIN:
                                 currentState.value = obj.terrain;
+                                break;
+                            case VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND.PROPERTY:
+                                currentState.value =
+                                    obj.properties[this.valueMapObjectPropertyID.getValue()];
                                 break;
                         }
                         currentState.valid = true;
