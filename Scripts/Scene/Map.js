@@ -10,7 +10,7 @@
 */
 import * as THREE from 'three';
 import { CHARACTER_KIND, Constants, DYNAMIC_VALUE_KIND, Inputs, Interpreter, ORIENTATION, Paths, PICTURE_KIND, Platform, TARGET_KIND, Utils, } from '../Common/index.js';
-import { Autotiles, Camera, Frame, Game, MapObject, MapPortion, Portion, ReactionInterpreter, } from '../Core/index.js';
+import { Autotiles, Camera, Frame, Game, MapObject, MapPortion, Portion, Position, ReactionInterpreter, } from '../Core/index.js';
 import { Data, Manager, Model, Scene } from '../index.js';
 import { Base } from './Base.js';
 /** @class
@@ -244,13 +244,20 @@ class Map extends Base {
                         // Ids of the objects that have modified properties
                         p: datas && datas.p ? datas.p : [],
                         // Properties values of the objects according to id
-                        r: datas && datas.r ? datas.r : [],
+                        r: [...(datas && datas.r ? datas.r : []), ...(datas && datas.pr ? datas.pr : [])],
                         // Removed objects according to id
                         soi: datas && datas.soi ? datas.soi : [],
                         // Ids of the objects that have modified states options
                         so: datas && datas.so ? datas.so : [],
                         // States options of the objects according to id
+                        pr: datas && datas.pr ? datas.pr : [],
                     };
+                    for (const object of objectsPortions[i][jp][jabs][k].m) {
+                        if (object.modelID !== null) {
+                            this.mapProperties.allObjects.set(object.system.id, Position.createFromVector3(object.position));
+                            this.mapProperties.maxObjectsID = Math.max(this.mapProperties.maxObjectsID, object.system.id);
+                        }
+                    }
                 }
             }
         }
@@ -1309,7 +1316,7 @@ class Map extends Base {
                 for (k = 0; k < w; k++) {
                     portion = Game.current.getPortionPosData(this.id, i, j, k);
                     for (x = portion.min.length - 1; x >= 0; x--) {
-                        if (!portion.min[x].currentState || !portion.min[x].currentStateInstance.keepPosition) {
+                        if (!portion.min[x].currentState || (!portion.min[x].currentStateInstance.keepPosition && !portion.min[x].isPersistent)) {
                             portion.min.splice(x, 1);
                         }
                         else {
@@ -1317,7 +1324,7 @@ class Map extends Base {
                         }
                     }
                     for (x = portion.mout.length - 1; x >= 0; x--) {
-                        if (!portion.mout[x].currentState || !portion.mout[x].currentStateInstance.keepPosition) {
+                        if (!portion.mout[x].currentState || (!portion.mout[x].currentStateInstance.keepPosition && !portion.mout[x].isPersistent)) {
                             portion.mout.splice(x, 1);
                         }
                         else {
@@ -1325,7 +1332,7 @@ class Map extends Base {
                         }
                     }
                     for (x = portion.m.length - 1; x >= 0; x--) {
-                        if (!portion.m[x].currentState || !portion.m[x].currentStateInstance.keepPosition) {
+                        if (!portion.m[x].currentState || (!portion.m[x].currentStateInstance.keepPosition && !portion.m[x].isPersistent)) {
                             portion.m.splice(x, 1);
                         }
                         else {

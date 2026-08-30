@@ -8,6 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
+import { Utils } from '../Common/index.js';
 import { Game, MapObject, Portion } from '../Core/index.js';
 import { Model, Scene } from '../index.js';
 import { Base } from './Base.js';
@@ -23,6 +24,7 @@ class RemoveObjectFromMap extends Base {
             i: 0,
         };
         this.objectID = Model.DynamicValue.createValueCommand(command, iterator);
+        this.isPermanent = Utils.numberToBool(command[iterator.i++] ?? 0);
     }
     /**
      *  Initialize the current state.
@@ -72,6 +74,9 @@ class RemoveObjectFromMap extends Base {
                         }
                         if (result.datas.r.indexOf(result.id) === -1) {
                             result.datas.r.push(result.id);
+                        }
+                        if (this.isPermanent && result.datas.pr.indexOf(result.id) === -1) {
+                            result.datas.pr.push(result.id);
                         }
                     }
                     const position = result.object.position.clone();

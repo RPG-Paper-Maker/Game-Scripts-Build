@@ -77,7 +77,7 @@ class ChangeVariables extends Base {
                 this.valueOtherCHARACTERISTIC_KIND = command[iterator.i++];
                 break;
             case 10: // Script
-                this.valueScript = Model.DynamicValue.createMessage(String(command[iterator.i]));
+                this.valueScript = Model.DynamicValue.createMessage(String(command[iterator.i++]));
                 break;
             case 11: // Terrain at coordinates
                 this.valueTerrainX = Model.DynamicValue.createValueCommand(command, iterator);
@@ -88,6 +88,7 @@ class ChangeVariables extends Base {
                 this.valueTerrainZPlus = Model.DynamicValue.createValueCommand(command, iterator);
                 break;
         }
+        this.isFloored = command[iterator.i] === 1;
     }
     /**
      *  Initialize the current.
@@ -257,8 +258,13 @@ class ChangeVariables extends Base {
                     }
                     break;
                 case 10: // Script
+                    currentState.value = this.isLocal
+                        ? (ReactionInterpreter.currentReaction.localVariables.get(this.localVariableName) ?? 0)
+                        : Game.current.getVariable(this.selection);
                     currentState.value = Interpreter.evaluate(this.valueScript.getValue(), {
                         thisObject: object,
+                        additionalName: '$value',
+                        additionalValue: currentState.value,
                         addReturn: true,
                     });
                     break;
@@ -278,12 +284,14 @@ class ChangeVariables extends Base {
             for (let i = 0, l = this.nbSelection; i < l; i++) {
                 if (this.isLocal) {
                     const localVariables = ReactionInterpreter.currentReaction.localVariables;
-                    localVariables.set(this.localVariableName, this.isCreatingLocalVariable
+                    const result = this.isCreatingLocalVariable
                         ? currentState.value
-                        : Mathf.OPERATORS_NUMBERS[this.operation](localVariables.get(this.localVariableName) ?? 0, currentState.value));
+                        : Mathf.OPERATORS_NUMBERS[this.operation](localVariables.get(this.localVariableName) ?? 0, currentState.value);
+                    localVariables.set(this.localVariableName, this.isFloored ? Math.floor(result) : result);
                 }
                 else {
-                    Game.current.variables.set(this.selection + i, Mathf.OPERATORS_NUMBERS[this.operation](Game.current.getVariable(this.selection + i), currentState.value));
+                    const result = Mathf.OPERATORS_NUMBERS[this.operation](Game.current.getVariable(this.selection + i), currentState.value);
+                    Game.current.variables.set(this.selection + i, this.isFloored ? Math.floor(result) : result);
                 }
             }
             return 1;

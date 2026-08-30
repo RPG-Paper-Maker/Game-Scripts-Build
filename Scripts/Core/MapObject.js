@@ -33,6 +33,8 @@ import { Sprite } from './Sprite.js';
  */
 class MapObject {
     constructor(system, position, isHero = false) {
+        this.modelID = null;
+        this.isPersistent = false;
         this.positionLayer = 0;
         this.moving = false;
         this.isClimbing = false;
@@ -108,6 +110,7 @@ class MapObject {
             for (const object of objects) {
                 const other = object.currentStateInstance;
                 if (object !== this &&
+                    !object.removed &&
                     other?.graphicKind === ELEMENT_MAP_KIND.AUTOTILES &&
                     other.graphicID === state.graphicID &&
                     object.positionLayer + other.layer.getValue() ===
@@ -376,6 +379,9 @@ class MapObject {
         }
         const globalPortion = position.getGlobalPortion();
         const mapsData = Game.current.getPortionData(Scene.Map.current.id, globalPortion);
+        if (mapsData.r?.indexOf(objectID) !== -1) {
+            return null;
+        }
         const json = await Platform.parseFileJSON(Paths.FILE_MAPS + Scene.Map.current.mapFilename + '/' + globalPortion.getFileName());
         const mapPortion = new MapPortion(globalPortion);
         const moved = mapPortion.getObjFromID(json, objectID);
