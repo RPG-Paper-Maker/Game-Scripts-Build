@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Utils } from '../Common/index.js';
+import { DYNAMIC_VALUE_KIND, Utils } from '../Common/index.js';
 import { Game, MapObject, Portion } from '../Core/index.js';
 import { Model, Scene } from '../index.js';
 import { Base } from './Base.js';
@@ -44,7 +44,9 @@ class RemoveObjectFromMap extends Base {
      *  @returns {number} The number of node to pass
      */
     update(currentState, object, state) {
-        const objectID = this.objectID.getValue();
+        const objectID = this.objectID.kind === DYNAMIC_VALUE_KIND.PROPERTY && this.objectID.value === -1
+            ? -1
+            : this.objectID.getValue();
         if (!currentState.started) {
             currentState.started = true;
             MapObject.search(objectID, (result) => {

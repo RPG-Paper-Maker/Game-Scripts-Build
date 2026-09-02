@@ -461,7 +461,7 @@ class MapObject {
         for (i = 0, l = this.system.properties.length; i < l; i++) {
             prop = this.system.properties[i];
             propValue = mapProp[prop.id - 1];
-            this.properties[prop.id] = Utils.valueOrDefault(propValue, prop.initialValue.getValue());
+            this.properties[prop.id] = Utils.valueOrDefault(propValue ?? undefined, prop.initialValue.getValue());
         }
         // States
         this.statesInstance = [];

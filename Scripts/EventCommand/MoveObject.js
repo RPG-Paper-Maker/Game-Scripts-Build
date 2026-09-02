@@ -95,12 +95,21 @@ class MoveObject extends Base {
                 const peakY = Model.DynamicValue.createValueCommand(command, iterator);
                 const peakYPlus = Model.DynamicValue.createValueCommand(command, iterator);
                 const time = Model.DynamicValue.createValueCommand(command, iterator);
+                let xPixels = Model.DynamicValue.createNumber(0);
+                let zPixels = Model.DynamicValue.createNumber(0);
+                if (command[iterator.i] === 'pixels') {
+                    iterator.i++;
+                    xPixels = Model.DynamicValue.createValueCommand(command, iterator);
+                    zPixels = Model.DynamicValue.createValueCommand(command, iterator);
+                }
                 this.parameters.push({
                     square,
                     x: x,
+                    xPixels: xPixels,
                     y: y,
                     yPlus: yPlus,
                     z: z,
+                    zPixels: zPixels,
                     peakY: peakY,
                     peakYPlus: peakYPlus,
                     time: time,
@@ -303,6 +312,21 @@ class MoveObject extends Base {
     initialize() {
         return {
             parallel: this.isWaitEnd,
+            objectID: this.objectID.getValue(),
+            parameters: this.parameters.map((parameters) => parameters.x
+                ? {
+                    ...parameters,
+                    x: parameters.x.getValue(),
+                    xPixels: parameters.xPixels.getValue(),
+                    y: parameters.y.getValue(),
+                    yPlus: parameters.yPlus.getValue(),
+                    z: parameters.z.getValue(),
+                    zPixels: parameters.zPixels.getValue(),
+                    peakY: parameters.peakY.getValue(),
+                    peakYPlus: parameters.peakYPlus.getValue(),
+                    time: parameters.time.getValue(),
+                }
+                : parameters),
             index: 0,
             distance: 0,
             normalDistance: 0,
@@ -635,12 +659,14 @@ class MoveObject extends Base {
                 currentState.currentTime = 0;
                 currentState.startJump = new THREE.Vector3(object.position.x, object.position.y, object.position.z);
                 const square = parameters.square ? 1 : 1 / Data.Systems.SQUARE_SIZE;
-                currentState.endJump = new THREE.Vector3(parameters.x.getValue() * square + currentState.startJump.x, (parameters.y.getValue() * square +
-                    parameters.yPlus.getValue() / Data.Systems.SQUARE_SIZE) +
-                    currentState.startJump.y, parameters.z.getValue() * square + currentState.startJump.z);
+                currentState.endJump = new THREE.Vector3(parameters.x * square +
+                    parameters.xPixels / Data.Systems.SQUARE_SIZE +
+                    currentState.startJump.x, (parameters.y * square +
+                    parameters.yPlus / Data.Systems.SQUARE_SIZE) + currentState.startJump.y, parameters.z * square +
+                    parameters.zPixels / Data.Systems.SQUARE_SIZE +
+                    currentState.startJump.z);
                 currentState.peak =
-                    parameters.peakY.getValue() +
-                        parameters.peakYPlus.getValue() / Data.Systems.SQUARE_SIZE;
+                    parameters.peakY + parameters.peakYPlus / Data.Systems.SQUARE_SIZE;
                 if (currentState.peak < currentState.endJump.y) {
                     Platform.showErrorMessage('Move object command: jump peak cannot be lower than final y position offset. Final position=' +
                         currentState.endJump.y +
@@ -648,7 +674,7 @@ class MoveObject extends Base {
                         currentState.peak +
                         'px');
                 }
-                currentState.time = parameters.time.getValue() * 1000;
+                currentState.time = parameters.time * 1000;
             }
             currentState.currentTime = object.jump(currentState.startJump, currentState.endJump, currentState.peak, currentState.currentTime, currentState.time);
             if (currentState.currentTime === currentState.time) {
@@ -1182,14 +1208,14 @@ class MoveObject extends Base {
         }
         if (currentState.parallel && this.moves.length > 0) {
             if (!currentState.waitingObject) {
-                const objectID = this.objectID.getValue();
+                const objectID = currentState.objectID;
                 MapObject.search(objectID, (result) => {
                     currentState.object = result.object;
                 }, object);
                 currentState.waitingObject = true;
             }
             if (currentState.object !== null) {
-                const finished = this.moves[currentState.index].call(this, currentState, currentState.object, this.parameters[currentState.index]);
+                const finished = this.moves[currentState.index].call(this, currentState, currentState.object, currentState.parameters[currentState.index]);
                 if (finished) {
                     currentState.distance = 0;
                     currentState.normalDistance = 0;

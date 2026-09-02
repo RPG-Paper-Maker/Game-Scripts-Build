@@ -9,8 +9,8 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Data, Model, Scene } from "../index.js";
-import { Utils } from '../Common/index.js';
-import { Game, MapObject, Position } from '../Core/index.js';
+import { DYNAMIC_VALUE_KIND, Utils } from '../Common/index.js';
+import { Game, MapObject, Position, ReactionInterpreter } from '../Core/index.js';
 import { Base } from './Base.js';
 /** @class
  *  An event command for creating an object in map.
@@ -95,7 +95,12 @@ class CreateObjectInMap extends Base {
             newObject.modelID = modelID;
             newObject.isPersistent = this.isPermanent;
             if (this.isStockID) {
-                Game.current.variables.set(this.stockID.getValue(true), id);
+                if (this.stockID.kind === DYNAMIC_VALUE_KIND.LOCAL_VARIABLE) {
+                    ReactionInterpreter.currentReaction.localVariables.set(this.stockID.value, id);
+                }
+                else {
+                    Game.current.variables.set(this.stockID.getValue(true), id);
+                }
             }
             const portionData = Game.current.getOrCreatePortionData(Scene.Map.current.id, globalPortion);
             portionData.m.push(newObject);

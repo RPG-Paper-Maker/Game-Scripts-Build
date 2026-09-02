@@ -8,8 +8,8 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { ALIGN, ScreenResolution } from '../Common/index.js';
-import { WindowBox, WindowChoices } from '../Core/index.js';
+import { ALIGN, DYNAMIC_VALUE_KIND, ScreenResolution, Utils } from '../Common/index.js';
+import { Game, ReactionInterpreter, WindowBox, WindowChoices } from '../Core/index.js';
 import { Data, Graphic, Model, Scene } from '../index.js';
 import { Base } from './Base.js';
 /** @class
@@ -25,6 +25,12 @@ class DisplayChoice extends Base {
         };
         this.cancelAutoIndex = Model.DynamicValue.createValueCommand(command, iterator);
         this.maxNumberChoices = Model.DynamicValue.createValueCommand(command, iterator);
+        this.isStockChoiceIndex = iterator.i < command.length && command[iterator.i] !== '-'
+            ? Utils.numberToBool(command[iterator.i++])
+            : false;
+        if (this.isStockChoiceIndex) {
+            this.stockChoiceIndexVariable = Model.DynamicValue.createValueCommand(command, iterator);
+        }
         this.choices = [];
         let l = command.length;
         let lang = null;
@@ -121,6 +127,14 @@ class DisplayChoice extends Base {
      */
     update(currentState, object, state) {
         this.windowChoices.update();
+        if (this.isStockChoiceIndex && currentState.index >= 0) {
+            if (this.stockChoiceIndexVariable.kind === DYNAMIC_VALUE_KIND.LOCAL_VARIABLE) {
+                ReactionInterpreter.currentReaction.localVariables.set(this.stockChoiceIndexVariable.value, currentState.index);
+            }
+            else {
+                Game.current.variables.set(this.stockChoiceIndexVariable.getValue(true), currentState.index);
+            }
+        }
         return currentState.index + 1;
     }
     /**
