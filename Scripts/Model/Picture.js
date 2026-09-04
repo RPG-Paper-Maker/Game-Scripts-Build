@@ -317,6 +317,7 @@ class Picture extends Base {
         this.base64 = json.base64;
         this.jsonCollisions = Utils.valueOrDefault(json.col, []);
         this.terrainSounds = new Map();
+        this.terrainSoundIndexes = new Map();
         for (const terrainSound of Utils.valueOrDefault(json.fts, [])) {
             const sounds = (terrainSound.sl ?? []).map((sound) => new PlaySong(SONG_KIND.SOUND, sound.s));
             if (terrainSound.s && sounds.length === 0) {
@@ -342,11 +343,13 @@ class Picture extends Base {
         }
         return new Rectangle(0, 0, frameWidth, frameHeight);
     }
-    /** Play a random footstep sound for a terrain, when configured. */
+    /** Play the next footstep sound for a terrain, when configured. */
     playFootstep(terrain) {
         const sounds = this.terrainSounds.get(terrain);
         if (sounds && sounds.length > 0) {
-            sounds[Math.floor(Math.random() * sounds.length)].playSound();
+            const index = this.terrainSoundIndexes.get(terrain) ?? 0;
+            sounds[index].playSound();
+            this.terrainSoundIndexes.set(terrain, (index + 1) % sounds.length);
             return true;
         }
         return false;

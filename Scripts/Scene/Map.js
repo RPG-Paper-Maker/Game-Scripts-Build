@@ -37,6 +37,7 @@ class Map extends Base {
         this.heroTrailTotalDist = 0;
         this.heroTrailLastPos = null;
         this.previousLayerDepthOffset = -1;
+        this.cameraHidingReleaseTime = 0;
         this.id = id;
         this.isBattleMap = isBattleMap;
         this.mapFilename = Scene.Map.generateMapName(id);
@@ -1016,9 +1017,9 @@ class Map extends Base {
     }
     /**
      *  Update and move the camera position for hiding stuff.
-     *  @param {THREE.Vector3} target Position to keep visible
+     *  @param {THREE.Vector3[]} targets Positions on the hero to keep visible
      */
-    updateCameraHiding(target) {
+    updateCameraHiding(targets) {
         const verticalAngle = (this.camera.verticalAngle * Math.PI) / 180.0;
         const horizontalAngle = (this.camera.horizontalAngle * Math.PI) / 180.0;
         const horizontalDistance = this.camera.distance * Math.sin(verticalAngle);
@@ -1026,18 +1027,31 @@ class Map extends Base {
         origin.x -= horizontalDistance * Math.cos(horizontalAngle);
         origin.y += this.camera.distance * Math.cos(verticalAngle);
         origin.z -= horizontalDistance * Math.sin(horizontalAngle);
-        const direction = target.clone().sub(origin);
-        Manager.GL.raycaster.set(origin, direction.normalize());
-        Manager.GL.raycaster.layers.set(1);
-        const intersects = Manager.GL.raycaster.intersectObjects(this.scene.children);
-        let distance;
-        for (let i = 0; i < intersects.length; i++) {
-            distance = Math.ceil(intersects[i].distance) + 5;
-            if (distance < this.camera.distance &&
-                (!this.camera.isHiding() || this.camera.distance - distance < this.camera.hidingDistance)) {
-                this.camera.hidingDistance = this.camera.distance - distance;
+        const cameraDirection = this.camera.targetPosition.clone().sub(origin).normalize();
+        const margin = 1 / Data.Systems.SQUARE_SIZE;
+        const minimumDistance = this.camera.isPerspective
+            ? this.camera.perspectiveCamera.near
+            : this.camera.orthographicCamera.near;
+        let hidingDistance = -1;
+        for (const target of targets) {
+            const direction = target.clone().sub(origin);
+            const rayLength = direction.length();
+            Manager.GL.raycaster.set(origin, direction.normalize());
+            Manager.GL.raycaster.layers.set(1);
+            Manager.GL.raycaster.far = rayLength;
+            const intersects = Manager.GL.raycaster.intersectObjects(this.scene.children);
+            if (intersects.length === 0) {
+                return;
+            }
+            Manager.GL.raycaster.set(target, direction.negate());
+            const reverseIntersects = Manager.GL.raycaster.intersectObjects(this.scene.children);
+            const point = reverseIntersects.length > 0 ? reverseIntersects[0].point : intersects[0].point;
+            const distance = Math.max(minimumDistance, this.camera.targetPosition.clone().sub(point).dot(cameraDirection) - margin);
+            if (hidingDistance === -1 || distance < hidingDistance) {
+                hidingDistance = distance;
             }
         }
+        this.camera.hidingDistance = hidingDistance;
     }
     /**
      *  Update the scene.
@@ -1139,10 +1153,30 @@ class Map extends Base {
         // Update camera hiding
         if (Game.current !== null && Data.Systems.moveCameraOnBlockView.getValue()) {
             this.camera.forceNoHide = false;
+            const previousHidingDistance = this.camera.hidingDistance;
             this.camera.hidingDistance = -1;
-            this.updateCameraHiding(this.camera.target.position.clone().add(new THREE.Vector3(0, this.camera.target.height, 0)));
+            const hero = this.camera.target;
+            const targets = [];
+            const horizontalDirection = new THREE.Vector3(-Math.sin(this.camera.horizontalAngle), 0, Math.cos(this.camera.horizontalAngle));
+            for (const height of [0.1, 0.5, 0.9]) {
+                for (const width of [-0.4, 0, 0.4]) {
+                    targets.push(hero.position
+                        .clone()
+                        .add(horizontalDirection.clone().multiplyScalar(hero.width * width))
+                        .add(new THREE.Vector3(0, hero.height * height, 0)));
+                }
+            }
+            this.updateCameraHiding(targets);
             if (this.camera.isHiding()) {
-                this.updateCameraHiding(this.camera.targetPosition);
+                this.cameraHidingReleaseTime = 0;
+            }
+            else if (previousHidingDistance !== -1) {
+                this.cameraHidingReleaseTime += Manager.Stack.elapsedTime;
+                if (this.cameraHidingReleaseTime < Camera.HIDDING_MOVE_TIME) {
+                    this.camera.hidingDistance = previousHidingDistance;
+                }
+            }
+            if (this.camera.isHiding()) {
                 this.camera.update();
             }
             let opacity = 1;

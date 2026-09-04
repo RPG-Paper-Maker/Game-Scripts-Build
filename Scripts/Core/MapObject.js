@@ -721,6 +721,9 @@ class MapObject {
                                 this.gltfGroup.renderOrder = 1;
                                 this.gltfGroup.traverse((child) => {
                                     if (child instanceof THREE.Mesh) {
+                                        if (!this.isHero) {
+                                            child.layers.enable(1);
+                                        }
                                         const materials = Array.isArray(child.material)
                                             ? child.material
                                             : [child.material];
@@ -827,6 +830,9 @@ class MapObject {
             if (this.mesh !== null) {
                 this.mesh.receiveShadow = true;
                 this.mesh.castShadow = true;
+                if (!this.isHero) {
+                    this.mesh.layers.enable(1);
+                }
                 this.mesh.customDepthMaterial = material.userData.customDepthMaterial;
                 this.mesh.position.set(this.position.x, this.position.y + this.getMapObjectLayerDepthOffset(), this.position.z);
                 this.mesh.renderOrder =
@@ -2038,10 +2044,10 @@ class MapObject {
     /** Get the terrain at a map position, including map-object floors and autotiles. */
     static getTerrainAt(position) {
         if (Scene.Map.current.loading)
-            return 0;
+            return -1;
         const mapPortion = Scene.Map.current.getMapPortionFromPortion(Scene.Map.current.getLocalPortion(Portion.createFromVector3(position)));
         if (!mapPortion)
-            return 0;
+            return -1;
         const squarePosition = Position.createFromVector3(position);
         const boundingBoxes = mapPortion.boundingBoxesLands[squarePosition.toIndex()];
         const mapObjectCollision = MapObject.getMapObjectLandCollision(position);
@@ -2056,7 +2062,7 @@ class MapObject {
             (staticCollision === null || mapObjectCollision.layer >= (staticCollision.p?.layer ?? 0))) {
             return mapObjectCollision.collision.cs?.terrain ?? 0;
         }
-        return staticCollision?.cs?.terrain ?? 0;
+        return staticCollision?.cs?.terrain ?? -1;
     }
     /**
      *  Update the terrain the object is currently on.
