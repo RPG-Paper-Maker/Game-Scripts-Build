@@ -1131,7 +1131,7 @@ class MapObject {
                     this.boundingBoxSettings.b[0][6],
                     this.boundingBoxSettings.b[0][7],
                     this.boundingBoxSettings.b[0][8],
-                ]);
+                ], false, this.boundingBoxSettings.cr);
                 this.meshBoundingBox.push(box);
                 break;
         }
@@ -1168,7 +1168,7 @@ class MapObject {
                 this.currentAngle.y,
                 this.currentAngle.x,
                 this.currentAngle.z,
-            ]);
+            ], false, this.boundingBoxSettings.cr);
         }
         else if (this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.SPRITES_FACE) {
             Manager.Collisions.applyOrientedBoxTransforms(mesh, [
@@ -2063,6 +2063,14 @@ class MapObject {
             return mapObjectCollision.collision.cs?.terrain ?? 0;
         }
         return staticCollision?.cs?.terrain ?? -1;
+    }
+    static getIDAt(position) {
+        for (const object of MapObject.getLoadedMapObjects()) {
+            if (!object.removed && object.position.distanceToSquared(position) < 0.000001) {
+                return object.system.id;
+            }
+        }
+        return -1;
     }
     /**
      *  Update the terrain the object is currently on.

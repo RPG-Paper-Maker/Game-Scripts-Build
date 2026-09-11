@@ -21,6 +21,7 @@ import { Base } from './Base.js';
 class ChangeVariables extends Base {
     constructor(command, isLocal = false) {
         super();
+        this.coordinatesValueType = 0;
         const iterator = {
             i: isLocal ? 0 : 2,
         };
@@ -80,6 +81,10 @@ class ChangeVariables extends Base {
                 this.valueScript = Model.DynamicValue.createMessage(String(command[iterator.i++]));
                 break;
             case 11: // Terrain at coordinates
+                if (command[iterator.i] === 'object-id-at-coordinates') {
+                    iterator.i++;
+                    this.coordinatesValueType = 1;
+                }
                 this.valueTerrainX = Model.DynamicValue.createValueCommand(command, iterator);
                 this.valueTerrainY = Model.DynamicValue.createValueCommand(command, iterator);
                 this.valueTerrainZ = Model.DynamicValue.createValueCommand(command, iterator);
@@ -269,10 +274,14 @@ class ChangeVariables extends Base {
                     });
                     break;
                 case 11: // Terrain at coordinates
-                    currentState.value = MapObject.getTerrainAt(new THREE.Vector3(this.valueTerrainX.getValue() +
+                    const position = new THREE.Vector3(this.valueTerrainX.getValue() +
                         this.valueTerrainXPlus.getValue() / Data.Systems.SQUARE_SIZE, this.valueTerrainY.getValue() +
                         this.valueTerrainYPlus.getValue() / Data.Systems.SQUARE_SIZE, this.valueTerrainZ.getValue() +
-                        this.valueTerrainZPlus.getValue() / Data.Systems.SQUARE_SIZE));
+                        this.valueTerrainZPlus.getValue() / Data.Systems.SQUARE_SIZE);
+                    currentState.value =
+                        this.coordinatesValueType === 0
+                            ? MapObject.getTerrainAt(position)
+                            : MapObject.getIDAt(position);
                     break;
             }
         }
