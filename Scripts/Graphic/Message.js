@@ -117,7 +117,7 @@ class Message extends Graphic.Base {
                 }
                 else {
                     split = tag.split('=');
-                    currentNode = this.updateTag(currentNode, tagKind, open && split.length > 1 ? split[1] : null, open, notClosed);
+                    currentNode = this.updateTag(currentNode, tagKind, open && split.length > 1 ? split[1] : null, open, notClosed, tag);
                 }
                 lastC = cr + 1;
                 c = cr;
@@ -136,7 +136,7 @@ class Message extends Graphic.Base {
      *  @param {Node[]} notClosed - List of unclosed nodes
      *  @returns {Node}
      */
-    updateTag(currentNode, tag, value, open, notClosed) {
+    updateTag(currentNode, tag, value, open, notClosed, tagName) {
         if (open) {
             for (let i = notClosed.length - 1; i >= 0; i--) {
                 currentNode = currentNode.add(notClosed[i]);
@@ -175,7 +175,12 @@ class Message extends Graphic.Base {
                 notClosed.push(currentNode.data);
                 currentNode = currentNode.parent;
             }
-            currentNode = currentNode.parent;
+            if (currentNode !== null && currentNode.data !== null) {
+                currentNode = currentNode.parent;
+            }
+            else {
+                console.warn(`Show Text contains an unmatched closing tag: [/${tagName}]  -  ${this.message}`);
+            }
         }
         return currentNode;
     }

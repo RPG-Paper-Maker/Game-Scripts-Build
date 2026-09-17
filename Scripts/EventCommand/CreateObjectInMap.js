@@ -50,6 +50,12 @@ class CreateObjectInMap extends Base {
             this.stockID = Model.DynamicValue.createValueCommand(command, iterator);
         }
         this.isPermanent = Utils.numberToBool(command[iterator.i++] ?? 0);
+        this.xPixels = Model.DynamicValue.createNumber(0);
+        this.zPixels = Model.DynamicValue.createNumber(0);
+        if (command[iterator.i++] === 'pixels') {
+            this.xPixels = Model.DynamicValue.createValueCommand(command, iterator);
+            this.zPixels = Model.DynamicValue.createValueCommand(command, iterator);
+        }
     }
     /**
      *  Initialize the current state.
@@ -77,6 +83,8 @@ class CreateObjectInMap extends Base {
             // Set object's position
             if (this.objectIDPosition === null) {
                 currentState.position = new Position(this.x.getValue(), this.y.getValue(), this.z.getValue(), (this.yPlus.getValue() * 100) / Data.Systems.SQUARE_SIZE).toVector3();
+                currentState.position.x += this.xPixels.getValue() / Data.Systems.SQUARE_SIZE;
+                currentState.position.z += this.zPixels.getValue() / Data.Systems.SQUARE_SIZE;
             }
             else {
                 MapObject.search(this.objectIDPosition.getValue(), (result) => {

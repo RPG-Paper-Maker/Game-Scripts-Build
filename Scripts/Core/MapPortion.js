@@ -65,12 +65,14 @@ class MapPortion {
         }
         const l = Constants.PORTION_SIZE * Constants.PORTION_SIZE * Constants.PORTION_SIZE;
         this.boundingBoxesLands = new Array(l);
+        this.terrainFloors = new Array(l);
         this.terrainAutotiles = new Array(l);
         this.boundingBoxesSprites = new Array(l);
         this.boundingBoxesMountains = new Array(l);
         this.boundingBoxesObjects3D = new Array(l);
         for (i = 0; i < l; i++) {
             this.boundingBoxesLands[i] = [];
+            this.terrainFloors[i] = [];
             this.terrainAutotiles[i] = [];
             this.boundingBoxesSprites[i] = [];
             this.boundingBoxesMountains[i] = [];
@@ -143,6 +145,11 @@ class MapPortion {
                     }
                     else {
                         const objCollision = floor.updateGeometry(geometry, position, width, height, count);
+                        this.terrainFloors[position.toIndex()].push({
+                            p: position,
+                            b: [0, 0, 0, floor.texture.width, floor.texture.height],
+                            cs: Scene.Map.current.mapProperties.tileset.picture.getCollisionAt(floor.texture),
+                        });
                         MapPortion.addLayerOffsets(geometry, start, layerOffsets, floor.up ? layer : -layer);
                         this.boundingBoxesLands[position.toIndex()].push(objCollision);
                         this.addToNonEmpty(position);
@@ -187,6 +194,7 @@ class MapPortion {
                         const picture = Data.Pictures.get(PICTURE_KIND.AUTOTILES, pictureID);
                         this.terrainAutotiles[indexPos].push({
                             p: position,
+                            b: [0, 0, 0, 1, 1],
                             cs: picture.getCollisionAtIndex(autotile.getIndex(picture.width)),
                             autotilePictureID: pictureID,
                         });
@@ -206,6 +214,11 @@ class MapPortion {
             if (objCollision !== null) {
                 this.boundingBoxesLands[index].push(objCollision);
             }
+            this.terrainFloors[index].push({
+                p: position,
+                b: [0, 0, 0, floor.texture.width, floor.texture.height],
+                cs: Scene.Map.current.mapProperties.tileset.picture.getCollisionAt(floor.texture),
+            });
             this.addToNonEmpty(position);
             count++;
         }
