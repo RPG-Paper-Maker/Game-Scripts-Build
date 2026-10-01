@@ -839,6 +839,7 @@ class MoveObject extends Base {
                 .slice(0, 9)
                 .map((value, index) => parameters.checked[index] ? value.getValue() : currentState.transformStart[index]);
             currentState.transformPositionStart = object.position.clone();
+            currentState.transformCenterStart = object.currentCenterOffset.clone();
             currentState.transformOffsetStart = [...object.transformationOffset];
             currentState.transformOffsetEnd = parameters.values
                 .slice(9)
@@ -856,11 +857,27 @@ class MoveObject extends Base {
             object.currentStateInstance[keys[i]].value = value;
         }
         const offset = currentState.transformOffsetStart.map((value, index) => value + (currentState.transformOffsetEnd[index] - value) * eased);
-        object.position.set(currentState.transformPositionStart.x + offset[0] - currentState.transformOffsetStart[0], currentState.transformPositionStart.y + offset[1] - currentState.transformOffsetStart[1] +
-            (offset[2] - currentState.transformOffsetStart[2]) / Data.Systems.SQUARE_SIZE, currentState.transformPositionStart.z + offset[3] - currentState.transformOffsetStart[3]);
+        object.position.set(currentState.transformPositionStart.x - currentState.transformCenterStart.x +
+            object.currentCenterOffset.x + offset[0] - currentState.transformOffsetStart[0], currentState.transformPositionStart.y + offset[1] - currentState.transformOffsetStart[1] +
+            (offset[2] - currentState.transformOffsetStart[2]) / Data.Systems.SQUARE_SIZE, currentState.transformPositionStart.z - currentState.transformCenterStart.z +
+            object.currentCenterOffset.z + offset[3] - currentState.transformOffsetStart[3]);
         object.transformationOffset = offset;
         object.updateBBPosition(object.position);
-        this.refreshTransformations(currentState, object);
+        const geometryChanged = parameters.checked.slice(0, 8).some((checked, index) => checked && currentState.transformStart[index] !== currentState.transformEnd[index]);
+        if (geometryChanged) {
+            this.refreshTransformations(currentState, object);
+        }
+        else {
+            if (parameters.checked[8]) {
+                object.updateTransformationOpacity(object.currentStateInstance.opacity.getValue());
+            }
+            if (object.mesh)
+                object.mesh.position.copy(object.position);
+            if (object.gltfGroup)
+                object.gltfGroup.position.copy(object.position);
+            if (object.objectLightsGroup)
+                object.objectLightsGroup.position.copy(object.position);
+        }
         if (currentState.currentTime !== duration) {
             return false;
         }

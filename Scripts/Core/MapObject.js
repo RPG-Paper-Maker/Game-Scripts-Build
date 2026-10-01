@@ -581,6 +581,11 @@ class MapObject {
      */
     async changeState(dontChangeOrientation = false) {
         const angle = this.mesh ? this.mesh.rotation.y : 0;
+        const previousMesh = this.mesh;
+        const previousGltfGroup = this.gltfGroup;
+        const previousLightsGroup = this.objectLightsGroup;
+        const previousLights = this.objectLights;
+        const previousLightsElapsedTime = this.objectLightsElapsedTime;
         // Updating the current state
         if (this.isHero) {
             this.states = Game.current.heroStates;
@@ -629,11 +634,29 @@ class MapObject {
         }
         // Remove previous mesh
         this.removeFromScene();
+        previousMesh?.geometry.dispose();
+        if (previousMesh?.material?.userData.rpmObjectOpacityMaterial) {
+            previousMesh.customDepthMaterial?.dispose();
+            previousMesh.material.dispose();
+        }
+        const disposedGltfMaterials = new Set();
+        previousGltfGroup?.traverse((child) => {
+            if (!(child instanceof THREE.Mesh))
+                return;
+            const materials = Array.isArray(child.material) ? child.material : [child.material];
+            for (const material of materials) {
+                if (material.userData.rpmObjectOpacityMaterial && !disposedGltfMaterials.has(material)) {
+                    material.dispose();
+                    disposedGltfMaterials.add(material);
+                }
+            }
+        });
         this.mesh = null;
         this.gltfGroup = null;
-        this.objectLightsGroup = null;
-        this.objectLights = [];
-        this.objectLightsElapsedTime = 0;
+        const keepLights = previousStateInstance === this.currentStateInstance && previousLightsGroup !== null;
+        this.objectLightsGroup = keepLights ? previousLightsGroup : null;
+        this.objectLights = keepLights ? previousLights : [];
+        this.objectLightsElapsedTime = keepLights ? previousLightsElapsedTime : 0;
         if (this.animationMixer) {
             this.animationMixer.stopAllAction();
             this.animationMixer = null;
@@ -674,7 +697,11 @@ class MapObject {
         const opacity = this.currentStateInstance?.opacity.getValue() ?? 1;
         if (material && (this.isHero || opacity < 1) && Manager.GL.getMaterialTexture(material)) {
             // Opacity must not change a tileset / character material shared by other map objects.
+            const sourceMaterial = material;
             material = Manager.GL.cloneMaterial(material);
+            material.userData.rpmObjectOpacityMaterial = true;
+            material.userData.rpmOriginalTransparent = sourceMaterial.transparent;
+            material.userData.rpmOriginalDepthWrite = sourceMaterial.depthWrite;
             material.opacity = opacity;
             material.transparent = opacity < 1;
             material.depthWrite = opacity >= 1;
@@ -771,6 +798,9 @@ class MapObject {
                                         const objectMaterials = materials.map((source) => {
                                             const material = opacity < 1 ? source.clone() : source;
                                             if (opacity < 1) {
+                                                material.userData.rpmObjectOpacityMaterial = true;
+                                                material.userData.rpmOriginalTransparent = source.transparent;
+                                                material.userData.rpmOriginalDepthWrite = source.depthWrite;
                                                 material.opacity = opacity;
                                                 material.transparent = true;
                                                 material.depthWrite = false;
@@ -942,7 +972,12 @@ class MapObject {
             this.height = 0;
         }
         this.updateTerrain();
-        this.createObjectLights();
+        if (!keepLights) {
+            this.createObjectLights();
+        }
+        else {
+            this.updateObjectLights();
+        }
         // Add to the scene
         this.addToScene();
     }
@@ -1863,6 +1898,7 @@ class MapObject {
         Core.ReactionInterpreter.currentObject = this;
         this.objectLightsElapsedTime += Manager.Stack.elapsedTime;
         this.objectLightsGroup.position.copy(this.position);
+        this.objectLightsGroup.scale.set(this.currentStateInstance.scaleX.getValue(), this.currentStateInstance.scaleY.getValue(), this.currentStateInstance.scaleZ.getValue());
         for (const { light, settings, target, parent } of this.objectLights) {
             const intensityTime = settings.intensityTime.getValue();
             const intensityOffset = settings.intensityOffset.getValue();
@@ -1892,6 +1928,50 @@ class MapObject {
                 target.updateMatrixWorld();
             }
         }
+    }
+    /** Apply animated opacity without rebuilding geometry or replacing lights. */
+    updateTransformationOpacity(opacity) {
+        if (this.mesh) {
+            let material = this.mesh.material;
+            if (!material.userData.rpmObjectOpacityMaterial) {
+                const sourceMaterial = material;
+                material = Manager.GL.cloneMaterial(material);
+                material.userData.rpmObjectOpacityMaterial = true;
+                material.userData.rpmOriginalTransparent = sourceMaterial.transparent;
+                material.userData.rpmOriginalDepthWrite = sourceMaterial.depthWrite;
+                this.mesh.material = material;
+                this.mesh.customDepthMaterial = material.userData.customDepthMaterial;
+            }
+            material.opacity = opacity;
+            const transparent = opacity < 1 || (!this.isHero && material.userData.rpmOriginalTransparent);
+            if (material.transparent !== transparent) {
+                material.transparent = transparent;
+                material.needsUpdate = true;
+            }
+            material.depthWrite = opacity >= 1 && material.userData.rpmOriginalDepthWrite;
+        }
+        this.gltfGroup?.traverse((child) => {
+            if (!(child instanceof THREE.Mesh))
+                return;
+            const materials = Array.isArray(child.material) ? child.material : [child.material];
+            const updated = materials.map((source) => {
+                const material = source.userData.rpmObjectOpacityMaterial ? source : source.clone();
+                if (!source.userData.rpmObjectOpacityMaterial) {
+                    material.userData.rpmObjectOpacityMaterial = true;
+                    material.userData.rpmOriginalTransparent = source.transparent;
+                    material.userData.rpmOriginalDepthWrite = source.depthWrite;
+                }
+                material.opacity = opacity;
+                const transparent = opacity < 1 || material.userData.rpmOriginalTransparent;
+                if (material.transparent !== transparent) {
+                    material.transparent = transparent;
+                    material.needsUpdate = true;
+                }
+                material.depthWrite = opacity >= 1 && material.userData.rpmOriginalDepthWrite;
+                return material;
+            });
+            child.material = Array.isArray(child.material) ? updated : updated[0];
+        });
     }
     /** Get the point/spotlight Y rotation from the state transform and cardinal object facing. */
     getLightsAngleY(followOrientation) {
