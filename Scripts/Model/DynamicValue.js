@@ -25,6 +25,18 @@ export class DynamicValue extends Base {
         const modelValue = new DynamicValue();
         modelValue.kind = k;
         switch (k) {
+            case DYNAMIC_VALUE_KIND.CUSTOM_STRUCTURE:
+                return DynamicValue.readFromJSON({
+                    k,
+                    v: null,
+                    customStructure: v,
+                });
+            case DYNAMIC_VALUE_KIND.CUSTOM_LIST:
+                return DynamicValue.readFromJSON({
+                    k,
+                    v: null,
+                    customList: v,
+                });
             case DYNAMIC_VALUE_KIND.NONE:
                 modelValue.value = null;
                 break;

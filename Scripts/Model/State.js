@@ -103,6 +103,7 @@ export class State extends Base {
             scaleX: this.scaleX.createCopy(),
             scaleY: this.scaleY.createCopy(),
             scaleZ: this.scaleZ.createCopy(),
+            opacity: this.opacity.createCopy(),
             lights: this.lights.map((light) => light.createCopy()),
         };
     }
@@ -152,6 +153,7 @@ export class State extends Base {
         this.scaleX = DynamicValue.readOrDefaultNumberDouble(json.sx, 1);
         this.scaleY = DynamicValue.readOrDefaultNumberDouble(json.sy, 1);
         this.scaleZ = DynamicValue.readOrDefaultNumberDouble(json.sz, 1);
+        this.opacity = DynamicValue.readOrDefaultNumberDouble(json.o, 1);
         this.lights = (json.l ?? []).map((light) => new StateLight(light));
     }
 }

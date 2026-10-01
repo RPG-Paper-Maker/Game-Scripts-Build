@@ -11,8 +11,8 @@
 import * as THREE from 'three';
 import { CUSTOM_SHAPE_KIND, ELEMENT_MAP_KIND, Mathf, OBJECT_MOVING_KIND, ORIENTATION, Paths, PICTURE_KIND, Platform, SHAPE_KIND, Utils, } from '../Common/index.js';
 import { Core, Data, Manager, Model, Scene } from '../index.js';
-import { CollisionSquare } from './CollisionSquare.js';
 import { Autotile } from './Autotile.js';
+import { CollisionSquare } from './CollisionSquare.js';
 import { CustomGeometry } from './CustomGeometry.js';
 import { Floor } from './Floor.js';
 import { Frame } from './Frame.js';
@@ -45,6 +45,8 @@ class MapObject {
         this.isOrientationStopWalk = false;
         this.terrainPicture = null;
         this.currentCenterOffset = new THREE.Vector3();
+        /** Last position offsets set by Update Transformations: X, Y squares, Y pixels, Z. */
+        this.transformationOffset = [0, 0, 0, 0];
         this.currentAngle = new THREE.Vector3();
         this.currentScale = new THREE.Vector3();
         this.gltfGroup = null;
@@ -423,6 +425,7 @@ class MapObject {
     read(json) {
         const position = Position.createFromArray(json.k);
         this.position = position.toVector3();
+        this.transformationOffset = [0, 0, 0, 0];
         this.positionLayer = position.layer;
         this.system = new Model.MapObject(json.v);
     }
@@ -480,7 +483,9 @@ class MapObject {
                 state.graphicID = Utils.valueOrDefault(stateValue.gid, stateSystem.graphicID);
                 state.graphicKind = Utils.valueOrDefault(stateValue.gk, stateSystem.graphicKind);
                 state.rectTileset = stateValue.gt
-                    ? Rectangle.createFromArray(stateValue.gt)
+                    ? Array.isArray(stateValue.gt)
+                        ? Rectangle.createFromArray(stateValue.gt)
+                        : new Rectangle(stateValue.gt.x, stateValue.gt.y, stateValue.gt.width, stateValue.gt.height)
                     : (stateSystem.rectTileset?.clone() ?? null);
                 state.indexX = Utils.valueOrDefault(stateValue.gix, stateSystem.indexX);
                 state.indexY = Utils.valueOrDefault(stateValue.giy, stateSystem.indexY);
@@ -494,6 +499,33 @@ class MapObject {
                 state.setWithCamera = Utils.valueOrDefault(stateValue.swc, stateSystem.setWithCamera);
                 state.pixelOffset = Utils.valueOrDefault(stateValue.po, stateSystem.pixelOffset);
                 state.keepPosition = Utils.valueOrDefault(stateValue.kp, stateSystem.keepPosition);
+                state.centerX = stateValue.cx
+                    ? Model.DynamicValue.readFromJSON(stateValue.cx)
+                    : stateSystem.centerX.createCopy();
+                state.centerZ = stateValue.cz
+                    ? Model.DynamicValue.readFromJSON(stateValue.cz)
+                    : stateSystem.centerZ.createCopy();
+                state.angleX = stateValue.ax
+                    ? Model.DynamicValue.readFromJSON(stateValue.ax)
+                    : stateSystem.angleX.createCopy();
+                state.angleY = stateValue.ay
+                    ? Model.DynamicValue.readFromJSON(stateValue.ay)
+                    : stateSystem.angleY.createCopy();
+                state.angleZ = stateValue.az
+                    ? Model.DynamicValue.readFromJSON(stateValue.az)
+                    : stateSystem.angleZ.createCopy();
+                state.scaleX = stateValue.sx
+                    ? Model.DynamicValue.readFromJSON(stateValue.sx)
+                    : stateSystem.scaleX.createCopy();
+                state.scaleY = stateValue.sy
+                    ? Model.DynamicValue.readFromJSON(stateValue.sy)
+                    : stateSystem.scaleY.createCopy();
+                state.scaleZ = stateValue.sz
+                    ? Model.DynamicValue.readFromJSON(stateValue.sz)
+                    : stateSystem.scaleZ.createCopy();
+                state.opacity = stateValue.o
+                    ? Model.DynamicValue.readFromJSON(stateValue.o)
+                    : stateSystem.opacity.createCopy();
             }
         }
     }
@@ -639,9 +671,13 @@ class MapObject {
                         : Data.Pictures.texturesCharacters.get(this.currentStateInstance.graphicID);
             }
         }
-        if (material && this.isHero && Manager.GL.getMaterialTexture(material)) {
-            // For opacity purposes
+        const opacity = this.currentStateInstance?.opacity.getValue() ?? 1;
+        if (material && (this.isHero || opacity < 1) && Manager.GL.getMaterialTexture(material)) {
+            // Opacity must not change a tileset / character material shared by other map objects.
             material = Manager.GL.cloneMaterial(material);
+            material.opacity = opacity;
+            material.transparent = opacity < 1;
+            material.depthWrite = opacity >= 1;
         }
         this.meshBoundingBox = [];
         this.landCollision = null;
@@ -732,9 +768,19 @@ class MapObject {
                                         const materials = Array.isArray(child.material)
                                             ? child.material
                                             : [child.material];
-                                        for (const material of materials) {
+                                        const objectMaterials = materials.map((source) => {
+                                            const material = opacity < 1 ? source.clone() : source;
+                                            if (opacity < 1) {
+                                                material.opacity = opacity;
+                                                material.transparent = true;
+                                                material.depthWrite = false;
+                                            }
                                             Manager.GL.applyScreenTone(material);
-                                        }
+                                            return material;
+                                        });
+                                        child.material = Array.isArray(child.material)
+                                            ? objectMaterials
+                                            : objectMaterials[0];
                                         child.receiveShadow = true;
                                         child.castShadow = true;
                                     }
@@ -1287,6 +1333,7 @@ class MapObject {
         // Set position
         this.position.set(position.x, position.y, position.z);
         this.previousPosition.set(position.x, position.y, position.z);
+        this.transformationOffset = [0, 0, 0, 0];
         if (this.movingState && this.movingState.position) {
             this.movingState.position.set(position.x, position.y, position.z);
         }
@@ -1969,10 +2016,22 @@ class MapObject {
         if (!this.isNone() &&
             (this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.SPRITES_FACE ||
                 this.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.SPRITES_FIX)) {
-            this.mesh.material =
-                this.currentStateInstance.graphicID === 0
-                    ? Scene.Map.current.textureTileset
-                    : Data.Pictures.texturesCharacters.get(this.currentStateInstance.graphicID);
+            const material = this.currentStateInstance.graphicID === 0
+                ? Scene.Map.current.textureTileset
+                : Data.Pictures.texturesCharacters.get(this.currentStateInstance.graphicID);
+            const opacity = this.currentStateInstance.opacity.getValue() ?? 1;
+            if (material && opacity < 1 && Manager.GL.getMaterialTexture(material)) {
+                const clone = Manager.GL.cloneMaterial(material);
+                clone.opacity = opacity;
+                clone.transparent = true;
+                clone.depthWrite = false;
+                this.mesh.material = clone;
+                this.mesh.customDepthMaterial = clone.userData.customDepthMaterial;
+            }
+            else {
+                this.mesh.material = material;
+                this.mesh.customDepthMaterial = material?.userData.customDepthMaterial;
+            }
         }
         else if (this.isNone()) {
             this.mesh = null;
@@ -2066,14 +2125,14 @@ class MapObject {
         if (Scene.Map.current.loading)
             return -1;
         const squarePosition = Position.createFromVector3(position);
-        const mapObjectCollision = MapObject.getMapObjectLandCollision(position);
+        let mapObjectCollision = MapObject.getMapObjectLandCollision(position);
+        if (mapObjectCollision && Math.floor(mapObjectCollision.y) !== squarePosition.y) {
+            mapObjectCollision = null;
+        }
         let terrainLand = null;
-        for (let y = squarePosition.y; y >= -Scene.Map.current.mapProperties.depth; y--) {
-            const landPosition = new Position(squarePosition.x, y, squarePosition.z);
-            const mapPortion = Scene.Map.current.getMapPortionFromPortion(Scene.Map.current.getLocalPortion(landPosition.getGlobalPortion()));
-            if (!mapPortion)
-                continue;
-            const lands = mapPortion.terrainFloors[landPosition.toIndex()].concat(mapPortion.terrainAutotiles[landPosition.toIndex()]);
+        const mapPortion = Scene.Map.current.getMapPortionFromPortion(Scene.Map.current.getLocalPortion(Portion.createFromVector3(position)));
+        if (mapPortion) {
+            const lands = mapPortion.terrainFloors[squarePosition.toIndex()].concat(mapPortion.terrainAutotiles[squarePosition.toIndex()]);
             for (const land of lands) {
                 if (MapObject.isPositionOnLand(position, land) &&
                     land.p.getTotalY() <= position.y + 0.001 &&
@@ -2084,7 +2143,6 @@ class MapObject {
                 }
             }
         }
-        const mapPortion = Scene.Map.current.getMapPortionFromPortion(Scene.Map.current.getLocalPortion(Portion.createFromVector3(position)));
         if (!mapPortion)
             return mapObjectCollision?.collision.cs?.terrain ?? -1;
         const boundingBoxes = mapPortion.boundingBoxesLands[squarePosition.toIndex()];

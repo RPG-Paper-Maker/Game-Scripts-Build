@@ -8,7 +8,6 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import * as THREE from 'three';
 import { CHANGE_VARIABLES_OTHER_CHARACTERISTICS, CHARACTER_KIND, Interpreter, Mathf, Platform, SONG_KIND, VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND, } from '../Common/index.js';
 import { Game, Item, MapObject, Position, ReactionInterpreter } from '../Core/index.js';
 import { Data, Manager, Model, Scene } from '../index.js';
@@ -274,10 +273,10 @@ class ChangeVariables extends Base {
                     });
                     break;
                 case 11: // Terrain at coordinates
-                    const position = new THREE.Vector3(this.valueTerrainX.getValue() +
-                        this.valueTerrainXPlus.getValue() / Data.Systems.SQUARE_SIZE, this.valueTerrainY.getValue() +
-                        this.valueTerrainYPlus.getValue() / Data.Systems.SQUARE_SIZE, this.valueTerrainZ.getValue() +
-                        this.valueTerrainZPlus.getValue() / Data.Systems.SQUARE_SIZE);
+                    // Use the same square center and pixel offsets as CreateObjectInMap.
+                    const position = new Position(this.valueTerrainX.getValue(), this.valueTerrainY.getValue(), this.valueTerrainZ.getValue(), (this.valueTerrainYPlus.getValue() * 100) / Data.Systems.SQUARE_SIZE).toVector3();
+                    position.x += this.valueTerrainXPlus.getValue() / Data.Systems.SQUARE_SIZE;
+                    position.z += this.valueTerrainZPlus.getValue() / Data.Systems.SQUARE_SIZE;
                     currentState.value =
                         this.coordinatesValueType === 0
                             ? MapObject.getTerrainAt(position)

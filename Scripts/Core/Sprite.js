@@ -125,6 +125,7 @@ class Sprite extends MapElement {
         const vecD = Sprite.MODEL[3].clone();
         const center = new THREE.Vector3();
         const pos = new THREE.Vector3();
+        const isObjectGeometry = localPosition === null;
         const size = new THREE.Vector3(this.textureRect.width * position.scaleX, this.textureRect.height * position.scaleY, 1.0);
         // For static sprites
         this.getVectors(vecA, vecB, vecC, vecD, pos, position, size);
@@ -230,8 +231,10 @@ class Sprite extends MapElement {
         }
         if (geometry instanceof CustomGeometryFace) {
             // Face sprite
-            const p = new THREE.Vector3(pos.x, localPosition.y + this.yOffset, pos.z);
-            const c = new THREE.Vector3(center.x, localPosition.y + this.yOffset, center.z);
+            // Map objects apply their world position through the mesh; static sprites bake it into geometry.
+            const y = (isObjectGeometry ? 0 : localPosition.y) + this.yOffset;
+            const p = new THREE.Vector3(pos.x, y, pos.z);
+            const c = new THREE.Vector3(center.x, y, center.z);
             geometry.pushQuadVerticesFace(Sprite.MODEL[0].clone().multiply(size).add(p), Sprite.MODEL[1].clone().multiply(size).add(p), Sprite.MODEL[2].clone().multiply(size).add(p), Sprite.MODEL[3].clone().multiply(size).add(p), c);
             geometry.pushQuadIndices(count);
             geometry.pushQuadUVs(texA, texB, texC, texD);
@@ -286,7 +289,7 @@ class Sprite extends MapElement {
      *  @returns {any[]}
      */
     createGeometry(width, height, tileset, position) {
-        const geometry = new CustomGeometry();
+        const geometry = this.kind === ELEMENT_MAP_KIND.SPRITES_FACE ? new CustomGeometryFace() : new CustomGeometry();
         const collisions = this.updateGeometry(geometry, width, height, position, 0, tileset, null);
         geometry.updateAttributes();
         return [geometry, collisions];

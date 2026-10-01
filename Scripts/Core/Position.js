@@ -10,6 +10,7 @@
 */
 import * as THREE from 'three';
 import { Constants, Mathf } from '../Common/index.js';
+import { Data } from '../index.js';
 import { Portion } from './Portion.js';
 /** @class
  *  The data class for position.
@@ -58,7 +59,10 @@ class Position extends Portion {
      *  @returns {Position}
      */
     static createFromVector3(position) {
-        return new Position(Math.floor(position.x), Math.floor(position.y), Math.floor(position.z));
+        const x = Math.floor(position.x);
+        const y = Math.floor(position.y);
+        const z = Math.floor(position.z);
+        return new Position(x, y, z, (position.y - y) * 100, 0, (Math.round((position.x - x) * Data.Systems.SQUARE_SIZE) / Data.Systems.SQUARE_SIZE) * 100, (Math.round((position.z - z) * Data.Systems.SQUARE_SIZE) / Data.Systems.SQUARE_SIZE) * 100);
     }
     /**
      *  Test if a position is equal to another.
