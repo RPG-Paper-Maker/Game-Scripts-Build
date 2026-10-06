@@ -29,9 +29,9 @@ export class Floor extends Land {
      * @param count - The current face count used for indexing.
      * @returns A {@link StructMapElementCollision} describing collision data, or `null` if no collision applies.
      */
-    updateGeometry(geometry, position, width, height, count) {
+    updateGeometry(geometry, position, width, height, count, collisionPicture = Scene.Map.current.mapProperties.tileset.picture) {
         return width === 0 || height === 0
             ? null
-            : super.updateGeometryLand(geometry, Scene.Map.current.mapProperties.tileset.picture.getCollisionAt(this.texture), position, width, height, (this.texture.x * Data.Systems.SQUARE_SIZE) / width, (this.texture.y * Data.Systems.SQUARE_SIZE) / height, (this.texture.width * Data.Systems.SQUARE_SIZE) / width, (this.texture.height * Data.Systems.SQUARE_SIZE) / height, count, this.texture.width, this.texture.height);
+            : super.updateGeometryLand(geometry, collisionPicture.getCollisionAt(this.texture), position, width, height, (this.texture.x * Data.Systems.SQUARE_SIZE) / width, (this.texture.y * Data.Systems.SQUARE_SIZE) / height, (this.texture.width * Data.Systems.SQUARE_SIZE) / width, (this.texture.height * Data.Systems.SQUARE_SIZE) / height, count, this.texture.width, this.texture.height);
     }
 }

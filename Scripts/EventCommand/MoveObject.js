@@ -843,7 +843,9 @@ class MoveObject extends Base {
             currentState.transformOffsetStart = [...object.transformationOffset];
             currentState.transformOffsetEnd = parameters.values
                 .slice(9)
-                .map((value, index) => parameters.checked[index + 9] ? value.getValue() : currentState.transformOffsetStart[index]);
+                .map((value, index) => parameters.checked[index + 9]
+                ? value.getValue()
+                : currentState.transformOffsetStart[index]);
             currentState.transformTime = Math.max(0, parameters.time.getValue() * 1000);
             currentState.transformEquation = parameters.equation;
         }
@@ -857,13 +859,24 @@ class MoveObject extends Base {
             object.currentStateInstance[keys[i]].value = value;
         }
         const offset = currentState.transformOffsetStart.map((value, index) => value + (currentState.transformOffsetEnd[index] - value) * eased);
-        object.position.set(currentState.transformPositionStart.x - currentState.transformCenterStart.x +
-            object.currentCenterOffset.x + offset[0] - currentState.transformOffsetStart[0], currentState.transformPositionStart.y + offset[1] - currentState.transformOffsetStart[1] +
-            (offset[2] - currentState.transformOffsetStart[2]) / Data.Systems.SQUARE_SIZE, currentState.transformPositionStart.z - currentState.transformCenterStart.z +
-            object.currentCenterOffset.z + offset[3] - currentState.transformOffsetStart[3]);
+        object.position.set(currentState.transformPositionStart.x -
+            currentState.transformCenterStart.x +
+            object.currentCenterOffset.x +
+            offset[0] -
+            currentState.transformOffsetStart[0], currentState.transformPositionStart.y +
+            offset[1] -
+            currentState.transformOffsetStart[1] +
+            (offset[2] - currentState.transformOffsetStart[2]) / Data.Systems.SQUARE_SIZE, currentState.transformPositionStart.z -
+            currentState.transformCenterStart.z +
+            object.currentCenterOffset.z +
+            offset[3] -
+            currentState.transformOffsetStart[3]);
         object.transformationOffset = offset;
         object.updateBBPosition(object.position);
-        const geometryChanged = parameters.checked.slice(0, 8).some((checked, index) => checked && currentState.transformStart[index] !== currentState.transformEnd[index]);
+        const geometryChanged = !object.isNone() &&
+            parameters.checked
+                .slice(0, 8)
+                .some((checked, index) => checked && currentState.transformStart[index] !== currentState.transformEnd[index]);
         if (geometryChanged) {
             this.refreshTransformations(currentState, object);
         }
@@ -919,7 +932,6 @@ class MoveObject extends Base {
                 });
             }
             if (object.currentStateInstance.graphicID === 0 ||
-                object.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.FLOORS ||
                 object.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.AUTOTILES) {
                 object.currentStateInstance.rectTileset = new Rectangle(parameters.indexX, parameters.indexY, parameters.width, parameters.height);
             }
