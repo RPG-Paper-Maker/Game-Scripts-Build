@@ -852,7 +852,7 @@ class Collisions {
      *  @returns {boolean}
      */
     static checkIntersectionLand(collision, boundingBox, object) {
-        if (collision !== null || object.currentBoundingBox === null) {
+        if (collision != null || object.currentBoundingBox === null) {
             return false;
         }
         const box = this.getBBBox();
@@ -871,7 +871,7 @@ class Collisions {
      *  @returns {boolean}
      */
     static checkDirections(jpositionBefore, jpositionAfter, collision, boundingBox, direction, object) {
-        if (collision === null) {
+        if (collision == null) {
             return false;
         }
         if (!jpositionBefore.equals(jpositionAfter)) {
@@ -902,7 +902,7 @@ class Collisions {
      *  @returns {boolean}
      */
     static checkDirectionsInside(jpositionBefore, jpositionAfter, collision, direction) {
-        if (collision === null) {
+        if (collision == null) {
             return false;
         }
         if (!jpositionBefore.equals(jpositionAfter)) {
