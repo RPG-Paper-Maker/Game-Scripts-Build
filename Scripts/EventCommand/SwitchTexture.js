@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Model, Scene } from "../index.js";
+import { Data, Model, Scene } from "../index.js";
 import { Utils } from '../Common/index.js';
 import { Game } from '../Core/index.js';
 import { Base } from './Base.js';
@@ -74,31 +74,43 @@ class SwitchTexture extends Base {
     update(currentState, object, state) {
         if (!currentState.loading) {
             currentState.loading = true;
+            let changed = false;
+            const switchPicture = (textures, id, pictureID, defaultPictureID) => {
+                if ((textures[id] ?? defaultPictureID) !== pictureID) {
+                    changed = true;
+                }
+                textures[id] = pictureID;
+            };
             if (this.isTilesetID) {
-                Game.current.textures.tilesets[this.tilesetID.getValue()] =
-                    this.tilesetPictureID.getValue();
+                const id = this.tilesetID.getValue();
+                switchPicture(Game.current.textures.tilesets, id, this.tilesetPictureID.getValue(), Data.Tilesets.get(id)?.picture?.id);
             }
             if (this.isAutotileID) {
-                Game.current.textures.autotiles[this.autotileID.getValue()] =
-                    this.autotilePictureID.getValue();
+                const id = this.autotileID.getValue();
+                switchPicture(Game.current.textures.autotiles, id, this.autotilePictureID.getValue(), Data.SpecialElements.getAutotile(id)?.pictureID);
             }
             if (this.isWallID) {
-                Game.current.textures.walls[this.wallID.getValue()] = this.wallPictureID.getValue();
+                const id = this.wallID.getValue();
+                switchPicture(Game.current.textures.walls, id, this.wallPictureID.getValue(), Data.SpecialElements.getWall(id)?.pictureID);
             }
             if (this.isObject3DID) {
-                Game.current.textures.objects3D[this.object3DID.getValue()] =
-                    this.object3DPictureID.getValue();
+                const id = this.object3DID.getValue();
+                switchPicture(Game.current.textures.objects3D, id, this.object3DPictureID.getValue(), Data.SpecialElements.getObject3D(id)?.pictureID);
             }
             if (this.isMountainID) {
-                Game.current.textures.mountains[this.mountainID.getValue()] =
-                    this.mountainPictureID.getValue();
+                const id = this.mountainID.getValue();
+                switchPicture(Game.current.textures.mountains, id, this.mountainPictureID.getValue(), Data.SpecialElements.getMountain(id)?.pictureID);
             }
-            //Scene.Map.current.close();
-            Scene.Map.current.loading = true;
-            (async () => {
-                await Scene.Map.current.reloadTextures();
+            if (changed) {
+                Scene.Map.current.loading = true;
+                (async () => {
+                    await Scene.Map.current.reloadTextures();
+                    currentState.loaded = true;
+                })();
+            }
+            else {
                 currentState.loaded = true;
-            })();
+            }
         }
         return currentState.loaded ? 1 : 0;
     }

@@ -84,16 +84,6 @@ export class PlaySong extends Base {
      */
     playMusic(start, volume) {
         if (this.isKeepCurrent) {
-            if (this.kind === SONG_KIND.MUSIC && Manager.Songs.current[SONG_KIND.MUSIC] === null) {
-                const prev = PlaySong.currentPlayingMusic;
-                if (prev) {
-                    const id = prev.songID.getValue();
-                    const vol = prev.volume.getValue() / 100;
-                    const s = prev.isStart ? prev.start.getValue() : 0;
-                    const e = prev.end ? prev.end.getValue() : null;
-                    Manager.Songs.playMusic(SONG_KIND.MUSIC, id, vol, s, e);
-                }
-            }
             return 1;
         }
         if (start === undefined) {
@@ -102,14 +92,16 @@ export class PlaySong extends Base {
         if (volume === undefined) {
             volume = this.volume.getValue() / 100;
         }
-        // If same music ID and same
-        if (this.songID.getValue() === PlaySong.currentPlayingMusic.songID.getValue() &&
-            start === PlaySong.currentPlayingMusic.start.getValue()) {
-            // If same, be sure to update volume anyway
-            if (Manager.Songs.current[SONG_KIND.MUSIC]) {
-                Manager.Songs.current[SONG_KIND.MUSIC].volume(volume);
-                Manager.Songs.volumes[SONG_KIND.MUSIC] = volume;
-            }
+        const id = this.songID.getValue();
+        const current = Manager.Songs.current[this.kind];
+        // Keep the position when the requested song is already playing.
+        if (current &&
+            Manager.Songs.currentIDs[this.kind] === id &&
+            Manager.Songs.starts[this.kind] === start &&
+            (current.playing() ||
+                (this.kind === SONG_KIND.MUSIC && Manager.Songs.musicEffectPausedHowl === current))) {
+            current.volume(volume);
+            Manager.Songs.volumes[this.kind] = volume;
             return 1;
         }
         // Update current and previous played music
@@ -117,7 +109,7 @@ export class PlaySong extends Base {
             PlaySong.previousMusic = PlaySong.currentPlayingMusic;
             PlaySong.currentPlayingMusic = this;
         }
-        Manager.Songs.playMusic(this.kind, this.songID.getValue(), volume, start, this.end ? this.end.getValue() : null);
+        Manager.Songs.playMusic(this.kind, id, volume, start, this.end ? this.end.getValue() : null);
         return 1;
     }
     /**

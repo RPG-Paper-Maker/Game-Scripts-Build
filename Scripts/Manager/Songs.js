@@ -37,6 +37,9 @@ class Songs {
         this.current[SONG_KIND.MUSIC] = null;
         this.current[SONG_KIND.BACKGROUND_SOUND] = null;
         this.current[SONG_KIND.MUSIC_EFFECT] = null;
+        this.currentIDs[SONG_KIND.MUSIC] = null;
+        this.currentIDs[SONG_KIND.BACKGROUND_SOUND] = null;
+        this.currentIDs[SONG_KIND.MUSIC_EFFECT] = null;
         this.currentSounds = [];
     }
     /**
@@ -101,6 +104,8 @@ class Songs {
         if (this.current[kind] !== null) {
             this.current[kind].stop();
         }
+        this.current[kind] = null;
+        this.currentIDs[kind] = null;
         const song = Data.Songs.get(kind, id);
         if (song) {
             song.load();
@@ -112,6 +117,7 @@ class Songs {
             this.starts[kind] = start;
             this.ends[kind] = end;
             this.current[kind] = howl;
+            this.currentIDs[kind] = id;
         }
     }
     /**
@@ -126,7 +132,7 @@ class Songs {
      *  @returns {boolean} Indicates if the song is stopped
      */
     static stopSong(kind, time, seconds, id = -1, pause = false) {
-        if (!pause) {
+        if (kind === SONG_KIND.MUSIC && !pause) {
             Model.PlaySong.currentPlayingMusic = new Model.PlaySong(SONG_KIND.MUSIC);
         }
         const current = new Date().getTime();
@@ -143,6 +149,7 @@ class Songs {
             else {
                 currentHowl.stop();
                 this.current[kind] = null;
+                this.currentIDs[kind] = null;
             }
             return true;
         }
@@ -362,14 +369,17 @@ class Songs {
         if (this.current[SONG_KIND.MUSIC] !== null) {
             this.current[SONG_KIND.MUSIC].stop();
             this.current[SONG_KIND.MUSIC] = null;
+            this.currentIDs[SONG_KIND.MUSIC] = null;
         }
         if (this.current[SONG_KIND.BACKGROUND_SOUND] !== null) {
             this.current[SONG_KIND.BACKGROUND_SOUND].stop();
             this.current[SONG_KIND.BACKGROUND_SOUND] = null;
+            this.currentIDs[SONG_KIND.BACKGROUND_SOUND] = null;
         }
         if (this.current[SONG_KIND.MUSIC_EFFECT] !== null) {
             this.current[SONG_KIND.MUSIC_EFFECT].stop();
             this.current[SONG_KIND.MUSIC_EFFECT] = null;
+            this.currentIDs[SONG_KIND.MUSIC_EFFECT] = null;
             this.musicEffectStep = 0;
             this.currentStateMusicEffect = null;
             this.musicEffectPausedHowl = null;
@@ -386,6 +396,7 @@ Songs.musicEffectStep = 0;
 Songs.isProgressionMusicEnd = true;
 Songs.isMusicNone = true;
 Songs.volumes = [];
+Songs.currentIDs = [];
 Songs.starts = [];
 Songs.ends = [];
 Songs.current = [];
