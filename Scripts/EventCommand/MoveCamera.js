@@ -69,6 +69,7 @@ class MoveCamera extends Base {
         return {
             parallel: this.isWaitEnd,
             initialH: Scene.Map.current.camera.horizontalAngle,
+            initialDistance: Scene.Map.current.camera.distance,
             finalPosition: new THREE.Vector3(finalX, finalY, finalZ),
             finalDifH: finalH - Scene.Map.current.camera.horizontalAngle,
             finalDifV: finalV - Scene.Map.current.camera.verticalAngle,
@@ -159,8 +160,17 @@ class MoveCamera extends Base {
                     Scene.Map.current.camera.updateAngles();
                 }
                 // Zoom
-                Scene.Map.current.camera.updateDistance();
-                Scene.Map.current.camera.distance += timeRate * currentState.finalDifDistance;
+                if (this.operation === 0) {
+                    // An absolute zoom must not inherit the distance produced by moving the camera.
+                    Scene.Map.current.camera.distance =
+                        currentState.initialDistance +
+                            (1 - (currentState.time === 0 ? 0 : currentState.timeLeft / currentState.time)) *
+                                currentState.finalDifDistance;
+                }
+                else {
+                    Scene.Map.current.camera.updateDistance();
+                    Scene.Map.current.camera.distance += timeRate * currentState.finalDifDistance;
+                }
                 Scene.Map.current.updateLayerOffsets();
                 // If time = 0, then this is the end of the command
                 if (currentState.timeLeft === 0) {
