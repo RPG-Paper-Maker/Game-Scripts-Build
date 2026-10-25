@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Data } from "../index.js";
-import { ALIGN, Constants, PICTURE_KIND, ScreenResolution } from '../Common/index.js';
+import { ALIGN, Constants, DYNAMIC_VALUE_KIND, PICTURE_KIND, ScreenResolution } from '../Common/index.js';
 /** @class
  *  A status affected to a player.
  *  @param {number} id - The ID of the status
@@ -28,8 +28,12 @@ class Status {
      *  @param {Battler} target
      *  @returns {string}
      */
-    static getMessage(message, target) {
-        return message.getValue().replace('[target]', target.player.name);
+    static getMessage(message, translations, target) {
+        const translated = message.kind === DYNAMIC_VALUE_KIND.MESSAGE
+            ? (translations.names.get(Data.Settings.currentLanguage) ??
+                translations.names.get(Data.Languages.getMainLanguageID()))
+            : undefined;
+        return (translated ?? message.getValue()).replace('[target]', target.player.name);
     }
     /**
      *  Draw the status on top of battler.
@@ -69,7 +73,7 @@ class Status {
      *  @returns {string}
      */
     getMessageAllyAffected(target) {
-        return Status.getMessage(this.system.messageAllyAffected, target);
+        return Status.getMessage(this.system.messageAllyAffected, this.system.messageAllyAffectedTranslations, target);
     }
     /**
      *  Get message when enemy affected.
@@ -77,7 +81,7 @@ class Status {
      *  @returns {string}
      */
     getMessageEnemyAffected(target) {
-        return Status.getMessage(this.system.messageEnemyAffected, target);
+        return Status.getMessage(this.system.messageEnemyAffected, this.system.messageEnemyAffectedTranslations, target);
     }
     /**
      *  Get message when healed.
@@ -85,7 +89,7 @@ class Status {
      *  @returns {string}
      */
     getMessageHealed(target) {
-        return Status.getMessage(this.system.messageStatusHealed, target);
+        return Status.getMessage(this.system.messageStatusHealed, this.system.messageStatusHealedTranslations, target);
     }
     /**
      *  Get message when still affected.
@@ -93,7 +97,7 @@ class Status {
      *  @returns {string}
      */
     getMessageStillAffected(target) {
-        return Status.getMessage(this.system.messageStatusStillAffected, target);
+        return Status.getMessage(this.system.messageStatusStillAffected, this.system.messageStatusStillAffectedTranslations, target);
     }
     /**
      *  Draw the status on top of battler.

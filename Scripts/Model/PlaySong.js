@@ -80,9 +80,10 @@ export class PlaySong extends Base {
      * If `start` or `volume` are omitted they are taken from the PlaySong instance.
      * @param start - Optional start position (in seconds or engine-specific units).
      * @param volume - Optional volume (0..1).
+     * @param resume - Optional position to resume playback without changing the loop start.
      * @returns 1 on success (keeps original behaviour).
      */
-    playMusic(start, volume) {
+    playMusic(start, volume, resume) {
         if (this.isKeepCurrent) {
             return 1;
         }
@@ -93,11 +94,13 @@ export class PlaySong extends Base {
             volume = this.volume.getValue() / 100;
         }
         const id = this.songID.getValue();
+        const end = this.isEnd && this.end ? this.end.getValue() : null;
         const current = Manager.Songs.current[this.kind];
         // Keep the position when the requested song is already playing.
         if (current &&
             Manager.Songs.currentIDs[this.kind] === id &&
             Manager.Songs.starts[this.kind] === start &&
+            Manager.Songs.ends[this.kind] === end &&
             (current.playing() ||
                 (this.kind === SONG_KIND.MUSIC && Manager.Songs.musicEffectPausedHowl === current))) {
             current.volume(volume);
@@ -109,7 +112,7 @@ export class PlaySong extends Base {
             PlaySong.previousMusic = PlaySong.currentPlayingMusic;
             PlaySong.currentPlayingMusic = this;
         }
-        Manager.Songs.playMusic(this.kind, id, volume, start, this.end ? this.end.getValue() : null);
+        Manager.Songs.playMusic(this.kind, id, volume, start, end, resume);
         return 1;
     }
     /**
@@ -163,7 +166,7 @@ export class PlaySong extends Base {
         this.isStart = json.is;
         this.start = this.isStart ? new DynamicValue(json.s) : DynamicValue.createNumber(0);
         this.isEnd = json.ie;
-        this.end = this.isEnd ? new DynamicValue(json.e) : DynamicValue.createNumber(0);
+        this.end = this.isEnd ? new DynamicValue(json.e) : null;
         this.isKeepCurrent = Utils.valueOrDefault(json.ikc, false);
     }
     /**

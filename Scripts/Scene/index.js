@@ -36,4 +36,5 @@ export * from "./SaveGame.js";
 export * from "./SaveLoadGame.js";
 export * from "./ShowTextPreview.js";
 export * from "./TitleScreen.js";
+export * from "./TitleCredits.js";
 export * from "./TitleSettings.js";

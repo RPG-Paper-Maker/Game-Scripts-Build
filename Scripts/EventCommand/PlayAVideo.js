@@ -9,12 +9,12 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Data, Graphic, Manager, Model } from "../index.js";
-import { ALIGN, ALIGN_VERTICAL, Constants, Inputs, Platform, ScreenResolution, Utils } from '../Common/index.js';
+import { Inputs, Utils } from '../Common/index.js';
 import { Base } from './Base.js';
 /** @class
  *  An event command for playing a video.
  *  @extends EventCommand.Base
- *  @param {any[]} command - Direct JSON command to parse
+ *  @param {MapObjectCommandType[]} command - Direct JSON command to parse
  */
 class PlayAVideo extends Base {
     constructor(command) {
@@ -48,50 +48,30 @@ class PlayAVideo extends Base {
     }
     /**
      *  Initialize the current state.
-     *  @returns {Record<string, any>} The current state
+     *  @returns {PlayAVideoState} The current state
      */
     initialize() {
-        let skipText = null;
-        let keyText = null;
-        if (this.canSkip && this.isMaintained) {
-            const keyboard = Data.Keyboards.get(this.skipKeyID.getValue(), '');
-            const keyLabel = keyboard?.sc?.[0]?.[0] ?? keyboard?.name() ?? '';
-            const fontSize = Utils.valueOrDefault(Data.Systems.dbOptions.v_tSize, Constants.DEFAULT_FONT_SIZE);
-            skipText = new Graphic.Text(Data.Languages.extras.skip.name(), {
-                align: ALIGN.CENTER,
-                verticalAlign: ALIGN_VERTICAL.TOP,
-                fontSize: fontSize - 10,
-                strokeColor: Model.Color.BLACK,
-            });
-            keyText = new Graphic.Text(keyLabel, {
-                align: ALIGN.CENTER,
-                verticalAlign: ALIGN_VERTICAL.TOP,
-                fontSize: fontSize + 1,
-                strokeColor: Model.Color.BLACK,
-            });
-        }
+        const skipGraphic = this.canSkip && this.isMaintained ? new Graphic.SkipHold(this.skipKeyID.getValue()) : null;
         return {
             parallel: this.isWaitEnd,
             started: false,
             finished: false,
             holdElapsed: 0,
-            skipText,
-            keyText,
+            skipKeyMustBeReleased: this.canSkip && this.isSkipKeyHeld(),
+            skipGraphic,
         };
     }
     /**
      *  Update and check if the event is finished.
-     *  @param {Record<string, any>} - currentState The current state of the event
-     *  @param {MapObject} object - The current object reacting
-     *  @param {number} state - The state ID
+     *  @param {PlayAVideoState} currentState - The current state of the event
      *  @returns {number} The number of node to pass
      */
-    update(currentState, object, state) {
+    update(currentState) {
         if (currentState.parallel) {
             if (!currentState.started) {
                 switch (this.operation) {
                     case 0:
-                        Manager.Videos.play(Data.Videos.get(this.videoID).getPath() +
+                        void Manager.Videos.play(Data.Videos.get(this.videoID).getPath() +
                             (this.isStart ? '#t=' + this.start.getValue() : ''), () => {
                             Manager.Videos.stop();
                             currentState.finished = true;
@@ -109,17 +89,13 @@ class PlayAVideo extends Base {
                 currentState.started = true;
             }
             if (!currentState.finished && this.canSkip) {
-                const keyboard = Data.Keyboards.get(this.skipKeyID.getValue(), '');
-                let keyHeld = false;
-                for (const pressedKey of Inputs.keysPressed) {
-                    if (Data.Keyboards.isKeyEqual(pressedKey, keyboard)) {
-                        keyHeld = true;
-                        break;
-                    }
-                }
+                const keyHeld = this.isSkipKeyHeld();
+                if (!keyHeld)
+                    currentState.skipKeyMustBeReleased = false;
+                const skipKeyActive = keyHeld && !currentState.skipKeyMustBeReleased;
                 if (this.isMaintained) {
                     const duration = this.maintainDuration.getValue() * 1000;
-                    if (keyHeld) {
+                    if (skipKeyActive) {
                         currentState.holdElapsed += Manager.Stack.elapsedTime;
                         if (currentState.holdElapsed >= duration) {
                             Manager.Videos.stop();
@@ -132,7 +108,7 @@ class PlayAVideo extends Base {
                         Manager.Stack.requestPaintHUD = true;
                     }
                 }
-                else if (keyHeld) {
+                else if (skipKeyActive) {
                     Manager.Videos.stop();
                     currentState.finished = true;
                 }
@@ -141,42 +117,22 @@ class PlayAVideo extends Base {
         }
         return 1;
     }
+    isSkipKeyHeld() {
+        const keyboard = Data.Keyboards.get(this.skipKeyID.getValue(), '');
+        for (const pressedKey of Inputs.keysPressed) {
+            if (keyboard && Data.Keyboards.isKeyEqual(pressedKey, keyboard))
+                return true;
+        }
+        return false;
+    }
     /**
      *  Draw the HUD.
-     *  @param {Record<string, any>} currentState - The current state of the event
+     *  @param {PlayAVideoState} currentState - The current state of the event
      */
     drawHUD(currentState) {
-        if (!this.canSkip || !this.isMaintained || currentState.holdElapsed <= 0) {
+        if (!this.canSkip || !this.isMaintained)
             return;
-        }
-        const duration = this.maintainDuration.getValue() * 1000;
-        const progress = Math.min(currentState.holdElapsed / duration, 1);
-        const radius = ScreenResolution.getScreenXY(20);
-        const cx = ScreenResolution.CANVAS_WIDTH - ScreenResolution.getScreenXY(40);
-        const cy = ScreenResolution.CANVAS_HEIGHT - ScreenResolution.getScreenXY(40);
-        const lineWidth = ScreenResolution.getScreenXY(4);
-        const ctx = Platform.ctx;
-        ctx.save();
-        // Background ring
-        ctx.beginPath();
-        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-        ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
-        ctx.stroke();
-        // Progress arc
-        ctx.beginPath();
-        ctx.arc(cx, cy, radius, -Math.PI / 2, -Math.PI / 2 + progress * Math.PI * 2);
-        ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
-        ctx.stroke();
-        ctx.restore();
-        // Text drawn on top of the ring
-        const skipText = currentState.skipText;
-        const keyText = currentState.keyText;
-        const textW = radius * 3;
-        const gap = Math.round(ScreenResolution.getScreenXY(2));
-        keyText.draw(cx - textW / 2, cy - keyText.fontSize, textW, 0);
-        skipText.draw(cx - textW / 2, cy + gap, textW, 0);
+        currentState.skipGraphic.draw(currentState.holdElapsed, this.maintainDuration.getValue() * 1000);
     }
 }
 export { PlayAVideo };

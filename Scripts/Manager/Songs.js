@@ -34,6 +34,9 @@ class Songs {
         this.ends[SONG_KIND.MUSIC] = null;
         this.ends[SONG_KIND.BACKGROUND_SOUND] = null;
         this.ends[SONG_KIND.MUSIC_EFFECT] = null;
+        this.playGeneration[SONG_KIND.MUSIC] = 0;
+        this.playGeneration[SONG_KIND.BACKGROUND_SOUND] = 0;
+        this.playGeneration[SONG_KIND.MUSIC_EFFECT] = 0;
         this.current[SONG_KIND.MUSIC] = null;
         this.current[SONG_KIND.BACKGROUND_SOUND] = null;
         this.current[SONG_KIND.MUSIC_EFFECT] = null;
@@ -78,8 +81,10 @@ class Songs {
      *  @param {number} volume - The volume of the song
      *  @param {number} start - The start of the song
      *  @param {number} end - The end of the song
+     *  @param {number} resume - Playback position independent of the loop start
      */
-    static playMusic(kind, id, volume, start, end) {
+    static playMusic(kind, id, volume, start, end, resume) {
+        const generation = ++this.playGeneration[kind];
         if (!this.keepAliveStarted) {
             this.keepAliveStarted = true;
             this.warmup().catch(() => { });
@@ -110,14 +115,32 @@ class Songs {
         if (song) {
             song.load();
             const howl = song.howl;
-            howl.volume(volume);
-            howl.seek(start);
-            howl.play();
             this.volumes[kind] = volume;
             this.starts[kind] = start;
             this.ends[kind] = end;
             this.current[kind] = howl;
             this.currentIDs[kind] = id;
+            const play = () => {
+                if (this.playGeneration[kind] !== generation || this.current[kind] !== howl) {
+                    return;
+                }
+                let playStart = start ?? 0;
+                if (kind === SONG_KIND.MUSIC || kind === SONG_KIND.BACKGROUND_SOUND) {
+                    const duration = howl.duration();
+                    playStart = playStart >= 0 && playStart < duration ? playStart : 0;
+                    const loopEnd = end != null && end > playStart ? Math.min(end, duration) : duration;
+                    howl._sprite.__default = [playStart * 1000, (loopEnd - playStart) * 1000, true];
+                }
+                howl.volume(volume);
+                howl.seek(resume ?? playStart);
+                howl.play();
+            };
+            if (howl.state() === 'loaded') {
+                play();
+            }
+            else {
+                howl.once('load', play);
+            }
         }
     }
     /**
@@ -277,25 +300,7 @@ class Songs {
         }
         return false;
     }
-    /**
-     *  Update songs positions or other stuff.
-     *  @static
-     *  @param {SONG_KIND} kind - The song kind
-     */
-    static updateByKind(kind) {
-        const howl = this.current[kind];
-        if (howl !== null && howl.playing()) {
-            if (this.ends[kind] && howl.seek() >= this.ends[kind]) {
-                howl.seek(this.starts[kind]);
-            }
-        }
-    }
-    /**
-     *  Update songs positions or other stuffs.
-     */
     static update() {
-        this.updateByKind(SONG_KIND.MUSIC);
-        this.updateByKind(SONG_KIND.BACKGROUND_SOUND);
         this.updateProgressionMusic();
     }
     /**
@@ -399,6 +404,7 @@ Songs.volumes = [];
 Songs.currentIDs = [];
 Songs.starts = [];
 Songs.ends = [];
+Songs.playGeneration = [];
 Songs.current = [];
 Songs.progressionMusic = null;
 Songs.currentStateMusicEffect = null;

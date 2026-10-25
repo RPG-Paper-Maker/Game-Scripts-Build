@@ -9,6 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import * as THREE from 'three';
+import { acceleratedRaycast, MeshBVH } from 'three-mesh-bvh';
 import { CHARACTER_KIND, Constants, DYNAMIC_VALUE_KIND, Inputs, Interpreter, ORIENTATION, Paths, PICTURE_KIND, Platform, TARGET_KIND, Utils, } from '../Common/index.js';
 import { Autotiles, Camera, Frame, Game, MapObject, MapPortion, Portion, Position, ReactionInterpreter, } from '../Core/index.js';
 import { Data, Manager, Model, Scene } from '../index.js';
@@ -182,12 +183,11 @@ class Map extends Base {
      *  Initialize sun light.
      */
     initializeSunLight() {
-        const ambient = new THREE.AmbientLight(0xffffff, this.mapProperties.isSunLight ? Math.PI - 14 / 9 : Math.PI);
-        this.scene.add(ambient);
+        this.ambientLight = new THREE.AmbientLight(this.mapProperties.ambientLightColor.getValue(), this.mapProperties.isAmbientLight ? this.mapProperties.ambientLightIntensity.getValue() : 0);
+        this.scene.add(this.ambientLight);
         if (this.mapProperties.isSunLight) {
-            this.sunLight = new THREE.DirectionalLight(0xffffff, 2);
-            this.sunLight.position.set(-1, 1.75, 1);
-            this.sunLight.position.multiplyScalar(10);
+            this.sunLight = new THREE.DirectionalLight(this.mapProperties.sunlightColor.getValue(), this.mapProperties.sunlightIntensity.getValue());
+            this.sunLight.position.set(this.mapProperties.sunlightX, this.mapProperties.sunlightY + this.mapProperties.sunlightYPlus / Data.Systems.SQUARE_SIZE, this.mapProperties.sunlightZ);
             this.sunLight.target.position.set(0, 0, 0);
             this.scene.add(this.sunLight);
             this.sunLight.castShadow = true;
@@ -1050,25 +1050,67 @@ class Map extends Base {
         const minimumDistance = this.camera.isPerspective
             ? this.camera.perspectiveCamera.near
             : this.camera.orthographicCamera.near;
+        const rayBounds = new THREE.Box3().setFromPoints([origin, this.camera.targetPosition, ...targets]);
+        const candidates = [];
+        const clearanceCandidates = [];
+        const meshSphere = new THREE.Sphere();
+        this.scene.updateMatrixWorld(true);
+        this.scene.traverse((object) => {
+            if (!(object instanceof THREE.Mesh) ||
+                (!object.layers.isEnabled(1) && !object.userData.cameraVisualOccluder)) {
+                return;
+            }
+            const geometry = object.geometry;
+            if (!geometry.boundingSphere) {
+                geometry.computeBoundingSphere();
+            }
+            if (geometry.boundingSphere) {
+                meshSphere.copy(geometry.boundingSphere).applyMatrix4(object.matrixWorld);
+                if (meshSphere.intersectsBox(rayBounds)) {
+                    if (object.userData.staticCameraBlocker) {
+                        if (!geometry.boundsTree) {
+                            geometry.boundsTree = new MeshBVH(geometry, { indirect: true });
+                        }
+                        object.raycast = acceleratedRaycast;
+                    }
+                    if (object.layers.isEnabled(1)) {
+                        candidates.push(object);
+                    }
+                    clearanceCandidates.push(object);
+                }
+            }
+        });
         let hidingDistance = -1;
+        const raycaster = Manager.GL.raycaster;
+        const previousFirstHitOnly = raycaster.firstHitOnly;
+        raycaster.firstHitOnly = true;
         for (const target of targets) {
             const direction = target.clone().sub(origin);
             const rayLength = direction.length();
             Manager.GL.raycaster.set(origin, direction.normalize());
             Manager.GL.raycaster.layers.set(1);
             Manager.GL.raycaster.far = rayLength;
-            const intersects = Manager.GL.raycaster.intersectObjects(this.scene.children);
+            const intersects = Manager.GL.raycaster.intersectObjects(candidates, false);
             if (intersects.length === 0) {
                 continue;
             }
             Manager.GL.raycaster.set(target, direction.negate());
-            const reverseIntersects = Manager.GL.raycaster.intersectObjects(this.scene.children);
+            const reverseIntersects = Manager.GL.raycaster.intersectObjects(candidates, false);
             const point = reverseIntersects.length > 0 ? reverseIntersects[0].point : intersects[0].point;
-            const distance = Math.max(minimumDistance, this.camera.targetPosition.clone().sub(point).dot(cameraDirection) - margin);
+            let distance = Math.max(minimumDistance, this.camera.targetPosition.clone().sub(point).dot(cameraDirection) - margin);
+            Manager.GL.raycaster.set(this.camera.targetPosition, origin.clone().sub(this.camera.targetPosition).normalize());
+            Manager.GL.raycaster.far = this.camera.distance;
+            Manager.GL.raycaster.layers.enable(0);
+            const cameraPathIntersects = Manager.GL.raycaster.intersectObjects(clearanceCandidates, false);
+            Manager.GL.raycaster.layers.set(1);
+            if (cameraPathIntersects.length > 0) {
+                distance = Math.min(distance, Math.max(minimumDistance, cameraPathIntersects[0].distance - margin));
+            }
             if (hidingDistance === -1 || distance < hidingDistance) {
                 hidingDistance = distance;
             }
         }
+        raycaster.firstHitOnly = previousFirstHitOnly;
         this.camera.hidingDistance = hidingDistance;
     }
     /**
@@ -1103,6 +1145,25 @@ class Map extends Base {
         // Update camera
         this.camera.forceNoHide = true;
         this.camera.update();
+        if (this.mapProperties.isSunLight && this.sunLight) {
+            const intensity = this.mapProperties.sunlightIntensity.getValue();
+            const offset = this.mapProperties.sunlightIntensityOffset.getValue();
+            const time = this.mapProperties.sunlightIntensityTime.getValue();
+            const factor = time > 0 && offset !== 0 ? (1 - Math.cos((Math.PI * performance.now()) / time)) / 2 : 0;
+            this.sunLight.intensity = Math.max(0, intensity * (1 + (offset / 100) * factor));
+            const color = this.mapProperties.sunlightColor.getValue();
+            this.sunLight.color.set(color);
+        }
+        const ambientIntensity = this.mapProperties.ambientLightIntensity.getValue();
+        const ambientOffset = this.mapProperties.ambientLightIntensityOffset.getValue();
+        const ambientTime = this.mapProperties.ambientLightIntensityTime.getValue();
+        const ambientFactor = ambientTime > 0 && ambientOffset !== 0
+            ? (1 - Math.cos((Math.PI * performance.now()) / ambientTime)) / 2
+            : 0;
+        this.ambientLight.intensity = this.mapProperties.isAmbientLight
+            ? Math.max(0, ambientIntensity * (1 + (ambientOffset / 100) * ambientFactor))
+            : 0;
+        this.ambientLight.color.set(this.mapProperties.ambientLightColor.getValue());
         this.updateLayerOffsets();
         // Update skybox
         if (this.mapProperties.skyboxGeometry !== null && this.previousCameraPosition) {
@@ -1138,7 +1199,9 @@ class Map extends Base {
                     if (this.heroJumpFollowerStartPositions !== null && this.heroJumpStartPosition !== null) {
                         const startPos = this.heroJumpFollowerStartPositions[i] ?? follower.position;
                         const startOffset = startPos.clone().sub(this.heroJumpStartPosition);
-                        targetPos = Game.current.hero.position.clone().addScaledVector(startOffset, 1 - this.heroJumpProgress);
+                        targetPos = Game.current.hero.position
+                            .clone()
+                            .addScaledVector(startOffset, 1 - this.heroJumpProgress);
                         targetOri = Game.current.hero.orientationEye;
                     }
                     const prevPos = follower.previousPosition ? follower.previousPosition.clone() : targetPos.clone();
@@ -1180,18 +1243,9 @@ class Map extends Base {
             const previousHidingDistance = this.camera.hidingDistance;
             this.camera.hidingDistance = -1;
             const hero = this.camera.target;
-            const targets = [];
-            const horizontalAngle = (this.camera.horizontalAngle * Math.PI) / 180;
-            const horizontalDirection = new THREE.Vector3(-Math.sin(horizontalAngle), 0, Math.cos(horizontalAngle));
-            for (const height of [0.1, 0.5, 0.9]) {
-                for (const width of [-0.4, 0, 0.4]) {
-                    targets.push(hero.position
-                        .clone()
-                        .add(horizontalDirection.clone().multiplyScalar(hero.width * width))
-                        .add(new THREE.Vector3(0, hero.height * height, 0)));
-                }
-            }
-            this.updateCameraHiding(targets);
+            const upperCenter = hero.position.clone();
+            upperCenter.y += hero.height * 0.9;
+            this.updateCameraHiding([upperCenter]);
             if (this.camera.isHiding()) {
                 if (previousHidingDistance === -1) {
                     this.camera.hidingCurrent = this.camera.hidingDistance;
@@ -1384,7 +1438,8 @@ class Map extends Base {
                 for (k = 0; k < w; k++) {
                     portion = Game.current.getPortionPosData(this.id, i, j, k);
                     for (x = portion.min.length - 1; x >= 0; x--) {
-                        if (!portion.min[x].currentState || (!portion.min[x].currentStateInstance.keepPosition && !portion.min[x].isPersistent)) {
+                        if (!portion.min[x].currentState ||
+                            (!portion.min[x].currentStateInstance.keepPosition && !portion.min[x].isPersistent)) {
                             portion.min.splice(x, 1);
                         }
                         else {
@@ -1392,7 +1447,8 @@ class Map extends Base {
                         }
                     }
                     for (x = portion.mout.length - 1; x >= 0; x--) {
-                        if (!portion.mout[x].currentState || (!portion.mout[x].currentStateInstance.keepPosition && !portion.mout[x].isPersistent)) {
+                        if (!portion.mout[x].currentState ||
+                            (!portion.mout[x].currentStateInstance.keepPosition && !portion.mout[x].isPersistent)) {
                             portion.mout.splice(x, 1);
                         }
                         else {
@@ -1400,7 +1456,8 @@ class Map extends Base {
                         }
                     }
                     for (x = portion.m.length - 1; x >= 0; x--) {
-                        if (!portion.m[x].currentState || (!portion.m[x].currentStateInstance.keepPosition && !portion.m[x].isPersistent)) {
+                        if (!portion.m[x].currentState ||
+                            (!portion.m[x].currentStateInstance.keepPosition && !portion.m[x].isPersistent)) {
                             portion.m.splice(x, 1);
                         }
                         else {

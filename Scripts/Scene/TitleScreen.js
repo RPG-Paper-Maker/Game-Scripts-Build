@@ -57,16 +57,26 @@ class TitleScreen extends Base {
         // Stop all songs and videos
         Manager.Videos.stop();
         Manager.Songs.stopAll();
+        if (this.startAtLoop) {
+            await Promise.resolve();
+            if (Manager.Stack.top !== this)
+                return;
+            this.musicStarted = true;
+            Data.TitlescreenGameover.titleMusic.playMusic();
+        }
         // Reset screen tone
         Manager.GL.screenTone.set(0, 0, 0, 1);
         // Destroy pictures
         Manager.Stack.displayedPictures = [];
         const pictureBackgroundPromise = Data.TitlescreenGameover.isTitleBackgroundImage
-            ? Picture2D.createWithID(Data.TitlescreenGameover.titleBackgroundImageID, PICTURE_KIND.TITLE_SCREEN, { cover: true }).catch(() => null)
+            ? Picture2D.createWithID(Data.TitlescreenGameover.titleBackgroundImageID, PICTURE_KIND.TITLE_SCREEN, {
+                cover: true,
+            }).catch(() => null)
             : null;
         // Creating background (video plays behind, image draws on top)
         let videoPlayed = false;
-        if (Data.TitlescreenGameover.isTitleBackgroundVideo && Data.Videos.has(Data.TitlescreenGameover.titleBackgroundVideoID)) {
+        if (Data.TitlescreenGameover.isTitleBackgroundVideo &&
+            Data.Videos.has(Data.TitlescreenGameover.titleBackgroundVideoID)) {
             const loop = Data.TitlescreenGameover.titleVideoLoop;
             const loopMs = Data.TitlescreenGameover.titleVideoLoopMs;
             const startMs = this.startAtLoop && loop ? loopMs : 0;
@@ -239,11 +249,13 @@ class TitleScreen extends Base {
         const loopMs = Data.TitlescreenGameover.titleVideoLoopMs;
         const startMs = (this.startAtLoop || skipIntroduction) && loop ? loopMs : 0;
         this.titleReady = !loop || loopMs === 0 || startMs > 0;
-        Manager.Videos.play(Data.Videos.get(Data.TitlescreenGameover.titleBackgroundVideoID).getPath(), null, loop, loopMs, startMs).then((played) => {
+        Manager.Videos.play(Data.Videos.get(Data.TitlescreenGameover.titleBackgroundVideoID).getPath(), null, loop, loopMs, startMs)
+            .then((played) => {
             if (played && !this.titleReady) {
                 this.waitForVideoLoopPoint();
             }
-        }).catch(console.error);
+        })
+            .catch(console.error);
     }
     waitForVideoLoopPoint() {
         if (typeof Platform.canvasVideos.requestVideoFrameCallback !== 'function') {

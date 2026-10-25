@@ -14,6 +14,7 @@ import { Characteristic } from './Characteristic.js';
 import { DynamicValue } from './DynamicValue.js';
 import { Effect } from './Effect.js';
 import { Icon } from './Icon.js';
+import { Localization } from './Localization.js';
 import { StatusReleaseTurn } from './StatusReleaseTurn.js';
 /**
  * A possible status applied to a hero.
@@ -57,6 +58,10 @@ export class Status extends Icon {
         this.messageEnemyAffected = DynamicValue.readOrDefaultMessage(json.messageEnemyAffected);
         this.messageStatusHealed = DynamicValue.readOrDefaultMessage(json.messageStatusHealed);
         this.messageStatusStillAffected = DynamicValue.readOrDefaultMessage(json.messageStatusStillAffected);
+        this.messageAllyAffectedTranslations = new Localization(json.messageAllyAffectedTranslations);
+        this.messageEnemyAffectedTranslations = new Localization(json.messageEnemyAffectedTranslations);
+        this.messageStatusHealedTranslations = new Localization(json.messageStatusHealedTranslations);
+        this.messageStatusStillAffectedTranslations = new Localization(json.messageStatusStillAffectedTranslations);
         this.effects = Utils.readJSONList(json.effects, Effect);
         this.characteristics = Utils.readJSONList(json.characteristics, Characteristic);
     }

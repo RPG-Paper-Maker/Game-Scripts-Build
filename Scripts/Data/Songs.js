@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Paths, Platform, SONG_KIND } from '../Common/index.js';
+import { Paths, Platform, SONG_KIND, TITLE_COMMAND_KIND } from '../Common/index.js';
 import { Song } from '../Model/index.js';
 import { Data } from '../index.js';
 import { Base } from './Base.js';
@@ -51,7 +51,7 @@ export class Songs {
     static async read() {
         await this.readSelected();
     }
-    /** Read only the title music and title-screen sound effects during boot. */
+    /** Read title-screen music, credits music, and sound effects during boot. */
     static async readTitleScreen() {
         const selected = new Map();
         const add = (song, kind) => {
@@ -63,6 +63,11 @@ export class Songs {
             }
         };
         add(Data.TitlescreenGameover.titleMusic, SONG_KIND.MUSIC);
+        for (const command of Data.TitlescreenGameover.titleCommands) {
+            if (command.kind === TITLE_COMMAND_KIND.CREDITS) {
+                add(command.creditsMusic, SONG_KIND.MUSIC);
+            }
+        }
         add(Data.Systems.soundCursor, SONG_KIND.SOUND);
         add(Data.Systems.soundConfirmation, SONG_KIND.SOUND);
         add(Data.Systems.soundCancel, SONG_KIND.SOUND);
@@ -71,7 +76,7 @@ export class Songs {
     }
     static async readSelected(selected) {
         const json = (await Platform.parseFileJSON(Paths.FILE_SONGS));
-        this.list = new Map();
+        const songs = new Map();
         for (const jsonHash of json.list) {
             const k = jsonHash.k;
             const jsonList = jsonHash.v;
@@ -85,7 +90,8 @@ export class Songs {
                 await song.checkBase64();
                 list.set(id, song);
             }
-            this.list.set(k, list);
+            songs.set(k, list);
         }
+        this.list = songs;
     }
 }

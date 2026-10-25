@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Paths, Platform } from '../Common/index.js';
+import { Paths, Platform, TITLE_COMMAND_KIND } from '../Common/index.js';
 import { Data } from '../index.js';
 import { Video } from '../Model/index.js';
 import { Base } from './Base.js';
@@ -37,21 +37,31 @@ export class Videos {
     static async read() {
         await this.readSelected();
     }
-    /** Read only the title-screen video before the game data is fully loaded. */
+    /** Read title-screen and credits videos before the game data is fully loaded. */
     static async readTitleScreen() {
-        await this.readSelected(Data.TitlescreenGameover.isTitleBackgroundVideo ? Data.TitlescreenGameover.titleBackgroundVideoID : -1);
+        const selected = new Set();
+        if (Data.TitlescreenGameover.isTitleBackgroundVideo) {
+            selected.add(Data.TitlescreenGameover.titleBackgroundVideoID);
+        }
+        for (const command of Data.TitlescreenGameover.titleCommands) {
+            if (command.kind === TITLE_COMMAND_KIND.CREDITS && command.creditsBackgroundVideoID >= 0) {
+                selected.add(command.creditsBackgroundVideoID);
+            }
+        }
+        await this.readSelected(selected);
     }
-    static async readSelected(id) {
+    static async readSelected(selected) {
         const json = (await Platform.parseFileJSON(Paths.FILE_VIDEOS));
-        this.list = new Map();
+        const videos = new Map();
         for (const videoJSON of json.list) {
-            if (id !== undefined && videoJSON.id !== id) {
+            if (selected && !selected.has(videoJSON.id)) {
                 continue;
             }
-            this.list.set(videoJSON.id, new Video(videoJSON));
+            videos.set(videoJSON.id, new Video(videoJSON));
         }
-        for (const video of this.list.values()) {
+        for (const video of videos.values()) {
             await video.checkBase64();
         }
+        this.list = videos;
     }
 }

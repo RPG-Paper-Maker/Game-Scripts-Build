@@ -9,7 +9,7 @@
         http://rpg-paper-maker.com/index.php/eula.
 */
 import { Data, Manager } from "../index.js";
-import { Paths, PICTURE_KIND, Platform } from '../Common/index.js';
+import { Paths, PICTURE_KIND, Platform, TITLE_COMMAND_KIND } from '../Common/index.js';
 import { Picture2D } from '../Core/index.js';
 import { Picture } from '../Model/index.js';
 import { Base } from './Base.js';
@@ -76,6 +76,24 @@ export class Pictures {
         if (Data.TitlescreenGameover.isTitleBackgroundImage) {
             selected.set(PICTURE_KIND.TITLE_SCREEN, new Set([Data.TitlescreenGameover.titleBackgroundImageID]));
         }
+        for (const command of Data.TitlescreenGameover.titleCommands) {
+            if (command.kind !== TITLE_COMMAND_KIND.CREDITS)
+                continue;
+            if (command.creditsBackgroundImageID >= 0) {
+                if (!selected.has(PICTURE_KIND.TITLE_SCREEN)) {
+                    selected.set(PICTURE_KIND.TITLE_SCREEN, new Set());
+                }
+                selected.get(PICTURE_KIND.TITLE_SCREEN).add(command.creditsBackgroundImageID);
+            }
+            for (const text of Object.values(command.creditsTexts)) {
+                for (const match of text.matchAll(/\[ico=\s*(\d+)(?:;|\])/g)) {
+                    if (!selected.has(PICTURE_KIND.ICONS)) {
+                        selected.set(PICTURE_KIND.ICONS, new Set());
+                    }
+                    selected.get(PICTURE_KIND.ICONS).add(Number(match[1]));
+                }
+            }
+        }
         await this.readSelected(selected);
     }
     /** Read all pictures, including assets deferred until the game starts. */
@@ -85,7 +103,7 @@ export class Pictures {
     /** Read only the requested pictures, or every picture when no selection is supplied. */
     static async readSelected(selected) {
         const json = (await Platform.parseFileJSON(Paths.FILE_PICTURES));
-        this.list = new Map();
+        const pictures = new Map();
         for (const jsonHash of json.list) {
             const k = jsonHash.k;
             const jsonList = jsonHash.v;
@@ -109,8 +127,9 @@ export class Pictures {
                 }
                 list.set(id, picture);
             }
-            this.list.set(k, list);
+            pictures.set(k, list);
         }
+        this.list = pictures;
     }
 }
 Pictures.PROPERTY_TEXTURES_CHARACTERS = 'texturesCharacters';

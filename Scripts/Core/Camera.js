@@ -256,10 +256,21 @@ class Camera {
         this.updateView();
         // Update light
         if (Scene.Map.current.mapProperties && Scene.Map.current.mapProperties.isSunLight) {
+            const mapProperties = Scene.Map.current.mapProperties;
+            Camera._sunOffset.set(mapProperties.sunlightX, mapProperties.sunlightY + mapProperties.sunlightYPlus / Data.Systems.SQUARE_SIZE, mapProperties.sunlightZ);
+            if (Camera._sunOffset.lengthSq() === 0)
+                Camera._sunOffset.set(-10, 17.5, 10);
+            Camera.SUN_FORWARD.copy(Camera._sunOffset).negate().normalize();
+            Camera.SUN_RIGHT.set(-Camera.SUN_FORWARD.z, 0, Camera.SUN_FORWARD.x);
+            if (Camera.SUN_RIGHT.lengthSq() === 0)
+                Camera.SUN_RIGHT.set(1, 0, 0);
+            Camera.SUN_RIGHT.normalize();
+            Camera.SUN_UP.crossVectors(Camera.SUN_RIGHT, Camera.SUN_FORWARD).normalize();
             const d = Math.max(this.distance * 3.0, 10);
             const far = Math.max(d * 2, 350);
             if (this._stableD === 0 ||
                 Math.abs(d - this._stableD) / this._stableD > 0.05 ||
+                Scene.Map.current.sunLight.shadow.camera.right !== this._stableD ||
                 far !== Scene.Map.current.sunLight.shadow.camera.far) {
                 this._stableD = d;
                 Scene.Map.current.sunLight.shadow.camera.left = -d;
@@ -279,13 +290,14 @@ class Camera {
                 .addScaledVector(Camera.SUN_FORWARD, Camera.SUN_FORWARD.dot(this.targetPosition));
             Scene.Map.current.sunLight.target.position.copy(Camera._snapTarget);
             Scene.Map.current.sunLight.target.updateMatrixWorld();
-            Scene.Map.current.sunLight.position.set(-1, 1.75, 1).multiplyScalar(10).add(Camera._snapTarget);
+            Scene.Map.current.sunLight.position.copy(Camera._sunOffset).add(Camera._snapTarget);
         }
     }
 }
 Camera.HIDDING_MOVE_TIME = 250;
-Camera.SUN_FORWARD = new THREE.Vector3(1, -1.75, -1).normalize();
-Camera.SUN_RIGHT = new THREE.Vector3(1, 0, 1).normalize();
-Camera.SUN_UP = new THREE.Vector3(Math.SQRT1_2 * (1.75 / 2.25), Math.SQRT1_2 * (2 / 2.25), -Math.SQRT1_2 * (1.75 / 2.25));
+Camera.SUN_FORWARD = new THREE.Vector3();
+Camera.SUN_RIGHT = new THREE.Vector3();
+Camera.SUN_UP = new THREE.Vector3();
+Camera._sunOffset = new THREE.Vector3();
 Camera._snapTarget = new THREE.Vector3();
 export { Camera };

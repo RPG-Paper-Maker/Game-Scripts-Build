@@ -23,6 +23,7 @@ export * from "./Setting.js";
 export * from "./ShopCurrencies.js";
 export * from "./Skill.js";
 export * from "./SkillItem.js";
+export * from "./SkipHold.js";
 export * from "./SpinBox.js";
 export * from "./Statistic.js";
 export * from "./StatisticProgression.js";

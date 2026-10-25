@@ -8,11 +8,12 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Interpreter, Platform, TITLE_COMMAND_KIND, Utils } from '../Common/index.js';
+import { Interpreter, Platform, SONG_KIND, TITLE_COMMAND_KIND, Utils } from '../Common/index.js';
 import { Game } from '../Core/index.js';
 import { Data, Manager, Scene } from '../index.js';
 import { Localization } from './Localization.js';
 import { Main } from '../main.js';
+import { PlaySong } from './PlaySong.js';
 /**
  * A title command of the game.
  */
@@ -62,6 +63,10 @@ export class TitleCommand extends Localization {
         Manager.Stack.push(new Scene.TitleSettings(titleCommand));
         return true;
     }
+    static showCredits(titleCommand) {
+        Manager.Stack.push(new Scene.TitleCredits(titleCommand));
+        return true;
+    }
     /**
      * Exit the game.
      */
@@ -84,6 +89,8 @@ export class TitleCommand extends Localization {
                 return TitleCommand.exit;
             case TITLE_COMMAND_KIND.SCRIPT:
                 return this.executeScript;
+            case TITLE_COMMAND_KIND.CREDITS:
+                return () => TitleCommand.showCredits(this);
         }
     }
     /**
@@ -100,5 +107,15 @@ export class TitleCommand extends Localization {
         super.read(json);
         this.kind = Utils.valueOrDefault(json.k, TITLE_COMMAND_KIND.NEW_GAME);
         this.script = Utils.valueOrDefault(json.s, '');
+        this.creditsTexts = Utils.valueOrDefault(json.ct, {});
+        this.creditsSpeed = Utils.valueOrDefault(json.cs, 40);
+        this.creditsBackgroundColorID = Utils.valueOrDefault(json.cbc, 1);
+        this.creditsBackgroundImageID = Utils.valueOrDefault(json.cbi, -1);
+        this.creditsBackgroundVideoID = Utils.valueOrDefault(json.cbv, -1);
+        this.creditsMusic = new PlaySong(SONG_KIND.MUSIC, json.cm);
+        this.creditsCanSkip = Utils.valueOrDefault(json.ccs, true);
+        this.creditsSkipKeyID = Utils.valueOrDefault(json.csk, 11);
+        this.creditsMaintainKey = Utils.valueOrDefault(json.cmk, true);
+        this.creditsMaintainDuration = json.cmd > 0 ? json.cmd : 3;
     }
 }
