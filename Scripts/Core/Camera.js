@@ -203,6 +203,9 @@ class Camera {
      */
     updateAngles() {
         const camera = this.getThreeCamera();
+        if (camera.position.distanceToSquared(this.targetPosition) < Camera.MIN_VIEW_DISTANCE_SQ) {
+            return;
+        }
         this.horizontalAngle = this.getHorizontalAngle(camera.position, this.targetPosition);
         this.verticalAngle = this.getVerticalAngle(camera.position, this.targetPosition);
     }
@@ -219,7 +222,18 @@ class Camera {
      * Update the three.js camera view.
      */
     updateView() {
-        this.getThreeCamera().lookAt(this.targetPosition);
+        const camera = this.getThreeCamera();
+        if (camera.position.distanceToSquared(this.targetPosition) < Camera.MIN_VIEW_DISTANCE_SQ) {
+            const h = (this.horizontalAngle * Math.PI) / 180.0;
+            const v = (this.verticalAngle * Math.PI) / 180.0;
+            Camera._lookTarget
+                .set(Math.sin(v) * Math.cos(h), -Math.cos(v), Math.sin(v) * Math.sin(h))
+                .add(camera.position);
+            camera.lookAt(Camera._lookTarget);
+        }
+        else {
+            camera.lookAt(this.targetPosition);
+        }
     }
     /**
      * Update timer for hidding camera smooth move.
@@ -300,4 +314,6 @@ Camera.SUN_RIGHT = new THREE.Vector3();
 Camera.SUN_UP = new THREE.Vector3();
 Camera._sunOffset = new THREE.Vector3();
 Camera._snapTarget = new THREE.Vector3();
+Camera.MIN_VIEW_DISTANCE_SQ = 1e-6;
+Camera._lookTarget = new THREE.Vector3();
 export { Camera };

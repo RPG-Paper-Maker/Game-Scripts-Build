@@ -28,6 +28,7 @@ class Game {
         this.currentWeatherOptions = null;
         this.heroSavedOrientationEye = null;
         this.heroSavedCamera = null;
+        this.teamHeroesSnapshot = null;
         this.slot = slot;
         this.hero = new MapObject(Data.Systems.modelHero.system, Data.Systems.modelHero.position.clone(), true);
         this.caterpillarFollowers = [];
@@ -477,6 +478,16 @@ class Game {
      */
     getGroups() {
         return [this.teamHeroes, this.reserveHeroes, this.hiddenHeroes];
+    }
+    /**
+     *  Check if the team heroes changed (members or order) since the last check.
+     *  @returns {boolean}
+     */
+    checkTeamUpdated() {
+        const ids = this.teamHeroes.map((player) => player.instid);
+        const previous = this.teamHeroesSnapshot;
+        this.teamHeroesSnapshot = ids;
+        return previous !== null && (previous.length !== ids.length || previous.some((id, i) => id !== ids[i]));
     }
     /**
      *  Get the path save according to slot.

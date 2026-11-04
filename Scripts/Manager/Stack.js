@@ -300,13 +300,15 @@ class Stack {
     static drawDisplayedPicture(picture, ctx) {
         const textPicture = picture;
         const textMessage = textPicture.textMessage;
-        if (!textMessage || ctx !== Platform.ctx) {
+        if (!textMessage) {
             ctx.save();
             ctx.translate(this.shakeOffsetX, 0);
             picture.draw({ ctx });
             ctx.restore();
             return;
         }
+        const previousCtx = Platform.ctx;
+        Platform.ctx = ctx;
         ctx.save();
         ctx.globalAlpha = picture.opacity;
         ctx.translate(picture.x + this.shakeOffsetX, picture.y + (textMessage.heights[0] / 2 - ScreenResolution.getScreenY(Constants.HUGE_SPACE)) * picture.zoom);
@@ -317,6 +319,7 @@ class Stack {
         }
         textMessage.draw(0, 0, ScreenResolution.getScreenX(textPicture.textWidth ?? 1280), ScreenResolution.CANVAS_HEIGHT);
         ctx.restore();
+        Platform.ctx = previousCtx;
     }
 }
 Stack.top = null;

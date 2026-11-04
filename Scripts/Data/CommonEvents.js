@@ -129,4 +129,5 @@ CommonEvents.SYSTEM_EVENTS = [
             { id: 2, name: 'y', d: { k: 3, v: 0 } },
         ] },
     { id: 8, name: 'Closing main menu', p: [] },
+    { id: 9, name: 'Team updated', p: [] },
 ];
