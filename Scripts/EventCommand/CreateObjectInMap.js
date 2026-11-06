@@ -20,6 +20,8 @@ import { Base } from './Base.js';
 class CreateObjectInMap extends Base {
     constructor(command) {
         super();
+        this.xPixels = null;
+        this.zPixels = null;
         const iterator = {
             i: 0,
         };
@@ -50,8 +52,6 @@ class CreateObjectInMap extends Base {
             this.stockID = Model.DynamicValue.createValueCommand(command, iterator);
         }
         this.isPermanent = Utils.numberToBool(command[iterator.i++] ?? 0);
-        this.xPixels = Model.DynamicValue.createNumber(0);
-        this.zPixels = Model.DynamicValue.createNumber(0);
         if (command[iterator.i++] === 'pixels') {
             this.xPixels = Model.DynamicValue.createValueCommand(command, iterator);
             this.zPixels = Model.DynamicValue.createValueCommand(command, iterator);
@@ -82,9 +82,11 @@ class CreateObjectInMap extends Base {
         if (!currentState.waitingPosition) {
             // Set object's position
             if (this.objectIDPosition === null) {
-                currentState.position = new Position(this.x.getValue(), this.y.getValue(), this.z.getValue(), (this.yPlus.getValue() * 100) / Data.Systems.SQUARE_SIZE).toVector3();
-                currentState.position.x += this.xPixels.getValue() / Data.Systems.SQUARE_SIZE;
-                currentState.position.z += this.zPixels.getValue() / Data.Systems.SQUARE_SIZE;
+                currentState.position = new Position(this.x.getValue(), this.y.getValue(), this.z.getValue(), (this.yPlus.getValue() * 100) / Data.Systems.SQUARE_SIZE, 0, this.xPixels === null
+                    ? 50
+                    : (this.xPixels.getValue() * 100) / Data.Systems.SQUARE_SIZE, this.zPixels === null
+                    ? 50
+                    : (this.zPixels.getValue() * 100) / Data.Systems.SQUARE_SIZE).toVector3();
             }
             else {
                 MapObject.search(this.objectIDPosition.getValue(), (result) => {

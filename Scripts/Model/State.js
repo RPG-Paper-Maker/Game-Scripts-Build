@@ -14,6 +14,21 @@ import { Manager } from '../index.js';
 import { Base } from './Base.js';
 import { DynamicValue } from './DynamicValue.js';
 import { Reaction } from './Reaction.js';
+/**
+ * JSON keys of a state grouped by override group.
+ */
+export const STATE_GROUP_KEYS = {
+    graphics: ['gk', 'gid', 'x', 'y', 'rt'],
+    moving: ['omk', 'ecr', 's', 'f'],
+    options: ['move', 'stop', 'climb', 'dir', 'through', 'cam', 'pix', 'pos'],
+    transform: ['layer', 'cx', 'cz', 'ax', 'ay', 'az', 'sx', 'sy', 'sz', 'o'],
+    lights: ['l'],
+    detection: ['ecd'],
+};
+/**
+ * All the state override groups.
+ */
+export const ALL_STATE_GROUPS = Object.keys(STATE_GROUP_KEYS);
 /** A light attached to a map object state. */
 export class StateLight {
     constructor(json) {
@@ -21,6 +36,7 @@ export class StateLight {
         this.kind = StateLight.readNumber(json.k, 0);
         const kind = typeof json.k === 'number' ? json.k : (json.k?.v ?? 0);
         this.followOrientation = StateLight.readNumber(json.fo, kind === 1 ? 1 : 0);
+        this.castShadow = StateLight.readNumber(json.cs, 1);
         this.color = StateLight.readText(json.c, '#ffffff');
         this.groundColor = StateLight.readText(json.gc, '#444444');
         this.intensity = StateLight.readNumber(json.i, 5);
@@ -40,6 +56,7 @@ export class StateLight {
         const light = new StateLight({ id: this.id });
         light.kind = this.kind.createCopy();
         light.followOrientation = this.followOrientation.createCopy();
+        light.castShadow = this.castShadow.createCopy();
         light.color = this.color.createCopy();
         light.groundColor = this.groundColor.createCopy();
         light.intensity = this.intensity.createCopy();
@@ -108,9 +125,26 @@ export class State extends Base {
         };
     }
     /**
+     * Create a state merging inherited JSON with the overridden groups of own JSON.
+     * @param inherited - The inherited state.
+     * @param json - The own state JSON.
+     */
+    static createMerged(inherited, json) {
+        const groups = json.ov ?? ALL_STATE_GROUPS;
+        const merged = { ...inherited.json, id: json.id };
+        delete merged.ov;
+        for (const group of groups) {
+            for (const key of STATE_GROUP_KEYS[group] ?? []) {
+                merged[key] = json[key];
+            }
+        }
+        return new State(merged);
+    }
+    /**
      * Initialize this state from JSON data.
      */
     read(json) {
+        this.json = json;
         this.id = json.id;
         this.graphicID = json.gid;
         this.graphicKind = json.gk;

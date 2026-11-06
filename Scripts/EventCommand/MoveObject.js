@@ -38,8 +38,10 @@ class MoveObject extends Base {
         while (iterator.i < l) {
             this.kind = command[iterator.i++];
             if (this.kind >= COMMAND_MOVE_KIND.MOVE_NORTH && this.kind <= COMMAND_MOVE_KIND.MOVE_BACK) {
+                const squareStep = command[iterator.i++];
                 this.parameters.push({
-                    square: command[iterator.i++] === 0,
+                    square: squareStep === 0,
+                    pixels: squareStep === 2 ? Model.DynamicValue.createValueCommand(command, iterator) : null,
                 });
                 switch (this.kind) {
                     case COMMAND_MOVE_KIND.MOVE_NORTH:
@@ -353,7 +355,9 @@ class MoveObject extends Base {
                     peakYPlus: parameters.peakYPlus.getValue(),
                     time: parameters.time.getValue(),
                 }
-                : parameters),
+                : parameters.pixels
+                    ? { ...parameters, pixels: parameters.pixels.getValue() }
+                    : parameters),
             index: 0,
             distance: 0,
             normalDistance: 0,
@@ -387,13 +391,20 @@ class MoveObject extends Base {
      *  Function to move north.
      *  @param {Record<string, any>} - currentState The current state of the event
      *  @param {MapObject} object - The object to move
-     *  @param {bool} square - Indicate if it is a square move
+     *  @param {Record<string, any>} parameters - The parameters (square or pixels move)
      *  @param {Orientation} orientation - The orientation where to move
      *  @returns {boolean}
      */
-    move(currentState, object, square, orientation) {
+    move(currentState, object, parameters, orientation) {
         if (object.moveFrequencyTick > 0) {
             return false;
+        }
+        const square = parameters.square;
+        const isPixels = parameters.pixels !== null && parameters.pixels !== undefined;
+        const target = isPixels ? parameters.pixels / Data.Systems.SQUARE_SIZE : 1;
+        const isDistance = square || isPixels;
+        if (isPixels && target <= 0) {
+            return true;
         }
         if (MoveObject.lockedInputs) {
             orientation = this.getLockedOrientation(orientation);
@@ -426,14 +437,14 @@ class MoveObject extends Base {
         else if (object.previousMoveCommand !== this) {
             object.otherMoveCommand = this;
         }
-        const distances = object.move(orientation, 1 - currentState.distance, angle, this.isCameraOrientation);
+        const distances = object.move(orientation, target - currentState.distance, angle, this.isCameraOrientation);
         currentState.distance += distances[0];
         currentState.normalDistance += distances[1];
-        if (!square ||
-            (square && currentState.normalDistance >= 1) ||
-            (square && currentState.distance >= 1) ||
+        if (!isDistance ||
+            currentState.normalDistance >= target ||
+            currentState.distance >= target ||
             distances[0] === 0) {
-            if (distances[0] === 0 && square && !this.isIgnore) {
+            if (distances[0] === 0 && isDistance && !this.isIgnore) {
                 currentState.position = null;
                 object.moving = true;
                 return false;
@@ -473,7 +484,7 @@ class MoveObject extends Base {
      *  @returns {Orientation}
      */
     moveNorth(currentState, object, parameters) {
-        return object ? this.move(currentState, object, parameters.square, ORIENTATION.NORTH) : ORIENTATION.NORTH;
+        return object ? this.move(currentState, object, parameters, ORIENTATION.NORTH) : ORIENTATION.NORTH;
     }
     /**
      *  Function to move south.
@@ -484,7 +495,7 @@ class MoveObject extends Base {
      */
     moveSouth(currentState, object, parameters) {
         if (object) {
-            return this.move(currentState, object, parameters.square, ORIENTATION.SOUTH);
+            return this.move(currentState, object, parameters, ORIENTATION.SOUTH);
         }
         return ORIENTATION.SOUTH;
     }
@@ -497,7 +508,7 @@ class MoveObject extends Base {
      */
     moveWest(currentState, object, parameters) {
         if (object) {
-            return this.move(currentState, object, parameters.square, ORIENTATION.WEST);
+            return this.move(currentState, object, parameters, ORIENTATION.WEST);
         }
         return ORIENTATION.WEST;
     }
@@ -510,7 +521,7 @@ class MoveObject extends Base {
      */
     moveEast(currentState, object, parameters) {
         if (object) {
-            return this.move(currentState, object, parameters.square, ORIENTATION.EAST);
+            return this.move(currentState, object, parameters, ORIENTATION.EAST);
         }
         return ORIENTATION.EAST;
     }
@@ -636,7 +647,7 @@ class MoveObject extends Base {
                 case ORIENTATION.NORTH_EAST:
                     return this.moveNorthEast(currentState, object, parameters);
                 default:
-                    return this.move(currentState, object, parameters.square, orientation);
+                    return this.move(currentState, object, parameters, orientation);
             }
         }
         return ORIENTATION.NONE;
@@ -652,7 +663,7 @@ class MoveObject extends Base {
         if (object) {
             const orientation = currentState.moveHeroOrientation === null ? object.orientationEye : currentState.moveHeroOrientation;
             currentState.moveHeroOrientation = orientation;
-            return this.move(currentState, object, parameters.square, currentState.moveHeroOrientation);
+            return this.move(currentState, object, parameters, currentState.moveHeroOrientation);
         }
         return ORIENTATION.NONE;
     }
@@ -669,7 +680,7 @@ class MoveObject extends Base {
                 ? EventCommand.MoveObject.oppositeOrientation(object.orientationEye)
                 : currentState.moveHeroOrientation;
             currentState.moveHeroOrientation = orientation;
-            return this.move(currentState, object, parameters.square, currentState.moveHeroOrientation);
+            return this.move(currentState, object, parameters, currentState.moveHeroOrientation);
         }
         return ORIENTATION.NONE;
     }
@@ -934,11 +945,16 @@ class MoveObject extends Base {
                 object.mesh = null;
             }
             if (parameters.kind === ELEMENT_MAP_KIND.NONE) {
+                const toRemove = [];
                 Scene.Map.current.scene.traverse((child) => {
-                    if (child.userData.mapObjectID === object.id) {
-                        child.parent?.remove(child);
+                    if (child.userData.mapObjectID === object.id &&
+                        !!child.userData.isCaterpillarFollower === object.isCaterpillarFollower) {
+                        toRemove.push(child);
                     }
                 });
+                for (const child of toRemove) {
+                    child.parent?.remove(child);
+                }
             }
             if (object.currentStateInstance.graphicID === 0 ||
                 object.currentStateInstance.graphicKind === ELEMENT_MAP_KIND.AUTOTILES) {
@@ -1059,6 +1075,9 @@ class MoveObject extends Base {
     stopAnimation(currentState, object, parameters) {
         if (object) {
             // Change object current state value
+            if (parameters.onOff && !object.currentStateInstance.stopAnimation) {
+                object.frame.tick = 0;
+            }
             object.currentStateInstance.stopAnimation = parameters.onOff;
             // Permanent change
             if (parameters.permanent) {

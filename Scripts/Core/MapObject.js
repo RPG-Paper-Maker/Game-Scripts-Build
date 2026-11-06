@@ -222,27 +222,18 @@ class MapObject {
         for (let z = 0; z < texture.height; z++) {
             for (let x = 0; x < texture.width; x++) {
                 const collision = picture.getCollisionAtPos(texture.x + x, texture.y + z);
+                const b = [x, pixelDepth / 2, z, 1, 1, pixelDepth, 0];
                 if (!collision) {
-                    collisions.push({ b: [x, pixelDepth / 2, z, 1, 1, pixelDepth, 0], cs: null });
+                    collisions.push({ b, bs: [b], cs: null });
                     continue;
                 }
-                const rect = collision.rect;
-                if (!collision.hasAllDirections() || collision.terrain > 0) {
-                    const r = rect === null ? [0, 0, 1, 1] : [rect.x, rect.y, rect.width, rect.height];
-                    collisions.push({
-                        b: [x + r[0], pixelDepth / 2, z + r[1], r[2], r[3], pixelDepth, 0],
-                        cs: collision,
-                    });
-                }
-                else if (rect !== null) {
-                    collisions.push({
-                        b: [x + rect.x, pixelDepth / 2, z + rect.y, rect.width, rect.height, pixelDepth, 0],
-                        cs: null,
-                    });
-                }
-                else {
-                    collisions.push({ b: [x, pixelDepth / 2, z, 1, 1, pixelDepth, 0], cs: collision });
-                }
+                collisions.push({
+                    b,
+                    bs: collision
+                        .getLandBoxes()
+                        .map((box) => [x + box[0], pixelDepth / 2, z + box[1], box[2], box[3], pixelDepth, 0]),
+                    cs: collision,
+                });
             }
         }
         return collisions;
@@ -951,6 +942,7 @@ class MapObject {
             const objCollision = result[1];
             this.mesh = new THREE.Mesh(geometry, material);
             this.mesh.userData.mapObjectID = this.id;
+            this.mesh.userData.isCaterpillarFollower = this.isCaterpillarFollower;
             if (isGltfNoTexture) {
                 this.mesh = null;
             }
@@ -1385,10 +1377,12 @@ class MapObject {
         if (o !== ORIENTATION.NONE) {
             this.climbOrientationEye = o;
         }
-        if (this.currentStateInstance && !this.currentStateInstance.directionFix) {
-            this.orientationEye = orientation;
+        if (this.currentStateInstance) {
+            if (!this.currentStateInstance.directionFix) {
+                this.orientationEye = orientation;
+            }
             orientation = this.orientation;
-            if (this.currentStateInstance && this.currentStateInstance.setWithCamera) {
+            if (this.currentStateInstance.setWithCamera) {
                 this.updateOrientation();
             }
             if (this.orientation !== orientation || this.climbOrientationEye !== climbOrientationEye) {
@@ -1465,19 +1459,21 @@ class MapObject {
         this.position.set(x, y, z);
         this.updateBBPosition(this.position);
         // Update orientation
-        if (this.currentStateInstance && !this.currentStateInstance.directionFix) {
+        if (this.currentStateInstance) {
             let orientation = this.orientationEye;
-            x = end.x - start.x;
-            z = end.z - start.z;
-            if (x !== 0) {
-                orientation = x > 0 ? ORIENTATION.EAST : ORIENTATION.WEST;
+            if (!this.currentStateInstance.directionFix) {
+                x = end.x - start.x;
+                z = end.z - start.z;
+                if (x !== 0) {
+                    orientation = x > 0 ? ORIENTATION.EAST : ORIENTATION.WEST;
+                }
+                else if (z !== 0) {
+                    orientation = z > 0 ? ORIENTATION.SOUTH : ORIENTATION.NORTH;
+                }
+                this.orientationEye = orientation;
             }
-            else if (z !== 0) {
-                orientation = z > 0 ? ORIENTATION.SOUTH : ORIENTATION.NORTH;
-            }
-            this.orientationEye = orientation;
             orientation = this.orientation;
-            if (this.currentStateInstance && this.currentStateInstance.setWithCamera) {
+            if (this.currentStateInstance.setWithCamera) {
                 this.updateOrientation();
             }
             if (this.orientation !== orientation) {
@@ -1705,9 +1701,7 @@ class MapObject {
                     : 0;
                 this.mesh.position.set(this.position.x, this.position.y + offset + this.getMapObjectLayerDepthOffset(), this.position.z);
                 // Update angle
-                if (this.currentStateInstance &&
-                    this.currentStateInstance.setWithCamera &&
-                    !this.currentStateInstance.directionFix) {
+                if (this.currentStateInstance && this.currentStateInstance.setWithCamera) {
                     this.updateOrientation();
                 }
             }
@@ -1926,7 +1920,9 @@ class MapObject {
         if (light instanceof THREE.PointLight ||
             light instanceof THREE.SpotLight ||
             light instanceof THREE.DirectionalLight) {
-            light.castShadow = Scene.Map.current.mapProperties.objectLightsShadows;
+            light.userData.isObjectLight = true;
+            light.userData.castShadow = settings.castShadow.getValue() === 1;
+            light.castShadow = Scene.Map.current.mapProperties.objectLightsShadows && light.userData.castShadow;
             if (light instanceof THREE.PointLight || light instanceof THREE.SpotLight) {
                 light.shadow.bias = -0.0003;
                 light.shadow.normalBias = 0.5 / Data.Systems.SQUARE_SIZE;

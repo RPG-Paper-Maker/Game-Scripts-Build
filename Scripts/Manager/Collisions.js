@@ -687,16 +687,7 @@ class Collisions {
                     }
                 }
             }
-            // Check lands inside collisions
-            lp.x = Math.floor(positionBefore.x / chunkSize) - cp.x;
-            lp.y = Math.floor(positionBefore.y / chunkSize) - cp.y;
-            lp.z = Math.floor(positionBefore.z / chunkSize) - cp.z;
-            mapPortion = Scene.Map.current.getMapPortion(lp.x, lp.y, lp.z);
-            return [
-                this.checkLandsInside(mapPortion, jpositionBefore, jpositionAfter, direction),
-                yMountain,
-                ORIENTATION.NONE,
-            ];
+            return [false, yMountain, ORIENTATION.NONE];
         }
         return [true, null, ORIENTATION.NONE];
     }
@@ -757,7 +748,7 @@ class Collisions {
         }
         // Check other tests
         return [
-            this.checkLands(mapPortion, jpositionBefore, jpositionAfter, object, direction) ||
+            this.checkLands(mapPortion, jpositionAfter, object) ||
                 this.checkObjects3D(mapPortion, jpositionAfter, positionAfter, object),
             yMountain,
             ORIENTATION.NONE,
@@ -767,35 +758,28 @@ class Collisions {
      *  Check if there is a collision with lands at this position.
      *  @static
      *  @param {MapPortion} mapPortion - The map portion to check
-     *  @param {Position} jpositionBefore - The json position before collision
      *  @param {Position} jpositionAfter - The json position after collision
      *  @param {MapObject} object - The map object collision test
-     *  @param {THREE.Vector3} direction - The direction collision
-     *  collisions that were already tested
      *  @returns {boolean}
      */
-    static checkLands(mapPortion, jpositionBefore, jpositionAfter, object, direction) {
-        const index = jpositionAfter.toIndex();
-        const lands = mapPortion.boundingBoxesLands[index];
+    static checkLands(mapPortion, jpositionAfter, object) {
+        const lands = mapPortion.boundingBoxesLands[jpositionAfter.toIndex()];
         if (lands !== null) {
-            let objCollision, boundingBox, collision;
             for (let i = 0, l = lands.length; i < l; i++) {
-                objCollision = lands[i];
-                if (objCollision !== null) {
-                    boundingBox = objCollision.b;
-                    collision = objCollision.cs;
-                    if (this.checkIntersectionLand(collision, boundingBox, object) ||
-                        this.checkDirections(jpositionBefore, jpositionAfter, collision, boundingBox, direction, object)) {
-                        return true;
+                const boxes = lands[i]?.bs;
+                if (boxes) {
+                    for (let j = 0, m = boxes.length; j < m; j++) {
+                        if (this.checkIntersectionLand(boxes[j], object)) {
+                            return true;
+                        }
                     }
                 }
-                //}
             }
         }
-        return this.checkLandObjects(jpositionBefore, jpositionAfter, direction, object);
+        return this.checkLandObjects(jpositionAfter, object);
     }
     /** Check floor and autotile graphics used by map objects as land collisions. */
-    static checkLandObjects(jpositionBefore, jpositionAfter, direction, object) {
+    static checkLandObjects(jpositionAfter, object) {
         const hash = Scene.Map.current.landObjectsSpatialHash;
         const cellSize = Collisions.SPATIAL_HASH_CELL_SIZE;
         const cx = Math.floor(jpositionAfter.x / cellSize);
@@ -803,50 +787,22 @@ class Collisions {
         const lands = hash.get(Collisions.spatialHashKey(cx, cz));
         if (lands) {
             for (const { object: landObject, collision } of lands) {
-                if (landObject === object || !collision.b)
+                if (landObject === object || !collision.bs)
                     continue;
-                const b = collision.b;
-                const boundingBox = [
-                    landObject.position.x + b[0],
-                    landObject.position.y +
-                        b[1] +
-                        (landObject.positionLayer + landObject.currentStateInstance.layer.getValue()) *
-                            Scene.Map.current.camera.getLayerDepthOffset(),
-                    landObject.position.z + b[2],
-                    b[3],
-                    b[4],
-                    b[5],
-                    b[6],
-                ];
-                if (this.checkIntersectionLand(collision.cs, boundingBox, object) ||
-                    this.checkDirections(jpositionBefore, jpositionAfter, collision.cs, boundingBox, direction, object)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-    /**
-     *  Check if there is a collision with lands with directions.
-     *  @static
-     *  @param {MapPortion} mapPortion - The map portion to check
-     *  @param {Position} jpositionBefore - The json position before collision
-     *  @param {Position} jpositionAfter - The json position after collision
-     *  @param {THREE.Vector3} direction - The direction collision
-     *  @returns {boolean}
-     */
-    static checkLandsInside(mapPortion, jpositionBefore, jpositionAfter, direction) {
-        if (!mapPortion) {
-            return false;
-        }
-        const lands = mapPortion.boundingBoxesLands[jpositionBefore.toIndex()];
-        if (lands !== null) {
-            let objCollision, collision;
-            for (let i = 0, l = lands.length; i < l; i++) {
-                objCollision = lands[i];
-                if (objCollision !== null) {
-                    collision = objCollision.cs;
-                    if (this.checkDirectionsInside(jpositionBefore, jpositionAfter, collision, direction)) {
+                const y = landObject.position.y +
+                    (landObject.positionLayer + landObject.currentStateInstance.layer.getValue()) *
+                        Scene.Map.current.camera.getLayerDepthOffset();
+                for (const b of collision.bs) {
+                    const boundingBox = [
+                        landObject.position.x + b[0],
+                        y + b[1],
+                        landObject.position.z + b[2],
+                        b[3],
+                        b[4],
+                        b[5],
+                        b[6],
+                    ];
+                    if (this.checkIntersectionLand(boundingBox, object)) {
                         return true;
                     }
                 }
@@ -855,82 +811,19 @@ class Collisions {
         return false;
     }
     /**
-     *  Check intersection between ray and an object.
+     *  Check intersection between a land blocking box and an object.
      *  @static
-     *  @param {StructMapElementCollision} collision - The collision object
      *  @param {number[]} boundingBox - The bounding box values
      *  @param {MapObject} object - The map object to check
      *  @returns {boolean}
      */
-    static checkIntersectionLand(collision, boundingBox, object) {
-        if (collision != null || object.currentBoundingBox === null) {
+    static checkIntersectionLand(boundingBox, object) {
+        if (object.currentBoundingBox === null) {
             return false;
         }
         const box = this.getBBBox();
         this.applyBoxLandTransforms(box, boundingBox);
         return this.obbVSobb(object.currentBoundingBox.geometry, box.geometry);
-    }
-    /**
-     *  Check directions
-     *  @static
-     *  @param {Position} jpositionBefore - The json position before collision
-     *  @param {Position} jpositionAfter - The json position after collision
-     *  @param {StructMapElementCollision} collision - The collision object
-     *  @param {number[]} boundingBox - The bounding box values
-     *  @param {THREE.Vector3} direction - The direction collision
-     *  @param {MapObject} object - The map object collision test
-     *  @returns {boolean}
-     */
-    static checkDirections(jpositionBefore, jpositionAfter, collision, boundingBox, direction, object) {
-        if (collision == null) {
-            return false;
-        }
-        if (!jpositionBefore.equals(jpositionAfter)) {
-            if (this.checkIntersectionLand(null, boundingBox, object)) {
-                if (direction.x > 0) {
-                    return !collision.left;
-                }
-                if (direction.x < 0) {
-                    return !collision.right;
-                }
-                if (direction.z > 0) {
-                    return !collision.top;
-                }
-                if (direction.z < 0) {
-                    return !collision.bot;
-                }
-            }
-        }
-        return false;
-    }
-    /**
-     *  Check directions inside.
-     *  @static
-     *  @param {Position} jpositionBefore - The json position before collision
-     *  @param {Position} jpositionAfter - The json position after collision
-     *  @param {StructMapElementCollision} collision - The collision object
-     *  @param {THREE.Vector3} direction - The direction collision
-     *  @returns {boolean}
-     */
-    static checkDirectionsInside(jpositionBefore, jpositionAfter, collision, direction) {
-        if (collision == null) {
-            return false;
-        }
-        if (!jpositionBefore.equals(jpositionAfter)) {
-            if (direction.x > 0) {
-                return !collision.right;
-            }
-            if (direction.x < 0) {
-                return !collision.left;
-            }
-            if (direction.z > 0) {
-                return !collision.bot;
-            }
-            if (direction.z < 0) {
-                return !collision.top;
-            }
-        }
-        return false;
     }
     /**
      *  Check if there is a collision with sprites at this position.

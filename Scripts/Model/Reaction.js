@@ -31,6 +31,7 @@ export class Reaction extends Base {
         this.labels = [];
         this.idEvent = json.id;
         this.blockingHero = json.bh;
+        this.inherit = json.inh ?? false;
         this.commands = new Tree('root');
         this.readChildrenJSON(json.c, this.commands.root);
     }

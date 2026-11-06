@@ -139,11 +139,11 @@ class BattleInitialize {
             padding: WindowBox.SMALL_SLOT_PADDING,
             content: new Graphic.Text('', { align: ALIGN.CENTER }),
         });
-        this.battle.windowUserInformations = new WindowBox(ScreenResolution.SCREEN_X - Scene.Battle.WINDOW_PROFILE_WIDTH, ScreenResolution.SCREEN_Y - Scene.Battle.WINDOW_PROFILE_HEIGHT, Scene.Battle.WINDOW_PROFILE_WIDTH, Scene.Battle.WINDOW_PROFILE_HEIGHT, {
+        this.battle.windowUserInformations = new WindowBox(ScreenResolution.SCREEN_X - Data.BattleSystems.windowProfileStatisticsWidth, ScreenResolution.SCREEN_Y - Data.BattleSystems.windowProfileHeight, Data.BattleSystems.windowProfileStatisticsWidth, Data.BattleSystems.windowProfileHeight, {
             padding: WindowBox.MEDIUM_PADDING_BOX,
             limitContent: false,
         });
-        this.battle.windowTargetInformations = new WindowBox(0, ScreenResolution.SCREEN_Y - Scene.Battle.WINDOW_PROFILE_HEIGHT, Scene.Battle.WINDOW_PROFILE_WIDTH, Scene.Battle.WINDOW_PROFILE_HEIGHT, {
+        this.battle.windowTargetInformations = new WindowBox(0, ScreenResolution.SCREEN_Y - Data.BattleSystems.windowProfileHeight, Data.BattleSystems.windowProfileStatisticsWidth, Data.BattleSystems.windowProfileHeight, {
             padding: WindowBox.MEDIUM_PADDING_BOX,
             limitContent: false,
         });

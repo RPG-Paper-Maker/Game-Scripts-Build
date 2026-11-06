@@ -318,6 +318,14 @@ class Player extends Base {
         }
     }
     /**
+     *  Get the battle profile window width (statistics + faceset if any).
+     *  @returns {number}
+     */
+    getWindowProfileWidth() {
+        return (Data.BattleSystems.windowProfileStatisticsWidth +
+            (this.faceset.empty ? 0 : Data.Systems.facesetScalingWidth));
+    }
+    /**
      *  Drawing the player informations in battles.
      *  @param {number} x - The x position to draw graphic
      *  @param {number} y - The y position to draw graphic
@@ -330,7 +338,8 @@ class Player extends Base {
         const xLevelName = x + wName + ScreenResolution.getScreenX(Constants.MEDIUM_SPACE);
         const xLevel = xLevelName + wLevelName;
         const firstLineLength = xLevel + this.graphicLevel.textWidth;
-        const xOffset = this.reverse ? ScreenResolution.getScreenX(Data.Systems.facesetScalingWidth) : 0;
+        const facesetWidth = this.faceset.empty ? 0 : Data.Systems.facesetScalingWidth;
+        const xOffset = this.reverse ? ScreenResolution.getScreenX(facesetWidth) : 0;
         // Name, level, status
         const yName = y + ScreenResolution.getScreenY(15);
         this.graphicName.draw(x + xOffset, yName, 0, 0);
@@ -339,8 +348,8 @@ class Player extends Base {
         Status.drawList(this.player.status, firstLineLength + xOffset, yName);
         const yStats = yName + ScreenResolution.getScreenY(30);
         // Stats
-        const facesetScreenW = ScreenResolution.getScreenMinXY(Data.Systems.facesetScalingWidth);
-        const statW = (w - facesetScreenW - ScreenResolution.getScreenX(Constants.LARGE_SPACE)) / 2;
+        const facesetScreenW = ScreenResolution.getScreenMinXY(facesetWidth);
+        const statW = w - facesetScreenW;
         let i, l, xStat, yStat;
         for (i = 0, l = this.listStatistics.length; i < l; i++) {
             xStat = x + xOffset;

@@ -27,8 +27,12 @@ const LIGHT_PROPERTIES = [
     'targetX',
     'targetY',
     'targetZ',
+    'castShadow',
 ];
-const LEGACY_LIGHT_PROPERTIES = LIGHT_PROPERTIES.filter((property) => property !== 'followOrientation');
+const PREVIOUS_LIGHT_PROPERTIES = LIGHT_PROPERTIES.filter((property) => property !== 'castShadow');
+const LEGACY_LIGHT_PROPERTIES = PREVIOUS_LIGHT_PROPERTIES.filter((property) => property !== 'followOrientation');
+const getLightCommandProperties = (remaining, action) => [LIGHT_PROPERTIES, PREVIOUS_LIGHT_PROPERTIES, LEGACY_LIGHT_PROPERTIES].find((properties) => remaining === properties.length * 2 ||
+    (action === MODIFY_LIGHT_ACTION.EDIT && remaining === properties.length * 3)) ?? LIGHT_PROPERTIES;
 class ModifyLight extends Base {
     constructor(command) {
         super();
@@ -40,10 +44,7 @@ class ModifyLight extends Base {
         this.selectedFields = [];
         if (this.action !== MODIFY_LIGHT_ACTION.DELETE) {
             this.light = new Model.StateLight({});
-            const properties = command.length - iterator.i ===
-                LEGACY_LIGHT_PROPERTIES.length * (this.action === MODIFY_LIGHT_ACTION.EDIT ? 3 : 2)
-                ? LEGACY_LIGHT_PROPERTIES
-                : LIGHT_PROPERTIES;
+            const properties = getLightCommandProperties(command.length - iterator.i, this.action);
             const hasSelectedFields = this.action === MODIFY_LIGHT_ACTION.EDIT && command.length - iterator.i >= properties.length * 3;
             for (const property of properties) {
                 this.selectedFields[LIGHT_PROPERTIES.indexOf(property)] = hasSelectedFields ? command[iterator.i++] === 1 : true;

@@ -109,5 +109,7 @@ export class BattleSystems {
         // Options
         this.allyDeadWinExp = DynamicValue.readOrDefaultSwitch(json.adwe, false);
         this.cameraMoveInBattle = Utils.valueOrDefault(json.cmib, true);
+        this.windowProfileStatisticsWidth = Utils.valueOrDefault(json.windowProfileStatisticsWidth, 250);
+        this.windowProfileHeight = Utils.valueOrDefault(json.windowProfileHeight, 200);
     }
 }
