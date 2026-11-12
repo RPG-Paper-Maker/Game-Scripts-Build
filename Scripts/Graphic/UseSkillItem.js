@@ -8,7 +8,7 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { Mathf, ScreenResolution } from '../Common/index.js';
+import { Mathf, ScreenResolution, TARGET_KIND } from '../Common/index.js';
 import { Battler, Game } from '../Core/index.js';
 import { Data, Graphic, Manager, Scene } from '../index.js';
 import { Base } from './Base.js';
@@ -35,6 +35,20 @@ class UseSkillItem extends Base {
      */
     setSkillItem(skillItem) {
         this.skillItem = skillItem;
+    }
+    /**
+     *  Check if a player can be selected as target.
+     *  @param {Core.Player} target
+     *  @returns {boolean}
+     */
+    isTargetPossible(target) {
+        if (this.skillItem.targetKind === TARGET_KIND.USER) {
+            const user = Scene.Map.current.user;
+            if (user && user.player !== target) {
+                return false;
+            }
+        }
+        return this.skillItem.isPossible(target);
     }
     /**
      *  Set if all targets are selected or not.
@@ -84,7 +98,7 @@ class UseSkillItem extends Base {
             do {
                 this.indexArrow = Mathf.mod(this.indexArrow + index, this.graphicCharacters.length);
                 target = this.graphicCharacters[this.indexArrow].player;
-            } while (!this.skillItem.isPossible(target));
+            } while (!this.isTargetPossible(target));
             Scene.Map.current.targets = [new Battler(target)];
             Manager.Stack.requestPaintHUD = true;
             Data.Systems.soundCursor.playSound();
@@ -175,7 +189,7 @@ class UseSkillItem extends Base {
             }
             if (changed && i !== this.indexArrow) {
                 const target = this.graphicCharacters[i].player;
-                if (this.skillItem.isPossible(target)) {
+                if (this.isTargetPossible(target)) {
                     this.indexArrow = i;
                     Scene.Map.current.targets = [new Battler(target)];
                     Manager.Stack.requestPaintHUD = true;

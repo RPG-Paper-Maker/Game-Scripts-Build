@@ -8,16 +8,12 @@
     See RPG Paper Maker EULA here:
         http://rpg-paper-maker.com/index.php/eula.
 */
-import { TITLE_COMMAND_KIND } from '../Common/index.js';
 import { Data, Manager, Scene } from '../index.js';
 import { Base } from './Base.js';
-/** Plays the credits configured in the title screen choices. */
+/** Plays the credits configured in the title screen. */
 class PlayCredits extends Base {
     update(_currentState, _object, _state) {
-        const command = Data.TitlescreenGameover.titleCommands.find((choice) => choice.kind === TITLE_COMMAND_KIND.CREDITS);
-        if (command) {
-            Manager.Stack.push(new Scene.TitleCredits(command));
-        }
+        Manager.Stack.push(new Scene.TitleCredits(Data.TitlescreenGameover.credits));
         return 1;
     }
 }

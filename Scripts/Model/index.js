@@ -25,6 +25,7 @@ export * from "./CommonEvent.js";
 export * from "./CommonReaction.js";
 export * from "./CommonSkillItem.js";
 export * from "./Cost.js";
+export * from "./Credits.js";
 export * from "./Currency.js";
 export * from "./Detection.js";
 export * from "./DynamicValue.js";

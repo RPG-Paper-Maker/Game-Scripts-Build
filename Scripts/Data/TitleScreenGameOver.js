@@ -10,7 +10,7 @@
 */
 import { ALIGN, Paths, Platform, SONG_KIND, TITLE_SETTING_KIND, Utils } from '../Common/index.js';
 import { Graphic, Manager, Scene } from '../index.js';
-import { GameOverCommand, PlaySong, TitleCommand } from '../Model/index.js';
+import { Credits, GameOverCommand, PlaySong, TitleCommand, } from '../Model/index.js';
 /**
  * All the title screen and game over data.
  */
@@ -86,6 +86,7 @@ export class TitlescreenGameover {
         }
         this.titleCommandsWindowX = Utils.valueOrDefault(json.tcwx, 440);
         this.titleCommandsWindowY = Utils.valueOrDefault(json.tcwy, 450);
+        this.credits = new Credits(json.cr ?? {});
         // Game over
         this.isGameOverBackgroundImage = Utils.valueOrDefault(json.isGameOverBackgroundImage, true);
         this.isGameOverBackgroundVideo = Utils.valueOrDefault(json.isGameOverBackgroundVideo, false);

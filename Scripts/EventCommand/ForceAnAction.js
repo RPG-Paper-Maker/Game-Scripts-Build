@@ -58,33 +58,37 @@ class ForceAnAction extends Base {
             return {};
         }
         const map = Scene.Map.current;
-        map.forceAnAction = true;
         // Battler (user)
+        let user = null;
         let side;
         switch (this.battlerKind) {
             case 0: // Enemy
-                Scene.Map.current.user = map.battlers[CHARACTER_KIND.MONSTER][this.battlerEnemyIndex];
+                user = map.battlers[CHARACTER_KIND.MONSTER][this.battlerEnemyIndex] ?? null;
                 side = CHARACTER_KIND.MONSTER;
                 break;
             case 1: // Hero instance ID
                 const id = this.battlerHeroEnemyInstanceID.getValue();
-                Scene.Map.current.user = null;
                 for (const battler of map.battlers[CHARACTER_KIND.HERO]) {
                     if (battler.player.instid === id) {
-                        Scene.Map.current.user = battler;
+                        user = battler;
                         side = CHARACTER_KIND.HERO;
                         break;
                     }
                 }
                 for (const battler of map.battlers[CHARACTER_KIND.MONSTER]) {
                     if (battler.player.instid === id) {
-                        Scene.Map.current.user = battler;
+                        user = battler;
                         side = CHARACTER_KIND.MONSTER;
                         break;
                     }
                 }
                 break;
         }
+        if (user === null) {
+            return {};
+        }
+        const forcedAction = map.pushForcedAction(this.useBattlerTurn);
+        Scene.Map.current.user = user;
         // Action
         switch (this.actionKind) {
             case 0: // Skill
@@ -96,14 +100,14 @@ class ForceAnAction extends Base {
                 map.skill = Data.Items.get(this.actionID.getValue());
                 break;
             case 2: // Do nothing
-                map.battleCommandKind = EFFECT_SPECIAL_ACTION_KIND.NONE;
+                map.battleCommandKind = EFFECT_SPECIAL_ACTION_KIND.DO_NOTHING;
                 map.skill = null;
                 break;
         }
         // Target(s)
         let targets = [];
         map.targets = [];
-        switch (map.skill.targetKind) {
+        switch (map.skill?.targetKind) {
             case TARGET_KIND.USER:
                 map.targets = [Scene.Map.current.user];
                 break;
@@ -162,17 +166,9 @@ class ForceAnAction extends Base {
                     break;
             }
         }
-        // Use battler turn or not
-        map.forceAnActionUseTurn = this.useBattlerTurn;
-        // Register step and substep for going back to it after action done
-        map.previousStep = map.step;
-        map.previousSubStep = map.subStep;
-        map.previousCurrentEffectIndex = map.currentEffectIndex;
-        map.previousEffects = map.effects;
-        map.previousInformationText = map.informationText;
         // Start animation
         map.changeStep(BATTLE_STEP.ANIMATION);
-        return null;
+        return { forcedAction: forcedAction };
     }
     /**
      *  Update and check if the event is finished.
@@ -182,7 +178,10 @@ class ForceAnAction extends Base {
      *  @returns {number} The number of node to pass
      */
     update(currentState, object, state) {
-        return !Scene.Map.current.isBattleMap || !Scene.Map.current.forceAnAction ? 1 : 0;
+        return Scene.Map.current.isBattleMap &&
+            Scene.Map.current.forcedActions.includes(currentState.forcedAction)
+            ? 0
+            : 1;
     }
 }
 export { ForceAnAction };

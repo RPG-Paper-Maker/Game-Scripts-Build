@@ -28,12 +28,10 @@ export class TroopReactionConditions extends Base {
         if (this.isNumberOfTurn) {
             const plus = this.numberOfTurnPlus.getValue();
             const times = this.numberOfTurnTimes.getValue();
-            if (times === 1) {
-                if (sceneBattle.turn < plus) {
-                    return false;
-                }
+            if (sceneBattle.turn < plus) {
+                return false;
             }
-            else if (Mathf.mod(sceneBattle.turn - plus, times) !== 0) {
+            if (times <= 0 ? sceneBattle.turn !== plus : Mathf.mod(sceneBattle.turn - plus, times) !== 0) {
                 return false;
             }
         }

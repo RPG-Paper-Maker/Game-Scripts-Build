@@ -32,7 +32,10 @@ import { Map } from './Map.js';
 class Battle extends Map {
     constructor(troopID, canGameOver, canEscape, battleMap, transitionStart, transitionEnd, transitionStartColor, transitionEndColor) {
         super(battleMap.idMap, true);
+        this.forcedActions = [];
+        this.battlerTurnStartedUser = null;
         this.oneTimeTroopReactions = [];
+        this.troopReactionRunners = [];
         // Battle Handlers
         this.battleInitialize = new Scene.BattleInitialize(this);
         this.battleStartTurn = new Scene.BattleStartTurn(this);
@@ -226,6 +229,175 @@ class Battle extends Map {
         }
     }
     /**
+     *  Indicate if a forced action is currently in progress.
+     *  @returns {boolean}
+     */
+    get forceAnAction() {
+        return this.forcedActions.length > 0;
+    }
+    /**
+     *  Indicate if the current forced action uses the battler turn.
+     *  @returns {boolean}
+     */
+    get forceAnActionUseTurn() {
+        return this.forceAnAction && this.forcedActions[this.forcedActions.length - 1].useTurn;
+    }
+    /**
+     *  Save the current battle state before starting a forced action.
+     *  @param {boolean} useTurn - Indicate if the forced action uses the battler turn
+     *  @returns {BattleForcedAction}
+     */
+    pushForcedAction(useTurn) {
+        const forcedAction = {
+            useTurn: useTurn,
+            step: this.step,
+            subStep: this.subStep,
+            currentEffectIndex: this.currentEffectIndex,
+            currentTargetIndex: this.currentTargetIndex,
+            effects: this.effects,
+            informationText: this.informationText,
+            time: this.time,
+            user: this.user,
+            targets: this.targets,
+            skill: this.skill,
+            currentSkill: this.currentSkill,
+            action: this.action,
+            battleCommandKind: this.battleCommandKind,
+            animationUser: this.animationUser,
+            animationTarget: this.animationTarget,
+            animationState: this.battleAnimation.getState(),
+        };
+        this.forcedActions.push(forcedAction);
+        return forcedAction;
+    }
+    /**
+     *  Restore the battle state saved before the last forced action.
+     */
+    popForcedAction() {
+        const forcedAction = this.forcedActions.pop();
+        if (!forcedAction) {
+            return;
+        }
+        this.step = forcedAction.step;
+        this.subStep = forcedAction.subStep;
+        this.currentEffectIndex = forcedAction.currentEffectIndex;
+        this.currentTargetIndex = forcedAction.currentTargetIndex;
+        this.effects = forcedAction.effects;
+        this.informationText = forcedAction.informationText;
+        this.time = forcedAction.time;
+        this.user = forcedAction.user;
+        this.targets = forcedAction.targets;
+        this.skill = forcedAction.skill;
+        this.currentSkill = forcedAction.currentSkill;
+        this.action = forcedAction.action;
+        this.battleCommandKind = forcedAction.battleCommandKind;
+        this.animationUser = forcedAction.animationUser;
+        this.animationTarget = forcedAction.animationTarget;
+        this.battleAnimation.setState(forcedAction.animationState);
+        this.windowTopInformations.content.setText(this.informationText);
+    }
+    /**
+     *  Check if an interpreter is waiting for one of its forced actions to be done.
+     *  @param {ReactionInterpreter} interpreter - The interpreter
+     *  @returns {boolean}
+     */
+    isWaitingForcedAction(interpreter) {
+        const forcedAction = interpreter?.currentCommandState?.forcedAction;
+        return !!forcedAction && this.forcedActions.includes(forcedAction);
+    }
+    /**
+     *  Get the frequencies of troop reactions triggered at the start or end of the current phase.
+     *  @param {boolean} begin - Indicate if this is the start of the phase
+     *  @returns {TROOP_REACTION_FREQUENCY_KIND[]}
+     */
+    getPhaseFrequencies(begin) {
+        const isHero = this.attackingGroup === CHARACTER_KIND.HERO;
+        if (begin) {
+            return isHero
+                ? [
+                    TROOP_REACTION_FREQUENCY_KIND.EACH_PHASE_BEGIN,
+                    TROOP_REACTION_FREQUENCY_KIND.EACH_ROUND_BEGIN,
+                    TROOP_REACTION_FREQUENCY_KIND.EACH_ALLY_PHASE_BEGIN,
+                ]
+                : [TROOP_REACTION_FREQUENCY_KIND.EACH_PHASE_BEGIN, TROOP_REACTION_FREQUENCY_KIND.EACH_ENEMY_PHASE_BEGIN];
+        }
+        return isHero
+            ? [TROOP_REACTION_FREQUENCY_KIND.EACH_PHASE_END, TROOP_REACTION_FREQUENCY_KIND.EACH_ALLY_PHASE_END]
+            : [
+                TROOP_REACTION_FREQUENCY_KIND.EACH_PHASE_END,
+                TROOP_REACTION_FREQUENCY_KIND.EACH_ENEMY_PHASE_END,
+                TROOP_REACTION_FREQUENCY_KIND.EACH_ROUND_END,
+            ];
+    }
+    /**
+     *  Get the frequencies of troop reactions triggered at the start or end of a battler turn.
+     *  @param {Battler} battler - The battler
+     *  @param {boolean} begin - Indicate if this is the start of the turn
+     *  @returns {TROOP_REACTION_FREQUENCY_KIND[]}
+     */
+    getBattlerTurnFrequencies(battler, begin) {
+        const isHero = battler.player.kind === CHARACTER_KIND.HERO;
+        if (begin) {
+            return [
+                TROOP_REACTION_FREQUENCY_KIND.EACH_TURN_BEGIN,
+                isHero
+                    ? TROOP_REACTION_FREQUENCY_KIND.EACH_ALLY_TURN_BEGIN
+                    : TROOP_REACTION_FREQUENCY_KIND.EACH_ENEMY_TURN_BEGIN,
+            ];
+        }
+        return [
+            TROOP_REACTION_FREQUENCY_KIND.EACH_TURN_END,
+            isHero ? TROOP_REACTION_FREQUENCY_KIND.EACH_ALLY_TURN_END : TROOP_REACTION_FREQUENCY_KIND.EACH_ENEMY_TURN_END,
+        ];
+    }
+    /**
+     *  Run the valid troop reactions of some frequencies, then call back.
+     *  @param {TROOP_REACTION_FREQUENCY_KIND[]} frequencies - The frequencies
+     *  @param {() => void} callback - Called when all the reactions are finished
+     */
+    runTroopReactions(frequencies, callback) {
+        const runner = {
+            frequencies: frequencies,
+            index: 0,
+            interpreter: null,
+            step: this.step,
+            callback: callback,
+        };
+        this.troopReactionRunners.push(runner);
+        this.nextTroopReaction(runner);
+    }
+    /**
+     *  Start the next valid troop reaction of a runner, or call back if none.
+     *  @param {BattleTroopReactionRunner} runner - The runner
+     */
+    nextTroopReaction(runner) {
+        const reactions = this.troop.reactions;
+        for (const l = reactions.length; runner.index < l; runner.index++) {
+            const reaction = reactions[runner.index];
+            if (runner.frequencies.includes(reaction.frequency) && reaction.conditions.isValid()) {
+                runner.index++;
+                runner.interpreter = new ReactionInterpreter(null, reaction, null, null);
+                return;
+            }
+        }
+        runner.interpreter = null;
+        const index = this.troopReactionRunners.indexOf(runner);
+        if (index !== -1) {
+            this.troopReactionRunners.splice(index, 1);
+        }
+        if (this.step === runner.step) {
+            runner.callback();
+        }
+    }
+    /**
+     *  Get the troop reaction interpreter receiving inputs.
+     *  @returns {ReactionInterpreter}
+     */
+    getTroopReactionInterpreter() {
+        const runner = this.troopReactionRunners[this.troopReactionRunners.length - 1];
+        return runner ? runner.interpreter : this.interpreterTroopReaction;
+    }
+    /**
      *  Change the step of the battle.
      *  @param {BATTLE_STEP} i - Step of the battle
      */
@@ -268,6 +440,7 @@ class Battle extends Map {
      */
     update() {
         if (this.forceEndBattle) {
+            this.forcedActions = [];
             this.winning = false;
             this.changeStep(BATTLE_STEP.VICTORY);
             this.forceEndBattle = false;
@@ -307,6 +480,18 @@ class Battle extends Map {
         }
         // Camera temp code for moving
         this.moveStandardCamera();
+        // Troop reactions triggered by phases and turns
+        let runner = this.troopReactionRunners[this.troopReactionRunners.length - 1];
+        if (runner && runner.interpreter) {
+            runner.interpreter.update();
+            if (runner.interpreter.isFinished()) {
+                this.nextTroopReaction(runner);
+            }
+        }
+        runner = this.troopReactionRunners[this.troopReactionRunners.length - 1];
+        if (runner && !this.isWaitingForcedAction(runner.interpreter)) {
+            return;
+        }
         // Reaction troop always frequency
         if (this.interpreterTroopReaction === null) {
             let reaction;
@@ -337,7 +522,7 @@ class Battle extends Map {
         if (this.indexTroopReaction >= l) {
             this.indexTroopReaction = 0;
         }
-        if (this.interpreterTroopReaction) {
+        if (this.interpreterTroopReaction && !this.isWaitingForcedAction(this.interpreterTroopReaction)) {
             return;
         }
         // Update according to step
@@ -421,8 +606,9 @@ class Battle extends Map {
      */
     onKeyPressed(key) {
         super.onKeyPressed(key);
-        if (this.interpreterTroopReaction) {
-            this.interpreterTroopReaction.onKeyPressed(key);
+        const interpreter = this.getTroopReactionInterpreter();
+        if (interpreter) {
+            interpreter.onKeyPressed(key);
             return;
         }
         switch (this.step) {
@@ -455,8 +641,9 @@ class Battle extends Map {
      */
     onKeyReleased(key) {
         super.onKeyReleased(key);
-        if (this.interpreterTroopReaction) {
-            this.interpreterTroopReaction.onKeyReleased(key);
+        const interpreter = this.getTroopReactionInterpreter();
+        if (interpreter) {
+            interpreter.onKeyReleased(key);
             return;
         }
         switch (this.step) {
@@ -490,8 +677,9 @@ class Battle extends Map {
      */
     onKeyPressedRepeat(key) {
         let res = super.onKeyPressedRepeat(key);
-        if (this.interpreterTroopReaction) {
-            return res && this.interpreterTroopReaction.onKeyPressedRepeat(key);
+        const interpreter = this.getTroopReactionInterpreter();
+        if (interpreter) {
+            return res && interpreter.onKeyPressedRepeat(key);
         }
         switch (this.step) {
             case BATTLE_STEP.INITIALIZE:
@@ -525,8 +713,9 @@ class Battle extends Map {
      */
     onKeyPressedAndRepeat(key) {
         let res = super.onKeyPressedAndRepeat(key);
-        if (this.interpreterTroopReaction) {
-            return res && this.interpreterTroopReaction.onKeyPressedAndRepeat(key);
+        const interpreter = this.getTroopReactionInterpreter();
+        if (interpreter) {
+            return res && interpreter.onKeyPressedAndRepeat(key);
         }
         switch (this.step) {
             case BATTLE_STEP.INITIALIZE:
@@ -558,8 +747,9 @@ class Battle extends Map {
      */
     onMouseDown(x, y) {
         super.onMouseDown(x, y);
-        if (this.interpreterTroopReaction) {
-            this.interpreterTroopReaction.onMouseDown(x, y);
+        const interpreter = this.getTroopReactionInterpreter();
+        if (interpreter) {
+            interpreter.onMouseDown(x, y);
             return;
         }
         switch (this.step) {
@@ -576,8 +766,9 @@ class Battle extends Map {
      */
     onMouseMove(x, y) {
         super.onMouseMove(x, y);
-        if (this.interpreterTroopReaction) {
-            this.interpreterTroopReaction.onMouseMove(x, y);
+        const interpreter = this.getTroopReactionInterpreter();
+        if (interpreter) {
+            interpreter.onMouseMove(x, y);
             return;
         }
         switch (this.step) {
@@ -597,8 +788,9 @@ class Battle extends Map {
      */
     onMouseUp(x, y) {
         super.onMouseUp(x, y);
-        if (this.interpreterTroopReaction) {
-            this.interpreterTroopReaction.onMouseUp(x, y);
+        const interpreter = this.getTroopReactionInterpreter();
+        if (interpreter) {
+            interpreter.onMouseUp(x, y);
             return;
         }
         switch (this.step) {
@@ -667,6 +859,9 @@ class Battle extends Map {
         }
         if (this.interpreterTroopReaction) {
             this.interpreterTroopReaction.drawHUD();
+        }
+        for (const runner of this.troopReactionRunners) {
+            runner.interpreter?.drawHUD();
         }
         super.drawHUD();
     }

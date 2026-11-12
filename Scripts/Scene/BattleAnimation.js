@@ -10,7 +10,7 @@
 */
 import { Data, Manager, Scene } from "../index.js";
 import { ANIMATION_EFFECT_CONDITION_KIND, ANIMATION_POSITION_KIND, ArrayUtils, BATTLE_STEP, BATTLER_STEP, CHARACTER_KIND, EFFECT_KIND, EFFECT_SPECIAL_ACTION_KIND, ITEM_KIND, } from '../Common/index.js';
-import { Animation, Game } from '../Core/index.js';
+import { Animation, Game, Item } from '../Core/index.js';
 // -------------------------------------------------------
 //
 //  CLASS SceneBattle
@@ -23,13 +23,56 @@ import { Animation, Game } from '../Core/index.js';
 class BattleAnimation {
     constructor(battle) {
         this.runOnEnemy = false;
+        this.isBattlerTurn = false;
         this.pendingBattlerStep = BATTLER_STEP.NORMAL;
         this.battle = battle;
+    }
+    /**
+     *  Get the state to save before a forced action.
+     *  @returns {Record<string, any>}
+     */
+    getState() {
+        return {
+            runOnEnemy: this.runOnEnemy,
+            isBattlerTurn: this.isBattlerTurn,
+            pendingBattlerStep: this.pendingBattlerStep,
+        };
+    }
+    /**
+     *  Restore the state saved before a forced action.
+     *  @param {Record<string, any>} state - The state
+     */
+    setState(state) {
+        this.runOnEnemy = state.runOnEnemy;
+        this.isBattlerTurn = state.isBattlerTurn;
+        this.pendingBattlerStep = state.pendingBattlerStep;
     }
     /**
      *  Initialize step.
      */
     initialize() {
+        this.isBattlerTurn =
+            this.battle.user !== null &&
+                this.battle.battleCommandKind !== EFFECT_SPECIAL_ACTION_KIND.END_TURN &&
+                (!this.battle.forceAnAction || this.battle.forceAnActionUseTurn);
+        const isTurnStarted = !this.battle.forceAnAction && this.battle.battlerTurnStartedUser === this.battle.user;
+        if (isTurnStarted) {
+            this.battle.battlerTurnStartedUser = null;
+        }
+        if (this.isBattlerTurn && !isTurnStarted) {
+            this.battle.animationUser = null;
+            this.battle.animationTarget = null;
+            this.battle.subStep = 5;
+            this.battle.runTroopReactions(this.battle.getBattlerTurnFrequencies(this.battle.user, true), () => this.start());
+            return;
+        }
+        this.start();
+    }
+    /**
+     *  Start the action animation.
+     */
+    start() {
+        this.battle.subStep = 0;
         let content;
         switch (this.battle.battleCommandKind) {
             case EFFECT_SPECIAL_ACTION_KIND.APPLY_WEAPONS:
@@ -107,12 +150,16 @@ class BattleAnimation {
                 break;
             }
             case EFFECT_SPECIAL_ACTION_KIND.OPEN_ITEMS:
-                const graphic = this.battle.windowChoicesItems.getCurrentContent();
                 this.battle.animationUser = new Animation(content.animationUserID.getValue());
                 this.battle.animationTarget = new Animation(content.animationTargetID.getValue());
                 this.battle.effects = content.getEffects();
                 if (this.battle.user.player.kind === CHARACTER_KIND.HERO) {
-                    Game.current.useItem(graphic.item);
+                    const item = this.battle.forceAnAction
+                        ? Item.findItem(ITEM_KIND.ITEM, content.id)
+                        : this.battle.windowChoicesItems.getCurrentContent().item;
+                    if (item) {
+                        Game.current.useItem(item);
+                    }
                 }
                 this.runOnEnemy = content.runOnEnemy.getValue();
                 this.battle.user.setUsingItem();
@@ -396,47 +443,52 @@ class BattleAnimation {
                             }
                         }
                     }
-                    if (this.battle.isWin()) {
-                        this.battle.winning = true;
-                        this.battle.activeGroup();
-                        this.battle.changeStep(BATTLE_STEP.VICTORY);
+                    if (this.isBattlerTurn && this.battle.user) {
+                        this.isBattlerTurn = false;
+                        this.battle.subStep = 6;
+                        this.battle.runTroopReactions(this.battle.getBattlerTurnFrequencies(this.battle.user, false), () => this.end());
+                        return;
                     }
-                    else if (this.battle.isLose()) {
-                        this.battle.winning = false;
-                        this.battle.changeStep(BATTLE_STEP.VICTORY);
-                    }
-                    else {
-                        if (this.battle.forceAnAction) {
-                            this.battle.forceAnAction = false;
-                            this.battle.step = this.battle.previousStep;
-                            this.battle.subStep = this.battle.previousSubStep;
-                            this.battle.currentEffectIndex = this.battle.previousCurrentEffectIndex;
-                            this.battle.effects = this.battle.previousEffects;
-                            this.battle.informationText = this.battle.previousInformationText;
-                            this.battle.windowTopInformations.content.setText(this.battle.informationText);
-                            return;
-                        }
-                        else {
-                            // Testing end of turn
-                            if (this.battle.battleStartTurn.active) {
-                                this.battle.changeStep(BATTLE_STEP.START_TURN);
-                                return;
-                            }
-                            if (this.battle.isEndTurn()) {
-                                this.battle.changeStep(BATTLE_STEP.END_TURN);
-                            }
-                            else {
-                                if (this.battle.attackingGroup === CHARACTER_KIND.HERO) {
-                                    this.battle.changeStep(BATTLE_STEP.SELECTION); // Attack of heroes
-                                }
-                                else {
-                                    this.battle.changeStep(BATTLE_STEP.ENEMY_ATTACK); // Attack of ennemies
-                                }
-                            }
-                        }
-                    }
+                    this.end();
                 }
                 break;
+        }
+    }
+    /**
+     *  End the action and go to the next step.
+     */
+    end() {
+        if (this.battle.isWin()) {
+            this.battle.forcedActions = [];
+            this.battle.winning = true;
+            this.battle.activeGroup();
+            this.battle.changeStep(BATTLE_STEP.VICTORY);
+        }
+        else if (this.battle.isLose()) {
+            this.battle.forcedActions = [];
+            this.battle.winning = false;
+            this.battle.changeStep(BATTLE_STEP.VICTORY);
+        }
+        else if (this.battle.forceAnAction) {
+            this.battle.popForcedAction();
+        }
+        else {
+            // Testing end of turn
+            if (this.battle.battleStartTurn.active) {
+                this.battle.changeStep(BATTLE_STEP.START_TURN);
+                return;
+            }
+            if (this.battle.isEndTurn()) {
+                this.battle.changeStep(BATTLE_STEP.END_TURN);
+            }
+            else {
+                if (this.battle.attackingGroup === CHARACTER_KIND.HERO) {
+                    this.battle.changeStep(BATTLE_STEP.SELECTION); // Attack of heroes
+                }
+                else {
+                    this.battle.changeStep(BATTLE_STEP.ENEMY_ATTACK); // Attack of ennemies
+                }
+            }
         }
     }
     /**
