@@ -94,6 +94,7 @@ export class MapProperties extends Localization {
      */
     updateScreenTone() {
         Manager.GL.screenTone.set(Math.max(Math.min(this.screenToneRed.getValue() / 255, 1), -1), Math.max(Math.min(this.screenToneGreen.getValue() / 255, 1), -1), Math.max(Math.min(this.screenToneBlue.getValue() / 255, 1), -1), Math.max(Math.min(1 - this.screenToneGrey.getValue() / 100, 1), -1));
+        Manager.GL.screenToneLegacy.value = this.screenToneLegacy;
         if (this.backgroundColor) {
             Manager.GL.updateBackgroundColor(this.backgroundColor);
         }
@@ -237,6 +238,7 @@ export class MapProperties extends Localization {
         this.screenToneGreen = DynamicValue.readOrDefaultNumber(json.screenToneGreen, 0);
         this.screenToneBlue = DynamicValue.readOrDefaultNumber(json.screenToneBlue, 0);
         this.screenToneGrey = DynamicValue.readOrDefaultNumber(json.screenToneGrey, 0);
+        this.screenToneLegacy = Utils.valueOrDefault(json.stl, false);
         this.readObjects(json);
     }
     /**

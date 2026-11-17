@@ -97,6 +97,16 @@ class Camera {
         return 0.05 * Math.min((this.getHidingDistance() / 50) ** 2, 1);
     }
     /**
+     *  Get the camera position from target position, angles and distance, without hiding.
+     *  @returns {THREE.Vector3}
+     */
+    getOrbitPosition() {
+        const h = (this.horizontalAngle * Math.PI) / 180.0;
+        const v = (this.verticalAngle * Math.PI) / 180.0;
+        const distance = this.distance * Math.sin(v);
+        return new THREE.Vector3(this.targetPosition.x - distance * Math.cos(h), this.targetPosition.y + this.distance * Math.cos(v), this.targetPosition.z - distance * Math.sin(h));
+    }
+    /**
      *  Get the horizontal angle between two positions.
      *  @param {Vector3} p1 - The first position
      *  @param {Vector3} p2 - The second position

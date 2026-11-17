@@ -20,6 +20,7 @@ import { Data, Graphic, Model } from '../index.js';
 class Message extends Graphic.Base {
     constructor(message, facesetID, facesetIndexX, facesetIndexY) {
         super();
+        this.visibleCharacters = -1;
         this.message = message;
         this.faceset = Data.Pictures.getPictureCopy(PICTURE_KIND.FACESETS, facesetID);
         this.facesetIndexX = facesetIndexX;
@@ -391,6 +392,29 @@ class Message extends Graphic.Base {
         }
     }
     /**
+     *  Get the number of characters that can be revealed.
+     *  @returns {number}
+     */
+    getCharactersCount() {
+        let count = 0;
+        for (const graphic of this.graphics) {
+            if (graphic instanceof Graphic.Text) {
+                count += graphic.getCharactersCount();
+            }
+            else if (graphic !== null) {
+                count++;
+            }
+        }
+        return count;
+    }
+    /**
+     *  Check if all the characters are revealed.
+     *  @returns {boolean}
+     */
+    isFullyRevealed() {
+        return this.visibleCharacters < 0 || this.visibleCharacters >= this.getCharactersCount();
+    }
+    /**
      *  Drawing the faceset behind.
      *  @param {number} x - The x position to draw graphic
      *  @param {number} y - The y position to draw graphic
@@ -456,8 +480,12 @@ class Message extends Graphic.Base {
         // Draw each graphics
         let offsetX = 0;
         let graphic;
+        let remaining = this.visibleCharacters;
         for (let i = 0, j = 0, l = this.graphics.length; i < l; i++) {
             graphic = this.graphics[i];
+            if (this.visibleCharacters >= 0 && remaining <= 0) {
+                break;
+            }
             // New line
             if (graphic === null) {
                 offsetY += this.heights[c--] * 2;
@@ -486,6 +514,7 @@ class Message extends Graphic.Base {
                         offsetY += this.heights[c] * 2;
                         offsetX = 0;
                     }
+                    remaining--;
                     graphic.draw({
                         x: newX + offsetX,
                         y: isChoice
@@ -500,6 +529,8 @@ class Message extends Graphic.Base {
                 }
                 else {
                     const textGraphic = graphic;
+                    textGraphic.visibleCharacters = this.visibleCharacters < 0 ? -1 : remaining;
+                    remaining -= textGraphic.getCharactersCount();
                     const availableW = textAreaWidth > 0 ? textAreaWidth - offsetX : 0;
                     textGraphic.draw(newX + offsetX, newY + offsetY, availableW, isChoice ? h : graphic.oH, offsetX > 0 ? newX : undefined, offsetX > 0 && textAreaWidth > 0 ? textAreaWidth : undefined);
                     if (textGraphic.lines.length > 1) {

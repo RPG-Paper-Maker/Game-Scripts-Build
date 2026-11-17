@@ -47,6 +47,7 @@ class Text extends Base {
         this.lastLineWidth = 0;
         this.zoom = 1;
         this.ellipsis = false;
+        this.visibleCharacters = -1;
         this.align = align;
         this.fontName = fontName;
         this.verticalAlign = verticalAlign;
@@ -176,6 +177,32 @@ class Text extends Base {
         return truncated + ellipsis;
     }
     /**
+     *  Get the number of characters that can be revealed.
+     *  @returns {number}
+     */
+    getCharactersCount() {
+        return this.text.length;
+    }
+    /**
+     *  Get the lines truncated according to the visible characters.
+     *  @returns {string[]}
+     */
+    getVisibleLines() {
+        if (this.visibleCharacters < 0) {
+            return this.lines;
+        }
+        const lines = [];
+        let remaining = this.visibleCharacters;
+        for (const line of this.lines) {
+            if (remaining <= 0) {
+                break;
+            }
+            lines.push(line.substring(0, remaining));
+            remaining -= line.length + 1;
+        }
+        return lines;
+    }
+    /**
      *  Drawing the text in choice box.
      *  @param {number} [x=this.x] - The x position to draw graphic
      *  @param {number} [y=this.y] - The y position to draw graphic
@@ -255,7 +282,8 @@ class Text extends Base {
         Platform.ctx.font = this.font;
         Platform.ctx.textAlign = this.align;
         const lineHeight = this.fontSize * 2;
-        let i, l = this.lines.length;
+        const lines = this.getVisibleLines();
+        let i, l = lines.length;
         // Stroke text
         let yOffset;
         if (this.strokeColor !== null) {
@@ -265,7 +293,7 @@ class Text extends Base {
             yOffset = 0;
             for (i = 0; i < l; i++) {
                 const cx = i === 0 || continuationX === undefined ? x : continuationX;
-                Platform.ctx.strokeText(this.lines[i], Math.round(cx), Math.round(y + yOffset));
+                Platform.ctx.strokeText(lines[i], Math.round(cx), Math.round(y + yOffset));
                 yOffset += lineHeight;
             }
             Platform.ctx.lineWidth = 1;
@@ -276,7 +304,7 @@ class Text extends Base {
         yOffset = 0;
         for (i = 0; i < l; i++) {
             const cx = i === 0 || continuationX === undefined ? x : continuationX;
-            Platform.ctx.fillText(this.lines[i], Math.round(cx), Math.round(y + yOffset));
+            Platform.ctx.fillText(lines[i], Math.round(cx), Math.round(y + yOffset));
             yOffset += lineHeight;
         }
         // Fix font back

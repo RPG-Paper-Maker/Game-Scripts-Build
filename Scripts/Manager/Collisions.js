@@ -419,6 +419,7 @@ class Collisions {
         const checkedSprites = new Set();
         let yMountain = null;
         const mountainCollisionHeight = Data.Systems.mountainCollisionHeight.getValue() / Data.Systems.SQUARE_SIZE;
+        const pixel = 1 / Data.Systems.SQUARE_SIZE;
         // Squares to inspect according to the direction of the object
         let [startI, endI, startJ, endJ, startK, endK] = object.getSquaresBB();
         const bounds = object.currentBoundingBox?.geometry.boundingBox;
@@ -617,11 +618,11 @@ class Collisions {
                                             }
                                         }
                                         // Check if climbing stuff in 1 px bottom
-                                        const positionBottom = Collisions._scratchPositionBottom.set(positionBefore.x, positionBefore.y - 1, positionBefore.z);
+                                        const positionBottom = Collisions._scratchPositionBottom.set(positionBefore.x, positionBefore.y - pixel, positionBefore.z);
                                         for (i = startI; i <= endI; i++) {
                                             for (j = startJ; j <= endJ; j++) {
                                                 for (k = startK; k <= endK; k++) {
-                                                    positionBeforePlus.set(positionBefore.x + i, positionBefore.y + j - 1, positionBefore.z + k);
+                                                    positionBeforePlus.set(positionBefore.x + i, positionBefore.y + j - pixel, positionBefore.z + k);
                                                     lp.x = Math.floor(positionBeforePlus.x / chunkSize) - cp.x;
                                                     lp.y = Math.floor(positionBeforePlus.y / chunkSize) - cp.y;
                                                     lp.z = Math.floor(positionBeforePlus.z / chunkSize) - cp.z;
@@ -636,11 +637,11 @@ class Collisions {
                                                         let [b, y, o] = this.checkSprites(mapPortion, jp, object);
                                                         if (b === null) {
                                                             // Check if after moving the collision still occurs. If not, go down
-                                                            const positionBottomAfter = Collisions._scratchPositionBottomAfter.set(positionAfter.x, positionAfter.y - 1, positionAfter.z);
+                                                            const positionBottomAfter = Collisions._scratchPositionBottomAfter.set(positionAfter.x, positionAfter.y - pixel, positionAfter.z);
                                                             for (i2 = startI; i2 <= endI; i2++) {
                                                                 for (j2 = startJ; j2 <= endJ; j2++) {
                                                                     for (k2 = startK; k2 <= endK; k2++) {
-                                                                        positionAfterPlus.set(positionAfter.x + i2, positionAfter.y + j2 - 1, positionAfter.z + k2);
+                                                                        positionAfterPlus.set(positionAfter.x + i2, positionAfter.y + j2 - pixel, positionAfter.z + k2);
                                                                         lp.x =
                                                                             Math.floor(positionAfterPlus.x / chunkSize) - cp.x;
                                                                         lp.y =
@@ -852,8 +853,9 @@ class Collisions {
                             MapObject.SPEED_NORMAL *
                             Manager.Stack.averageElapsedTime *
                             Data.Systems.climbingSpeed.getValue();
-                        const limitTop = objCollision.b[1] + Math.ceil(objCollision.b[4] / 2);
-                        const limitBot = objCollision.b[1] - Math.ceil(objCollision.b[4] / 2);
+                        const squareSize = Data.Systems.SQUARE_SIZE;
+                        const limitTop = objCollision.b[1] + Math.ceil((objCollision.b[4] * squareSize) / 2) / squareSize;
+                        const limitBot = objCollision.b[1] - Math.ceil((objCollision.b[4] * squareSize) / 2) / squareSize;
                         const y = object.isClimbingUp
                             ? Math.min(object.position.y + speed, limitTop)
                             : Math.max(object.position.y - speed, limitBot);

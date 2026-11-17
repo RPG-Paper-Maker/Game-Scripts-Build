@@ -35,6 +35,7 @@ class ChangeScreenTone extends Base {
         }
         this.waitEnd = Utils.numberToBool(command[iterator.i++]);
         this.time = Model.DynamicValue.createValueCommand(command, iterator);
+        this.legacy = Utils.numberToBool(command[iterator.i++]);
         this.parallel = !this.waitEnd;
     }
     /**
@@ -43,6 +44,7 @@ class ChangeScreenTone extends Base {
      */
     initialize() {
         Manager.GL.screenToneByCommand = true;
+        Manager.GL.screenToneLegacy.value = this.legacy;
         const transitionID = ++Manager.GL.screenToneTransitionID;
         const time = this.time.getValue() * 1000;
         const color = this.colorID ? Data.Systems.getColor(this.colorID.getValue()) : null;

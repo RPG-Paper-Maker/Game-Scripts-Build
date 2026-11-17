@@ -88,6 +88,19 @@ class SetDialogBoxOptions extends Base {
         if (Utils.numberToBool(command[iterator.i++])) {
             this.iH = Model.DynamicValue.createValueCommand(command, iterator);
         }
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.tTypewriter = !Utils.numberToBool(command[iterator.i++]);
+        }
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.tTypewriterInterval = Model.DynamicValue.createValueCommand(command, iterator);
+        }
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.tTypewriterSound = Model.DynamicValue.createValueCommand(command, iterator);
+            iterator.i++;
+        }
+        if (Utils.numberToBool(command[iterator.i++])) {
+            this.tTypewriterVolume = Model.DynamicValue.createValueCommand(command, iterator);
+        }
     }
     /**
      *  Update and check if the event is finished
@@ -162,6 +175,18 @@ class SetDialogBoxOptions extends Base {
         }
         if (this.iH !== undefined) {
             Data.Systems.dbOptions.v_iH = this.iH.getValue();
+        }
+        if (this.tTypewriter !== undefined) {
+            Data.Systems.dbOptions.v_tTypewriter = this.tTypewriter;
+        }
+        if (this.tTypewriterInterval !== undefined) {
+            Data.Systems.dbOptions.v_tTypewriterInterval = this.tTypewriterInterval.getValue();
+        }
+        if (this.tTypewriterSound !== undefined) {
+            Data.Systems.dbOptions.v_tTypewriterSound = this.tTypewriterSound.getValue();
+        }
+        if (this.tTypewriterVolume !== undefined) {
+            Data.Systems.dbOptions.v_tTypewriterVolume = this.tTypewriterVolume.getValue();
         }
         return 1;
     }

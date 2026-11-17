@@ -71,15 +71,6 @@ class Base {
     updateInterpreters() {
         // Index of all the finished parallel reactions
         const endingReactions = [];
-        // Updating blocking hero
-        ReactionInterpreter.blockingHero = false;
-        let reaction;
-        for (reaction of this.reactionInterpreters) {
-            if (reaction.currentReaction?.blockingHero) {
-                ReactionInterpreter.blockingHero = true;
-                break;
-            }
-        }
         // Updating all reactions
         const reactionInterpreters = this.getAllReactionInterpreters();
         for (const reaction of reactionInterpreters) {
@@ -96,6 +87,8 @@ class Base {
         // Deleting finished reactions
         this.reactionInterpreters = this.reactionInterpreters.filter((reaction) => !endingReactions.includes(reaction));
         this.reactionInterpretersEffects = this.reactionInterpretersEffects.filter((reaction) => !endingReactions.includes(reaction));
+        // Updating blocking hero
+        ReactionInterpreter.blockingHero = this.reactionInterpreters.some((reaction) => reaction.currentReaction?.blockingHero && reactionInterpreters.includes(reaction));
     }
     /**
      *  Update all the parallel commands from the scenes.

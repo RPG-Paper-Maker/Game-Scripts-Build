@@ -66,6 +66,8 @@ class TitleScreen extends Base {
         }
         // Reset screen tone
         Manager.GL.screenTone.set(0, 0, 0, 1);
+        Manager.GL.screenToneLegacy.value = false;
+        Manager.GL.resetLighting();
         // Destroy pictures
         Manager.Stack.displayedPictures = [];
         const pictureBackgroundPromise = Data.TitlescreenGameover.isTitleBackgroundImage

@@ -30,6 +30,8 @@ class Map extends Base {
         this.landObjectsSpatialHashDirty = true;
         this.previousWeatherPoints = null;
         this.weatherPoints = null;
+        this._mapLightTotal = new THREE.Color();
+        this._currentLightTotal = new THREE.Color();
         this.overflowSprites = new globalThis.Map();
         this.overflowMountains = new globalThis.Map();
         this.overflowObjects3D = new globalThis.Map();
@@ -178,6 +180,78 @@ class Map extends Base {
         else {
             return [];
         }
+    }
+    /**
+     *  Get the sunlight or ambient light values from the map properties.
+     *  @param {boolean} isSun
+     *  @returns {Manager.LightingOverride}
+     */
+    getMapLight(isSun) {
+        const properties = this.mapProperties;
+        if (isSun) {
+            return {
+                color: new THREE.Color(properties.sunlightColor.getValue()),
+                intensity: properties.isSunLight ? properties.sunlightIntensity.getValue() : 0,
+            };
+        }
+        return {
+            color: new THREE.Color(properties.ambientLightColor.getValue()),
+            intensity: properties.isAmbientLight ? properties.ambientLightIntensity.getValue() : 0,
+        };
+    }
+    /**
+     *  Get the current sunlight or ambient light values (changed by command or
+     *  from map properties).
+     *  @param {boolean} isSun
+     *  @returns {Manager.LightingOverride}
+     */
+    getCurrentLight(isSun) {
+        const override = this.isLightingOverrideActive()
+            ? isSun
+                ? Manager.GL.lightingSun
+                : Manager.GL.lightingAmbient
+            : null;
+        return override ? { color: override.color.clone(), intensity: override.intensity } : this.getMapLight(isSun);
+    }
+    /**
+     *  Check if the sunlight and ambient light values changed by command apply
+     *  to this map.
+     *  @returns {boolean}
+     */
+    isLightingOverrideActive() {
+        return Manager.GL.lightingKeep || Manager.GL.lightingMapID === this.id;
+    }
+    /**
+     *  Update sunlight, ambient light and sky tint.
+     */
+    updateLights() {
+        const properties = this.mapProperties;
+        if (!Manager.GL.lightingKeep && Manager.GL.lightingMapID !== this.id && !this.isBattleMap) {
+            if (Manager.GL.lightingSun || Manager.GL.lightingAmbient) {
+                Manager.GL.resetLighting();
+            }
+        }
+        const getFactor = (offset, time) => 1 +
+            (offset / 100) * (time > 0 && offset !== 0 ? (1 - Math.cos((Math.PI * performance.now()) / time)) / 2 : 0);
+        const mapLight = this._mapLightTotal.setRGB(0, 0, 0);
+        const currentLight = this._currentLightTotal.setRGB(0, 0, 0);
+        if (properties.isSunLight && this.sunLight) {
+            const map = this.getMapLight(true);
+            const current = this.getCurrentLight(true);
+            const factor = getFactor(properties.sunlightIntensityOffset.getValue(), properties.sunlightIntensityTime.getValue());
+            this.sunLight.intensity = Math.max(0, current.intensity * factor);
+            this.sunLight.color.copy(current.color);
+            mapLight.add(map.color.multiplyScalar(map.intensity));
+            currentLight.add(current.color.multiplyScalar(current.intensity));
+        }
+        const map = this.getMapLight(false);
+        const current = this.getCurrentLight(false);
+        const factor = getFactor(properties.ambientLightIntensityOffset.getValue(), properties.ambientLightIntensityTime.getValue());
+        this.ambientLight.intensity = Math.max(0, current.intensity * factor);
+        this.ambientLight.color.copy(current.color);
+        mapLight.add(map.color.multiplyScalar(map.intensity));
+        currentLight.add(current.color.multiplyScalar(current.intensity));
+        Manager.GL.updateLightingSky(mapLight, currentLight);
     }
     /**
      *  Initialize sun light.
@@ -1145,25 +1219,13 @@ class Map extends Base {
         // Update camera
         this.camera.forceNoHide = true;
         this.camera.update();
-        if (this.mapProperties.isSunLight && this.sunLight) {
-            const intensity = this.mapProperties.sunlightIntensity.getValue();
-            const offset = this.mapProperties.sunlightIntensityOffset.getValue();
-            const time = this.mapProperties.sunlightIntensityTime.getValue();
-            const factor = time > 0 && offset !== 0 ? (1 - Math.cos((Math.PI * performance.now()) / time)) / 2 : 0;
-            this.sunLight.intensity = Math.max(0, intensity * (1 + (offset / 100) * factor));
-            const color = this.mapProperties.sunlightColor.getValue();
-            this.sunLight.color.set(color);
+        this.updateLights();
+        if (this.mapProperties.skyboxMesh) {
+            Manager.GL.updateSkyTint(this.mapProperties.skyboxMesh.material);
         }
-        const ambientIntensity = this.mapProperties.ambientLightIntensity.getValue();
-        const ambientOffset = this.mapProperties.ambientLightIntensityOffset.getValue();
-        const ambientTime = this.mapProperties.ambientLightIntensityTime.getValue();
-        const ambientFactor = ambientTime > 0 && ambientOffset !== 0
-            ? (1 - Math.cos((Math.PI * performance.now()) / ambientTime)) / 2
-            : 0;
-        this.ambientLight.intensity = this.mapProperties.isAmbientLight
-            ? Math.max(0, ambientIntensity * (1 + (ambientOffset / 100) * ambientFactor))
-            : 0;
-        this.ambientLight.color.set(this.mapProperties.ambientLightColor.getValue());
+        if (this.mapProperties.backgroundColor) {
+            Manager.GL.updateBackgroundColor(this.mapProperties.backgroundColor);
+        }
         this.updateLayerOffsets();
         // Update skybox
         if (this.mapProperties.skyboxGeometry !== null && this.previousCameraPosition) {
