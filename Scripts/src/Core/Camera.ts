@@ -1,0 +1,382 @@
+/*
+    RPG Paper Maker Copyright (C) 2017-2026 Wano
+
+    RPG Paper Maker engine is under proprietary license.
+    This source code is also copyrighted.
+
+    Use Commercial edition for commercial use of your games.
+    See RPG Paper Maker EULA here:
+        http://rpg-paper-maker.com/index.php/eula.
+*/
+
+import * as THREE from 'three';
+import { Mathf, ORIENTATION, ScreenResolution } from '../Common';
+import { Data, Manager, Model, Scene } from '../index';
+import { MapObject } from './MapObject';
+
+/** @class
+ *  The camera of the current map.
+ *  @param {System.CameraProperties} cameraProperties - The System camera
+ *  properties
+ *  @param {MapObject} target - The camera target
+ */
+class Camera {
+	public static readonly HIDDING_MOVE_TIME = 250;
+	public static readonly SUN_FORWARD = new THREE.Vector3();
+	public static readonly SUN_RIGHT = new THREE.Vector3();
+	public static readonly SUN_UP = new THREE.Vector3();
+	private static readonly _sunOffset = new THREE.Vector3();
+	private static _snapTarget = new THREE.Vector3();
+	private static readonly MIN_VIEW_DISTANCE_SQ = 1e-6;
+	private static readonly _lookTarget = new THREE.Vector3();
+	private _stableD: number = 0;
+
+	public system: Model.CameraProperties;
+	public perspectiveCamera: THREE.PerspectiveCamera;
+	public orthographicCamera: THREE.OrthographicCamera;
+	public isPerspective: boolean;
+	public target: MapObject;
+	public targetPosition: THREE.Vector3;
+	public targetLastPosition: THREE.Vector3;
+	public targetOffset: THREE.Vector3;
+	public distance: number;
+	public horizontalAngle: number;
+	public verticalAngle: number;
+	public hidingDistance: number = -1;
+	public previousHidingDistance: number = -1;
+	public hidingTime: number = 1;
+	public hidingStart: number = -1;
+	public hidingEnd: number = -1;
+	public hidingCurrent: number = -1;
+	public forceNoHide: boolean = true;
+
+	constructor(cameraProperties: Model.CameraProperties, target: MapObject) {
+		this.system = cameraProperties;
+		this.initialize();
+		this.target = target;
+	}
+
+	/**
+	 *  Initialize the camera according to system camera properties.
+	 */
+	initialize() {
+		this.system.initializeCamera(this);
+	}
+
+	/**
+	 *  Configure camera when resizing window.
+	 */
+	resizeGL() {
+		if (this.isPerspective) {
+			this.perspectiveCamera.aspect = ScreenResolution.CANVAS_WIDTH / ScreenResolution.CANVAS_HEIGHT;
+			this.perspectiveCamera.updateProjectionMatrix();
+		}
+	}
+
+	/**
+	 *  Check if camera is currently hiding with walls / mountains.
+	 *  @returns {boolean}
+	 */
+	isHiding(): boolean {
+		return this.hidingDistance !== -1;
+	}
+
+	/**
+	 *  Get the map orientation according to the camera.
+	 *  @returns {Orientation}
+	 */
+	getMapOrientation(): ORIENTATION {
+		return Mathf.mod(Math.round(this.horizontalAngle / 90) - 1, 4);
+	}
+
+	/**
+	 *  Get the time percentage progress.
+	 *  @returns {number}
+	 */
+	getHidingTimeProgress(): number {
+		return this.hidingTime / Camera.HIDDING_MOVE_TIME;
+	}
+
+	/**
+	 *  Get the distance according to hiding distance.
+	 *  @returns {number}
+	 */
+	getHidingDistance(): number {
+		if (Data.Systems.moveCameraOnBlockView && !this.forceNoHide) {
+			return this.hidingCurrent === -1 ? this.distance : this.hidingCurrent;
+		}
+		return this.distance;
+	}
+
+	/**
+	 *  Get the distance according to vertical angle.
+	 *  @returns {number}
+	 */
+	getDistance(): number {
+		const d = this.getHidingDistance();
+		return d * Math.sin((this.verticalAngle * Math.PI) / 180.0);
+	}
+
+	/**
+	 *  Get the height according to vertical angle.
+	 *  @returns {number}
+	 */
+	getHeight(): number {
+		const d = this.getHidingDistance();
+		return d * Math.cos((this.verticalAngle * Math.PI) / 180.0);
+	}
+
+	getLayerDepthOffset(): number {
+		return 0.05 * Math.min((this.getHidingDistance() / 50) ** 2, 1);
+	}
+
+	/**
+	 *  Get the camera position from target position, angles and distance, without hiding.
+	 *  @returns {THREE.Vector3}
+	 */
+	getOrbitPosition(): THREE.Vector3 {
+		const h = (this.horizontalAngle * Math.PI) / 180.0;
+		const v = (this.verticalAngle * Math.PI) / 180.0;
+		const distance = this.distance * Math.sin(v);
+		return new THREE.Vector3(
+			this.targetPosition.x - distance * Math.cos(h),
+			this.targetPosition.y + this.distance * Math.cos(v),
+			this.targetPosition.z - distance * Math.sin(h),
+		);
+	}
+
+	/**
+	 *  Get the horizontal angle between two positions.
+	 *  @param {Vector3} p1 - The first position
+	 *  @param {Vector3} p2 - The second position
+	 *  @returns {number}
+	 */
+	getHorizontalAngle(p1: THREE.Vector3, p2: THREE.Vector3): number {
+		return (Math.atan2(p2.z - p1.z, p2.x - p1.x) * 180) / Math.PI;
+	}
+
+	/**
+	 *  Get the vertical angle between two positions.
+	 *  @param {Vector3} p1 - The first position
+	 *  @param {Vector3} p2 - The second position
+	 *  @returns {number}
+	 */
+	getVerticalAngle(p1: THREE.Vector3, p2: THREE.Vector3): number {
+		const x = p2.x - p1.x;
+		const y = p2.y - p1.y;
+		const z = p2.z - p1.z;
+		return 90 + (Math.atan2(y, Math.sqrt(x * x + z * z)) * 180) / Math.PI;
+	}
+
+	/**
+	 *  Add an angle to the horizontal angle.
+	 *  @param {number} a - The angle to add
+	 */
+	addHorizontalAngle(a: number) {
+		this.horizontalAngle += a;
+		if (this.horizontalAngle >= 360) {
+			this.horizontalAngle = this.horizontalAngle % 360;
+		} else if (this.horizontalAngle <= -360) {
+			this.horizontalAngle = 360 + this.horizontalAngle;
+		}
+	}
+
+	/**
+	 *  Add an angle to the vertical angle.
+	 *  @param {number} a - The angle to add
+	 */
+	addVerticalAngle(a: number) {
+		this.verticalAngle += a;
+		if (this.verticalAngle >= 360) {
+			this.verticalAngle = this.verticalAngle % 360;
+		} else if (this.verticalAngle <= -360) {
+			this.verticalAngle = 360 + this.verticalAngle;
+		}
+	}
+
+	/**
+	 *  Update the target position according to target and target offset.
+	 */
+	updateTargetPosition() {
+		this.targetPosition = this.target.position.clone().add(this.targetOffset);
+		if (this.targetLastPosition && Scene.Map.current.camera) {
+			const diff = this.target.position.clone().sub(this.targetLastPosition);
+			this.getThreeCamera().position.add(diff);
+			this.targetLastPosition.copy(this.target.position);
+		} else {
+			this.targetLastPosition = this.target.position.clone();
+		}
+	}
+
+	/**
+	 *  Get the perspective or orthographic camera.
+	 *  @returns {THREE.Camera}
+	 */
+	getThreeCamera(): THREE.Camera {
+		return this.isPerspective ? this.perspectiveCamera : this.orthographicCamera;
+	}
+
+	/**
+	 *  Update the three.js camera position.
+	 */
+	updateCameraPosition() {
+		const distance = this.getDistance();
+		const camera = this.getThreeCamera();
+		camera.position.x = this.targetPosition.x - distance * Math.cos((this.horizontalAngle * Math.PI) / 180.0);
+		camera.position.y = this.targetPosition.y + this.getHeight();
+		camera.position.z = this.targetPosition.z - distance * Math.sin((this.horizontalAngle * Math.PI) / 180.0);
+		if (!this.isPerspective) {
+			const x = ScreenResolution.CANVAS_WIDTH * (distance / 1000);
+			const y = ScreenResolution.CANVAS_HEIGHT * (distance / 1000);
+			this.orthographicCamera.left = -x;
+			this.orthographicCamera.right = x;
+			this.orthographicCamera.top = y;
+			this.orthographicCamera.bottom = -y;
+		}
+	}
+
+	/**
+	 *  Update target offset position.
+	 */
+	updateTargetOffset() {
+		const distance = this.getDistance();
+		const camera = this.getThreeCamera();
+		this.targetOffset.x +=
+			camera.position.x -
+			distance * Math.cos(((this.horizontalAngle + 180) * Math.PI) / 180.0) -
+			this.targetPosition.x;
+		this.targetOffset.y += camera.position.y - this.getHeight() - this.targetPosition.y;
+		this.targetOffset.z +=
+			camera.position.z -
+			distance * Math.sin(((this.horizontalAngle + 180) * Math.PI) / 180.0) -
+			this.targetPosition.z;
+	}
+
+	/**
+	 *  Update horizontal and vertical angles.
+	 */
+	updateAngles() {
+		const camera = this.getThreeCamera();
+		if (camera.position.distanceToSquared(this.targetPosition) < Camera.MIN_VIEW_DISTANCE_SQ) {
+			return;
+		}
+		this.horizontalAngle = this.getHorizontalAngle(camera.position, this.targetPosition);
+		this.verticalAngle = this.getVerticalAngle(camera.position, this.targetPosition);
+	}
+
+	/**
+	 *  Update the distance.
+	 */
+	updateDistance() {
+		if (Data.Systems.moveCameraOnBlockView && this.hidingCurrent !== -1) {
+			return;
+		}
+		this.distance = this.getThreeCamera().position.distanceTo(this.targetPosition);
+	}
+
+	/**
+	 * Update the three.js camera view.
+	 */
+	updateView() {
+		const camera = this.getThreeCamera();
+		if (camera.position.distanceToSquared(this.targetPosition) < Camera.MIN_VIEW_DISTANCE_SQ) {
+			const h = (this.horizontalAngle * Math.PI) / 180.0;
+			const v = (this.verticalAngle * Math.PI) / 180.0;
+			Camera._lookTarget
+				.set(Math.sin(v) * Math.cos(h), -Math.cos(v), Math.sin(v) * Math.sin(h))
+				.add(camera.position);
+			camera.lookAt(Camera._lookTarget);
+		} else {
+			camera.lookAt(this.targetPosition);
+		}
+	}
+
+	/**
+	 * Update timer for hidding camera smooth move.
+	 */
+	updateTimer() {
+		if (
+			this.previousHidingDistance !== this.hidingDistance &&
+			Math.abs(this.previousHidingDistance - this.hidingDistance) > 1
+		) {
+			this.hidingTime = 0;
+			this.hidingStart = this.hidingCurrent;
+			this.hidingEnd = this.isHiding() ? this.hidingDistance : this.distance;
+		} else {
+			this.hidingTime = Math.min(this.hidingTime + Manager.Stack.elapsedTime, Camera.HIDDING_MOVE_TIME);
+		}
+		const time = this.getHidingTimeProgress();
+		if (time === 1) {
+			const dist = this.isHiding() ? this.hidingDistance : this.distance;
+			this.hidingCurrent = dist;
+			this.hidingStart = dist;
+			this.hidingEnd = dist;
+		}
+		this.previousHidingDistance = this.hidingDistance;
+		this.hidingCurrent = this.hidingStart + (this.hidingEnd - this.hidingStart) * time;
+	}
+
+	/**
+	 * Update all the parameters.
+	 */
+	update() {
+		// Update target
+		this.updateTargetPosition();
+
+		// Update position
+		this.updateCameraPosition();
+
+		// Update view
+		this.updateView();
+
+		// Update light
+		if (Scene.Map.current.mapProperties && Scene.Map.current.mapProperties.isSunLight) {
+			const mapProperties = Scene.Map.current.mapProperties;
+			Camera._sunOffset.set(
+				mapProperties.sunlightX,
+				mapProperties.sunlightY + mapProperties.sunlightYPlus / Data.Systems.SQUARE_SIZE,
+				mapProperties.sunlightZ,
+			);
+			if (Camera._sunOffset.lengthSq() === 0) Camera._sunOffset.set(-10, 17.5, 10);
+			Camera.SUN_FORWARD.copy(Camera._sunOffset).negate().normalize();
+			Camera.SUN_RIGHT.set(-Camera.SUN_FORWARD.z, 0, Camera.SUN_FORWARD.x);
+			if (Camera.SUN_RIGHT.lengthSq() === 0) Camera.SUN_RIGHT.set(1, 0, 0);
+			Camera.SUN_RIGHT.normalize();
+			Camera.SUN_UP.crossVectors(Camera.SUN_RIGHT, Camera.SUN_FORWARD).normalize();
+			// Advanced shadows: a bigger shadow map covers a wider area at the same sharpness
+			const d = Math.max(this.distance * (Manager.ShadowTint.advanced ? 5.0 : 3.0), 10);
+			const far = Math.max(d * 2, 350);
+			if (
+				this._stableD === 0 ||
+				Math.abs(d - this._stableD) / this._stableD > 0.05 ||
+				Scene.Map.current.sunLight.shadow.camera.right !== this._stableD ||
+				far !== Scene.Map.current.sunLight.shadow.camera.far
+			) {
+				this._stableD = d;
+				Scene.Map.current.sunLight.shadow.camera.left = -d;
+				Scene.Map.current.sunLight.shadow.camera.right = d;
+				Scene.Map.current.sunLight.shadow.camera.top = d;
+				Scene.Map.current.sunLight.shadow.camera.bottom = -d;
+				Scene.Map.current.sunLight.shadow.camera.far = far;
+				Scene.Map.current.sunLight.shadow.camera.updateProjectionMatrix();
+				// Same bias as the editor: a small depth bias plus a normal offset of about a texel
+				Scene.Map.current.sunLight.shadow.bias = -0.00002 * (d / 10);
+				Scene.Map.current.sunLight.shadow.normalBias =
+					((2 * d) / Scene.Map.current.sunLight.shadow.mapSize.x) * 1.0;
+			}
+			const texelSize = (2 * this._stableD) / Scene.Map.current.sunLight.shadow.mapSize.x;
+			const snappedR = Math.round(Camera.SUN_RIGHT.dot(this.targetPosition) / texelSize) * texelSize;
+			const snappedU = Math.round(Camera.SUN_UP.dot(this.targetPosition) / texelSize) * texelSize;
+			Camera._snapTarget
+				.set(0, 0, 0)
+				.addScaledVector(Camera.SUN_RIGHT, snappedR)
+				.addScaledVector(Camera.SUN_UP, snappedU)
+				.addScaledVector(Camera.SUN_FORWARD, Camera.SUN_FORWARD.dot(this.targetPosition));
+			Scene.Map.current.sunLight.target.position.copy(Camera._snapTarget);
+			Scene.Map.current.sunLight.target.updateMatrixWorld();
+			Scene.Map.current.sunLight.position.copy(Camera._sunOffset).add(Camera._snapTarget);
+		}
+	}
+}
+
+export { Camera };

@@ -1,0 +1,158 @@
+/*
+    RPG Paper Maker Copyright (C) 2017-2026 Wano
+
+    RPG Paper Maker engine is under proprietary license.
+    This source code is also copyrighted.
+
+    Use Commercial edition for commercial use of your games.
+    See RPG Paper Maker EULA here:
+        http://rpg-paper-maker.com/index.php/eula.
+*/
+
+import * as THREE from 'three';
+import { Data, Manager } from '..';
+import { Paths, PICTURE_KIND, Platform, TITLE_COMMAND_KIND } from '../Common';
+import { Picture2D } from '../Core';
+import { Picture, PictureJSON } from '../Model';
+import { Base } from './Base';
+
+/**
+ * JSON structure for Pictures.
+ */
+export type PicturesJSON = {
+	list: {
+		k: PICTURE_KIND;
+		v: PictureJSON[];
+	}[];
+};
+
+/**
+ * Handles all picture data.
+ */
+export class Pictures {
+	private static PROPERTY_TEXTURES_CHARACTERS = 'texturesCharacters';
+	private static PROPERTY_TEXTURES_BATTLERS = 'texturesBattlers';
+	private static list: Map<PICTURE_KIND, Map<number, Picture>>;
+	public static texturesCharacters: Map<number, THREE.MeshPhongMaterial>;
+	public static texturesBattlers: Map<number, THREE.MeshPhongMaterial>;
+
+	/**
+	 * Get a picture by kind and ID.
+	 */
+	static get(kind: PICTURE_KIND, id: number, errorMessage?: string): Picture {
+		if (kind === PICTURE_KIND.NONE || id === -1) {
+			return new Picture();
+		}
+		return Base.get(id, this.list.get(kind), `picture ${Picture.pictureKindToString(kind)}`, true, errorMessage);
+	}
+
+	/**
+	 * Get all pictures of a given kind.
+	 */
+	static getListByKind(kind: PICTURE_KIND): Map<number, Picture> {
+		return this.list.get(kind);
+	}
+
+	/**
+	 * Get a copy of a 2D picture.
+	 */
+	static getPictureCopy(kind: PICTURE_KIND, id: number): Picture2D {
+		const picture = this.get(kind, id);
+		return picture?.picture ? picture.picture.createCopy() : new Picture2D();
+	}
+
+	/**
+	 *  Load textures (for characters and battlers).
+	 */
+	static async loadTextures(pictureKind: PICTURE_KIND, texturesName: string) {
+		const pictures = this.getListByKind(pictureKind);
+		const textures = new Map<number, THREE.MeshPhongMaterial>();
+		textures.set(0, Manager.GL.loadTextureEmpty());
+		for (const [id, picture] of pictures.entries()) {
+			if (picture) {
+				const path = picture.getPath();
+				textures.set(id, path ? await Manager.GL.loadTexture(path) : Manager.GL.loadTextureEmpty());
+			} else {
+				textures.set(id, Manager.GL.loadTextureEmpty());
+			}
+		}
+		this[texturesName] = textures;
+	}
+
+	static async ensureTextures(): Promise<void> {
+		if (!this.texturesCharacters) {
+			await this.loadTextures(PICTURE_KIND.CHARACTERS, this.PROPERTY_TEXTURES_CHARACTERS);
+		}
+		if (!this.texturesBattlers) {
+			await this.loadTextures(PICTURE_KIND.BATTLERS, this.PROPERTY_TEXTURES_BATTLERS);
+		}
+	}
+
+	/**
+	 * Read the JSON file associated with pictures.
+	 */
+	static async readTitleScreen(): Promise<void> {
+		const windowSkin = Data.Systems.getCurrentWindowSkin();
+		const selected = new Map<PICTURE_KIND, Set<number>>([
+			[PICTURE_KIND.WINDOW_SKINS, new Set([windowSkin.pictureID])],
+		]);
+		if (Data.TitlescreenGameover.isTitleBackgroundImage) {
+			selected.set(PICTURE_KIND.TITLE_SCREEN, new Set([Data.TitlescreenGameover.titleBackgroundImageID]));
+		}
+		const credits = Data.TitlescreenGameover.credits;
+		if (Data.TitlescreenGameover.titleCommands.some((command) => command.kind === TITLE_COMMAND_KIND.CREDITS)) {
+			if (credits.backgroundImageID >= 0) {
+				if (!selected.has(PICTURE_KIND.TITLE_SCREEN)) {
+					selected.set(PICTURE_KIND.TITLE_SCREEN, new Set());
+				}
+				selected.get(PICTURE_KIND.TITLE_SCREEN).add(credits.backgroundImageID);
+			}
+			for (const text of Object.values(credits.texts)) {
+				for (const match of text.matchAll(/\[ico=\s*(\d+)(?:;|\])/g)) {
+					if (!selected.has(PICTURE_KIND.ICONS)) {
+						selected.set(PICTURE_KIND.ICONS, new Set());
+					}
+					selected.get(PICTURE_KIND.ICONS).add(Number(match[1]));
+				}
+			}
+		}
+		await this.readSelected(selected);
+	}
+
+	/** Read all pictures, including assets deferred until the game starts. */
+	static async read(): Promise<void> {
+		await this.readSelected();
+	}
+
+	/** Read only the requested pictures, or every picture when no selection is supplied. */
+	private static async readSelected(selected?: Map<PICTURE_KIND, Set<number>>): Promise<void> {
+		const json = (await Platform.parseFileJSON(Paths.FILE_PICTURES)) as PicturesJSON;
+		const pictures = new Map<PICTURE_KIND, Map<number, Picture>>();
+		for (const jsonHash of json.list) {
+			const k = jsonHash.k;
+			const jsonList = jsonHash.v;
+			const list = new Map<number, Picture>();
+			for (const jsonPicture of jsonList) {
+				const id = jsonPicture.id ?? 0;
+				if (id === 0 || id === -1) {
+					continue;
+				}
+				if (selected && !selected.get(k)?.has(id)) {
+					continue;
+				}
+				const picture = new Picture(jsonPicture);
+				picture.kind = k;
+				await picture.checkBase64();
+				if (k !== PICTURE_KIND.NONE) {
+					await picture.load();
+					if (k === PICTURE_KIND.BARS) {
+						picture.checkBarBorder();
+					}
+				}
+				list.set(id, picture);
+			}
+			pictures.set(k, list);
+		}
+		this.list = pictures;
+	}
+}

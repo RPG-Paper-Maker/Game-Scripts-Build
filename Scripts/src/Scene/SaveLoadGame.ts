@@ -1,0 +1,166 @@
+/*
+    RPG Paper Maker Copyright (C) 2017-2026 Wano
+
+    RPG Paper Maker engine is under proprietary license.
+    This source code is also copyrighted.
+
+    Use Commercial edition for commercial use of your games.
+    See RPG Paper Maker EULA here:
+        http://rpg-paper-maker.com/index.php/eula.
+*/
+
+import { ScreenResolution } from '../Common';
+import { Game, WindowBox, WindowChoices } from '../Core';
+import { Data, Graphic, Manager, Scene } from '../index';
+import { Base } from './Base';
+
+/** @class
+ *  Abstract class for the game save and loading menus.
+ *  @extends Scene.Base
+ */
+class SaveLoadGame extends Base {
+	public windowTop: WindowBox;
+	public windowChoicesSlots: WindowChoices;
+	public windowInformations: WindowBox;
+	public windowBot: WindowBox;
+	public gamesData: Graphic.Save[];
+
+	constructor() {
+		super();
+	}
+
+	/**
+	 *  Load async stuff
+	 */
+	async load() {
+		// Initialize games
+		this.gamesData = [];
+		const currentGame = Game.current;
+		for (let i = 1; i <= Data.Systems.saveSlots; i++) {
+			this.gamesData.push(null);
+			const newGame = new Game(i);
+			Game.current = newGame;
+			await newGame.load();
+			this.initializeGame(Game.current);
+		}
+		Game.current = currentGame;
+
+		// Initialize windows
+		this.windowTop = new WindowBox(40, 30, ScreenResolution.SCREEN_X - 80, 45);
+		this.windowInformations = new WindowBox(240, 150, 1000, 490, {
+			padding: WindowBox.MEDIUM_PADDING_BOX,
+		});
+		this.windowChoicesSlots = new WindowChoices(20, 150, 200, 75, this.gamesData, {
+			nbItemsMax: 6,
+			padding: WindowBox.NONE_PADDING,
+		});
+		this.windowBot = new WindowBox(40, ScreenResolution.SCREEN_Y - 75, ScreenResolution.SCREEN_X - 80, 45);
+		this.updateInformations(this.windowChoicesSlots.currentSelectedIndex);
+	}
+
+	/**
+	 *  Initialize a game displaying.
+	 *   @param {Game} game - The game
+	 */
+	initializeGame(game: Game) {
+		this.gamesData[game.slot - 1] = new Graphic.Save(game);
+	}
+
+	/**
+	 *  Set the contents in the bottom and top bars.
+	 *  @param {Graphic.Base} top - A graphic content for top
+	 *  @param {Graphic.Base} bot - A graphic content for bot
+	 */
+	setContents(top: Graphic.Base, bot: Graphic.Base) {
+		this.windowTop.content = top;
+		this.windowBot.content = bot;
+	}
+
+	/**
+	 *  Update the information to display inside the save informations.
+	 *  @param {number} i - The slot index
+	 */
+	updateInformations(i: number) {
+		this.windowInformations.content = this.gamesData[i];
+	}
+
+	/**
+	 *  Slot cancel.
+	 *  @param {boolean} isKey
+	 *  @param {{ key?: string, x?: number, y?: number }} [options={}]
+	 */
+	cancel(isKey: boolean, options: { key?: string; x?: number; y?: number } = {}) {
+		if (Scene.MenuBase.checkCancelMenu(isKey, options)) {
+			Data.Systems.soundCancel.playSound();
+			Manager.Stack.pop();
+		}
+	}
+
+	/**
+	 *  Slot move.
+	 *  @param {boolean} isKey
+	 *  @param {{ key?: string, x?: number, y?: number }} [options={}]
+	 */
+	move(isKey: boolean, options: { key?: string; x?: number; y?: number } = {}) {
+		if (isKey) {
+			this.windowChoicesSlots.onKeyPressedAndRepeat(options.key);
+		} else {
+			this.windowChoicesSlots.onMouseMove(options.x, options.y);
+		}
+		this.updateInformations.call(this, this.windowChoicesSlots.currentSelectedIndex);
+	}
+
+	/**
+	 *  Update the scene.
+	 */
+	update() {
+		this.windowChoicesSlots.update();
+		if (!(<Graphic.Save>this.windowInformations.content).game.isEmpty) {
+			this.windowInformations.content.update();
+		}
+	}
+
+	/**
+	 *  Handle scene key pressed.
+	 *  @param {number} key - The key ID
+	 */
+	onKeyPressed(key: string) {
+		this.cancel(true, { key: key });
+	}
+
+	/**
+	 *  Handle scene pressed and repeat key.
+	 *  @param {number} key - The key ID
+	 *  @returns {boolean}
+	 */
+	onKeyPressedAndRepeat(key: string): boolean {
+		this.move(true, { key: key });
+		return true;
+	}
+
+	/**
+	 *  @inheritdoc
+	 */
+	onMouseMove(x: number, y: number) {
+		this.move(false, { x: x, y: y });
+	}
+
+	/**
+	 *  @inheritdoc
+	 */
+	onMouseUp(x: number, y: number) {
+		this.cancel(false, { x: x, y: y });
+	}
+
+	/**
+	 *  Draw the HUD scene
+	 */
+	drawHUD() {
+		this.windowTop.draw();
+		this.windowChoicesSlots.draw();
+		this.windowInformations.draw();
+		this.windowBot.draw();
+	}
+}
+
+export { SaveLoadGame };

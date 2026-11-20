@@ -1,0 +1,64 @@
+/*
+    RPG Paper Maker Copyright (C) 2017-2026 Wano
+
+    RPG Paper Maker engine is under proprietary license.
+    This source code is also copyrighted.
+
+    Use Commercial edition for commercial use of your games.
+    See RPG Paper Maker EULA here:
+        http://rpg-paper-maker.com/index.php/eula.
+*/
+
+import { Manager, Model, Scene } from '..';
+import { MapObject } from '../Core';
+import { Base } from './Base';
+
+/** @class
+ *  An event command for entering a name menu.
+ *  @extends EventCommand.Base
+ *  @param {Object} command - Direct JSON command to parse
+ */
+class EnterANameMenu extends Base {
+	public heroInstanceID: Model.DynamicValue;
+	public maxCharacters: Model.DynamicValue;
+
+	constructor(command: any[]) {
+		super();
+
+		const iterator = {
+			i: 0,
+		};
+		this.heroInstanceID = Model.DynamicValue.createValueCommand(command, iterator);
+		this.maxCharacters = Model.DynamicValue.createValueCommand(command, iterator);
+	}
+
+	/**
+	 *  Initialize the current state.
+	 *  @returns {Record<string, any>} The current state
+	 */
+	initialize(): Record<string, any> {
+		return {
+			opened: false,
+		};
+	}
+
+	/**
+	 *  Update and check if the event is finished.
+	 *  @param {Record<string, any>} - currentState The current state of the event
+	 *  @param {MapObject} object - The current object reacting
+	 *  @param {number} state - The state ID
+	 *  @returns {number} The number of node to pass
+	 */
+	update(currentState: Record<string, any>, object: MapObject, state: number): number {
+		if (!Scene.Map.allowMainMenu || currentState.opened) {
+			return 1;
+		}
+		Manager.Stack.push(
+			new Scene.MenuEnterAName(this.heroInstanceID.getValue() as number, this.maxCharacters.getValue() as number),
+		);
+		currentState.opened = true;
+		return 0;
+	}
+}
+
+export { EnterANameMenu };

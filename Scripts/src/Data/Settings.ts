@@ -1,0 +1,107 @@
+/*
+    RPG Paper Maker Copyright (C) 2017-2026 Wano
+
+    RPG Paper Maker engine is under proprietary license.
+    This source code is also copyrighted.
+
+    Use Commercial edition for commercial use of your games.
+    See RPG Paper Maker EULA here:
+        http://rpg-paper-maker.com/index.php/eula.
+*/
+
+import { Paths, Platform, TITLE_SETTING_KIND, Utils } from '../Common';
+import { Languages } from './Languages';
+
+/**
+ * JSON structure for the settings file.
+ */
+export type SettingsJSON = {
+	[TITLE_SETTING_KIND.KEYBOARD_ASSIGNMENT]: {
+		[id: number]: string[][];
+	};
+	[TITLE_SETTING_KIND.LANGUAGE]: number;
+	[TITLE_SETTING_KIND.ADVANCED_SHADOWS]?: boolean;
+};
+
+/**
+ * Handles all application settings.
+ */
+export class Settings {
+	public static kb: Map<number, string[][]>;
+	public static currentLanguage: number;
+	/** The player's Advanced shadows choice. null until chosen: then the engine (editor) setting is used. */
+	public static advancedShadows: boolean | null = null;
+	public static isProtected: boolean;
+
+	/**
+	 * Check if the app is in protected (dev) mode.
+	 */
+	static async checkIsProtected(): Promise<void> {
+		this.isProtected = await Platform.fileExists(Paths.FILE_PROTECT);
+	}
+
+	/**
+	 * Update keyboard settings for a given ID.
+	 * @param id - Keyboard ID
+	 * @param sc - Shortcuts array
+	 */
+	static async updateKeyboard(id: number, sc: string[][]): Promise<void> {
+		this.kb.set(id, sc);
+		await this.save();
+	}
+
+	/**
+	 * Update the current language.
+	 * @param id - Language ID
+	 */
+	static async updateCurrentLanguage(id: number): Promise<void> {
+		this.currentLanguage = id;
+		await this.save();
+	}
+
+	/**
+	 * Update the Advanced shadows choice.
+	 * @param value - True for advanced shadows
+	 */
+	static async updateAdvancedShadows(value: boolean): Promise<void> {
+		this.advancedShadows = value;
+		await this.save();
+	}
+
+	/**
+	 * Read the settings file.
+	 */
+	static async read(): Promise<void> {
+		this.kb = new Map();
+		this.currentLanguage = Languages.getMainLanguageID();
+		this.advancedShadows = null;
+		if (!(await Platform.fileExists(Paths.FILE_SETTINGS))) {
+			return;
+		}
+		const json = (await Platform.parseFileJSON(Paths.FILE_SETTINGS)) as SettingsJSON;
+		const jsonObjs = json[TITLE_SETTING_KIND.KEYBOARD_ASSIGNMENT];
+		for (const id in jsonObjs) {
+			this.kb.set(Number(id), jsonObjs[id]);
+		}
+		this.currentLanguage = Utils.valueOrDefault(json[TITLE_SETTING_KIND.LANGUAGE], Languages.getMainLanguageID());
+		const advancedShadows = json[TITLE_SETTING_KIND.ADVANCED_SHADOWS];
+		this.advancedShadows = typeof advancedShadows === 'boolean' ? advancedShadows : null;
+	}
+
+	/**
+	 *  Write the settings file.
+	 */
+	static async save(): Promise<void> {
+		const json = {};
+		const jsonObjs = {};
+		for (const [id, value] of this.kb.entries()) {
+			jsonObjs[id] = value;
+		}
+		json[TITLE_SETTING_KIND.KEYBOARD_ASSIGNMENT] = jsonObjs;
+		json[TITLE_SETTING_KIND.LANGUAGE] = this.currentLanguage;
+		if (this.advancedShadows !== null) {
+			json[TITLE_SETTING_KIND.ADVANCED_SHADOWS] = this.advancedShadows;
+		}
+		await Platform.writeFile(Paths.FILE_SETTINGS, json);
+	}
+}

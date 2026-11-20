@@ -1,0 +1,89 @@
+/*
+    RPG Paper Maker Copyright (C) 2017-2026 Wano
+
+    RPG Paper Maker engine is under proprietary license.
+    This source code is also copyrighted.
+
+    Use Commercial edition for commercial use of your games.
+    See RPG Paper Maker EULA here:
+        http://rpg-paper-maker.com/index.php/eula.
+*/
+
+import { Graphic } from '..';
+import { ScreenResolution } from '../Common';
+import { Game } from '../Core';
+import { Base } from './Base';
+
+/** @class
+ *  The graphic displaying all the progression for each character.
+ *  @extends Graphic.Base
+ */
+class XPProgression extends Base {
+	public graphicCharacters: Graphic.Player[];
+	constructor() {
+		super();
+
+		this.updateGraphicCharacters();
+	}
+
+	/**
+	 *  Update character graphics.
+	 */
+	updateGraphicCharacters() {
+		const l = Game.current.teamHeroes.length;
+		this.graphicCharacters = new Array(l);
+		for (let i = 0; i < l; i++) {
+			this.graphicCharacters[i] = new Graphic.Player(Game.current.teamHeroes[i], { useTemporaryGraphics: false });
+		}
+	}
+
+	/**
+	 *  Update graphics experience.
+	 */
+	updateExperience() {
+		for (const graphic of this.graphicCharacters) {
+			graphic.updateExperience();
+		}
+	}
+
+	/**
+	 *  Get the content height in logical pixels.
+	 *  @returns {number}
+	 */
+	getHeight(): number {
+		const l = this.graphicCharacters.length;
+		if (l === 0) return 0;
+		return (l - 1) * 90 + this.graphicCharacters[0].getChoiceHeight();
+	}
+
+	/**
+	 *  Drawing the progression.
+	 *  @param {number} x - The x position to draw graphic
+	 *  @param {number} y - The y position to draw graphic
+	 *  @param {number} w - The width dimention to draw graphic
+	 *  @param {number} h - The height dimention to draw graphic
+	 */
+	drawChoice(x: number, y: number, w: number, h: number) {
+		this.draw(x, y, w, h);
+	}
+
+	/**
+	 *  Drawing the progression.
+	 *  @param {number} x - The x position to draw graphic
+	 *  @param {number} y - The y position to draw graphic
+	 *  @param {number} w - The width dimention to draw graphic
+	 *  @param {number} h - The height dimention to draw graphic
+	 */
+	draw(x: number, y: number, w: number, h: number) {
+		for (let i = 0, l = this.graphicCharacters.length; i < l; i++) {
+			this.graphicCharacters[i].drawChoice(
+				x,
+				y + ScreenResolution.getScreenY(i * 90),
+				w,
+				ScreenResolution.getScreenY(85),
+			);
+		}
+	}
+}
+
+export { XPProgression };

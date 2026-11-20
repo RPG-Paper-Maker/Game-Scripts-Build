@@ -1,0 +1,85 @@
+/*
+    RPG Paper Maker Copyright (C) 2017-2026 Wano
+
+    RPG Paper Maker engine is under proprietary license.
+    This source code is also copyrighted.
+
+    Use Commercial edition for commercial use of your games.
+    See RPG Paper Maker EULA here:
+        http://rpg-paper-maker.com/index.php/eula.
+*/
+
+import { Model } from '..';
+import { GROUP_KIND, Mathf } from '../Common';
+import { Game, MapObject, Player } from '../Core';
+import { Base } from './Base';
+
+/** @class
+ *  An event command for changing experience curve of one or several hero.
+ *  @extends EventCommand.Base
+ *  @param {Object} command - Direct JSON command to parse
+ */
+class ChangeExperienceCurve extends Base {
+	public selectionKind: number;
+	public selectionHeroEnemyInstanceID: Model.DynamicValue;
+	public selectionTeam: GROUP_KIND;
+	public levelRange: Model.DynamicValue;
+	public levelRangeTo: Model.DynamicValue;
+	public operation: number;
+	public totalExperience: Model.DynamicValue;
+
+	constructor(command: any[]) {
+		super();
+
+		const iterator = {
+			i: 0,
+		};
+		this.selectionKind = command[iterator.i++];
+		switch (this.selectionKind) {
+			case 0:
+				this.selectionHeroEnemyInstanceID = Model.DynamicValue.createValueCommand(command, iterator);
+				break;
+			case 1:
+				this.selectionTeam = command[iterator.i++];
+				break;
+		}
+		this.levelRange = Model.DynamicValue.createValueCommand(command, iterator);
+		this.levelRangeTo = Model.DynamicValue.createValueCommand(command, iterator);
+		this.operation = command[iterator.i++];
+		this.totalExperience = Model.DynamicValue.createValueCommand(command, iterator);
+	}
+
+	/**
+	 *  Update and check if the event is finished.
+	 *  @param {Record<string, any>} - currentState The current state of the event
+	 *  @param {MapObject} object - The current object reacting
+	 *  @param {number} state - The state ID
+	 *  @returns {number} The number of node to pass
+	 */
+	update(currentState: Record<string, any>, object: MapObject, state: number): number {
+		let targets: Player[];
+		switch (this.selectionKind) {
+			case 0:
+				targets = [Game.current.getHeroByInstanceID(this.selectionHeroEnemyInstanceID.getValue() as number)];
+				break;
+			case 1:
+				targets = Game.current.getTeam(this.selectionTeam);
+				break;
+		}
+		const level = this.levelRange.getValue() as number;
+		const levelTo = this.levelRangeTo.getValue() as number;
+		const totalExperience = this.totalExperience.getValue() as number;
+		let i: number, value: number;
+		for (const target of targets) {
+			for (i = level; i <= levelTo; i++) {
+				value = Math.round(Mathf.OPERATORS_NUMBERS[this.operation](target.expList[i], totalExperience));
+				target.expList[i] = value;
+				target.editedExpList[i] = value;
+			}
+			target.synchronizeLevel();
+		}
+		return 1;
+	}
+}
+
+export { ChangeExperienceCurve };

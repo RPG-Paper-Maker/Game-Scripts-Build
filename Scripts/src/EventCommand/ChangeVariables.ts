@@ -1,0 +1,415 @@
+/*
+    RPG Paper Maker Copyright (C) 2017-2026 Wano
+
+    RPG Paper Maker engine is under proprietary license.
+    This source code is also copyrighted.
+
+    Use Commercial edition for commercial use of your games.
+    See RPG Paper Maker EULA here:
+        http://rpg-paper-maker.com/index.php/eula.
+*/
+
+import {
+	CHANGE_VARIABLES_OTHER_CHARACTERISTICS,
+	CHARACTER_KIND,
+	Interpreter,
+	ITEM_KIND,
+	Mathf,
+	Platform,
+	SONG_KIND,
+	VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND,
+} from '../Common';
+import { Game, Item, MapObject, Position, ReactionInterpreter, StructSearchResult } from '../Core';
+import { Data, Manager, Model, Scene } from '../index';
+import { Base } from './Base';
+
+/** @class
+ *  An event command for changing variables values.
+ *  @extends EventCommand.Base
+ *  @param {any[]} command - Direct JSON command to parse
+ */
+class ChangeVariables extends Base {
+	public selection: number;
+	public nbSelection: number;
+	public operation: number;
+	public valueKind: number;
+	public valueNumber: Model.DynamicValue;
+	public valueRandomA: Model.DynamicValue;
+	public valueRandomB: Model.DynamicValue;
+	public valueMessage: Model.DynamicValue;
+	public valueSwitch: Model.DynamicValue;
+	public valueMapObject: Model.DynamicValue;
+	public valueMapObjectChar: number;
+	public valueMapObjectPropertyID: Model.DynamicValue;
+	public valueITEM_KIND: ITEM_KIND;
+	public valueItemID: Model.DynamicValue;
+	public valueTotalCurrencyKind: number;
+	public valueTotalCurrencyID: Model.DynamicValue;
+	public valueHeroEnemyInstanceID: Model.DynamicValue;
+	public valueStatisticID: Model.DynamicValue;
+	public valueEnemyIndex: number;
+	public valueOtherCHARACTERISTIC_KIND: CHANGE_VARIABLES_OTHER_CHARACTERISTICS;
+	public valueScript: Model.DynamicValue;
+	public valueTerrainX: Model.DynamicValue;
+	public valueTerrainY: Model.DynamicValue;
+	public valueTerrainZ: Model.DynamicValue;
+	public valueTerrainXPlus: Model.DynamicValue;
+	public valueTerrainYPlus: Model.DynamicValue;
+	public valueTerrainZPlus: Model.DynamicValue;
+	public coordinatesValueType: number = 0;
+	public isFloored: boolean;
+	public isLocal: boolean;
+	public isCreatingLocalVariable: boolean;
+	public localVariableName: string;
+
+	constructor(command: any[], isLocal = false) {
+		super();
+
+		const iterator = {
+			i: isLocal ? 0 : 2,
+		};
+		this.isLocal = isLocal;
+		this.isCreatingLocalVariable = isLocal && command[iterator.i++] === 1;
+		this.localVariableName = isLocal ? command[iterator.i++] : '';
+		// Selection
+		this.selection = isLocal ? 0 : command[1];
+		this.nbSelection = 1;
+		if (!isLocal && command[0] === 1) {
+			this.nbSelection = command[iterator.i++] - this.selection;
+		}
+		// Operation
+		this.operation = this.isCreatingLocalVariable ? 0 : command[iterator.i++];
+		// Value
+		this.valueKind = command[iterator.i++];
+		switch (this.valueKind) {
+			case 0: // Number
+				this.valueNumber = Model.DynamicValue.createValueCommand(command, iterator);
+				break;
+			case 1: // Random number
+				this.valueRandomA = Model.DynamicValue.createValueCommand(command, iterator);
+				this.valueRandomB = Model.DynamicValue.createValueCommand(command, iterator);
+				break;
+			case 2: // Message
+				this.valueMessage = Model.DynamicValue.createValueCommand(command, iterator);
+				break;
+			case 3: // Switch
+				this.valueSwitch = Model.DynamicValue.createValueCommand(command, iterator);
+				break;
+			case 4: // Map object characteristic
+				this.valueMapObject = Model.DynamicValue.createValueCommand(command, iterator);
+				this.valueMapObjectChar = command[iterator.i++];
+				if (this.valueMapObjectChar === VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND.PROPERTY) {
+					this.valueMapObjectPropertyID = Model.DynamicValue.createValueCommand(command, iterator);
+				}
+				break;
+			case 5: // Number of weapon / armor / item in inventory
+				this.valueITEM_KIND = command[iterator.i++];
+				this.valueItemID = Model.DynamicValue.createValueCommand(command, iterator);
+				break;
+			case 6: // Total currency
+				this.valueTotalCurrencyKind = command[iterator.i++];
+				this.valueTotalCurrencyID = Model.DynamicValue.createValueCommand(command, iterator);
+				break;
+			case 7: // Hero / enemy stat
+				this.valueHeroEnemyInstanceID = Model.DynamicValue.createValueCommand(command, iterator);
+				this.valueStatisticID = Model.DynamicValue.createValueCommand(command, iterator);
+				break;
+			case 8: // Enemy instance ID
+				this.valueEnemyIndex = command[iterator.i++];
+				break;
+			case 9: // Other characteristics
+				this.valueOtherCHARACTERISTIC_KIND = command[iterator.i++];
+				break;
+			case 10: // Script
+				this.valueScript = Model.DynamicValue.createMessage(String(command[iterator.i++]));
+				break;
+			case 11: // Terrain at coordinates
+				if (command[iterator.i] === 'object-id-at-coordinates') {
+					iterator.i++;
+					this.coordinatesValueType = 1;
+				}
+				this.valueTerrainX = Model.DynamicValue.createValueCommand(command, iterator);
+				this.valueTerrainY = Model.DynamicValue.createValueCommand(command, iterator);
+				this.valueTerrainZ = Model.DynamicValue.createValueCommand(command, iterator);
+				this.valueTerrainXPlus = Model.DynamicValue.createValueCommand(command, iterator);
+				this.valueTerrainYPlus = Model.DynamicValue.createValueCommand(command, iterator);
+				this.valueTerrainZPlus = Model.DynamicValue.createValueCommand(command, iterator);
+				break;
+		}
+		this.isFloored = command[iterator.i] === 1;
+	}
+
+	/**
+	 *  Get the square position.
+	 *  @param {number} value - The coordinate in squares
+	 *  @returns {number}
+	 */
+	static getSquare(value: number): number {
+		return Math.floor(Math.round(value * Data.Systems.SQUARE_SIZE) / Data.Systems.SQUARE_SIZE);
+	}
+
+	/**
+	 *  Get the pixel position inside the square, between 0 and SQUARE_SIZE - 1.
+	 *  @param {number} value - The coordinate in squares
+	 *  @returns {number}
+	 */
+	static getPixelInSquare(value: number): number {
+		return (
+			Math.round(value * Data.Systems.SQUARE_SIZE) - ChangeVariables.getSquare(value) * Data.Systems.SQUARE_SIZE
+		);
+	}
+
+	/**
+	 *  Initialize the current.
+	 *  @returns {Record<string, any>} The current state
+	 */
+	initialize(): Record<string, any> {
+		return {
+			started: false,
+		};
+	}
+
+	/**
+	 *  Update and check if the event is finished
+	 *  @param {Record<string, any>} - currentState The current state of the event
+	 *  @param {MapObject} object - The current object reacting
+	 *  @param {number} state - The state ID
+	 *  @returns {number} The number of node to pass
+	 */
+	update(currentState: Record<string, any>, object: MapObject, state: number): number {
+		if (!currentState.started) {
+			currentState.started = true;
+			currentState.valid = true;
+			// Get value to set
+			switch (this.valueKind) {
+				case 0: // Number
+					currentState.value = this.valueNumber.getValue() as number;
+					break;
+				case 1: // Random number
+					currentState.value = Mathf.random(
+						this.valueRandomA.getValue() as number,
+						this.valueRandomB.getValue() as number,
+					);
+					break;
+				case 2: // Message
+					currentState.value = this.valueMessage.getValue() as number;
+					break;
+				case 3: // Switch
+					currentState.value = this.valueSwitch.getValue() as number;
+					break;
+				case 4: // Map object characteristic
+					const objectID = this.valueMapObject.getValue() as number;
+					// A generated object may have been removed since its ID was stored.
+					if (objectID > 0 && !Scene.Map.current.mapProperties.allObjects.has(objectID)) {
+						currentState.skip = true;
+						break;
+					}
+					currentState.valid = false;
+					MapObject.search(
+						objectID,
+						(result: StructSearchResult | null) => {
+							const obj = result?.object;
+							if (!obj) {
+								Platform.showErrorMessage(
+									'Cannot find object ID ' +
+										objectID +
+										' in change variables for map object characteristics.',
+								);
+								currentState.skip = true;
+								currentState.valid = true;
+								return;
+							}
+							switch (this.valueMapObjectChar) {
+								case VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND.X_SQUARE_POSITION:
+									currentState.value = ChangeVariables.getSquare(obj.position.x);
+									break;
+								case VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND.Y_SQUARE_POSITION:
+									currentState.value = ChangeVariables.getSquare(obj.position.y);
+									break;
+								case VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND.Z_SQUARE_POSITION:
+									currentState.value = ChangeVariables.getSquare(obj.position.z);
+									break;
+								case VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND.X_PIXEL_POSITION:
+									currentState.value = ChangeVariables.getPixelInSquare(obj.position.x);
+									break;
+								case VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND.Y_PIXEL_POSITION:
+									currentState.value = ChangeVariables.getPixelInSquare(obj.position.y);
+									break;
+								case VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND.Z_PIXEL_POSITION:
+									currentState.value = ChangeVariables.getPixelInSquare(obj.position.z);
+									break;
+								case VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND.ORIENTATION:
+									currentState.value = obj.orientation;
+									break;
+								case VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND.TERRAIN:
+									currentState.value = obj.terrain;
+									break;
+								case VARIABLE_MAP_OBJECT_CHARACTERISTIC_KIND.PROPERTY:
+									currentState.value =
+										obj.properties[this.valueMapObjectPropertyID.getValue() as number];
+									break;
+							}
+							currentState.valid = true;
+						},
+						object,
+					);
+					break;
+				case 5: // Number of weapon / armor / item in inventory
+					const item = Item.findItem(this.valueITEM_KIND, this.valueItemID.getValue() as number);
+					currentState.value = item === null ? 0 : item.nb;
+					break;
+				case 6: // Total currency
+					switch (this.valueTotalCurrencyKind) {
+						case 0: // Owned
+							currentState.value = Game.current.getCurrency(
+								this.valueTotalCurrencyID.getValue() as number,
+							);
+							break;
+						case 1: // Earned
+							currentState.value = Game.current.getCurrencyEarned(
+								this.valueTotalCurrencyID.getValue() as number,
+							);
+							break;
+						case 2: // Used
+							currentState.value = Game.current.getCurrencyUsed(
+								this.valueTotalCurrencyID.getValue() as number,
+							);
+							break;
+					}
+					break;
+				case 7: // Hero / enemy stat
+					currentState.value = 0;
+					const id = this.valueHeroEnemyInstanceID.getValue() as number;
+					for (const player of Game.current.teamHeroes) {
+						if (player.instid === id) {
+							currentState.value =
+								player[
+									Data.BattleSystems.getStatistic(
+										this.valueStatisticID.getValue() as number,
+									).abbreviation
+								];
+							break;
+						}
+					}
+					break;
+				case 8: // Enemy instance ID
+					currentState.value = 0;
+					if (Scene.Map.current.isBattleMap) {
+						currentState.value = (<Scene.Battle>Scene.Map.current).battlers[CHARACTER_KIND.MONSTER][
+							this.valueEnemyIndex
+						].player.instid;
+					}
+					break;
+				case 9: // Other characteristics
+					switch (this.valueOtherCHARACTERISTIC_KIND) {
+						case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.CURRENT_MAP_ID:
+							currentState.value = Scene.Map.current.id;
+							break;
+						case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.NUMBER_IN_TEAM:
+							currentState.value = Game.current.teamHeroes.length;
+							break;
+						case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.NUMBER_IN_HIDDEN:
+							currentState.value = Game.current.hiddenHeroes.length;
+							break;
+						case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.NUMBER_IN_RESERVE:
+							currentState.value = Game.current.reserveHeroes.length;
+							break;
+						case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.TOTAL_NUMBER_OF_STEPS:
+							currentState.value = Game.current.steps;
+							break;
+						case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.TOTAL_NUMBER_OF_SECONDS:
+							currentState.value = Game.current.playTime.getSeconds();
+							break;
+						case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.TOTAL_NUMBER_OF_SAVES_DONE:
+							currentState.value = Game.current.saves;
+							break;
+						case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.TOTAL_NUMBER_OF_BATTLES:
+							currentState.value = Game.current.battles;
+							break;
+						case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.CAMERA_X_POSITION:
+							currentState.value = Scene.Map.current.camera.getThreeCamera().position.x;
+							break;
+						case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.CAMERA_Y_POSITION:
+							currentState.value = Scene.Map.current.camera.getThreeCamera().position.y;
+							break;
+						case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.CAMERA_Z_POSITION:
+							currentState.value = Scene.Map.current.camera.getThreeCamera().position.z;
+							break;
+						case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.TOTAL_SECONDS_CURRENT_MUSIC: {
+							currentState.value = 0;
+							const current = Manager.Songs.current[SONG_KIND.MUSIC];
+							if (current) {
+								currentState.value = current.seek();
+							}
+							break;
+						}
+						case CHANGE_VARIABLES_OTHER_CHARACTERISTICS.TOTAL_SECONDS_CURRENT_BACKGROUND_MUSIC: {
+							currentState.value = 0;
+							const current = Manager.Songs.current[SONG_KIND.BACKGROUND_SOUND];
+							if (current) {
+								currentState.value = current.seek();
+							}
+							break;
+						}
+					}
+					break;
+				case 10: // Script
+					currentState.value = this.isLocal
+						? (ReactionInterpreter.currentReaction.localVariables.get(this.localVariableName) ?? 0)
+						: Game.current.getVariable(this.selection);
+					currentState.value = Interpreter.evaluate(this.valueScript.getValue() as string, {
+						thisObject: object,
+						additionalName: '$value',
+						additionalValue: currentState.value,
+						addReturn: true,
+					});
+					break;
+				case 11: // Terrain at coordinates
+					// Use the same square and pixel positions as CreateObjectInMap.
+					const position = new Position(
+						this.valueTerrainX.getValue() as number,
+						this.valueTerrainY.getValue() as number,
+						this.valueTerrainZ.getValue() as number,
+						((this.valueTerrainYPlus.getValue() as number) * 100) / Data.Systems.SQUARE_SIZE,
+						0,
+						((this.valueTerrainXPlus.getValue() as number) * 100) / Data.Systems.SQUARE_SIZE,
+						((this.valueTerrainZPlus.getValue() as number) * 100) / Data.Systems.SQUARE_SIZE,
+					).toVector3();
+					currentState.value =
+						this.coordinatesValueType === 0
+							? MapObject.getTerrainAt(position)
+							: MapObject.getIDAt(position);
+					break;
+			}
+		}
+
+		// Apply new value to variable(s)
+		if (currentState.valid) {
+			if (currentState.skip) {
+				return 1;
+			}
+			for (let i = 0, l = this.nbSelection; i < l; i++) {
+				if (this.isLocal) {
+					const localVariables = ReactionInterpreter.currentReaction.localVariables;
+					const result = this.isCreatingLocalVariable
+						? currentState.value
+						: Mathf.OPERATORS_NUMBERS[this.operation](
+								(localVariables.get(this.localVariableName) as number) ?? 0,
+								currentState.value,
+							);
+					localVariables.set(this.localVariableName, this.isFloored ? Math.floor(result) : result);
+				} else {
+					const result = Mathf.OPERATORS_NUMBERS[this.operation](
+						Game.current.getVariable(this.selection + i),
+						currentState.value,
+					);
+					Game.current.variables.set(this.selection + i, this.isFloored ? Math.floor(result) : result);
+				}
+			}
+			return 1;
+		}
+		return 0;
+	}
+}
+
+export { ChangeVariables };

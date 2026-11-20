@@ -1,0 +1,54 @@
+/*
+    RPG Paper Maker Copyright (C) 2017-2026 Wano
+
+    RPG Paper Maker engine is under proprietary license.
+    This source code is also copyrighted.
+
+    Use Commercial edition for commercial use of your games.
+    See RPG Paper Maker EULA here:
+        http://rpg-paper-maker.com/index.php/eula.
+*/
+
+import { SONG_KIND } from '../Common';
+import { MapObject } from '../Core';
+import { EventCommand } from '../index';
+import { Base } from './Base';
+
+/** @class
+ *  An event command for stopping a specified sound.
+ *  @extends EventCommand.Base
+ *  @param {any[]} command - Direct JSON command to parse
+ */
+class StopASound extends Base {
+	constructor(command: any[]) {
+		super();
+
+		EventCommand.StopMusic.parseStopSong(this, command, SONG_KIND.SOUND);
+		this.parallel = true;
+	}
+
+	/**
+	 *  Initialize the current state.
+	 *  @returns {Record<string, any>} The current state
+	 */
+	initialize(): Record<string, any> {
+		return {
+			parallel: false,
+			time: new Date().getTime(),
+		};
+	}
+
+	/**
+	 *  Update and check if the event is finished.
+	 *  @param {Record<string, any>} - currentState The current state of the event
+	 *  @param {MapObject} object - The current object reacting
+	 *  @param {number} state - The state ID
+	 *  @returns {number} The number of node to pass
+	 */
+	update(currentState: Record<string, any>, object: MapObject, state: number): number {
+		const stopped = EventCommand.StopMusic.stopSong(this, SONG_KIND.SOUND, currentState.time);
+		return currentState.parallel ? stopped : 1;
+	}
+}
+
+export { StopASound };
